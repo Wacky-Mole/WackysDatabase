@@ -17,7 +17,6 @@ using BepInEx.Bootstrap;
 //using System;
 
 
-
 namespace recipecustomization
 {
     [BepInPlugin(ModGUID, ModName, ModVersion)]
@@ -60,11 +59,11 @@ namespace recipecustomization
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
+            { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
 
 
 
-
+        
         public void Awake() // start
         {
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
@@ -73,7 +72,7 @@ namespace recipecustomization
             context = this;
             modEnabled = Config.Bind<bool>("General", "Enabled", true, "Enable this mod");
             isDebug = Config.Bind<bool>("General", "IsDebug", true, "Enable debug logs");
-
+           
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), typeof(WMRecipeCust).Namespace);
 
             //testifpossible();
@@ -92,7 +91,7 @@ namespace recipecustomization
             paul.craftingStation = "$piece_workbench";
             paul.amount = 1;
             paul.disabled = false;
-            paul.reqs.InsertRange(1, new string[]
+            paul.reqs.InsertRange(1, new string[] 
             { "Wood:10:5:True", "Resin:4:2:True", "LeatherScraps:4:2:True"});
 
 
