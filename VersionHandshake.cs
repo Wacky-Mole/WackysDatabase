@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 
-namespace ItemManagerModTemplate
+namespace recipecustomization
 {
     [HarmonyPatch(typeof(ZNet), nameof(ZNet.OnNewConnection))]
     public static class RegisterAndCheckVersion
@@ -10,15 +10,15 @@ namespace ItemManagerModTemplate
         private static void Prefix(ZNetPeer peer, ref ZNet __instance)
         {
             // Register version check call
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogDebug("Registering version RPC handler");
-            peer.m_rpc.Register($"{ModTemplatePlugin.ModName}_VersionCheck",
+            WMRecipeCust.WackysRecipeCustomizationLogger.LogDebug("Registering version RPC handler");
+            peer.m_rpc.Register($"{WMRecipeCust.ModName}_VersionCheck",
                 new Action<ZRpc, ZPackage>(RpcHandlers.RPC_PvPAlwaysOn_Version));
 
             // Make calls to check versions
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Invoking version check");
+            WMRecipeCust.WackysRecipeCustomizationLogger.LogInfo("Invoking version check");
             ZPackage zpackage = new();
-            zpackage.Write(ModTemplatePlugin.ModVersion);
-            peer.m_rpc.Invoke($"{ModTemplatePlugin.ModName}_VersionCheck", zpackage);
+            zpackage.Write(WMRecipeCust.ModVersion);
+            peer.m_rpc.Invoke($"{WMRecipeCust.ModName}_VersionCheck", zpackage);
         }
     }
 
@@ -29,7 +29,7 @@ namespace ItemManagerModTemplate
         {
             if (!__instance.IsServer() || RpcHandlers.ValidatedPeers.Contains(rpc)) return true;
             // Disconnect peer if they didn't send mod version at all
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning(
+            WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning(
                 $"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
             rpc.Invoke("Error", 3);
             return false; // Prevent calling underlying method
@@ -48,7 +48,7 @@ namespace ItemManagerModTemplate
         private static void Postfix(FejdStartup __instance)
         {
             if (__instance.m_connectionFailedPanel.activeSelf)
-                __instance.m_connectionFailedError.text += "\n" + ModTemplatePlugin.ConnectionError;
+                __instance.m_connectionFailedError.text += "\n" + WMRecipeCust.ConnectionError;
         }
     }
 
@@ -59,7 +59,7 @@ namespace ItemManagerModTemplate
         {
             if (!__instance.IsServer()) return;
             // Remove peer from validated list
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo(
+            WMRecipeCust.WackysRecipeCustomizationLogger.LogInfo(
                 $"Peer ({peer.m_rpc.m_socket.GetHostName()}) disconnected, removing from validated list");
             _ = RpcHandlers.ValidatedPeers.Remove(peer.m_rpc);
         }
@@ -72,16 +72,16 @@ namespace ItemManagerModTemplate
         public static void RPC_PvPAlwaysOn_Version(ZRpc rpc, ZPackage pkg)
         {
             string? version = pkg.ReadString();
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Version check, local: " +
-                                                                   ModTemplatePlugin.ModVersion +
+            WMRecipeCust.WackysRecipeCustomizationLogger.LogInfo("Version check, local: " +
+                                                                   WMRecipeCust.ModVersion +
                                                                    ",  remote: " + version);
-            if (version != ModTemplatePlugin.ModVersion)
+            if (version != WMRecipeCust.ModVersion)
             {
-                ModTemplatePlugin.ConnectionError =
-                    $"{ModTemplatePlugin.ModName} Installed: {ModTemplatePlugin.ModVersion}\n Needed: {version}";
+                WMRecipeCust.ConnectionError =
+                    $"{WMRecipeCust.ModName} Installed: {WMRecipeCust.ModVersion}\n Needed: {version}";
                 if (!ZNet.instance.IsServer()) return;
                 // Different versions - force disconnect client from server
-                ModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning(
+                WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning(
                     $"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting");
                 rpc.Invoke("Error", 3);
             }
@@ -90,12 +90,12 @@ namespace ItemManagerModTemplate
                 if (!ZNet.instance.IsServer())
                 {
                     // Enable mod on client if versions match
-                    ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Received same version from server!");
+                    WMRecipeCust.WackysRecipeCustomizationLogger.LogInfo("Received same version from server!");
                 }
                 else
                 {
                     // Add client to validated list
-                    ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo(
+                    WMRecipeCust.WackysRecipeCustomizationLogger.LogInfo(
                         $"Adding peer ({rpc.m_socket.GetHostName()}) to validated list");
                     ValidatedPeers.Add(rpc);
                 }
