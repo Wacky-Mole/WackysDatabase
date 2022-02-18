@@ -47,7 +47,7 @@ namespace recipecustomization
         private static bool isaclient = false;
         public static bool Admin = false;
         private static List<string> pieceWithLvl = new List<string>();
-        private static bool startupSync = true;
+        private static int startupSync = 0;
 
         private enum NewDamageTypes
         {
@@ -290,15 +290,15 @@ namespace recipecustomization
             }
         }
 
-        private void CustomSyncEventDetected()
+        private static void CustomSyncEventDetected()
         {
             // load up the files from skillConfigData
             // seperate them
             //reload
             // need to skip first call
-            if (startupSync)
+            if (startupSync > 1)
             {
-                startupSync = false;
+                startupSync++;
             }
             else
             {
@@ -307,22 +307,26 @@ namespace recipecustomization
                 string SyncedString = skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
                 {
+                    WackysRecipeCustomizationLogger.LogDebug("Synced String was  " + SyncedString);
                     string[] jsons = SyncedString.Split('.');
-                    foreach (var word in jsons)
+                    foreach (var word in jsons) 
                     {
                         RecipeData data = JsonUtility.FromJson<RecipeData>(word);
                         recipeDatas.Add(data);
-                        WackysRecipeCustomizationLogger.LogDebug(word);
+                       // WackysRecipeCustomizationLogger.LogDebug(word);
                     }
+                    pieceWithLvl.Clear(); // ready for new
                     foreach (var data in recipeDatas)
                     {
                         SetRecipeData(data);
                     }
-                }else
+                    WackysRecipeCustomizationLogger.LogDebug("done with customSyncEvent");
+                }
+                else
                 {
                     WackysRecipeCustomizationLogger.LogDebug("Synced String was blank " + SyncedString);
                 }
-                //isaclient = true; // don't allow reload
+               // isaclient = true; // don't allow reload
             }
 
         }
@@ -345,7 +349,7 @@ namespace recipecustomization
             }
 
             jsonstring = amber.ToString();
-            skillConfigData.Value = jsonstring;
+           // skillConfigData.Value = jsonstring; Only for server 1st time
             //WackysRecipeCustomizationLogger.LogDebug(jsonstring);
         }
         private static void GetRecipeDataFromFilesForServer()
@@ -407,8 +411,8 @@ namespace recipecustomization
                             GameObject temp = GetPieces().Find(g => Utils.GetPrefabName(g) == worktablename);
                             var name = temp.GetComponent<Piece>().m_name;
                             __instance.Message(MessageHud.MessageType.Center, "Need a Level " + CraftingStationlvl + " " + name + " for placement");
-                            var josh = skillConfigData.Value;
-                            WackysRecipeCustomizationLogger.LogDebug("Synced String  " + josh);
+                            //var josh = skillConfigData.Value;
+                           // WackysRecipeCustomizationLogger.LogDebug("Synced String  " + josh);
 
                             //piecehaslvl = false;
                             return false;
@@ -449,11 +453,13 @@ namespace recipecustomization
                     ObjectDB.instance.m_recipes[i].m_minStationLevel = data.minStationLevel;
                     ObjectDB.instance.m_recipes[i].m_craftingStation = GetCraftingStation(data.craftingStation);
                     List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+                   // Dbgl("Made it to RecipeData!");
                     foreach (string req in data.reqs)
                     {
                         string[] parts = req.Split(':');
                         reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
                     }
+                    Dbgl("Amost done with RecipeData!");
                     ObjectDB.instance.m_recipes[i].m_resources = reqs.ToArray();
                     return;
                 }
@@ -495,19 +501,21 @@ namespace recipecustomization
 
             go.GetComponent<Piece>().m_craftingStation = GetCraftingStation(data.craftingStation);
             //List<string> helpme = new List<string>();
-            if(data.minStationLevel > 1 )
+            
+            if (data.minStationLevel > 1 )
             {
                pieceWithLvl.Add(go.name + "." + data.minStationLevel);
            }
             List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-            
+           // Dbgl("made it to setpiece");
             foreach (string req in data.reqs)
             {
                 string[] parts = req.Split(':');
                 reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
             }
+            //Dbgl("Amost done with setpiece!");
             go.GetComponent<Piece>().m_resources = reqs.ToArray();
-
+            Dbgl("done with setpiece!");
         }
 
         private static CraftingStation GetCraftingStation(string name)
