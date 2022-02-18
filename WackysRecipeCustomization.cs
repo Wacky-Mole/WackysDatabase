@@ -2,6 +2,7 @@
 // Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate
 // Thanks to the Odin Discord server, for being active and good for the valheim community.
 // Do whatever you want with this mod. // except sale it as per Aedenthorn Permissions https://www.nexusmods.com/valheim/mods/1245
+// Goal for this mod is RecipeCustomization + Recipe LVL station Requirement + Server Sync
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -41,7 +42,12 @@ namespace recipecustomization
 
         private static List<RecipeData> recipeDatas = new List<RecipeData>();
         private static string assetPath;
-
+        RecipeData paul = new RecipeData();
+        private static string jsonstring;
+        private static bool isaclient = false;
+        public static bool Admin = false;
+        private static List<string> pieceWithLvl = new List<string>();
+        private static bool startupSync = true;
 
         private enum NewDamageTypes
         {
@@ -59,56 +65,57 @@ namespace recipecustomization
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-            { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
+        { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
 
 
 
-        
+
         public void Awake() // start
         {
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
             // ^^ // starting files
             context = this;
-            modEnabled = Config.Bind<bool>("General", "Enabled", true, "Enable this mod");
-            isDebug = Config.Bind<bool>("General", "IsDebug", true, "Enable debug logs");
-           
+            modEnabled = config<bool>("General", "Enabled", true, "Enable this mod");
+            isDebug= config<bool>("General", "IsDebug", true, "Enable debug logs", false);
+
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), typeof(WMRecipeCust).Namespace);
 
             //testifpossible();
+            //WackysRecipeCustomizationLogger.LogDebug("testing logger");
 
             // ending files
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
             SetupWatcher();
+            GetRecipeDataFromFilesForServer();
+           skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
         }
 
         private void testifpossible()
         {
-            RecipeData paul = new RecipeData();
+
             paul.minStationLevel = 1;
             paul.name = "ShieldWood";
             paul.craftingStation = "$piece_workbench";
             paul.amount = 1;
             paul.disabled = false;
-            paul.reqs.InsertRange(1, new string[] 
-            { "Wood:10:5:True", "Resin:4:2:True", "LeatherScraps:4:2:True"});
-
+            // paul.reqs.InsertRange(3, new string[] 
+            // { "Wood:10:5:True", "Resin:4:2:True", "LeatherScraps:4:2:True"});
+            //skillConfigData.Value = paul;
 
 
             //after files have been loaded
             // for loop for each loaded
-            masterSyncJson[1] = config("Recipes", "RecipeN1", paul,
-                "RecipeD1");
-            masterSyncJson[2] = config("Recipes", "RecipeN2", paul,
-                "RecipeD2");
+           // masterSyncJson = config("Recipes", "RecipeN1", paul, "RecipeD1");
+            //masterSyncJson = config("Recipes", "RecipeN2", paul,
 
         }
-
         private void OnDestroy()
         {
             Config.Save();
         }
+
 
         private void SetupWatcher()
         {
@@ -137,10 +144,12 @@ namespace recipecustomization
         }
 
 
-        #region AzumattDev ConfigOptions
+        #region AzumattDev Or ConfigOptions
 
         private static ConfigEntry<bool>? _serverConfigLocked;
-        internal static ConfigEntry<RecipeData>[] masterSyncJson;
+        //internal static ConfigEntry<RecipeData> masterSyncJson; // doesn't work
+        private static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
+
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
             bool synchronizedSetting = true)
@@ -219,10 +228,10 @@ namespace recipecustomization
                 }
                 else if (text.ToLower().StartsWith($"{typeof(WMRecipeCust).Namespace.ToLower()}"))
                 {
-                    string output = $"{context.Info.Metadata.Name} reset\r\n"
-                    + $"{context.Info.Metadata.Name} reload\r\n"
-                    + $"{context.Info.Metadata.Name} dump <ItemName>\r\n"
-                    + $"{context.Info.Metadata.Name} save <ItemName>";
+                    string output = $"recipecustomization reset\r\n"
+                    + $"recipecustomization reload\r\n"
+                    + $"recipecustomization dump <ItemName>\r\n"
+                    + $"recipecustomization save <ItemName>";
 
                     AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { text });
                     AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { output });
@@ -244,8 +253,7 @@ namespace recipecustomization
         }
 
         #endregion
-        #region AedenthornMod
-
+        #region Mostly AedenthornMod
 
         [HarmonyPatch(typeof(ZNetScene), "Awake")]
         [HarmonyPriority(Priority.Last)]
@@ -268,12 +276,55 @@ namespace recipecustomization
 
         private static void LoadAllRecipeData(bool reload)
         {
-            if (reload)
-                GetRecipeDataFromFiles();
-            foreach (var data in recipeDatas)
-            {
-                SetRecipeData(data);
+            if (isaclient)
+            { // log You are a client and not an admin
+                WackysRecipeCustomizationLogger.LogError("You are a client and not the Server. Cannot reload recipes");
             }
+            else { 
+                if (reload)
+                    GetRecipeDataFromFiles();
+                foreach (var data in recipeDatas)
+                {
+                    SetRecipeData(data);
+                }
+            }
+        }
+
+        private void CustomSyncEventDetected()
+        {
+            // load up the files from skillConfigData
+            // seperate them
+            //reload
+            // need to skip first call
+            if (startupSync)
+            {
+                startupSync = false;
+            }
+            else
+            {
+                WackysRecipeCustomizationLogger.LogDebug("CustomSyncEventDetected was called ");
+                recipeDatas.Clear();
+                string SyncedString = skillConfigData.Value;
+                if (SyncedString != null && SyncedString != "")
+                {
+                    string[] jsons = SyncedString.Split('.');
+                    foreach (var word in jsons)
+                    {
+                        RecipeData data = JsonUtility.FromJson<RecipeData>(word);
+                        recipeDatas.Add(data);
+                        WackysRecipeCustomizationLogger.LogDebug(word);
+                    }
+                    foreach (var data in recipeDatas)
+                    {
+                        SetRecipeData(data);
+                    }
+                }else
+                {
+                    WackysRecipeCustomizationLogger.LogDebug("Synced String was blank " + SyncedString);
+                }
+                //isaclient = true; // don't allow reload
+            }
+
         }
 
         private static void GetRecipeDataFromFiles()
@@ -281,21 +332,92 @@ namespace recipecustomization
             CheckModFolder();
 
             recipeDatas.Clear();
+            var amber = new System.Text.StringBuilder();
+            //JsonSerializer.Serialize
 
             foreach (string file in Directory.GetFiles(assetPath, "*.json"))
             {
                 RecipeData data = JsonUtility.FromJson<RecipeData>(File.ReadAllText(file));
+                amber.Append(File.ReadAllText(file));
+                amber.Append(".");
                 recipeDatas.Add(data);
+                
             }
+
+            jsonstring = amber.ToString();
+            skillConfigData.Value = jsonstring;
+            //WackysRecipeCustomizationLogger.LogDebug(jsonstring);
+        }
+        private static void GetRecipeDataFromFilesForServer()
+        {
+            CheckModFolder();
+            var amber = new System.Text.StringBuilder();
+            foreach (string file in Directory.GetFiles(assetPath, "*.json"))
+            {
+                amber.Append(File.ReadAllText(file));
+                amber.Append(".");
+            }
+            jsonstring = amber.ToString();
+            skillConfigData.Value = jsonstring;
+            WackysRecipeCustomizationLogger.LogDebug("loaded first pass files");
         }
 
-        private static void CheckModFolder()
+            private static void CheckModFolder()
         {
             if (!Directory.Exists(assetPath))
             {
                 Dbgl("Creating mod folder");
                 Directory.CreateDirectory(assetPath);
             }
+        }
+        private static Vector3 tempvalue;
+        private static bool piecehaslvl;
+
+        [HarmonyPatch(typeof(Player), "PlacePiece")]
+        private static class Player_MessageforPortal_Patch
+        {
+            [HarmonyPrefix]
+            private static bool Prefix(ref Player __instance, ref Piece piece)
+
+            {
+                if (piece == null) return true;
+                foreach (var item in pieceWithLvl)
+                {
+                    var stringwithnumber = item.Split('.');
+                    var PiecetoLookFor = stringwithnumber[0];
+                    int CraftingStationlvl = int.Parse(stringwithnumber[1]);
+
+                    if (piece.name == PiecetoLookFor && !__instance.m_noPlacementCost) // portal
+                    {
+                        if (__instance.transform.position != null)
+                            tempvalue = __instance.transform.position; // save position //must be assigned
+                        else
+                            tempvalue = new Vector3(0, 0, 0); // shouldn't ever be called 
+
+                        var paulstation = CraftingStation.HaveBuildStationInRange(piece.m_craftingStation.m_name, tempvalue);
+                        var paullvl = paulstation.GetLevel();
+
+                        if (paullvl + 1 > CraftingStationlvl) // just for testing
+                        {
+                           // piecehaslvl = true;
+                        }
+                        else
+                        {
+                            string worktablename = piece.m_craftingStation.name;
+                            GameObject temp = GetPieces().Find(g => Utils.GetPrefabName(g) == worktablename);
+                            var name = temp.GetComponent<Piece>().m_name;
+                            __instance.Message(MessageHud.MessageType.Center, "Need a Level " + CraftingStationlvl + " " + name + " for placement");
+                            var josh = skillConfigData.Value;
+                            WackysRecipeCustomizationLogger.LogDebug("Synced String  " + josh);
+
+                            //piecehaslvl = false;
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
         }
 
         private static void SetRecipeData(RecipeData data)
@@ -368,16 +490,24 @@ namespace recipecustomization
                     hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
                     return;
                 }
+               
             }
 
             go.GetComponent<Piece>().m_craftingStation = GetCraftingStation(data.craftingStation);
+            //List<string> helpme = new List<string>();
+            if(data.minStationLevel > 1 )
+            {
+               pieceWithLvl.Add(go.name + "." + data.minStationLevel);
+           }
             List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+            
             foreach (string req in data.reqs)
             {
                 string[] parts = req.Split(':');
                 reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
             }
             go.GetComponent<Piece>().m_resources = reqs.ToArray();
+
         }
 
         private static CraftingStation GetCraftingStation(string name)
@@ -391,16 +521,22 @@ namespace recipecustomization
             {
                 if (recipe?.m_craftingStation?.m_name == name)
                 {
+                    
                     Dbgl("got crafting station " + name);
+                   
                     return recipe.m_craftingStation;
                 }
             }
             foreach (GameObject piece in GetPieces())
             {
+
                 if (piece.GetComponent<Piece>()?.m_craftingStation?.m_name == name)
                 {
+                    
                     Dbgl("got crafting station " + name);
+  
                     return piece.GetComponent<Piece>().m_craftingStation;
+                    
                 }
             }
 
