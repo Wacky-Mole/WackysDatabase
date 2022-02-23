@@ -31,6 +31,9 @@ namespace recipecustomization
         private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
+        public static ConfigEntry<bool> isSinglePlayer;
+        private static bool issettoSinglePlayer;
+        private static bool recieveServerInfo = false;
         internal static string ConnectionError = "";
         private static WMRecipeCust context;
         //public static string consoleNamespace = "recipecustomization";
@@ -78,7 +81,19 @@ namespace recipecustomization
             context = this;
             modEnabled = config<bool>("General", "Enabled", true, "Enable this mod");
             isDebug= config<bool>("General", "IsDebug", true, "Enable debug logs", false);
+            isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
+            if (isSinglePlayer.Value)
+            {
+                ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+                WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + ConfigSync.CurrentVersion);
+                issettoSinglePlayer = true;
+            }
+            else
+            {
+                issettoSinglePlayer = false;
+            }
 
+      
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), typeof(WMRecipeCust).Namespace);
 
             //testifpossible();
@@ -174,7 +189,7 @@ namespace recipecustomization
         {
             static bool Prefix(Terminal __instance)
             {
-                if (!modEnabled.Value)
+                if (!modEnabled.Value && issettoSinglePlayer)
                     return true;
 
                 string text = __instance.m_input.text;
@@ -280,12 +295,21 @@ namespace recipecustomization
             { // log You are a client and not an admin
                 WackysRecipeCustomizationLogger.LogError("You are a client and not the Server. Cannot reload recipes");
             }
-            else { 
-                if (reload)
-                    GetRecipeDataFromFiles();
-                foreach (var data in recipeDatas)
+            else {
+                if (reload && (issettoSinglePlayer || recieveServerInfo)) // single player only or recievedServerInfo
                 {
-                    SetRecipeData(data);
+                    if ((recieveServerInfo && issettoSinglePlayer))
+                    {
+                        return; // naughty boy no recipes for you
+                    }
+                    else
+                    {
+                        GetRecipeDataFromFiles();
+                        foreach (var data in recipeDatas)
+                        {
+                            SetRecipeData(data);
+                        }
+                    }
                 }
             }
         }
@@ -299,6 +323,7 @@ namespace recipecustomization
             if (startupSync > 1)
             {
                 startupSync++;
+                recieveServerInfo = true;
             }
             else
             {

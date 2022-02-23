@@ -96,6 +96,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="RecipeData.cs" />
     <Compile Include="ItemManager.cs" />
     <Compile Include="WackysRecipeCustomization.cs" />
