@@ -21,6 +21,7 @@ using System.Linq;
 using PieceManager;
 using System.Security.Cryptography;
 using System.Text;
+using UnityEngine.SceneManagement;
 
 
 
@@ -30,7 +31,7 @@ namespace recipecustomization
     [BepInPlugin(ModGUID, ModName, ModVersion)]
     public class WMRecipeCust : BaseUnityPlugin
     {
-        internal const string ModName = "WackysRecipeCustomization";
+        internal const string ModName = "WackysDatabase";
         internal const string ModVersion = "1.0.0";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
@@ -77,7 +78,7 @@ namespace recipecustomization
         public static void Dbgl(string str = "", bool pref = true)
         {
             if (isDebug.Value)
-                Debug.Log((pref ? typeof(WMRecipeCust).Namespace + " " : "") + str);
+                Debug.Log((pref ? ModName + " " : "") + str);
         }
 
         private readonly Harmony _harmony = new(ModGUID);
@@ -95,9 +96,8 @@ namespace recipecustomization
         public void Awake() // start
         {
             StartupConfig(); // startup varables 
-            assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), typeof(WMRecipeCust).Namespace);
+            assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
 
-            //testifpossible();
 
 
             // ending files
@@ -108,25 +108,6 @@ namespace recipecustomization
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
         }
 
-        private void testifpossible() // delete
-        {
-
-            paul.minStationLevel = 1;
-            paul.name = "ShieldWood";
-            paul.craftingStation = "$piece_workbench";
-            paul.amount = 1;
-            paul.disabled = false;
-            // paul.reqs.InsertRange(3, new string[] 
-            // { "Wood:10:5:True", "Resin:4:2:True", "LeatherScraps:4:2:True"});
-            //skillConfigData.Value = paul;
-
-
-            //after files have been loaded
-            // for loop for each loaded
-            // masterSyncJson = config("Recipes", "RecipeN1", paul, "RecipeD1");
-            //masterSyncJson = config("Recipes", "RecipeN2", paul,
-
-        }
 
         #region ConfigReading
 
@@ -403,7 +384,7 @@ namespace recipecustomization
             if (go == null)
             {
                 SetPieceRecipeData(data);
-                Dbgl("maybe null " + data.name);
+               // Dbgl("maybe null " + data.name);
                 return;
             }
             if (go.GetComponent<ItemDrop>() == null)
@@ -412,7 +393,7 @@ namespace recipecustomization
                 return;
             } // it is a prefab and it is an item.
             //if (data.)
-
+            Dbgl("Setting Recipe for "+ data.name);
             for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
             {
                 if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
@@ -434,7 +415,7 @@ namespace recipecustomization
                         string[] parts = req.Split(':');
                         reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
                     }
-                    Dbgl("Amost done with RecipeData!");
+                   // Dbgl("Amost done with RecipeData!");
                     ObjectDB.instance.m_recipes[i].m_resources = reqs.ToArray();
                     return;
                 } // end check if actually an recipe
@@ -473,7 +454,7 @@ namespace recipecustomization
                 }
 
             }
-
+            Dbgl("Setting Piece data for " + data.name);
             go.GetComponent<Piece>().m_craftingStation = GetCraftingStation(data.craftingStation);
             //List<string> helpme = new List<string>();
 
@@ -490,12 +471,12 @@ namespace recipecustomization
             }
             //Dbgl("Amost done with setpiece!");
             go.GetComponent<Piece>().m_resources = reqs.ToArray();
-            Dbgl("done with setpiece!");
+           // Dbgl("done with setpiece!");
         }
 
         private static void SetItemData(WItemData data)
         {
-            Dbgl("Loaded SetItemData!");
+           // Dbgl("Loaded SetItemData!");
             string tempname = "";
             if (data.clone)
             {
@@ -571,7 +552,7 @@ namespace recipecustomization
                     PrimaryItemData.m_shared.m_description = data.m_description;
                     PrimaryItemData.m_shared.m_weight = data.m_weight;
                     PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize;
-                    PrimaryItemData.m_shared.m_food = data.m_food;
+                    PrimaryItemData.m_shared.m_food = data.m_foodHealth;
                     PrimaryItemData.m_shared.m_foodStamina = data.m_foodStamina;
                     PrimaryItemData.m_shared.m_foodRegen = data.m_foodRegen;
                     PrimaryItemData.m_shared.m_foodBurnTime = data.m_foodBurnTime;
@@ -606,7 +587,7 @@ namespace recipecustomization
                 }
 
             }
-            Dbgl("Amost done with SetItemData!");
+           // Dbgl("Amost done with SetItemData!");
 
         }
 
@@ -618,15 +599,15 @@ namespace recipecustomization
         {
             if (name == "" || name == null)
                 return null;
-
-            Dbgl("Looking for crafting station " + name);
+                
+            //Dbgl("Looking for crafting station " + name);
 
             foreach (Recipe recipe in ObjectDB.instance.m_recipes)
             {
                 if (recipe?.m_craftingStation?.m_name == name)
                 {
 
-                    Dbgl("got crafting station " + name);
+                  //  Dbgl("got crafting station " + name);
 
                     return recipe.m_craftingStation;
                 }
@@ -637,7 +618,7 @@ namespace recipecustomization
                 if (piece.GetComponent<Piece>()?.m_craftingStation?.m_name == name)
                 {
 
-                    Dbgl("got crafting station " + name);
+                   // Dbgl("got crafting station " + name);
 
                     return piece.GetComponent<Piece>().m_craftingStation;
 
@@ -775,10 +756,13 @@ namespace recipecustomization
 
 
             WDamages damages = null;
+            Dbgl("Item "+ name + " data.m_shared.m_damages.mslash" + data.m_shared.m_damages.m_slash);
             if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
             {
+                Dbgl("Item " + name + " damage on ");
                 damages = new WDamages
                 {
+
                     m_blunt = data.m_shared.m_damages.m_blunt,
                     m_chop = data.m_shared.m_damages.m_chop,
                     m_damage = data.m_shared.m_damages.m_damage,
@@ -825,7 +809,7 @@ namespace recipecustomization
                 m_durabilityDrain = data.m_shared.m_durabilityDrain,
                 m_durabilityPerLevel = data.m_shared.m_durabilityPerLevel,
                 m_equipDuration = data.m_shared.m_equipDuration,
-                m_food = data.m_shared.m_food,
+                m_foodHealth = data.m_shared.m_food,
                 m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
                 m_foodBurnTime = data.m_shared.m_foodBurnTime,
                 m_foodRegen = data.m_shared.m_foodRegen,
@@ -850,10 +834,14 @@ namespace recipecustomization
                 m_teleportable = data.m_shared.m_teleportable,
                 m_timedBlockBonus = data.m_shared.m_timedBlockBonus
             };
-            if (jItemData.m_food == 0f && jItemData.m_foodRegen == 0f && jItemData.m_foodStamina == 0f)
+            Dbgl("Item " + name + " damages " + damages.m_slash); // I think damages is being overwritten?
+            if (jItemData.m_foodHealth == 0f && jItemData.m_foodRegen == 0f && jItemData.m_foodStamina == 0f)
             {
                 jItemData.m_foodColor = null;
             }
+            jItemData.m_damages = damages;
+            jItemData.m_damagesPerLevel = damagesPerLevel;
+
             return jItemData;
 
         }
@@ -904,9 +892,10 @@ namespace recipecustomization
                 WackysRecipeCustomizationLogger.LogDebug("Patching Updated Console Commands");
 
                 if (!modEnabled.Value && issettoSinglePlayer)
-                    return; ;
+                    return;
+                if (SceneManager.GetActiveScene().name != "main") return; // can't do anything from main
 
-               Terminal.ConsoleCommand WackyShowcommands =
+                Terminal.ConsoleCommand WackyShowcommands =
                     new("wackydb", "Display Help ",
                         args =>
                         {
@@ -957,12 +946,15 @@ namespace recipecustomization
                              if (ObjectDB.instance)
                              {
                                  LoadAllRecipeData(true);
-                                 args.Context?.AddString($"WackyDatabase reloaded recipes from files");
+                                 args.Context?.AddString($"WackyDatabase reloaded recipes/items from files");
+                                 Dbgl("WackyDatabase reloaded recipes/items from files");
                              }
                              else
                              {
-                                 args.Context?.AddString($"WackyDatabase reloaded recipes from files"); // maybe?
+                                 args.Context?.AddString($"WackyDatabase did NOT reload recipes/items from files"); // maybe?
+                                 Dbgl("WackyDatabase did NOT reload recipes/items from files");
                              }
+                             
                          });
 
                 Terminal.ConsoleCommand WackyDump =
@@ -1029,10 +1021,6 @@ namespace recipecustomization
                     
 
                         });
-
-
-
-
 
 
 

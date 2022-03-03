@@ -1,4 +1,7 @@
-﻿public class WDamages
+﻿using System;
+
+[Serializable]
+public class WDamages
 {
 	public float m_blunt;
 
@@ -21,4 +24,13 @@
 	public float m_slash;
 
 	public float m_spirit;
+}
+
+[Serializable]
+public class WIngredients
+{
+	public string id;
+	public int amount;
+	public int amountPerLevel;
+
 }

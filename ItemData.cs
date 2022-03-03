@@ -1,4 +1,8 @@
-﻿public class WItemData
+﻿using System;
+using recipecustomization;
+
+[Serializable]
+public class WItemData
 {
 	public string name;
 
@@ -18,7 +22,7 @@
 
 	public int m_maxStackSize;
 
-	public float m_food;
+	public float m_foodHealth;
 
 	public float m_foodStamina;
 
