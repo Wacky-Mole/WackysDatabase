@@ -68,6 +68,10 @@
     <Reference Include="BepInEx, Version=5.4.17.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="PieceManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Libs\PieceManager.dll</HintPath>
+    </Reference>
     <Reference Include="ServerSync, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>Libs\ServerSync.dll</HintPath>
     </Reference>
@@ -96,16 +100,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="color.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
+    <Compile Include="ItemData.cs" />
+    <Compile Include="Patches.cs" />
     <Compile Include="RecipeData.cs" />
     <Compile Include="ItemManager.cs" />
+    <Compile Include="VersionHandshake.cs" />
     <Compile Include="WackysRecipeCustomization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VersionHandshake.cs" />
+    <Compile Include="WDamages.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="ILRepack.targets" />
+    <Content Include="Libs\PieceManager.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Libs\ServerSync.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
