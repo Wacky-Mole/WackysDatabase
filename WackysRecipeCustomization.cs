@@ -22,9 +22,8 @@ using PieceManager;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine.SceneManagement;
-
-
-
+using System;
+using System.Globalization;
 
 namespace recipecustomization
 {
@@ -56,7 +55,7 @@ namespace recipecustomization
         public static ConfigEntry<string> waterModifierName;
 
         private static List<RecipeData> recipeDatas = new List<RecipeData>();
-        private static List<WItemData> ItemDatas = new List<WItemData>();
+        public static List<WItemData> ItemDatas = new List<WItemData>();
         private static string assetPath;
         RecipeData paul = new RecipeData();
         private static string jsonstring;
@@ -307,16 +306,26 @@ namespace recipecustomization
             recipeDatas.Clear();
             ItemDatas.Clear();
             var amber = new System.Text.StringBuilder();
+
             //JsonSerializer.Serialize
 
             foreach (string file in Directory.GetFiles(assetPath, "*.json"))
             {
-                if (file.Contains("Item") || file.Contains("item"))
+                if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
                 {
-                    WItemData data = JsonUtility.FromJson<WItemData>(File.ReadAllText(file));
+                    //Items = new List<WDamages>();
+                     WItemData data = JsonUtility.FromJson<WItemData>(File.ReadAllText(file));
+
+                    //string content = File.ReadAllText(file);
+                   // string[] divide = content.Split('}');
+                   // WItemData data = JsonUtility.FromJson<WItemData>(content);
                     amber.Append(File.ReadAllText(file));
                     amber.Append("@");
+                   // WItemData data = JsonUtility.FromJson<WItemData>(divide[0]);
+
+
                     ItemDatas.Add(data);
+                    WackysRecipeCustomizationLogger.LogDebug("damages in file read "+data.m_damages);
 
                 }
                 else
@@ -516,8 +525,36 @@ namespace recipecustomization
 
                     }
                     Dbgl($"Item being Set in SetItemData for {data.name} ");
-                    if (data.m_damages != null)
+                    /*Dbgl($"Itemdamage for SetItemData for {data.m_damages.m_slash} ");
+                    foreach (PropertyInfo prop in typeof(WDamages).GetProperties())
                     {
+                        Dbgl($"Itemdamage for SetItemData for {data.name} is " + prop.GetValue(data.m_damages, null));
+                    }
+                    */
+
+                    if (data.m_damages != null && data.m_damages != "")
+                    {
+                        Dbgl($"Item damge is not empty for {data.name} ");
+                        // has to be in order, should be
+                        char[] delims = new[] { ',' };
+                        string[] divideme = data.m_damages.Split(delims, StringSplitOptions.RemoveEmptyEntries);
+                        //Dbgl($"Item damge for 0 {divideme[0]} " + $" Item damge for 10 {divideme[10]} ");
+                        HitData.DamageTypes damages = default(HitData.DamageTypes);
+                        damages.m_blunt = stringtoFloat(divideme[0]);
+                        damages.m_chop = stringtoFloat(divideme[1]);
+                        damages.m_damage = stringtoFloat(divideme[2]);
+                        damages.m_fire = stringtoFloat(divideme[3]);
+                        damages.m_frost = stringtoFloat(divideme[4]);
+                        damages.m_lightning = stringtoFloat(divideme[5]);
+                        damages.m_pickaxe = stringtoFloat(divideme[6]);
+                        damages.m_pierce = stringtoFloat(divideme[7]);
+                        damages.m_poison = stringtoFloat(divideme[8]);
+                        damages.m_slash = stringtoFloat(divideme[9]);
+                        damages.m_spirit = stringtoFloat(divideme[10]);
+                        PrimaryItemData.m_shared.m_damages = damages;
+
+
+                        /*
                         HitData.DamageTypes damages = default(HitData.DamageTypes);
                         damages.m_blunt = data.m_damages.m_blunt;
                         damages.m_chop = data.m_damages.m_chop;
@@ -531,21 +568,25 @@ namespace recipecustomization
                         damages.m_slash = data.m_damages.m_slash;
                         damages.m_spirit = data.m_damages.m_spirit;
                         PrimaryItemData.m_shared.m_damages = damages;
+                        */
                     }
-                    if (data.m_damagesPerLevel != null)
+                    if (data.m_damagesPerLevel != null && data.m_damagesPerLevel != "")
                     {
+                        char[] delims = new[] { ',' };
+                        string[] divideme = data.m_damagesPerLevel.Split(delims, StringSplitOptions.RemoveEmptyEntries);
+
                         HitData.DamageTypes damagesPerLevel = default(HitData.DamageTypes);
-                        damagesPerLevel.m_blunt = data.m_damagesPerLevel.m_blunt;
-                        damagesPerLevel.m_chop = data.m_damagesPerLevel.m_chop;
-                        damagesPerLevel.m_damage = data.m_damagesPerLevel.m_damage;
-                        damagesPerLevel.m_fire = data.m_damagesPerLevel.m_fire;
-                        damagesPerLevel.m_frost = data.m_damagesPerLevel.m_frost;
-                        damagesPerLevel.m_lightning = data.m_damagesPerLevel.m_lightning;
-                        damagesPerLevel.m_pickaxe = data.m_damagesPerLevel.m_pickaxe;
-                        damagesPerLevel.m_pierce = data.m_damagesPerLevel.m_pierce;
-                        damagesPerLevel.m_poison = data.m_damagesPerLevel.m_poison;
-                        damagesPerLevel.m_slash = data.m_damagesPerLevel.m_slash;
-                        damagesPerLevel.m_spirit = data.m_damagesPerLevel.m_spirit;
+                        damagesPerLevel.m_blunt = stringtoFloat(divideme[0]);
+                        damagesPerLevel.m_chop = stringtoFloat(divideme[1]);
+                        damagesPerLevel.m_damage = stringtoFloat(divideme[2]);
+                        damagesPerLevel.m_fire = stringtoFloat(divideme[3]);
+                        damagesPerLevel.m_frost = stringtoFloat(divideme[4]);
+                        damagesPerLevel.m_lightning = stringtoFloat(divideme[5]);
+                        damagesPerLevel.m_pickaxe = stringtoFloat(divideme[6]);
+                        damagesPerLevel.m_pierce = stringtoFloat(divideme[7]);
+                        damagesPerLevel.m_poison = stringtoFloat(divideme[8]);
+                        damagesPerLevel.m_slash = stringtoFloat(divideme[9]);
+                        damagesPerLevel.m_spirit = stringtoFloat(divideme[10]);
                         PrimaryItemData.m_shared.m_damagesPerLevel = damagesPerLevel;
                     }
                     PrimaryItemData.m_shared.m_name = data.m_name;
@@ -756,11 +797,12 @@ namespace recipecustomization
 
 
             WDamages damages = null;
-            Dbgl("Item "+ name + " data.m_shared.m_damages.mslash" + data.m_shared.m_damages.m_slash);
+            string damagestring ="";
+           // Dbgl("Item "+ name + " data.m_shared.m_damages.mslash" + data.m_shared.m_damages.m_slash);
             if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
             {
                 Dbgl("Item " + name + " damage on ");
-                damages = new WDamages
+                damages = new WDamages // not used
                 {
 
                     m_blunt = data.m_shared.m_damages.m_blunt,
@@ -775,11 +817,26 @@ namespace recipecustomization
                     m_slash = data.m_shared.m_damages.m_slash,
                     m_spirit = data.m_shared.m_damages.m_spirit
                 };
+                 damagestring = $"m_blunt:{data.m_shared.m_damages.m_blunt},"
+                + $"m_chop:{data.m_shared.m_damages.m_chop},"
+                + $"m_damage:{data.m_shared.m_damages.m_damage},"
+                + $"m_fire:{data.m_shared.m_damages.m_fire},"
+                + $"m_frost:{data.m_shared.m_damages.m_frost},"
+                + $"m_lightning:{data.m_shared.m_damages.m_lightning},"
+                + $"m_pickaxe:{data.m_shared.m_damages.m_pickaxe},"
+                + $"m_pierce:{data.m_shared.m_damages.m_pierce},"
+                + $"m_poison:{data.m_shared.m_damages.m_poison},"
+                + $"m_slash:{data.m_shared.m_damages.m_slash},"
+                + $"m_spirit:{data.m_shared.m_damages.m_spirit},"
+
+                ;
+                damagestring = damagestring.Replace(",", ", " );
             }
             WDamages damagesPerLevel = null;
+            string damgelvlstring = "";
             if (data.m_shared.m_damagesPerLevel.m_blunt > 0f || data.m_shared.m_damagesPerLevel.m_chop > 0f || data.m_shared.m_damagesPerLevel.m_damage > 0f || data.m_shared.m_damagesPerLevel.m_fire > 0f || data.m_shared.m_damagesPerLevel.m_frost > 0f || data.m_shared.m_damagesPerLevel.m_lightning > 0f || data.m_shared.m_damagesPerLevel.m_pickaxe > 0f || data.m_shared.m_damagesPerLevel.m_pierce > 0f || data.m_shared.m_damagesPerLevel.m_poison > 0f || data.m_shared.m_damagesPerLevel.m_slash > 0f || data.m_shared.m_damagesPerLevel.m_spirit > 0f)
             {
-                damagesPerLevel = new WDamages
+                damagesPerLevel = new WDamages // not used
                 {
                     m_blunt = data.m_shared.m_damagesPerLevel.m_blunt,
                     m_chop = data.m_shared.m_damagesPerLevel.m_chop,
@@ -792,8 +849,29 @@ namespace recipecustomization
                     m_poison = data.m_shared.m_damagesPerLevel.m_poison,
                     m_slash = data.m_shared.m_damagesPerLevel.m_slash,
                     m_spirit = data.m_shared.m_damagesPerLevel.m_spirit
-                };
+                };           
+                 damgelvlstring = $"m_blunt:{data.m_shared.m_damagesPerLevel.m_blunt},"
+                + $"m_chop:{data.m_shared.m_damagesPerLevel.m_chop},"
+                + $"m_damage:{data.m_shared.m_damagesPerLevel.m_damage},"
+                + $"m_fire:{data.m_shared.m_damagesPerLevel.m_fire},"
+                + $"m_frost:{data.m_shared.m_damagesPerLevel.m_frost},"
+                + $"m_lightning:{data.m_shared.m_damagesPerLevel.m_lightning},"
+                + $"m_pickaxe:{data.m_shared.m_damagesPerLevel.m_pickaxe},"
+                + $"m_pierce:{data.m_shared.m_damagesPerLevel.m_pierce},"
+                + $"m_poison:{data.m_shared.m_damagesPerLevel.m_poison},"
+                + $"m_slash:{data.m_shared.m_damagesPerLevel.m_slash},"
+                + $"m_spirit:{data.m_shared.m_damagesPerLevel.m_spirit},"
+
+                ;
+                damgelvlstring = damgelvlstring.Replace(",", ", " );
             }
+            /*
+             * f
+            foreach (Piece.Requirement req in piece.m_resources) // maybe use in future
+            {
+                data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
+            }*/
+
             WItemData jItemData = new WItemData
             {
 
@@ -827,22 +905,21 @@ namespace recipecustomization
                 m_destroyBroken = data.m_shared.m_destroyBroken,
                 m_dodgeable = data.m_shared.m_dodgeable,
                 m_canBeReparied = data.m_shared.m_canBeReparied,
-                m_damages = damages,
-                m_damagesPerLevel = damagesPerLevel,
+                m_damages = damagestring,
+                m_damagesPerLevel = damgelvlstring,
                 m_name = data.m_shared.m_name,
                 m_questItem = data.m_shared.m_questItem,
                 m_teleportable = data.m_shared.m_teleportable,
                 m_timedBlockBonus = data.m_shared.m_timedBlockBonus
             };
-            Dbgl("Item " + name + " damages " + damages.m_slash); // I think damages is being overwritten?
+           // Dbgl("Item " + name + " damages " + damages.m_slash); // I think damages is being overwritten?
             if (jItemData.m_foodHealth == 0f && jItemData.m_foodRegen == 0f && jItemData.m_foodStamina == 0f)
             {
                 jItemData.m_foodColor = null;
             }
-            jItemData.m_damages = damages;
-            jItemData.m_damagesPerLevel = damagesPerLevel;
 
             return jItemData;
+            
 
         }
         /*
@@ -1232,6 +1309,12 @@ namespace recipecustomization
                 return builder.ToString();
             }
 
+        }
+        public static float stringtoFloat(string data)
+        {
+            data = data.Split(':').Last();
+            float value = float.Parse(data, CultureInfo.InvariantCulture.NumberFormat);
+            return value;
         }
         #endregion
 

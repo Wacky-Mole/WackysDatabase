@@ -103,9 +103,12 @@
     <Compile Include="color.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ItemData.cs" />
+    <Compile Include="m_damages.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="RecipeData.cs" />
     <Compile Include="ItemManager.cs" />
+    <Compile Include="TinyJson\JSONParser.cs" />
+    <Compile Include="TinyJson\JSONWriter.cs" />
     <Compile Include="VersionHandshake.cs" />
     <Compile Include="WackysRecipeCustomization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

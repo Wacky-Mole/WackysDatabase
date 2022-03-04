@@ -1,9 +1,14 @@
 ﻿using System;
 using recipecustomization;
+using UnityEngine;
+using System.Collections.Generic;
+
+
 
 [Serializable]
 public class WItemData
 {
+
 	public string name;
 
 	public string m_name;
@@ -42,9 +47,9 @@ public class WItemData
 
 	public bool m_canBeReparied;
 
-	public WDamages m_damages;
+	//public WDamages m_damages;
 
-	public WDamages m_damagesPerLevel;
+	// public WDamages m_damagesPerLevel;
 
 	public float m_timedBlockBonus;
 
@@ -81,4 +86,99 @@ public class WItemData
 	public int m_toolTier;
 
 	public int m_value;
+
+	public string m_damages; // not sure what I am doing with my life
+
+	public  string m_damagesPerLevel;
+
+
+
+
+}
+
+[Serializable]
+public class WDamages // can't get the inhertance in json to sterilize
+{
+	public float m_blunt;
+
+	public float m_chop;
+
+	public float m_damage;
+
+	public float m_fire;
+
+	public float m_frost;
+
+	public float m_lightning;
+
+	public float m_pickaxe;
+
+	public float m_pierce;
+
+	public float m_poison;
+
+	public float m_slash;
+
+	public float m_spirit;
+}
+
+[Serializable]
+public class WackDamages
+{
+	public float m_blunt;
+
+	public float m_chop;
+
+	public float m_damage;
+
+	public float m_fire;
+
+	public float m_frost;
+
+	public float m_lightning;
+
+	public float m_pickaxe;
+
+	public float m_pierce;
+
+	public float m_poison;
+
+	public float m_slash;
+
+	public float m_spirit;
+}
+
+public class WackLevelDamages
+{
+	public float m_blunt;
+
+	public float m_chop;
+
+	public float m_damage;
+
+	public float m_fire;
+
+	public float m_frost;
+
+	public float m_lightning;
+
+	public float m_pickaxe;
+
+	public float m_pierce;
+
+	public float m_poison;
+
+	public float m_slash;
+
+	public float m_spirit;
+}
+
+
+[Serializable]
+public class WIngredients
+{
+	public string id;
+	public int amount;
+	public int amountPerLevel;
+
 }
