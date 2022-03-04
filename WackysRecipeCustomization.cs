@@ -313,27 +313,29 @@ namespace recipecustomization
             {
                 if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
                 {
-                    //Items = new List<WDamages>();
-                     WItemData data = JsonUtility.FromJson<WItemData>(File.ReadAllText(file));
-
-                    //string content = File.ReadAllText(file);
-                   // string[] divide = content.Split('}');
-                   // WItemData data = JsonUtility.FromJson<WItemData>(content);
-                    amber.Append(File.ReadAllText(file));
-                    amber.Append("@");
-                   // WItemData data = JsonUtility.FromJson<WItemData>(divide[0]);
-
-
-                    ItemDatas.Add(data);
-                    WackysRecipeCustomizationLogger.LogDebug("damages in file read "+data.m_damages);
+                    //Items = new List<WDamages>();//string content = File.ReadAllText(file);
+                    // string[] divide = content.Split('}');
+                    // WItemData data = JsonUtility.FromJson<WItemData>(content);// WItemData data = JsonUtility.FromJson<WItemData>(divide[0]);
+                    try
+                    {
+                        WItemData data = JsonUtility.FromJson<WItemData>(File.ReadAllText(file));
+                        amber.Append(File.ReadAllText(file));
+                        amber.Append("@");
+                        ItemDatas.Add(data);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning("Something went wrong in file " + file); }
 
                 }
                 else
                 {
-                    RecipeData data = JsonUtility.FromJson<RecipeData>(File.ReadAllText(file));
-                    amber.Append(File.ReadAllText(file));
-                    amber.Append("@");
-                    recipeDatas.Add(data);
+                    try
+                    {
+                        RecipeData data = JsonUtility.FromJson<RecipeData>(File.ReadAllText(file));
+                        amber.Append(File.ReadAllText(file));
+                        amber.Append("@");
+                        recipeDatas.Add(data);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning("Something went wrong in file " + file); }
 
                 }
 
@@ -489,7 +491,7 @@ namespace recipecustomization
             string tempname = "";
             if (data.clone)
             {
-                tempname = data.clonePrefabName;
+                tempname = data.name;
                 data.name = data.clonePrefabName;
 
             }
@@ -513,15 +515,19 @@ namespace recipecustomization
                     if (data.clone && tempname != "") // object is a clone do clonethings
                     {
 
-                        Dbgl($"Item CLONE DATA in SetItemData for {data.name} ");
-                        GameObject newItem = go;
+                        Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
+                        GameObject newItem =  (go); // copies all of prefab info here
                         ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
-                        newItem.name = tempname; // maybe
+                        
+                        //end orginal item use
+                        newItem.name = tempname; // resets the orginal name- needs to be unquie
                         NewItemComp.m_itemData.m_shared.m_name = tempname; // ingame name
+                        
                         ObjectDB.instance.m_items.Add(newItem); // add new GameObject to item list
-                        PrimaryItemData = ObjectDB.instance.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // nonsense but verifies?
-                        data.m_name = tempname; // putting back name
 
+                        PrimaryItemData = ObjectDB.instance.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // nonsense but verifies?
+                        data.name = tempname; // putting back name
+                        
 
                     }
                     Dbgl($"Item being Set in SetItemData for {data.name} ");
@@ -995,7 +1001,7 @@ namespace recipecustomization
                          {
                                 string output = $"wackydb_reset \r\n"
                             + $"wackydb_reload\r\n"
-                            + $"wackydb_dump <ItemName>\r\n"
+                            + $"wackydb_dump <item/recipe> <ItemName>\r\n"
                             + $"wackydb_save <ItemName>(recipe or piece output)\r\n"
                             + $"wackydb_save_item <ItemName>(Item Output)\r\n"
                             + $"wackydb_help\r\n"
@@ -1038,24 +1044,32 @@ namespace recipecustomization
                      new("wackydb_dump", "dump the item or recipe into the logs",
                          args =>
                          {
-                             string recipe = args[1];
-                             string comtype = args[2];
-                             if (comtype == "item")
+                             if (args.Length - 1 < 2) 
                              {
-                                 WItemData recipeData = GetItemDataByName(recipe);
-                                 if (recipeData == null)
-                                     return;
-                                 Dbgl(JsonUtility.ToJson(recipeData));
+                                 args.Context?.AddString("Not enough arguments");
 
                              }
                              else
                              {
-                                 RecipeData recipeData = GetRecipeDataByName(recipe);
-                                 if (recipeData == null)
-                                     return;
-                                 Dbgl(JsonUtility.ToJson(recipeData));
+                                 string recipe = args[1];
+                                 string comtype = args[2];
+                                 if (recipe == "item")
+                                 {
+                                     WItemData recipeData = GetItemDataByName(comtype);
+                                     if (recipeData == null)
+                                         return;
+                                     Dbgl(JsonUtility.ToJson(recipeData));
+
+                                 }
+                                 else
+                                 {
+                                     RecipeData recipeData = GetRecipeDataByName(comtype);
+                                     if (recipeData == null)
+                                         return;
+                                     Dbgl(JsonUtility.ToJson(recipeData));
+                                 }
+                                 args.Context?.AddString($"WackyDatabase dumped {comtype}");
                              }
-                             args.Context?.AddString($"WackyDatabase dumped {recipe}");
                          });
 
                 Terminal.ConsoleCommand WackyitemSave =
@@ -1091,10 +1105,19 @@ namespace recipecustomization
                 Terminal.ConsoleCommand WackyClone =
                     new("wackydb_clone", "Clone an item or piecce with different status, names, effects ect... ",
                         args =>
-                        {
-                            string commandtype = args[1];
-                            string prefab = args[2];
-                            string newname = args[3];
+                        { 
+                            if (args.Length - 1 < 3)
+                            {
+                                args.Context?.AddString("Not enough arguments");
+
+                            }
+                            else
+                            {
+                                string commandtype = args[1];
+                                string prefab = args[2];
+                                string newname = args[3];
+                            }
+                           
                     
 
                         });
@@ -1320,3 +1343,43 @@ namespace recipecustomization
 
     }
 }
+/*
+ *  KG recipe copier for reference
+ * int recipeIndex = item4.RecipeIndex;
+						List<Piece.Requirement> list;
+						if (recipeIndex >= recipes.Count)
+						{
+							Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
+							recipe.m_item = component;
+							recipe.m_craftingStation = ((string.IsNullOrEmpty(item4.CraftingStation) || !stations.ContainsKey(item4.CraftingStation)) ? null : stations[item4.CraftingStation]);
+							recipe.m_minStationLevel = item4.MinStationLevel;
+							recipe.m_amount = item4.Amount;
+							recipe.m_enabled = item4.Enabled;
+							list = new List<Piece.Requirement>();
+							foreach (string requirement in item4.Requirements)
+							{
+								if (!string.IsNullOrEmpty(requirement))
+								{
+									string[] array = requirement.Split(':');
+									string name = array[0];
+									if (Object.op_Implicit((Object)(object)ObjectDB.instance.GetItemPrefab(name)))
+									{
+										int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
+										int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+										bool recover = array.Length != 4 || bool.Parse(array[3]);
+										Piece.Requirement item = new Piece.Requirement
+										{
+											m_amount = amount,
+											m_recover = recover,
+											m_resItem = ObjectDB.instance.GetItemPrefab(name).GetComponent<ItemDrop>(),
+											m_amountPerLevel = amountPerLevel
+										};
+										list.Add(item);
+									}
+								}
+							}
+							recipe.m_resources = list.ToArray();
+							ObjectDB.instance.m_recipes.Add(recipe);
+							continue;
+						}
+*/
