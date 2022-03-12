@@ -55,7 +55,8 @@ namespace recipecustomization
         public static ConfigEntry<string> waterModifierName;
 
         private static List<RecipeData> recipeDatas = new List<RecipeData>();
-        public static List<WItemData> ItemDatas = new List<WItemData>();
+        private static List<WItemData> ItemDatas = new List<WItemData>();
+        private static List<string> Cloned = new List<string>();
         private static string assetPath;
         RecipeData paul = new RecipeData();
         private static string jsonstring;
@@ -85,24 +86,22 @@ namespace recipecustomization
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
+        { DisplayName = ModName,  MinimumRequiredVersion = "1.0.0" };
 
 
         #endregion
-
 
 
         public void Awake() // start
         {
             StartupConfig(); // startup varables 
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
-
-
+            testme();
 
             // ending files
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
-            SetupWatcher();
+            //SetupWatcher(); You can game it by using false-true(load)-false
             GetRecipeDataFromFilesForServer();
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
         }
@@ -114,6 +113,23 @@ namespace recipecustomization
         //internal static ConfigEntry<RecipeData> masterSyncJson; // doesn't work
         private static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
 
+        public static void testme()
+        {
+            /*
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var cubeRenderer = cube.GetComponent<Renderer>();
+            cubeRenderer.material.SetColor("_Color", Color.red); // now red cube
+            
+            var cubeCollider = cube.GetComponent<MeshRenderer>();
+            //cubeCollider.materials.SetValue(inn)
+            //var cubemodel = cube.GetComponent<>
+
+                Object originalPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
+            GameObject objSource = PrefabUtility.InstantiatePrefab(originalPrefab) as GameObject;
+            GameObject prefabVariant = PrefabUtility.SaveAsPrefabAsset(objSource, localPath);
+            */
+            //UnityEngine.Material.FindObjectOfType
+        }
 
         private void StartupConfig()
         {
@@ -134,9 +150,10 @@ namespace recipecustomization
             }
             else
             {
+                ConfigSync.CurrentVersion = ModVersion;
                 issettoSinglePlayer = false;
             }
-
+            WackysRecipeCustomizationLogger.LogWarning("Mod Version " + ConfigSync.CurrentVersion);
 
         }
         private void OnDestroy()
@@ -231,6 +248,7 @@ namespace recipecustomization
                         }
 
                     }
+                    //ObjectDB.instance.UpdateItemHashes(); // move to the end of updating all componets
                 }
             }
         }
@@ -306,10 +324,10 @@ namespace recipecustomization
             recipeDatas.Clear();
             ItemDatas.Clear();
             var amber = new System.Text.StringBuilder();
-
+            if (originalMaterials.Count <= 0) GetAllMaterials();// call materials // don't forget to do this for server
             //JsonSerializer.Serialize
 
-            foreach (string file in Directory.GetFiles(assetPath, "*.json"))
+            foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
             {
                 if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
                 {
@@ -350,7 +368,7 @@ namespace recipecustomization
         {
             CheckModFolder();
             var amber = new System.Text.StringBuilder();
-            foreach (string file in Directory.GetFiles(assetPath, "*.json"))
+            foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
             {
                 if (file.Contains("Item") || file.Contains("item"))
                 {
@@ -391,54 +409,146 @@ namespace recipecustomization
 
         private static void SetRecipeData(RecipeData data)
         {
+            bool skip = false;
+            foreach (var citem in Cloned)
+            {
+                if (citem == data.name)
+                    skip = true;   
+            }
+            string tempname = data.name;
+            if (data.clone && !skip)
+            {
+                data.name = data.clonePrefabName;
+            }
             GameObject go = ObjectDB.instance.GetItemPrefab(data.name);
             if (go == null)
             {
+                if (data.clone)
+                {
+                    data.name = tempname; // change back 
+                }
                 SetPieceRecipeData(data);
                // Dbgl("maybe null " + data.name);
                 return;
             }
+
             if (go.GetComponent<ItemDrop>() == null)
             {
-                Dbgl($"Item data for {data.name} not found!");
+                Dbgl($"Item recipe data for {data.name} not found!");
                 return;
             } // it is a prefab and it is an item.
-            //if (data.)
-            Dbgl("Setting Recipe for "+ data.name);
-            for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
+            if (data.clone && !skip)
             {
-                if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                if (!data.disabled)
                 {
-                    if (data.disabled)
-                    {
-                        Dbgl($"Removing recipe for {data.name} from the game");
-                        ObjectDB.instance.m_recipes.RemoveAt(i);
-                        return;
-                    }
+                    Dbgl("Setting CLONED Recipe for " + tempname);
+                    Recipe clonerecipe = ScriptableObject.CreateInstance<Recipe>();
+                    Cloned.Add(tempname); // add to list
 
-                    ObjectDB.instance.m_recipes[i].m_amount = data.amount;
-                    ObjectDB.instance.m_recipes[i].m_minStationLevel = data.minStationLevel;
-                    ObjectDB.instance.m_recipes[i].m_craftingStation = GetCraftingStation(data.craftingStation);
+                    //int hash = tempname.GetStableHashCode();
+                    //Dictionary<int, GameObject> namedPrefabs = ZNetScene.instance.m_namedPrefabs;
+                   // bool check = namedPrefabs.TryGetValue(hash, out var value); // check if hash is already in the system
+
+                    clonerecipe.m_item = go.GetComponent<ItemDrop>();
+                    clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
+                    clonerecipe.m_minStationLevel = data.minStationLevel;
+                    clonerecipe.m_amount = data.amount;
+                    clonerecipe.name = tempname; //maybe
+
                     List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+
                     // Dbgl("Made it to RecipeData!");
                     foreach (string req in data.reqs)
                     {
-                        string[] parts = req.Split(':');
-                        reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                        if (!string.IsNullOrEmpty(req))
+                        {
+                            string[] array = req.Split(':'); // safer vewrsion
+                            string itemname = array[0];
+                            if (ObjectDB.instance.GetItemPrefab(itemname))
+                            {
+                                int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
+                                int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+                                bool recover = array.Length != 4 || bool.Parse(array[3]);
+                                Piece.Requirement item = new Piece.Requirement
+                                {
+                                    m_amount = amount,
+                                    m_recover = recover,
+                                    m_resItem = ObjectDB.instance.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
+                                    m_amountPerLevel = amountPerLevel
+                                };
+                                reqs.Add(item);
+                            }
+                        }
+                    }// foreach
+                    int index = 0;
+                    clonerecipe.m_resources = reqs.ToArray();
+                    for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
+                    {
+                        if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                        {
+                            index = i++; // some extra resourses, but I think it's worth it
+                            break;
+                        }
                     }
-                   // Dbgl("Amost done with RecipeData!");
-                    ObjectDB.instance.m_recipes[i].m_resources = reqs.ToArray();
+                            ObjectDB.instance.m_recipes.Insert(index,clonerecipe);
+                }
+                else
+                {
+                    Dbgl("Cloned Recipe is disabled for " + data.clonePrefabName + " Will not unload if already loaded");
                     return;
-                } // end check if actually an recipe
-            }// end for loop search
+                }
+            }
+            else
+            {
+
+                for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
+                {
+                    if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                    {
+                        // if not clone normal edit
+                        Dbgl("Setting Recipe for " + data.name);
+                        if (data.disabled)
+                        {
+                            Dbgl($"Removing recipe for {data.name} from the game");
+                            ObjectDB.instance.m_recipes.RemoveAt(i);
+                            return;
+                        }
+
+                        ObjectDB.instance.m_recipes[i].m_amount = data.amount;
+                        ObjectDB.instance.m_recipes[i].m_minStationLevel = data.minStationLevel;
+                        ObjectDB.instance.m_recipes[i].m_craftingStation = GetCraftingStation(data.craftingStation);
+                        List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+                        // Dbgl("Made it to RecipeData!");
+                        foreach (string req in data.reqs)
+                        {
+                            string[] parts = req.Split(':');
+                            reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                        }
+                        // Dbgl("Amost done with RecipeData!");
+                        ObjectDB.instance.m_recipes[i].m_resources = reqs.ToArray();
+                        return;
+                    } // end normal
+                } // checking recipes
+            }
         }
 
         private static void SetPieceRecipeData(RecipeData data)
         {
+            bool skip = false;
+            foreach (var citem in Cloned)
+            {
+                if (citem == data.name)
+                    skip = true;
+            }
+            string tempname = data.name;
+            if (data.clone && !skip)
+            {
+                data.name = data.clonePrefabName;
+            }
             GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name);
             if (go == null)
             {
-                Dbgl($"Item {data.name} not found!");
+                Dbgl($"Item {data.name} not found in SetPiece!");
                 return;
             }
             if (go.GetComponent<Piece>() == null)
@@ -446,7 +556,75 @@ namespace recipecustomization
                 Dbgl($"Item data for {data.name} not found!");
                 return;
             }
+            if (data.clone && !skip) // object is a clone do clonethings
+                {
+                Dbgl($"Item CLONE DATA in SetPiece for {tempname} ");
+                Piece NewItemComp = Instantiate(go.GetComponent<Piece>());
+                //Dbgl($"Item CLONE DATA Part-1 {tempname} ");
+                GameObject newItem = NewItemComp.gameObject;
+                Cloned.Add(tempname); // check against
+               // Dbgl($"Item CLONE DATA Part0 {tempname} ");
+                newItem.name = tempname; // resets the orginal name- needs to be unquie
+                NewItemComp.name = tempname; // ingame name
+                 
+                //Dbgl($"Item CLONE DATA Part1 {tempname} ");
+                var hash = newItem.name.GetStableHashCode();   
+                ZNetScene znet = ZNetScene.instance;
+                if (znet)
+                {
+                    string name = newItem.name;
+                    //int hash2 = name.GetStableHashCode();
 
+                    if (znet.m_namedPrefabs.ContainsKey(hash))
+                    {
+                        Dbgl($"Prefab {name} already in ZNetScene");
+                    }
+                    else
+                    {
+                        if (newItem.GetComponent<ZNetView>() != null)
+                        {
+                            znet.m_prefabs.Add(newItem);
+                        }
+                        else
+                        {
+                            znet.m_nonNetViewPrefabs.Add(newItem);
+                        }
+                        znet.m_namedPrefabs.Add(hash, newItem);
+                        Dbgl($"Added prefab {name}");
+                    }
+                }
+                //ObjectDB.instance.m_items.Add(newItem);
+                CraftingStation craft = GetCraftingStation(data.craftingStation);
+                newItem.GetComponent<Piece>().m_craftingStation = craft; // sets crafing item place
+
+                //Dbgl($"Item CLONE DATA Part2 {tempname} ");
+                GameObject piecehammer = ObjectDB.instance.GetItemPrefab(data.piecehammer);
+                //if (piecehammer != null)
+               // {
+                    Dbgl($"piecehammer named {data.piecehammer} will not be used. I am lazy. Pieces will only be added to Hammer");
+                    piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
+                //}
+                 piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // added to Piecehammer or morelikely Hammer  - Just don't mess with right now
+                //Dbgl($"Item CLONE DATA Part3 {tempname} ");
+
+
+                data.name = tempname; // putting back name
+                
+                //Dbgl($"Item CLONE DATA Part4 {tempname} ");
+                go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name); // just verifying
+                if (go == null)
+                {
+                    Dbgl($"Item {data.name} not found in SetPiece! after clone");
+                    return;
+                }
+                if (go.GetComponent<Piece>() == null)
+                {
+                    Dbgl($"Item data for {data.name} not found! after clone");
+                    return;
+                }
+                go.GetComponent<Piece>().m_name = tempname; // set pieces name
+                //ObjectDB.instance.UpdateItemHashes(); // end of clone
+            } 
             if (data.disabled)
             {
                 Dbgl($"Removing recipe for {data.name} from the game");
@@ -467,14 +645,11 @@ namespace recipecustomization
             }
             Dbgl("Setting Piece data for " + data.name);
             go.GetComponent<Piece>().m_craftingStation = GetCraftingStation(data.craftingStation);
-            //List<string> helpme = new List<string>();
-
             if (data.minStationLevel > 1)
             {
                 pieceWithLvl.Add(go.name + "." + data.minStationLevel);
             }
             List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-            // Dbgl("made it to setpiece");
             foreach (string req in data.reqs)
             {
                 string[] parts = req.Split(':');
@@ -482,18 +657,23 @@ namespace recipecustomization
             }
             //Dbgl("Amost done with setpiece!");
             go.GetComponent<Piece>().m_resources = reqs.ToArray();
+            ObjectDB.instance.UpdateItemHashes();
            // Dbgl("done with setpiece!");
         }
 
         private static void SetItemData(WItemData data)
         {
-           // Dbgl("Loaded SetItemData!");
-            string tempname = "";
-            if (data.clone)
+            // Dbgl("Loaded SetItemData!");
+            bool skip = false;
+            foreach (var citem in Cloned)
             {
-                tempname = data.name;
+                if (citem == data.name)
+                    skip = true;
+            }
+            string tempname = data.name;
+            if (data.clone && !skip)
+            {
                 data.name = data.clonePrefabName;
-
             }
             GameObject go = ObjectDB.instance.GetItemPrefab(data.name);
             if (go == null)
@@ -506,30 +686,62 @@ namespace recipecustomization
                 Dbgl($"Item data in SetItemData for {data.name} not found!");
                 return;
             } // it is a prefab and it is an item.
-
+            if (string.IsNullOrEmpty(tempname) && data.clone)
+            {
+                Dbgl($"Item cloned name is empty!");
+                return;
+            }
             for (int i = ObjectDB.instance.m_items.Count - 1; i > 0; i--)  // need to handle clones
             {
                 if (ObjectDB.instance.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                 {
                     ItemDrop.ItemData PrimaryItemData = ObjectDB.instance.m_items[i].GetComponent<ItemDrop>().m_itemData;
-                    if (data.clone && tempname != "") // object is a clone do clonethings
+                    if (data.clone && !skip) // object is a clone do clonethings
                     {
-
                         Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
-                        GameObject newItem =  (go); // copies all of prefab info here
-                        ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
-                        
-                        //end orginal item use
+                        ItemDrop NewItemComp = Instantiate(go.GetComponent<ItemDrop>());
+                        GameObject newItem = NewItemComp.gameObject;
+                        Cloned.Add(tempname);
+
                         newItem.name = tempname; // resets the orginal name- needs to be unquie
                         NewItemComp.m_itemData.m_shared.m_name = tempname; // ingame name
-                        
-                        ObjectDB.instance.m_items.Add(newItem); // add new GameObject to item list
+                        //ZNetScene.instance.m_prefabs.Add(newItem); // znetscene
+                        //ObjectDB.instance.m_items.Add(newItem); // add new GameObject to item list
+                        var hash = newItem.name.GetStableHashCode();
+                        ObjectDB.instance.m_items.Add(newItem);
+                        ZNetScene znet = ZNetScene.instance;
+                        if (znet)
+                        {
+                            string name = newItem.name;
+                            //int hash2 = name.GetStableHashCode();
 
-                        PrimaryItemData = ObjectDB.instance.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // nonsense but verifies?
-                        data.name = tempname; // putting back name
-                        
+                            if (znet.m_namedPrefabs.ContainsKey(hash))
+                            {
+                                Dbgl($"Prefab {name} already in ZNetScene");
+                            }
+                            else
+                            {
+                                if (newItem.GetComponent<ZNetView>() != null)
+                                {
+                                    znet.m_prefabs.Add(newItem);
+                                }
+                                else
+                                {
+                                    znet.m_nonNetViewPrefabs.Add(newItem);
+                                }
+                                znet.m_namedPrefabs.Add(hash, newItem);
+                                Dbgl($"Added prefab {name}");
+                            }
+                        }
+                        Material fireme = originalMaterials["weapons1_fire"];
+                       // go.GetComponentInChildren<Renderer>().materials.AddItem(fireme);
+                           // Append(originalMaterials["weapons1_fire"]); // only for cloned
 
+                         PrimaryItemData = ObjectDB.instance.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
+                         data.name = tempname; // putting back name
+                         ObjectDB.instance.UpdateItemHashes();
                     }
+                    
                     Dbgl($"Item being Set in SetItemData for {data.name} ");
                     /*Dbgl($"Itemdamage for SetItemData for {data.m_damages.m_slash} ");
                     foreach (PropertyInfo prop in typeof(WDamages).GetProperties())
@@ -540,7 +752,7 @@ namespace recipecustomization
 
                     if (data.m_damages != null && data.m_damages != "")
                     {
-                        Dbgl($"Item damge is not empty for {data.name} ");
+                        Dbgl($"   {data.name} Item has damage values ");
                         // has to be in order, should be
                         char[] delims = new[] { ',' };
                         string[] divideme = data.m_damages.Split(delims, StringSplitOptions.RemoveEmptyEntries);
@@ -630,11 +842,13 @@ namespace recipecustomization
                     PrimaryItemData.m_shared.m_teleportable = data.m_teleportable;
                     PrimaryItemData.m_shared.m_toolTier = data.m_toolTier;
                     PrimaryItemData.m_shared.m_value = data.m_value;
+                    PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier;
+                    PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
 
+                    
                 }
-
+                // Dbgl("Amost done with SetItemData!");
             }
-           // Dbgl("Amost done with SetItemData!");
 
         }
 
@@ -755,12 +969,30 @@ namespace recipecustomization
                 Dbgl("Item data not found!");
                 return null;
             }
+            string piecehammer = "Hammer";
+            ItemDrop hammer = ObjectDB.instance.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
+            if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+            {
+                piecehammer = "Hammer"; 
+                
+            }
+            ItemDrop hoe = ObjectDB.instance.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
+
+            if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+            {
+                piecehammer = "Hoe";
+                
+            }
+            piecehammer = "unused right now";
+
+
             var data = new RecipeData()
             {
                 name = name,
                 amount = 1,
                 craftingStation = piece.m_craftingStation?.m_name ?? "",
                 minStationLevel = 1,
+                piecehammer = piecehammer,
             };
             foreach (Piece.Requirement req in piece.m_resources)
             {
@@ -808,6 +1040,7 @@ namespace recipecustomization
             if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
             {
                 Dbgl("Item " + name + " damage on ");
+
                 damages = new WDamages // not used
                 {
 
@@ -916,7 +1149,9 @@ namespace recipecustomization
                 m_name = data.m_shared.m_name,
                 m_questItem = data.m_shared.m_questItem,
                 m_teleportable = data.m_shared.m_teleportable,
-                m_timedBlockBonus = data.m_shared.m_timedBlockBonus
+                m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
+                m_movementModifier = data.m_shared.m_movementModifier,
+                m_attackStamina = data.m_shared.m_attack.m_attackStamina,
             };
            // Dbgl("Item " + name + " damages " + damages.m_slash); // I think damages is being overwritten?
             if (jItemData.m_foodHealth == 0f && jItemData.m_foodRegen == 0f && jItemData.m_foodStamina == 0f)
@@ -1108,7 +1343,7 @@ namespace recipecustomization
                         { 
                             if (args.Length - 1 < 3)
                             {
-                                args.Context?.AddString("Not enough arguments");
+                                args.Context?.AddString("<color=lime>Not enough arguments</color>");
 
                             }
                             else
@@ -1116,10 +1351,63 @@ namespace recipecustomization
                                 string commandtype = args[1];
                                 string prefab = args[2];
                                 string newname = args[3];
-                            }
-                           
-                    
+                                string file = args[3];
 
+                                if (commandtype == "recipe" || commandtype == "Recipe")
+                                {
+
+                                    RecipeData clone = GetRecipeDataByName(prefab);
+                                    if (clone == null)
+                                        return;
+                                    clone.name = newname;
+                                    clone.clone = true;
+                                    clone.clonePrefabName = prefab;
+
+
+                                    if (clone == null)
+                                        return;
+                                    CheckModFolder();
+                                    File.WriteAllText(Path.Combine(assetPath, clone.name + ".json"), JsonUtility.ToJson(clone, true));
+
+                                }
+                                if (commandtype == "item" || commandtype == "Item")
+                                {
+                                    WItemData clone = GetItemDataByName(prefab);
+                                    if (clone == null)
+                                        return;
+                                    clone.name = newname;
+                                    clone.clone = true;
+                                    clone.clonePrefabName = prefab;
+
+
+                                    if (clone == null)
+                                        return;
+                                    CheckModFolder();
+                                    File.WriteAllText(Path.Combine(assetPath, "Item_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    file = "Item_" + clone.name;
+
+
+
+                                }
+                                if (commandtype == "piece" || commandtype == "Piece")
+                                {
+                                    RecipeData clone = GetPieceRecipeByName(prefab);
+                                    if (clone == null)
+                                        return;
+                                    clone.name = newname;
+                                    clone.clone = true;
+                                    clone.clonePrefabName= prefab;
+                                    
+
+
+                                    if (clone == null)
+                                        return;
+                                    CheckModFolder();
+                                    File.WriteAllText(Path.Combine(assetPath, clone.name + ".json"), JsonUtility.ToJson(clone, true));
+
+                                }
+                                args.Context?.AddString($"saved cloned data to {file}.json");
+                            }
                         });
 
 
@@ -1141,7 +1429,7 @@ namespace recipecustomization
                     var t = text.Split(' ');
                     string file = t[t.Length - 1];
                     string hash = ComputeSha256Hash(file);
-                    string secrethash = "kjdkjilsnid2jskjhd"; // put a real hash in here 
+                    string secrethash = "f289b4717485d90d9dee6ce2a9992e4fcfa4317a9439c148053d52c637b0691b"; // real hash is entered
                     if (hash == secrethash)
                     {
                         WackysRecipeCustomizationLogger.LogWarning("Congrats you cheater, you get to reload the recipes to whatever you want now. Enjoy ");
@@ -1339,47 +1627,144 @@ namespace recipecustomization
             float value = float.Parse(data, CultureInfo.InvariantCulture.NumberFormat);
             return value;
         }
+        private static Dictionary<string, Material> originalMaterials;
+        public static void GetAllMaterials()
+        {
+            Material[] array = Resources.FindObjectsOfTypeAll<Material>();
+            originalMaterials = new Dictionary<string, Material>();
+            Material[] array2 = array;
+            foreach (Material val in array2)
+            {
+               // Dbgl($"Material {val.name}" );
+                originalMaterials[val.name] = val;
+            }
+        }
+
+
         #endregion
 
     }
 }
 /*
- *  KG recipe copier for reference
- * int recipeIndex = item4.RecipeIndex;
-						List<Piece.Requirement> list;
-						if (recipeIndex >= recipes.Count)
-						{
-							Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
-							recipe.m_item = component;
-							recipe.m_craftingStation = ((string.IsNullOrEmpty(item4.CraftingStation) || !stations.ContainsKey(item4.CraftingStation)) ? null : stations[item4.CraftingStation]);
-							recipe.m_minStationLevel = item4.MinStationLevel;
-							recipe.m_amount = item4.Amount;
-							recipe.m_enabled = item4.Enabled;
-							list = new List<Piece.Requirement>();
-							foreach (string requirement in item4.Requirements)
-							{
-								if (!string.IsNullOrEmpty(requirement))
-								{
-									string[] array = requirement.Split(':');
-									string name = array[0];
-									if (Object.op_Implicit((Object)(object)ObjectDB.instance.GetItemPrefab(name)))
-									{
-										int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
-										int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
-										bool recover = array.Length != 4 || bool.Parse(array[3]);
-										Piece.Requirement item = new Piece.Requirement
-										{
-											m_amount = amount,
-											m_recover = recover,
-											m_resItem = ObjectDB.instance.GetItemPrefab(name).GetComponent<ItemDrop>(),
-											m_amountPerLevel = amountPerLevel
-										};
-										list.Add(item);
-									}
-								}
-							}
-							recipe.m_resources = list.ToArray();
-							ObjectDB.instance.m_recipes.Add(recipe);
-							continue;
-						}
+
+
+
+Material replacer
+
+
+			MaterialReplacer.GetAllMaterials();
+			prefabRoot = new GameObject("CartPrefabs");
+			prefabRoot.SetActive(false);
+			Object.DontDestroyOnLoad((Object)(object)prefabRoot);
+			GameObject prefab = Cache.GetPrefab<GameObject>("Cart");
+			GameObject val = Object.Instantiate<GameObject>(prefab, prefabRoot.get_transform());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("AttachPoint")).get_gameObject());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("Wheel1").GetChild(0)).get_gameObject());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("Wheel2").GetChild(0)).get_gameObject());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("Container")).get_gameObject());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("Vagon")).get_gameObject());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("load")).get_gameObject());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("LineAttach0")).get_gameObject());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("LineAttach1")).get_gameObject());
+			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("cart_Destruction")).get_gameObject());
+			prefab.GetComponent<Rigidbody>().set_mass(50f);
+			((Object)val).set_name("CraftyCarts.WorkbenchCart");
+			GameObject val2 = Object.Instantiate<GameObject>(val, prefabRoot.get_transform());
+			((Object)val2).set_name("CraftyCarts.StoneCart");
+			GameObject val3 = Object.Instantiate<GameObject>(val, prefabRoot.get_transform());
+			((Object)val3).set_name("CraftyCarts.ForgeCart");
+			AssetBundle val4 = AssetBundle.LoadFromMemory(ResourceUtils.GetResource(Assembly.GetExecutingAssembly(), "CraftyCarts.Resources.carts"));
+			GameObject model = val4.LoadAsset<GameObject>("workbench_cart");
+			Sprite icon = val4.LoadAsset<Sprite>("workbenchcarticon");
+			GameObject model2 = val4.LoadAsset<GameObject>("forge_cart");
+			Sprite icon2 = val4.LoadAsset<Sprite>("forgecarticon");
+			GameObject model3 = val4.LoadAsset<GameObject>("stone_cart");
+			Sprite icon3 = val4.LoadAsset<Sprite>("stonecarticon");
+			val4.Unload(false);
+			Debug.Log((object)"add crafting station");
+			CraftingStation component = Cache.GetPrefab<GameObject>("piece_workbench").GetComponent<CraftingStation>();
+			CraftingStation component2 = Cache.GetPrefab<GameObject>("piece_stonecutter").GetComponent<CraftingStation>();
+			CraftingStation component3 = Cache.GetPrefab<GameObject>("forge").GetComponent<CraftingStation>();
+			Piece piece = SetupCraftingStation(model, component, val);
+			Piece piece2 = SetupCraftingStation(model2, component3, val3);
+
+ public static class MaterialReplacer
+    {
+        static MaterialReplacer()
+        {
+            originalMaterials = new Dictionary<string, Material>();
+            ObjectToSwap = new Dictionary<GameObject, bool>();
+            Harmony harmony = new("org.bepinex.helpers.PieceManager");
+            harmony.Patch(AccessTools.DeclaredMethod(typeof(ZoneSystem), nameof(ZoneSystem.Start)),
+                postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(MaterialReplacer),
+                    nameof(GetAllMaterials))));
+            harmony.Patch(AccessTools.DeclaredMethod(typeof(ZoneSystem), nameof(ZoneSystem.Start)),
+                postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(MaterialReplacer),
+                    nameof(ReplaceAllMaterialsWithOriginal))));
+        }
+
+        private static Dictionary<GameObject, bool> ObjectToSwap;
+        internal static Dictionary<string, Material> originalMaterials;
+
+        public static void RegisterGameObjectForMatSwap(GameObject go, bool isJotunnMock = false)
+        {
+            ObjectToSwap.Add(go, isJotunnMock);
+        }
+        
+        [HarmonyPriority(Priority.VeryHigh)]
+        private static void GetAllMaterials()
+        {
+            var allmats = Resources.FindObjectsOfTypeAll<Material>();
+            foreach (var item in allmats)
+            {
+                originalMaterials[item.name] = item;
+            }
+        }
+        
+        [HarmonyPriority(Priority.VeryHigh)]
+        private static void ReplaceAllMaterialsWithOriginal()
+        {
+            if(originalMaterials.Count <= 0) GetAllMaterials();
+            foreach (var renderer in ObjectToSwap.SelectMany(gameObject => gameObject.Key.GetComponentsInChildren<Renderer>(true)))
+            {
+                ObjectToSwap.TryGetValue(renderer.gameObject, out bool jotunnPrefabFlag);
+                foreach (var t in renderer.materials)
+                {
+                    if (jotunnPrefabFlag)
+                    {
+                        if (!t.name.StartsWith("JVLmock_")) continue;
+                        var matName = renderer.material.name.Replace(" (Instance)", string.Empty).Replace("_REPLACE_", "");
+
+                        if (originalMaterials!.ContainsKey(matName))
+                        {
+                            renderer.material = originalMaterials[matName];
+                        }
+                        else
+                        {
+                            Debug.LogWarning("No suitable material found to replace: " + matName);
+                            // Skip over this material in future
+                            originalMaterials[matName] = renderer.material;
+                        }
+                    }
+                    else
+                    {
+                        if (!t.name.StartsWith("_REPLACE_")) continue;
+                        var matName = renderer.material.name.Replace(" (Instance)", string.Empty).Replace("_REPLACE_", "");
+
+                        if (originalMaterials!.ContainsKey(matName))
+                        {
+                            renderer.material = originalMaterials[matName];
+                        }
+                        else
+                        {
+                            Debug.LogWarning("No suitable material found to replace: " + matName);
+                            // Skip over this material in future
+                            originalMaterials[matName] = renderer.material;
+                        }   
+                    }
+                    
+                }
+            }
+        }
+    }
 */

@@ -25,6 +25,8 @@ public class WItemData
 
 	public float m_weight;
 
+	public float m_attackStamina;
+
 	public int m_maxStackSize;
 
 	public float m_foodHealth;
@@ -40,6 +42,8 @@ public class WItemData
 	public float m_armor;
 
 	public float m_armorPerLevel;
+
+	public float m_movementModifier;
 
 	public float m_blockPower;
 
@@ -89,7 +93,7 @@ public class WItemData
 
 	public string m_damages; // not sure what I am doing with my life
 
-	public  string m_damagesPerLevel;
+	public string m_damagesPerLevel;
 
 
 
