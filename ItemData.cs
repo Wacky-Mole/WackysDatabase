@@ -21,7 +21,7 @@ public class WItemData
 
 	public string cloneEffects;
 
-	public string cloneColor;
+	public string cloneMaterial;
 
 	public float m_weight;
 
@@ -95,9 +95,22 @@ public class WItemData
 
 	public string m_damagesPerLevel;
 
+	public List<string> damageModifiers = new List<string>();
 
 
 
+
+}
+[Serializable]
+public class ArmorData
+{
+	public string name;
+
+	public float armor;
+	public float armorPerLevel;
+	public float movementModifier;
+
+	public List<string> damageModifiers = new List<string>();
 }
 
 [Serializable]

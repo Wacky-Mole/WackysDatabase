@@ -4,7 +4,8 @@
 // Do whatever you want with this mod. // except sale it as per Aedenthorn Permissions https://www.nexusmods.com/valheim/mods/1245
 // Goal for this mod is RecipeCustomization + Recipe LVL station Requirement + Server Sync
 // Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
-//
+// CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
+// Thx Aedenthorn again
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -24,6 +25,8 @@ using System.Text;
 using UnityEngine.SceneManagement;
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
+using System.Reflection.Emit;
 
 namespace recipecustomization
 {
@@ -36,6 +39,7 @@ namespace recipecustomization
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
         private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
+        private static string NexusModID;
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isSinglePlayer;
@@ -56,15 +60,21 @@ namespace recipecustomization
 
         private static List<RecipeData> recipeDatas = new List<RecipeData>();
         private static List<WItemData> ItemDatas = new List<WItemData>();
+        private static List<PieceData> PieceDatas = new List<PieceData>();
+        private static List<ArmorData> armorDatas = new List<ArmorData>();// load with others
         private static List<string> Cloned = new List<string>();
         private static string assetPath;
+        private static string assetPathItems;
+        private static string assetPathRecipes;
+        private static string assetPathPieces; 
         RecipeData paul = new RecipeData();
         private static string jsonstring;
         private static bool isaclient = false;
-        public static bool Admin = false;
+        private static bool Admin = true; // for single player, sets to false for multiplayer on connect
         private static List<string> pieceWithLvl = new List<string>();
         private static int startupSync = 0;
         bool admin = !ConfigSync.IsLocked;
+        readonly bool admin2 = ConfigSync.IsAdmin;
 
 
 
@@ -96,6 +106,9 @@ namespace recipecustomization
         {
             StartupConfig(); // startup varables 
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
+            assetPathItems = Path.Combine(assetPath, "Items");
+            assetPathRecipes = Path.Combine(assetPath, "Recipes");
+            assetPathPieces = Path.Combine(assetPath, "Pieces");
             testme();
 
             // ending files
@@ -246,14 +259,18 @@ namespace recipecustomization
                         {
                             SetRecipeData(data);
                         }
+                        foreach (var data in PieceDatas)
+                        {
+                            SetPieceRecipeData(data);
+                        }
 
                     }
                     //ObjectDB.instance.UpdateItemHashes(); // move to the end of updating all componets
                 }
             }
         }
-
-        private static void CustomSyncEventDetected()
+        //private static get private admin
+        private void CustomSyncEventDetected()
         {
             // load up the files from skillConfigData
             // seperate them
@@ -267,8 +284,12 @@ namespace recipecustomization
             else
             {
                 WackysRecipeCustomizationLogger.LogDebug("CustomSyncEventDetected was called ");
+                Admin = admin2;
                 recipeDatas.Clear();
                 ItemDatas.Clear();
+                PieceDatas.Clear();
+                armorDatas.Clear();
+                GetAllMaterials();
                 string SyncedString = skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
                 {
@@ -276,11 +297,18 @@ namespace recipecustomization
                     string[] jsons = SyncedString.Split('@');
                     foreach (var word in jsons)
                     {
-                        if (word.Contains("m_name"))
+                        if (word.Contains("m_name")) //item
                         {
                             WItemData data2 = JsonUtility.FromJson<WItemData>(word);
                             ItemDatas.Add(data2);
+                            ArmorData data3 = JsonUtility.FromJson<ArmorData>(word);
+                            armorDatas.Add(data3);
 
+                        }
+                        else if (word.Contains("piecehammer"))
+                        {
+                            PieceData data = JsonUtility.FromJson<PieceData>(word);
+                            PieceDatas.Add(data);
                         }
                         else
                         {
@@ -305,7 +333,14 @@ namespace recipecustomization
                             SetRecipeData(data);
                         }
                     }
-                    
+                    foreach (var data3 in PieceDatas)
+                    {
+                        if (data3 != null)
+                        {
+                            SetPieceRecipeData(data3);
+                        }
+                    }
+
                     WackysRecipeCustomizationLogger.LogDebug("done with customSyncEvent");
                 }
                 else
@@ -320,13 +355,12 @@ namespace recipecustomization
         private static void GetRecipeDataFromFiles()
         {
             CheckModFolder();
-
+            GetAllMaterials(); // MAYBE MOVE somewhere better  call materials // don't forget to do this for server
             recipeDatas.Clear();
             ItemDatas.Clear();
+            PieceDatas.Clear();
+            armorDatas.Clear();
             var amber = new System.Text.StringBuilder();
-            if (originalMaterials.Count <= 0) GetAllMaterials();// call materials // don't forget to do this for server
-            //JsonSerializer.Serialize
-
             foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
             {
                 if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
@@ -340,11 +374,24 @@ namespace recipecustomization
                         amber.Append(File.ReadAllText(file));
                         amber.Append("@");
                         ItemDatas.Add(data);
+                        ArmorData data3 = JsonUtility.FromJson<ArmorData>(File.ReadAllText(file));
+                        armorDatas.Add(data3);
                     }
                     catch { WackysRecipeCustomizationLogger.LogWarning("Something went wrong in file " + file); }
 
                 }
-                else
+                else if (file.Contains("Piece") || file.Contains("piece"))
+                {
+                    try
+                    {
+                        PieceData data = JsonUtility.FromJson<PieceData>(File.ReadAllText(file));
+                        amber.Append(File.ReadAllText(file));
+                        amber.Append("@");
+                        PieceDatas.Add(data);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning("Something went wrong in file " + file); }
+                }
+                else // recipes
                 {
                     try
                     {
@@ -370,20 +417,41 @@ namespace recipecustomization
             var amber = new System.Text.StringBuilder();
             foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
             {
-                if (file.Contains("Item") || file.Contains("item"))
+                if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
                 {
-                    WItemData data = JsonUtility.FromJson<WItemData>(File.ReadAllText(file));
-                    amber.Append(File.ReadAllText(file));
-                    amber.Append("@");
-                    ItemDatas.Add(data);
+                    try
+                    {
+                        WItemData data = JsonUtility.FromJson<WItemData>(File.ReadAllText(file));
+                        amber.Append(File.ReadAllText(file));
+                        amber.Append("@");
+                        ItemDatas.Add(data);
+                        ArmorData data3 = JsonUtility.FromJson<ArmorData>(File.ReadAllText(file));
+                        armorDatas.Add(data3);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning("Something went wrong in file " + file); }
 
                 }
-                else
+                else if (file.Contains("Piece") || file.Contains("piece"))
                 {
-                    RecipeData data = JsonUtility.FromJson<RecipeData>(File.ReadAllText(file));
-                    amber.Append(File.ReadAllText(file));
-                    amber.Append("@");
-                    recipeDatas.Add(data);
+                    try
+                    {
+                        PieceData data = JsonUtility.FromJson<PieceData>(File.ReadAllText(file));
+                        amber.Append(File.ReadAllText(file));
+                        amber.Append("@");
+                        PieceDatas.Add(data);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning("Something went wrong in file " + file); }
+                }
+                else // recipes
+                {
+                    try
+                    {
+                        RecipeData data = JsonUtility.FromJson<RecipeData>(File.ReadAllText(file));
+                        amber.Append(File.ReadAllText(file));
+                        amber.Append("@");
+                        recipeDatas.Add(data);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning("Something went wrong in file " + file); }
 
                 }
             }
@@ -398,6 +466,15 @@ namespace recipecustomization
             {
                 Dbgl("Creating mod folder");
                 Directory.CreateDirectory(assetPath);
+                Directory.CreateDirectory(assetPathItems);
+                Directory.CreateDirectory(assetPathPieces);  
+                Directory.CreateDirectory(assetPathRecipes);
+            }
+            if (!Directory.Exists(assetPathItems))
+            {
+                Directory.CreateDirectory(assetPathItems);
+                Directory.CreateDirectory(assetPathPieces);
+                Directory.CreateDirectory(assetPathRecipes);
             }
         }
 
@@ -405,8 +482,6 @@ namespace recipecustomization
         #region Set Object
 
         private static Vector3 tempvalue;
-        private static bool piecehaslvl;
-
         private static void SetRecipeData(RecipeData data)
         {
             bool skip = false;
@@ -427,7 +502,7 @@ namespace recipecustomization
                 {
                     data.name = tempname; // change back 
                 }
-                SetPieceRecipeData(data);
+                //SetPieceRecipeData(data);
                // Dbgl("maybe null " + data.name);
                 return;
             }
@@ -532,7 +607,7 @@ namespace recipecustomization
             }
         }
 
-        private static void SetPieceRecipeData(RecipeData data)
+        private static void SetPieceRecipeData(PieceData data)
         {
             bool skip = false;
             foreach (var citem in Cloned)
@@ -599,11 +674,11 @@ namespace recipecustomization
 
                 //Dbgl($"Item CLONE DATA Part2 {tempname} ");
                 GameObject piecehammer = ObjectDB.instance.GetItemPrefab(data.piecehammer);
-                //if (piecehammer != null)
-               // {
-                    Dbgl($"piecehammer named {data.piecehammer} will not be used. I am lazy. Pieces will only be added to Hammer");
+                if (piecehammer == null)
+                {
+                    Dbgl($"piecehammer named {data.piecehammer} will not be use because the Item prefab was not found");
                     piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
-                //}
+                }
                  piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // added to Piecehammer or morelikely Hammer  - Just don't mess with right now
                 //Dbgl($"Item CLONE DATA Part3 {tempname} ");
 
@@ -625,21 +700,44 @@ namespace recipecustomization
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
                 //ObjectDB.instance.UpdateItemHashes(); // end of clone
             } 
+            if (data.adminonly)
+            {
+                if (Admin)
+                {
+                    // do nothing
+                }else
+                {
+                    data.disabled = true;
+                    Dbgl($"{data.name} is set for Adminonly, you are not an admin");
+
+                }
+            }
+
             if (data.disabled)
             {
                 Dbgl($"Removing recipe for {data.name} from the game");
 
                 ItemDrop hammer = ObjectDB.instance.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
+                ItemDrop hoe = ObjectDB.instance.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
                 if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
                 {
                     hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
                     return;
                 }
-                ItemDrop hoe = ObjectDB.instance.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
-                if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                else if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
                 {
                     hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
                     return;
+                }
+                else
+                {
+                    Dbgl($"Tryiny to remove Item {data.name} from custom Hammer");
+                    ItemDrop hammertry = ObjectDB.instance.GetItemPrefab(data.piecehammer)?.GetComponent<ItemDrop>();
+                    if (hammertry && hammertry.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                    {
+                        hammertry.m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                        return;
+                    }
                 }
 
             }
@@ -660,7 +758,7 @@ namespace recipecustomization
             ObjectDB.instance.UpdateItemHashes();
            // Dbgl("done with setpiece!");
         }
-
+        public static Component[] renderfinder;
         private static void SetItemData(WItemData data)
         {
             // Dbgl("Loaded SetItemData!");
@@ -733,11 +831,24 @@ namespace recipecustomization
                                 Dbgl($"Added prefab {name}");
                             }
                         }
-                        Material fireme = originalMaterials["weapons1_fire"];
-                       // go.GetComponentInChildren<Renderer>().materials.AddItem(fireme);
-                           // Append(originalMaterials["weapons1_fire"]); // only for cloned
+                        if (!string.IsNullOrEmpty(data.cloneMaterial))
+                        {
+                            Dbgl($"Material name searching for {data.cloneMaterial}");
+                            try
+                            {
+                                Material mat = originalMaterials[data.cloneMaterial]; // "weapons1_fire" glowing orange
+                                renderfinder = newItem.GetComponentsInChildren<Renderer>();
+                                //newItem.GetComponentsInChildren<Renderer>();
+                                foreach (Renderer renderitem in renderfinder)
+                                {
+                                    if (renderitem.receiveShadows && mat)
+                                        renderitem.material = mat;
+                                    //newItem.GetComponentInChildren<Renderer>().material = fireme; // causes particle system to be big orange boxes I guess its because first to find
+                                }
+                            } catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                        }
 
-                         PrimaryItemData = ObjectDB.instance.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
+                        PrimaryItemData = ObjectDB.instance.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                          data.name = tempname; // putting back name
                          ObjectDB.instance.UpdateItemHashes();
                     }
@@ -770,23 +881,6 @@ namespace recipecustomization
                         damages.m_slash = stringtoFloat(divideme[9]);
                         damages.m_spirit = stringtoFloat(divideme[10]);
                         PrimaryItemData.m_shared.m_damages = damages;
-
-
-                        /*
-                        HitData.DamageTypes damages = default(HitData.DamageTypes);
-                        damages.m_blunt = data.m_damages.m_blunt;
-                        damages.m_chop = data.m_damages.m_chop;
-                        damages.m_damage = data.m_damages.m_damage;
-                        damages.m_fire = data.m_damages.m_fire;
-                        damages.m_frost = data.m_damages.m_frost;
-                        damages.m_lightning = data.m_damages.m_lightning;
-                        damages.m_pickaxe = data.m_damages.m_pickaxe;
-                        damages.m_pierce = data.m_damages.m_pierce;
-                        damages.m_poison = data.m_damages.m_poison;
-                        damages.m_slash = data.m_damages.m_slash;
-                        damages.m_spirit = data.m_damages.m_spirit;
-                        PrimaryItemData.m_shared.m_damages = damages;
-                        */
                     }
                     if (data.m_damagesPerLevel != null && data.m_damagesPerLevel != "")
                     {
@@ -845,7 +939,13 @@ namespace recipecustomization
                     PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier;
                     PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
 
-                    
+                    PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
+                    foreach (string modString in data.damageModifiers)
+                    {
+                        string[] mod = modString.Split(':');
+                        int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
+                        PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
+                    }
                 }
                 // Dbgl("Amost done with SetItemData!");
             }
@@ -910,7 +1010,8 @@ namespace recipecustomization
             GameObject go = ObjectDB.instance.GetItemPrefab(name);
             if (go == null)
             {
-                return GetPieceRecipeByName(name);
+                Dbgl($"Recipe {name} not found!");
+                return null; //GetPieceRecipeByName(name);
             }
 
             ItemDrop.ItemData item = go.GetComponent<ItemDrop>().m_itemData;
@@ -955,18 +1056,18 @@ namespace recipecustomization
             return data;
         }
 
-        private static RecipeData GetPieceRecipeByName(string name)
+        private static PieceData GetPieceRecipeByName(string name)
         {
             GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name);
             if (go == null)
             {
-                Dbgl($"Item {name} not found!");
+                Dbgl($"Piece {name} not found!");
                 return null;
             }
             Piece piece = go.GetComponent<Piece>();
             if (piece == null)
             {
-                Dbgl("Item data not found!");
+                Dbgl("Piece data not found!");
                 return null;
             }
             string piecehammer = "Hammer";
@@ -983,16 +1084,16 @@ namespace recipecustomization
                 piecehammer = "Hoe";
                 
             }
-            piecehammer = "unused right now";
+            WackysRecipeCustomizationLogger.LogWarning("If using a custom Hammer, make sure to set this in piecehammer otherwise it will default to Hammer");
 
-
-            var data = new RecipeData()
+            var data = new PieceData()
             {
                 name = name,
                 amount = 1,
                 craftingStation = piece.m_craftingStation?.m_name ?? "",
                 minStationLevel = 1,
                 piecehammer = piecehammer,
+                adminonly = false,
             };
             foreach (Piece.Requirement req in piece.m_resources)
             {
@@ -1152,6 +1253,7 @@ namespace recipecustomization
                 m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
                 m_movementModifier = data.m_shared.m_movementModifier,
                 m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+                damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
             };
            // Dbgl("Item " + name + " damages " + damages.m_slash); // I think damages is being overwritten?
             if (jItemData.m_foodHealth == 0f && jItemData.m_foodRegen == 0f && jItemData.m_foodStamina == 0f)
@@ -1163,24 +1265,177 @@ namespace recipecustomization
             
 
         }
-        /*
-        public static void CreateItemFiles()
+        #endregion
+        #region Armor
+
+        [HarmonyPatch(typeof(ItemDrop), "SlowUpdate")] //checks every once in a while
+        static class ItemDrop_SlowUpdate_Patch
         {
-            foreach (GameObject item in ObjectDB.instance.m_items)
+            static void Postfix(ref ItemDrop __instance)
             {
-                ItemDrop component = item.GetComponent<ItemDrop>();
-                if (component != null)
+                if (!modEnabled.Value)
+                    return;
+                CheckArmorData(ref __instance.m_itemData);
+            }
+        }
+        [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]
+        static class GetDamageModifiersTooltipString_Patch
+        {
+            static void Postfix(ref string __result, List<HitData.DamageModPair> mods)
+            {
+                if (!modEnabled.Value)
+                    return;
+
+                __result = Regex.Replace(__result, @"\n.*<color=orange></color>", "");
+                foreach (HitData.DamageModPair damageModPair in mods)
                 {
-                    new JItemDrop();
-                    OpenDatabase.Logger.Log("Generated Item '" + component.name + "'", (LogLevel)16);
-                    string s = Helper.GetItemDataFromItemDrop(component).ToJson();
-                    s = JsonFormatter.Format(s, !global::OpenDatabase.OpenDatabase.showZerosInJSON.get_Value());
-                    File.WriteAllText(global::OpenDatabase.OpenDatabase.itemsFolder + "/" + component.name + ".json", s);
+                    if (Enum.IsDefined(typeof(HitData.DamageType), damageModPair.m_type))
+                        continue;
+
+                    if (damageModPair.m_modifier != HitData.DamageModifier.Ignore && damageModPair.m_modifier != HitData.DamageModifier.Normal)
+                    {
+                        switch (damageModPair.m_modifier)
+                        {
+                            case HitData.DamageModifier.Resistant:
+                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_resistant</color> VS ";
+                                break;
+                            case HitData.DamageModifier.Weak:
+                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_weak</color> VS ";
+                                break;
+                            case HitData.DamageModifier.Immune:
+                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_immune</color> VS ";
+                                break;
+                            case HitData.DamageModifier.VeryResistant:
+                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_veryresistant</color> VS ";
+                                break;
+                            case HitData.DamageModifier.VeryWeak:
+                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_veryweak</color> VS ";
+                                break;
+                        }
+                        if ((int)damageModPair.m_type == (int)NewDamageTypes.Water)
+                        {
+                            __result += "<color=orange>" + waterModifierName.Value + "</color>";
+                        }
+                    }
                 }
             }
         }
 
-        */
+
+        [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
+        static class UpdateEnvStatusEffects_Patch
+        {
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) // I really wish I knew what this transpiler code was doing for the frost and immune. Going to trust she knows what she's doing
+            {
+                Dbgl($"Transpiling UpdateEnvStatusEffects");
+
+                var codes = new List<CodeInstruction>(instructions);
+                var outCodes = new List<CodeInstruction>();
+                bool notFound = true;
+                for (int i = 0; i < codes.Count; i++)
+                {
+                    if (notFound && codes[i].opcode == OpCodes.Ldloc_S && codes[i + 1].opcode == OpCodes.Ldc_I4_1 && codes[i + 2].opcode == OpCodes.Beq && codes[i + 3].opcode == OpCodes.Ldloc_S && codes[i + 3].operand == codes[i].operand && codes[i + 4].opcode == OpCodes.Ldc_I4_5)
+                    {
+                        Dbgl($"Adding frost immune and ignore");
+
+                        outCodes.Add(new CodeInstruction(codes[i]));
+                        outCodes.Add(new CodeInstruction(OpCodes.Ldc_I4_3));
+                        outCodes.Add(new CodeInstruction(codes[i + 2]));
+                        outCodes.Add(new CodeInstruction(codes[i]));
+                        outCodes.Add(new CodeInstruction(OpCodes.Ldc_I4_4));
+                        outCodes.Add(new CodeInstruction(codes[i + 2]));
+                        notFound = false;
+                    }
+                    outCodes.Add(codes[i]);
+                }
+
+                return outCodes.AsEnumerable();
+            }
+            //skipping wet patches
+        }
+        private static bool ShouldOverride(HitData.DamageModifier a, HitData.DamageModifier b)
+        {
+            return a != HitData.DamageModifier.Ignore && (b == HitData.DamageModifier.Immune || ((a != HitData.DamageModifier.VeryResistant || b != HitData.DamageModifier.Resistant) && (a != HitData.DamageModifier.VeryWeak || b != HitData.DamageModifier.Weak)));
+        }
+        
+        private static void LoadAllArmorData(ZNetScene scene)
+        {
+            foreach (var armor in armorDatas)
+            {
+                GameObject go = scene.GetPrefab(armor.name);
+                if (go == null)
+                    continue;
+                ItemDrop.ItemData item = go.GetComponent<ItemDrop>().m_itemData;
+                SetArmorData(ref item, armor);
+                go.GetComponent<ItemDrop>().m_itemData = item;
+            }
+        }
+
+        private static void CheckArmorData(ref ItemDrop.ItemData instance)
+        {
+            try
+            {
+                var name = instance.m_dropPrefab.name;
+                var armor = armorDatas.First(d => d.name == name);
+                SetArmorData(ref instance, armor);
+                //Dbgl($"Set armor data for {instance.name}");
+            }
+            catch
+            {
+
+            }
+        }
+
+        private static void SetArmorData(ref ItemDrop.ItemData item, ArmorData armor)
+        {
+            //item.m_shared.m_armor = armor.armor;
+            //item.m_shared.m_armorPerLevel = armor.armorPerLevel;
+           // item.m_shared.m_movementModifier = armor.movementModifier;
+
+            item.m_shared.m_damageModifiers.Clear();
+            foreach (string modString in armor.damageModifiers)
+            {
+                string[] mod = modString.Split(':');
+                int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
+                item.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) });
+            }
+        }
+
+        private static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, Character character)
+        {
+            Traverse t = Traverse.Create(character);
+            return GetNewDamageTypeMod(type, t.Field("m_chestItem").GetValue<ItemDrop.ItemData>(), t.Field("m_legItem").GetValue<ItemDrop.ItemData>(), t.Field("m_helmetItem").GetValue<ItemDrop.ItemData>(), t.Field("m_shoulderItem").GetValue<ItemDrop.ItemData>());
+        }
+
+        private static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, ItemDrop.ItemData chestItem, ItemDrop.ItemData legItem, ItemDrop.ItemData helmetItem, ItemDrop.ItemData shoulderItem)
+        {
+            HitData.DamageModPair modPair = new HitData.DamageModPair();
+
+            if (chestItem != null)
+                modPair = chestItem.m_shared.m_damageModifiers.FirstOrDefault(s => (int)s.m_type == (int)type);
+
+            if (legItem != null)
+            {
+                var leg = legItem.m_shared.m_damageModifiers.FirstOrDefault(s => (int)s.m_type == (int)type);
+                if (ShouldOverride(modPair.m_modifier, leg.m_modifier))
+                    modPair = leg;
+            }
+            if (helmetItem != null)
+            {
+                var helm = helmetItem.m_shared.m_damageModifiers.FirstOrDefault(s => (int)s.m_type == (int)type);
+                if (ShouldOverride(modPair.m_modifier, helm.m_modifier))
+                    modPair = helm;
+            }
+            if (shoulderItem != null)
+            {
+                var shoulder = shoulderItem.m_shared.m_damageModifiers.FirstOrDefault(s => (int)s.m_type == (int)type);
+                if (ShouldOverride(modPair.m_modifier, shoulder.m_modifier))
+                    modPair = shoulder;
+            }
+            return modPair.m_modifier;
+        }
+
+
         #endregion
         #region Patches
 
@@ -1219,12 +1474,12 @@ namespace recipecustomization
                         {
                             string output = $"wackydb_reset \r\n"
                             + $"wackydb_reload\r\n"
-                            + $"wackydb_dump item/recipe/piece <ItemName>\r\n"
-                            + $"wackydb_save <ItemName>(recipe or piece output)\r\n"
-                            + $"wackydb_save_item <ItemName>(Item Output)\r\n"
+                            + $"wackydb_dump (2)<item/recipe/piece> <ItemName>\r\n"
+                            + $"wackydb_save_recipe (1) <ItemName>(recipe output)\r\n"
+                            + $"wackydb_save_piece (1) <ItemName>(piece output) (piecehammer only works for clones)\r\n"
+                            + $"wackydb_save_item (1)<ItemName>(item Output)\r\n"
                             + $"wackydb_help\r\n"
-                            + $"wackydb_clone (clone an recipe or piece)\r\n"
-                          //  + $"wackydb_clone_item (clone an item)\r\n"
+                            + $"wackydb_clone (3) <itemtype(recipe,item,piece)> <Prefab to clone> <Unquie name for the clone>\r\n"
                             ;
 
                             args.Context?.AddString(output);
@@ -1236,12 +1491,13 @@ namespace recipecustomization
                          {
                                 string output = $"wackydb_reset \r\n"
                             + $"wackydb_reload\r\n"
-                            + $"wackydb_dump <item/recipe> <ItemName>\r\n"
-                            + $"wackydb_save <ItemName>(recipe or piece output)\r\n"
-                            + $"wackydb_save_item <ItemName>(Item Output)\r\n"
+                            + $"wackydb_dump (2)<item/recipe/piece> <ItemName>\r\n"
+                            + $"wackydb_save_recipe (1) <ItemName>(recipe output)\r\n"
+                            + $"wackydb_save_piece (1) <ItemName>(piece output) (piecehammer only works for clones)\r\n"
+                            + $"wackydb_save_item (1)<ItemName>(item Output)\r\n"
                             + $"wackydb_help\r\n"
-                            + $"wackydb_clone (clone an recipe or piece)\r\n"
-                            //+ $"wackydb_clone_item (clone an item)\r\n"
+                            + $"wackydb_clone (3) <itemtype(recipe,item,piece)> <Prefab to clone> <Unquie name for the clone>\r\n"
+
                             ;
 
                             args.Context?.AddString(output);
@@ -1264,13 +1520,13 @@ namespace recipecustomization
                              if (ObjectDB.instance)
                              {
                                  LoadAllRecipeData(true);
-                                 args.Context?.AddString($"WackyDatabase reloaded recipes/items from files");
-                                 Dbgl("WackyDatabase reloaded recipes/items from files");
+                                 args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
+                                 Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
                              }
                              else
                              {
-                                 args.Context?.AddString($"WackyDatabase did NOT reload recipes/items from files"); // maybe?
-                                 Dbgl("WackyDatabase did NOT reload recipes/items from files");
+                                 args.Context?.AddString($"WackyDatabase did NOT reload recipes/items/pieces from files"); // maybe?
+                                 Dbgl("WackyDatabase did NOT reload recipes/items/pieces from files");
                              }
                              
                          });
@@ -1288,13 +1544,19 @@ namespace recipecustomization
                              {
                                  string recipe = args[1];
                                  string comtype = args[2];
-                                 if (recipe == "item")
+                                 if (recipe == "item" || recipe == "Item")
                                  {
                                      WItemData recipeData = GetItemDataByName(comtype);
                                      if (recipeData == null)
                                          return;
                                      Dbgl(JsonUtility.ToJson(recipeData));
 
+                                 } else if (recipe == "piece" || recipe == "Piece")
+                                 {
+                                     PieceData data = GetPieceRecipeByName(comtype);
+                                     if (data == null)
+                                         return;
+                                     Dbgl(JsonUtility.ToJson(data));
                                  }
                                  else
                                  {
@@ -1316,12 +1578,25 @@ namespace recipecustomization
                             if (recipData == null)
                                 return;
                             CheckModFolder();
-                            File.WriteAllText(Path.Combine(assetPath, "Item_" + recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
+                            File.WriteAllText(Path.Combine(assetPathItems, "Item_" + recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
                             args.Context?.AddString($"saved item data to Item_{file}.json");
 
                         });
-                Terminal.ConsoleCommand WackySave =
-                    new("wackydb_save", "Save a piece or recipe ",
+                Terminal.ConsoleCommand WackyPieceSave =
+                    new("wackydb_save_piece", "Save a piece ",
+                        args =>
+                        {
+                            string file = args[1];
+                            PieceData recipData = GetPieceRecipeByName(file);
+                            if (recipData == null)
+                                return;
+                            CheckModFolder();
+                            File.WriteAllText(Path.Combine(assetPathPieces, "Piece_"+recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
+                            args.Context?.AddString($"saved data to Piece_{file}.json");
+
+                        });
+                                Terminal.ConsoleCommand WackyRecipeSave =
+                    new("wackydb_save_recipe", "Save a recipe ",
                         args =>
                         {
                             string file = args[1];
@@ -1329,8 +1604,8 @@ namespace recipecustomization
                             if (recipData == null)
                                 return;
                             CheckModFolder();
-                            File.WriteAllText(Path.Combine(assetPath, recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
-                            args.Context?.AddString($"saved data to {file}.json");
+                            File.WriteAllText(Path.Combine(assetPathRecipes, "Recipe_" + recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
+                            args.Context?.AddString($"saved data to Recipe_{file}.json");
 
                         });
                 /* syntax for cloning
@@ -1367,7 +1642,8 @@ namespace recipecustomization
                                     if (clone == null)
                                         return;
                                     CheckModFolder();
-                                    File.WriteAllText(Path.Combine(assetPath, clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    File.WriteAllText(Path.Combine(assetPathRecipes, "Recipe_"+clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    file = "Recipe" + clone.name;
 
                                 }
                                 if (commandtype == "item" || commandtype == "Item")
@@ -1378,12 +1654,13 @@ namespace recipecustomization
                                     clone.name = newname;
                                     clone.clone = true;
                                     clone.clonePrefabName = prefab;
+                                    clone.m_name = newname;
 
 
                                     if (clone == null)
                                         return;
                                     CheckModFolder();
-                                    File.WriteAllText(Path.Combine(assetPath, "Item_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    File.WriteAllText(Path.Combine(assetPathItems, "Item_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
                                     file = "Item_" + clone.name;
 
 
@@ -1391,7 +1668,7 @@ namespace recipecustomization
                                 }
                                 if (commandtype == "piece" || commandtype == "Piece")
                                 {
-                                    RecipeData clone = GetPieceRecipeByName(prefab);
+                                    PieceData clone = GetPieceRecipeByName(prefab);
                                     if (clone == null)
                                         return;
                                     clone.name = newname;
@@ -1403,7 +1680,8 @@ namespace recipecustomization
                                     if (clone == null)
                                         return;
                                     CheckModFolder();
-                                    File.WriteAllText(Path.Combine(assetPath, clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    File.WriteAllText(Path.Combine(assetPathPieces, "Piece_"+clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    file = "Piece_" + clone.name;
 
                                 }
                                 args.Context?.AddString($"saved cloned data to {file}.json");
@@ -1688,83 +1966,4 @@ Material replacer
 			Piece piece = SetupCraftingStation(model, component, val);
 			Piece piece2 = SetupCraftingStation(model2, component3, val3);
 
- public static class MaterialReplacer
-    {
-        static MaterialReplacer()
-        {
-            originalMaterials = new Dictionary<string, Material>();
-            ObjectToSwap = new Dictionary<GameObject, bool>();
-            Harmony harmony = new("org.bepinex.helpers.PieceManager");
-            harmony.Patch(AccessTools.DeclaredMethod(typeof(ZoneSystem), nameof(ZoneSystem.Start)),
-                postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(MaterialReplacer),
-                    nameof(GetAllMaterials))));
-            harmony.Patch(AccessTools.DeclaredMethod(typeof(ZoneSystem), nameof(ZoneSystem.Start)),
-                postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(MaterialReplacer),
-                    nameof(ReplaceAllMaterialsWithOriginal))));
-        }
-
-        private static Dictionary<GameObject, bool> ObjectToSwap;
-        internal static Dictionary<string, Material> originalMaterials;
-
-        public static void RegisterGameObjectForMatSwap(GameObject go, bool isJotunnMock = false)
-        {
-            ObjectToSwap.Add(go, isJotunnMock);
-        }
-        
-        [HarmonyPriority(Priority.VeryHigh)]
-        private static void GetAllMaterials()
-        {
-            var allmats = Resources.FindObjectsOfTypeAll<Material>();
-            foreach (var item in allmats)
-            {
-                originalMaterials[item.name] = item;
-            }
-        }
-        
-        [HarmonyPriority(Priority.VeryHigh)]
-        private static void ReplaceAllMaterialsWithOriginal()
-        {
-            if(originalMaterials.Count <= 0) GetAllMaterials();
-            foreach (var renderer in ObjectToSwap.SelectMany(gameObject => gameObject.Key.GetComponentsInChildren<Renderer>(true)))
-            {
-                ObjectToSwap.TryGetValue(renderer.gameObject, out bool jotunnPrefabFlag);
-                foreach (var t in renderer.materials)
-                {
-                    if (jotunnPrefabFlag)
-                    {
-                        if (!t.name.StartsWith("JVLmock_")) continue;
-                        var matName = renderer.material.name.Replace(" (Instance)", string.Empty).Replace("_REPLACE_", "");
-
-                        if (originalMaterials!.ContainsKey(matName))
-                        {
-                            renderer.material = originalMaterials[matName];
-                        }
-                        else
-                        {
-                            Debug.LogWarning("No suitable material found to replace: " + matName);
-                            // Skip over this material in future
-                            originalMaterials[matName] = renderer.material;
-                        }
-                    }
-                    else
-                    {
-                        if (!t.name.StartsWith("_REPLACE_")) continue;
-                        var matName = renderer.material.name.Replace(" (Instance)", string.Empty).Replace("_REPLACE_", "");
-
-                        if (originalMaterials!.ContainsKey(matName))
-                        {
-                            renderer.material = originalMaterials[matName];
-                        }
-                        else
-                        {
-                            Debug.LogWarning("No suitable material found to replace: " + matName);
-                            // Skip over this material in future
-                            originalMaterials[matName] = renderer.material;
-                        }   
-                    }
-                    
-                }
-            }
-        }
-    }
 */

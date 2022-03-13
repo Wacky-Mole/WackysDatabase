@@ -10,7 +10,6 @@ namespace recipecustomization
         public string cloneEffects;
         public string cloneColor;
         public string craftingStation;
-        public string piecehammer;
         public int minStationLevel;
         public int amount;
         public bool disabled;
@@ -29,6 +28,7 @@ namespace recipecustomization
         public int minStationLevel;
         public int amount;
         public bool disabled;
+        public bool adminonly;
         public List<string> reqs = new List<string>();
     }
 
