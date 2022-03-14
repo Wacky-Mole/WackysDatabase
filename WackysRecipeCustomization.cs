@@ -265,7 +265,13 @@ namespace recipecustomization
                         }
 
                     }
-                    //ObjectDB.instance.UpdateItemHashes(); // move to the end of updating all componets
+                           // move to the end of updating all componets
+                         try { 
+                             ObjectDB.instance.UpdateItemHashes();
+                            } catch
+                        {
+                            Dbgl($"failed to update Hashes- probably due to too many calls");
+                        }
                 }
             }
         }
@@ -457,7 +463,7 @@ namespace recipecustomization
             }
             jsonstring = amber.ToString();
             skillConfigData.Value = jsonstring;
-            WackysRecipeCustomizationLogger.LogDebug("loaded first pass files");
+            WackysRecipeCustomizationLogger.LogDebug("Server loaded files");
         }
 
         private static void CheckModFolder()
@@ -755,7 +761,8 @@ namespace recipecustomization
             }
             //Dbgl("Amost done with setpiece!");
             go.GetComponent<Piece>().m_resources = reqs.ToArray();
-            ObjectDB.instance.UpdateItemHashes();
+            //go.GetComponent<Piece>().
+            //ObjectDB.instance.UpdateItemHashes();
            // Dbgl("done with setpiece!");
         }
         public static Component[] renderfinder;
@@ -797,40 +804,33 @@ namespace recipecustomization
                     if (data.clone && !skip) // object is a clone do clonethings
                     {
                         Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
+                        Cloned.Add(tempname);
                         ItemDrop NewItemComp = Instantiate(go.GetComponent<ItemDrop>());
                         GameObject newItem = NewItemComp.gameObject;
-                        Cloned.Add(tempname);
-
                         newItem.name = tempname; // resets the orginal name- needs to be unquie
                         NewItemComp.m_itemData.m_shared.m_name = tempname; // ingame name
-                        //ZNetScene.instance.m_prefabs.Add(newItem); // znetscene
-                        //ObjectDB.instance.m_items.Add(newItem); // add new GameObject to item list
                         var hash = newItem.name.GetStableHashCode();
                         ObjectDB.instance.m_items.Add(newItem);
                         ZNetScene znet = ZNetScene.instance;
                         if (znet)
                         {
                             string name = newItem.name;
-                            //int hash2 = name.GetStableHashCode();
-
                             if (znet.m_namedPrefabs.ContainsKey(hash))
-                            {
-                                Dbgl($"Prefab {name} already in ZNetScene");
-                            }
+                                WackysRecipeCustomizationLogger.LogWarning($"Prefab {name} already in ZNetScene");
                             else
                             {
                                 if (newItem.GetComponent<ZNetView>() != null)
-                                {
                                     znet.m_prefabs.Add(newItem);
-                                }
                                 else
-                                {
                                     znet.m_nonNetViewPrefabs.Add(newItem);
-                                }
+
                                 znet.m_namedPrefabs.Add(hash, newItem);
                                 Dbgl($"Added prefab {name}");
+                                
                             }
                         }
+                        
+                        // ObjectDB.instance.UpdateItemHashes();
                         if (!string.IsNullOrEmpty(data.cloneMaterial))
                         {
                             Dbgl($"Material name searching for {data.cloneMaterial}");
@@ -850,7 +850,12 @@ namespace recipecustomization
 
                         PrimaryItemData = ObjectDB.instance.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                          data.name = tempname; // putting back name
-                         ObjectDB.instance.UpdateItemHashes();
+                        try { 
+                            // ObjectDB.instance.UpdateItemHashes();
+                            } catch
+                        {
+                            Dbgl($"Item {tempname} failed to update Hashes");
+                        }
                     }
                     
                     Dbgl($"Item being Set in SetItemData for {data.name} ");
@@ -946,8 +951,10 @@ namespace recipecustomization
                         int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
                         PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
                     }
-                }
-                // Dbgl("Amost done with SetItemData!");
+                     return; // done, I don't need to continue?
+                } // Dbgl("Amost done with SetItemData!");
+               
+               
             }
 
         }
@@ -1627,6 +1634,11 @@ namespace recipecustomization
                                 string prefab = args[2];
                                 string newname = args[3];
                                 string file = args[3];
+                                if (newname == "SwordTest")
+                                {
+                                    args.Context?.AddString($"<color=red>{newname} is already a ingame name. -Bad </color>");
+                                    return;
+                                }
 
                                 if (commandtype == "recipe" || commandtype == "Recipe")
                                 {
