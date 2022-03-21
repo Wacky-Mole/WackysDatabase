@@ -4,4 +4,7 @@
     <ReferencePath>C:\Modding\Valheim 205.5\unstripped_corlib\;C:\Modding\Valheim 205.5\BepInEx\core\;C:\Modding\Valheim 205.5\publicized_assemblies\;C:\Modding\Valheim 205.5\valheim_Data\Managed\publicized_assemblies\</ReferencePath>
     <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
 </Project>

@@ -7,7 +7,6 @@ namespace recipecustomization
         public string name;
         public bool clone;
         public string clonePrefabName;
-        public string cloneEffects;
         public string cloneColor;
         public string craftingStation;
         public int minStationLevel;
@@ -22,7 +21,7 @@ namespace recipecustomization
         public bool clone;
         public string clonePrefabName;
         public string cloneEffects;
-        public string cloneColor;
+        public string cloneMaterial;
         public string craftingStation;
         public string piecehammer;
         public int minStationLevel;

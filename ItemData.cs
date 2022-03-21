@@ -100,6 +100,7 @@ public class WItemData
 
 
 
+
 }
 [Serializable]
 public class ArmorData

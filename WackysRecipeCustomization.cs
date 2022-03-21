@@ -1,4 +1,4 @@
-﻿// Most of the credit goes to  aedenthorn  and all of his Many Mods! https://github.com/aedenthorn/ValheimMods
+﻿// A Lot of the credit goes to  aedenthorn  and all of his Many Mods! https://github.com/aedenthorn/ValheimMods
 // Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate
 // Thanks to the Odin Discord server, for being active and good for the valheim community.
 // Do whatever you want with this mod. // except sale it as per Aedenthorn Permissions https://www.nexusmods.com/valheim/mods/1245
@@ -34,7 +34,7 @@ namespace recipecustomization
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.0.0";
+        internal const string ModVersion = "1.0.1";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -42,20 +42,21 @@ namespace recipecustomization
         private static string NexusModID;
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
+        public static ConfigEntry<bool> isautoreload;
         public static ConfigEntry<bool> isSinglePlayer;
         private static bool issettoSinglePlayer;
+        private static bool isSettoAutoReload;
         private static bool recieveServerInfo = false;
         internal static string ConnectionError = "";
         private static WMRecipeCust context;
         private static int kickcount = 0;
-        //public static string consoleNamespace = "recipecustomization";
-        //private static bool IsServer = false;
-        //private static bool IsServer => (int)SystemInfo.get_graphicsDeviceType() == 4;
+       // private static bool IsServer = false;
+       // private static bool IsServer => (int)SystemInfo.get_graphicsDeviceType() == 4;
+       // private static bool IsServer => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         //private static bool IsServer = SystemInfo.graphicsDeviceType();
 
         public static ConfigEntry<float> globalArmorDurabilityLossMult;
         public static ConfigEntry<float> globalArmorMovementModMult;
-
         public static ConfigEntry<string> waterModifierName;
 
         private static List<RecipeData> recipeDatas = new List<RecipeData>();
@@ -75,6 +76,8 @@ namespace recipecustomization
         private static int startupSync = 0;
         bool admin = !ConfigSync.IsLocked;
         readonly bool admin2 = ConfigSync.IsAdmin;
+        private static GameObject Root;
+        private static bool Firstrun = true;
 
 
 
@@ -109,12 +112,14 @@ namespace recipecustomization
             assetPathItems = Path.Combine(assetPath, "Items");
             assetPathRecipes = Path.Combine(assetPath, "Recipes");
             assetPathPieces = Path.Combine(assetPath, "Pieces");
-            testme();
+           // testme();
+            //Cloned.Clear();
 
             // ending files
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
-            //SetupWatcher(); You can game it by using false-true(load)-false
+            //SetupWatcher(); No Config Watching because You can chaet it by using false-true(load)-false // moving it too ServerReadFiles
+            SetupWatcher(); // so if files change after startup it reloads recipes/ but doesn't input them.
             GetRecipeDataFromFilesForServer();
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
         }
@@ -149,11 +154,15 @@ namespace recipecustomization
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
 
+            Root = new GameObject("myroot");
+            Root.SetActive(false);
+            DontDestroyOnLoad(Root);
 
             // ^^ // starting files
             context = this;
             modEnabled = config<bool>("General", "Enabled", true, "Enable this mod");
             isDebug = config<bool>("General", "IsDebug", true, "Enable debug logs", false);
+            isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
             isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
             if (isSinglePlayer.Value)
             {
@@ -167,16 +176,21 @@ namespace recipecustomization
                 issettoSinglePlayer = false;
             }
             WackysRecipeCustomizationLogger.LogWarning("Mod Version " + ConfigSync.CurrentVersion);
+            if (isautoreload.Value)
+                isSettoAutoReload = true;
+            else isSettoAutoReload = false;
 
         }
         private void OnDestroy()
         {
             Config.Save();
+            //need to unload cloned objects
         }
 
         private void SetupWatcher()
         {
-            FileSystemWatcher watcher = new(Paths.ConfigPath, ConfigFileName);
+           // FileSystemWatcher watcher = new(Paths.ConfigPath, ConfigFileName);
+            FileSystemWatcher watcher = new(assetPath); // jsons
             watcher.Changed += ReadConfigValues;
             watcher.Created += ReadConfigValues;
             watcher.Renamed += ReadConfigValues;
@@ -190,13 +204,19 @@ namespace recipecustomization
             if (!File.Exists(ConfigFileFullPath)) return;
             try
             {
-                WackysRecipeCustomizationLogger.LogDebug("ReadConfigValues called");
-                Config.Reload();
+                
+               // Config.Reload(); not going to watch the config file anymore
+               // this should be c
+               if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() || issettoSinglePlayer && isSettoAutoReload) {  // should only load for the server now
+                 Dbgl("Jsons files have changed and access is either on a dedicated server or singleplayer with autoreload on therefore reloading everything");
+                 GetRecipeDataFromFiles(); // load stuff in mem
+                 skillConfigData.Value = jsonstring; //Sync Event // Single player forces client to reload as well. 
+                    }
             }
             catch
             {
-                WackysRecipeCustomizationLogger.LogError($"There was an issue loading your {ConfigFileName}");
-                WackysRecipeCustomizationLogger.LogError("Please check your config entries for spelling and format!");
+                WackysRecipeCustomizationLogger.LogError($"There was an issue loading your Sync ");
+                WackysRecipeCustomizationLogger.LogError("Please check your entries for spelling and format!");
             }
         }
 
@@ -257,6 +277,7 @@ namespace recipecustomization
                         }
                         foreach (var data in recipeDatas)
                         {
+                            // Dbgl($"trying to load recipes");
                             SetRecipeData(data);
                         }
                         foreach (var data in PieceDatas)
@@ -272,7 +293,7 @@ namespace recipecustomization
                         {
                             Dbgl($"failed to update Hashes- probably due to too many calls");
                         }
-                }
+                } else {   Dbgl($" You did NOT actually reload anything");}
             }
         }
         //private static get private admin
@@ -295,13 +316,13 @@ namespace recipecustomization
                 ItemDatas.Clear();
                 PieceDatas.Clear();
                 armorDatas.Clear();
-                GetAllMaterials();
+               // GetAllMaterials(); // disable this, called from server start now?
                 string SyncedString = skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
                 {
                     WackysRecipeCustomizationLogger.LogDebug("Synced String was  " + SyncedString);
                     string[] jsons = SyncedString.Split('@');
-                    foreach (var word in jsons)
+                    foreach (var word in jsons) // Should really do a first pass for clones?
                     {
                         if (word.Contains("m_name")) //item
                         {
@@ -360,8 +381,12 @@ namespace recipecustomization
 
         private static void GetRecipeDataFromFiles()
         {
-            CheckModFolder();
-            GetAllMaterials(); // MAYBE MOVE somewhere better  call materials // don't forget to do this for server
+            if (Firstrun)
+            {
+                CheckModFolder();
+                GetAllMaterials();
+                Firstrun = false;
+            }
             recipeDatas.Clear();
             ItemDatas.Clear();
             PieceDatas.Clear();
@@ -415,11 +440,12 @@ namespace recipecustomization
 
             jsonstring = amber.ToString();
             // skillConfigData.Value = jsonstring; Only for server 1st time
-            WackysRecipeCustomizationLogger.LogDebug(jsonstring);
+            Dbgl(jsonstring); // maybe disable this for release
         }
         private static void GetRecipeDataFromFilesForServer()
         {
             CheckModFolder();
+            //GetAllMaterials(); // MAYBE MOVE somewhere better  call materials
             var amber = new System.Text.StringBuilder();
             foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
             {
@@ -463,6 +489,7 @@ namespace recipecustomization
             }
             jsonstring = amber.ToString();
             skillConfigData.Value = jsonstring;
+            
             WackysRecipeCustomizationLogger.LogDebug("Server loaded files");
         }
 
@@ -497,19 +524,16 @@ namespace recipecustomization
                     skip = true;   
             }
             string tempname = data.name;
-            if (data.clone && !skip)
+            if (data.clone) // both skip and
             {
                 data.name = data.clonePrefabName;
             }
+
             GameObject go = ObjectDB.instance.GetItemPrefab(data.name);
             if (go == null)
-            {
-                if (data.clone)
-                {
-                    data.name = tempname; // change back 
-                }
+            {  
                 //SetPieceRecipeData(data);
-               // Dbgl("maybe null " + data.name);
+                Dbgl("maybe null " + data.name  +" Should not get here");
                 return;
             }
 
@@ -528,7 +552,7 @@ namespace recipecustomization
 
                     //int hash = tempname.GetStableHashCode();
                     //Dictionary<int, GameObject> namedPrefabs = ZNetScene.instance.m_namedPrefabs;
-                   // bool check = namedPrefabs.TryGetValue(hash, out var value); // check if hash is already in the system
+                    // bool check = namedPrefabs.TryGetValue(hash, out var value); // check if hash is already in the system
 
                     clonerecipe.m_item = go.GetComponent<ItemDrop>();
                     clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
@@ -571,15 +595,58 @@ namespace recipecustomization
                             break;
                         }
                     }
-                            ObjectDB.instance.m_recipes.Insert(index,clonerecipe);
+                    ObjectDB.instance.m_recipes.Insert(index, clonerecipe);
                 }
                 else
                 {
                     Dbgl("Cloned Recipe is disabled for " + data.clonePrefabName + " Will not unload if already loaded");
                     return;
                 }
+
             }
-            else
+            else if (skip) // if a previous clone
+            {
+                for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
+                {
+                    if (ObjectDB.instance.m_recipes[i].name == tempname)
+                    {
+                        Dbgl("ReSetting Recipe for " + tempname);
+                        Recipe clonerecipe = ObjectDB.instance.m_recipes[i];
+                        clonerecipe.m_item = go.GetComponent<ItemDrop>();
+                        clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
+                        clonerecipe.m_minStationLevel = data.minStationLevel;
+                        clonerecipe.m_amount = data.amount;
+                        clonerecipe.name = tempname; //maybe
+
+                        List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+
+                        // Dbgl("Made it to RecipeData!");  
+                        foreach (string req in data.reqs)
+                        {
+                            if (!string.IsNullOrEmpty(req))
+                            {
+                                string[] array = req.Split(':'); // safer vewrsion
+                                string itemname = array[0];
+                                if (ObjectDB.instance.GetItemPrefab(itemname))
+                                {
+                                    int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
+                                    int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+                                    bool recover = array.Length != 4 || bool.Parse(array[3]);
+                                    Piece.Requirement item = new Piece.Requirement
+                                    {
+                                        m_amount = amount,
+                                        m_recover = recover,
+                                        m_resItem = ObjectDB.instance.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
+                                        m_amountPerLevel = amountPerLevel
+                                    };
+                                    reqs.Add(item);
+                                }
+                            }
+                        }// foreach
+                        clonerecipe.m_resources = reqs.ToArray();
+                    }
+                }
+            }else // ingame item
             {
 
                 for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
@@ -640,15 +707,14 @@ namespace recipecustomization
             if (data.clone && !skip) // object is a clone do clonethings
                 {
                 Dbgl($"Item CLONE DATA in SetPiece for {tempname} ");
-                Piece NewItemComp = Instantiate(go.GetComponent<Piece>());
-                //Dbgl($"Item CLONE DATA Part-1 {tempname} ");
-                GameObject newItem = NewItemComp.gameObject;
+                Transform RootT = Root.transform; // Root set to inactive to perserve components. 
+                GameObject newItem = Instantiate(go, RootT, false);
+                Piece NewItemComp = newItem.GetComponent<Piece>();
+
                 Cloned.Add(tempname); // check against
-               // Dbgl($"Item CLONE DATA Part0 {tempname} ");
                 newItem.name = tempname; // resets the orginal name- needs to be unquie
                 NewItemComp.name = tempname; // ingame name
                  
-                //Dbgl($"Item CLONE DATA Part1 {tempname} ");
                 var hash = newItem.name.GetStableHashCode();   
                 ZNetScene znet = ZNetScene.instance;
                 if (znet)
@@ -678,7 +744,23 @@ namespace recipecustomization
                 CraftingStation craft = GetCraftingStation(data.craftingStation);
                 newItem.GetComponent<Piece>().m_craftingStation = craft; // sets crafing item place
 
-                //Dbgl($"Item CLONE DATA Part2 {tempname} ");
+                if (!string.IsNullOrEmpty(data.cloneMaterial))
+                {
+                    Dbgl($"Material name searching for {data.cloneMaterial}");
+                    try
+                    {
+                        Material mat = originalMaterials[data.cloneMaterial]; // "weapons1_fire" glowing orange
+                        renderfinder = newItem.GetComponentsInChildren<Renderer>();
+                        foreach (Renderer renderitem in renderfinder)
+                        {
+                            if (renderitem.receiveShadows && mat)
+                                renderitem.material = mat;
+                            //newItem.GetComponentInChildren<Renderer>().material = fireme; // causes particle system to be big orange boxes I guess its because first to find
+                        }
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                }
+
                 GameObject piecehammer = ObjectDB.instance.GetItemPrefab(data.piecehammer);
                 if (piecehammer == null)
                 {
@@ -686,12 +768,8 @@ namespace recipecustomization
                     piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
                 }
                  piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // added to Piecehammer or morelikely Hammer  - Just don't mess with right now
-                //Dbgl($"Item CLONE DATA Part3 {tempname} ");
-
-
                 data.name = tempname; // putting back name
                 
-                //Dbgl($"Item CLONE DATA Part4 {tempname} ");
                 go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name); // just verifying
                 if (go == null)
                 {
@@ -704,7 +782,7 @@ namespace recipecustomization
                     return;
                 }
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
-                //ObjectDB.instance.UpdateItemHashes(); // end of clone
+                //ObjectDB.instance.UpdateItemHashes(); // moved to end of loadingdata
             } 
             if (data.adminonly)
             {
@@ -759,12 +837,11 @@ namespace recipecustomization
                 string[] parts = req.Split(':');
                 reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
             }
-            //Dbgl("Amost done with setpiece!");
+
             go.GetComponent<Piece>().m_resources = reqs.ToArray();
-            //go.GetComponent<Piece>().
-            //ObjectDB.instance.UpdateItemHashes();
-           // Dbgl("done with setpiece!");
+
         }
+
         public static Component[] renderfinder;
         private static void SetItemData(WItemData data)
         {
@@ -781,6 +858,7 @@ namespace recipecustomization
                 data.name = data.clonePrefabName;
             }
             GameObject go = ObjectDB.instance.GetItemPrefab(data.name);
+
             if (go == null)
             {
                 Dbgl(" item in SetItemData null " + data.name);
@@ -805,12 +883,16 @@ namespace recipecustomization
                     {
                         Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
                         Cloned.Add(tempname);
-                        ItemDrop NewItemComp = Instantiate(go.GetComponent<ItemDrop>());
-                        GameObject newItem = NewItemComp.gameObject;
+                        Transform RootT = Root.transform; // Root set to inactive to perserve components. 
+                        GameObject newItem = Instantiate(go, RootT, false); 
+                        ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
+   
+                        NewItemComp.name = tempname; // added and seems to be the issue
                         newItem.name = tempname; // resets the orginal name- needs to be unquie
-                        NewItemComp.m_itemData.m_shared.m_name = tempname; // ingame name
+                        NewItemComp.m_itemData.m_shared.m_name = data.m_name; // ingame name
                         var hash = newItem.name.GetStableHashCode();
                         ObjectDB.instance.m_items.Add(newItem);
+
                         ZNetScene znet = ZNetScene.instance;
                         if (znet)
                         {
@@ -825,12 +907,12 @@ namespace recipecustomization
                                     znet.m_nonNetViewPrefabs.Add(newItem);
 
                                 znet.m_namedPrefabs.Add(hash, newItem);
-                                Dbgl($"Added prefab {name}");
-                                
+                                Dbgl($"Added prefab {name}");    
                             }
                         }
-                        
-                        // ObjectDB.instance.UpdateItemHashes();
+                       
+                         ObjectDB.instance.UpdateItemHashes();
+                         
                         if (!string.IsNullOrEmpty(data.cloneMaterial))
                         {
                             Dbgl($"Material name searching for {data.cloneMaterial}");
@@ -857,7 +939,6 @@ namespace recipecustomization
                             Dbgl($"Item {tempname} failed to update Hashes");
                         }
                     }
-                    
                     Dbgl($"Item being Set in SetItemData for {data.name} ");
                     /*Dbgl($"Itemdamage for SetItemData for {data.m_damages.m_slash} ");
                     foreach (PropertyInfo prop in typeof(WDamages).GetProperties())
@@ -1053,7 +1134,7 @@ namespace recipecustomization
                 name = name,
                 amount = recipe.m_amount,
                 craftingStation = recipe.m_craftingStation?.m_name ?? "",
-                minStationLevel = recipe.m_minStationLevel,
+                minStationLevel = recipe.m_minStationLevel, 
             };
             foreach (Piece.Requirement req in recipe.m_resources)
             {
@@ -1261,6 +1342,7 @@ namespace recipecustomization
                 m_movementModifier = data.m_shared.m_movementModifier,
                 m_attackStamina = data.m_shared.m_attack.m_attackStamina,
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
+                
             };
            // Dbgl("Item " + name + " damages " + damages.m_slash); // I think damages is being overwritten?
             if (jItemData.m_foodHealth == 0f && jItemData.m_foodRegen == 0f && jItemData.m_foodStamina == 0f)
@@ -1524,8 +1606,9 @@ namespace recipecustomization
                          args =>
                          {
                             // GetRecipeDataFromFiles(); called in loadallrecipes
-                             if (ObjectDB.instance)
+                             if (ObjectDB.instance && issettoSinglePlayer)
                              {
+
                                  LoadAllRecipeData(true);
                                  args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
                                  Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
@@ -1736,86 +1819,6 @@ namespace recipecustomization
                     }
 
                 }
-                #region unused input
-                /* Not needed now
-                // comment out all this in favor of commands above
-                if (!modEnabled.Value && issettoSinglePlayer)
-                    return true;
-
-
-                if (text.ToLower().Equals($"{typeof(WMRecipeCust).Namespace.ToLower()} reset"))
-                {
-                    context.Config.Reload();
-                    context.Config.Save();
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { text });
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { $"{context.Info.Metadata.Name} config reloaded" });
-                    return false;
-                }
-                else if (text.ToLower().Equals($"{typeof(WMRecipeCust).Namespace.ToLower()} reload"))
-                {
-                    GetRecipeDataFromFiles();
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { text });
-                    if (ObjectDB.instance)
-                    {
-                        LoadAllRecipeData(true);
-                        AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { $"{context.Info.Metadata.Name} reloaded recipes from files" });
-                    }
-                    else
-                    {
-                        AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { $"{context.Info.Metadata.Name} reloaded recipes from files" });
-                    }
-                    return false;
-                }
-                else if (text.ToLower().StartsWith($"{typeof(WMRecipeCust).Namespace.ToLower()} itemsave "))
-                {
-                    var t = text.Split(' ');
-                    string file = t[t.Length - 1];
-                    WItemData recipData = GetItemDataByName(file);
-                    if (recipData == null)
-                        return false;
-                    CheckModFolder();
-                    File.WriteAllText(Path.Combine(assetPath, "Item_" + recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
-                    __instance.AddString(text);
-                    __instance.AddString($"saved item data to {file}.json");
-                    return false;
-                }
-                else if (text.ToLower().StartsWith($"{typeof(WMRecipeCust).Namespace.ToLower()} save "))
-                {
-                    var t = text.Split(' ');
-                    string file = t[t.Length - 1];
-                    RecipeData recipData = GetRecipeDataByName(file);
-                    if (recipData == null)
-                        return false;
-                    CheckModFolder();
-                    File.WriteAllText(Path.Combine(assetPath, recipData.name + ".json"), JsonUtility.ToJson(recipData));
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { text });
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { $"{context.Info.Metadata.Name} saved recipe data to {file}.json" });
-                    return false;
-                }
-                else if (text.ToLower().StartsWith($"{typeof(WMRecipeCust).Namespace.ToLower()} dump "))
-                {
-                    var t = text.Split(' ');
-                    string recipe = t[t.Length - 1];
-                    RecipeData recipeData = GetRecipeDataByName(recipe);
-                    if (recipeData == null)
-                        return false;
-                    Dbgl(JsonUtility.ToJson(recipeData));
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { text });
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { $"{context.Info.Metadata.Name} dumped {recipe}" });
-                    return false;
-                }
-                else if (text.ToLower().StartsWith($"{typeof(WMRecipeCust).Namespace.ToLower()}"))
-                {
-                    string output = $"recipecustomization reset\r\n"
-                    + $"recipecustomization reload\r\n"
-                    + $"recipecustomization dump <ItemName>\r\n"
-                    + $"recipecustomization save <ItemName>";
-
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { text });
-                    AccessTools.Method(typeof(Terminal), "AddString").Invoke(__instance, new object[] { output });
-                    return false;
-                }*/
-                #endregion
                 return true;
 
             }
