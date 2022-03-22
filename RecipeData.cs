@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace recipecustomization
+namespace wackydatabase
 {
     internal class RecipeData
     {
@@ -18,6 +18,8 @@ namespace recipecustomization
     internal class PieceData
     {
         public string name;
+        public string m_name;
+        public string m_description;
         public bool clone;
         public string clonePrefabName;
         public string cloneEffects;

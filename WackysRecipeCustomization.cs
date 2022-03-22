@@ -28,13 +28,13 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Reflection.Emit;
 
-namespace recipecustomization
+namespace wackydatabase
 {
     [BepInPlugin(ModGUID, ModName, ModVersion)]
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.0.1";
+        internal const string ModVersion = "1.0.2";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -43,10 +43,12 @@ namespace recipecustomization
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isautoreload;
-        public static ConfigEntry<bool> isSinglePlayer;
-        private static bool issettoSinglePlayer;
+        public static ConfigEntry<bool> isDebugString;
+        private static bool issettoSinglePlayer = false;
         private static bool isSettoAutoReload;
+        private static bool isSetStringisDebug = false;
         private static bool recieveServerInfo = false;
+        private static bool NoMoreLoading = false; // for shutdown from Server
         internal static string ConnectionError = "";
         private static WMRecipeCust context;
         private static int kickcount = 0;
@@ -68,7 +70,6 @@ namespace recipecustomization
         private static string assetPathItems;
         private static string assetPathRecipes;
         private static string assetPathPieces; 
-        RecipeData paul = new RecipeData();
         private static string jsonstring;
         private static bool isaclient = false;
         private static bool Admin = true; // for single player, sets to false for multiplayer on connect
@@ -99,7 +100,7 @@ namespace recipecustomization
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName,  MinimumRequiredVersion = "1.0.0" };
+        { DisplayName = ModName,  MinimumRequiredVersion = "1.0.2" };
 
 
         #endregion
@@ -122,8 +123,28 @@ namespace recipecustomization
             SetupWatcher(); // so if files change after startup it reloads recipes/ but doesn't input them.
             GetRecipeDataFromFilesForServer();
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
-        }
+ 
 
+        }
+        public static bool SinglePlayerchecker
+        {
+            get { return issettoSinglePlayer; }
+            set
+            {
+                issettoSinglePlayer = true;
+                return;
+            }
+        }
+        public static bool IsLocalInstance(ZNet znet)
+        {
+            if (znet.IsServer() && !znet.IsDedicated())
+            {
+                issettoSinglePlayer = true;
+                ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+                WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + ConfigSync.CurrentVersion);
+            }
+            return issettoSinglePlayer;
+        }
 
         #region ConfigReading
 
@@ -162,20 +183,14 @@ namespace recipecustomization
             context = this;
             modEnabled = config<bool>("General", "Enabled", true, "Enable this mod");
             isDebug = config<bool>("General", "IsDebug", true, "Enable debug logs", false);
+            isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
-            isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
-            if (isSinglePlayer.Value)
-            {
-                ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + ConfigSync.CurrentVersion);
-                issettoSinglePlayer = true;
-            }
-            else
-            {
-                ConfigSync.CurrentVersion = ModVersion;
-                issettoSinglePlayer = false;
-            }
-            WackysRecipeCustomizationLogger.LogWarning("Mod Version " + ConfigSync.CurrentVersion);
+            //isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
+            ConfigSync.CurrentVersion = ModVersion;
+            if (isDebugString.Value)
+                isSetStringisDebug = true;
+
+            WackysRecipeCustomizationLogger.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
             if (isautoreload.Value)
                 isSettoAutoReload = true;
             else isSettoAutoReload = false;
@@ -184,16 +199,26 @@ namespace recipecustomization
         private void OnDestroy()
         {
             Config.Save();
+            WackysRecipeCustomizationLogger.LogWarning("Calling the Destoryer of Worlds -End Game");
             //need to unload cloned objects
         }
 
         private void SetupWatcher()
         {
-           // FileSystemWatcher watcher = new(Paths.ConfigPath, ConfigFileName);
+            /*
+            FileSystemWatcher watcher2 = new(Paths.ConfigPath, ConfigFileName);
+            watcher2.Changed += ReadConfigValues;
+            watcher2.Created += ReadConfigValues;
+            watcher2.Renamed += ReadConfigValues;
+            watcher2.IncludeSubdirectories = true;
+            watcher2.SynchronizingObject = ThreadingHelper.SynchronizingObject;
+            watcher2.EnableRaisingEvents = true;
+            */
+
             FileSystemWatcher watcher = new(assetPath); // jsons
-            watcher.Changed += ReadConfigValues;
-            watcher.Created += ReadConfigValues;
-            watcher.Renamed += ReadConfigValues;
+            watcher.Changed += ReadJsonValues;
+            watcher.Created += ReadJsonValues;
+            watcher.Renamed += ReadJsonValues;
             watcher.IncludeSubdirectories = true;
             watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher.EnableRaisingEvents = true;
@@ -204,9 +229,16 @@ namespace recipecustomization
             if (!File.Exists(ConfigFileFullPath)) return;
             try
             {
-                
-               // Config.Reload(); not going to watch the config file anymore
-               // this should be c
+                Config.Reload();
+            }
+            catch { WackysRecipeCustomizationLogger.LogError($"There was an issue loading Config File "); }
+
+        }
+        private void ReadJsonValues(object sender, FileSystemEventArgs e)
+        {
+            if (!File.Exists(ConfigFileFullPath)) return;
+            try
+            {
                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() || issettoSinglePlayer && isSettoAutoReload) {  // should only load for the server now
                  Dbgl("Jsons files have changed and access is either on a dedicated server or singleplayer with autoreload on therefore reloading everything");
                  GetRecipeDataFromFiles(); // load stuff in mem
@@ -240,8 +272,6 @@ namespace recipecustomization
             return configEntry;
         }
 
-        //[Serializable]
-
 
         private ConfigEntry<T> config<T>(string group, string name, T value, string description,
             bool synchronizedSetting = true)
@@ -256,16 +286,16 @@ namespace recipecustomization
 
         private static void LoadAllRecipeData(bool reload)
         {
-            if (isaclient)
-            { // log You are a client and not an admin
-                WackysRecipeCustomizationLogger.LogError("You are a client and not the Server. Cannot reload recipes");
-            }
-            else
+            if (reload)
             {
-                if (reload && (issettoSinglePlayer || recieveServerInfo)) // single player only or recievedServerInfo
+                ZNet Net = new ZNet();
+                IsLocalInstance(Net);
+            }
+            if (reload && (issettoSinglePlayer || recieveServerInfo) ) // single player only or recievedServerInfo
                 {
-                    if ((recieveServerInfo && issettoSinglePlayer))
+                    if (recieveServerInfo && issettoSinglePlayer)
                     {
+                        WackysRecipeCustomizationLogger.LogWarning($" You Loaded into Singleplayer local first and therefore will NOT be allowed to reload Server Configs");
                         return; // naughty boy no recipes for you
                     }
                     else
@@ -287,13 +317,17 @@ namespace recipecustomization
 
                     }
                            // move to the end of updating all componets
-                         try { 
-                             ObjectDB.instance.UpdateItemHashes();
-                            } catch
-                        {
-                            Dbgl($"failed to update Hashes- probably due to too many calls");
-                        }
-                } else {   Dbgl($" You did NOT actually reload anything");}
+                    try { 
+                            ObjectDB.instance.UpdateItemHashes();
+                    } catch
+                    {
+                        Dbgl($"failed to update Hashes- probably due to too many calls");
+                    }
+                
+             } 
+            else {
+               
+                Dbgl($" You did NOT reload LOCAL Files");
             }
         }
         //private static get private admin
@@ -303,14 +337,18 @@ namespace recipecustomization
             // seperate them
             //reload
             // need to skip first call
-            if (startupSync > 1)
+            if (NoMoreLoading)
             {
-                startupSync++;
+                //startupSync++;
                 recieveServerInfo = true;
+                NoMoreLoading = false;
+                Dbgl($" No More Loading was true");
+                WackysRecipeCustomizationLogger.LogWarning("Warning any ServerFiles will see be On Your Local Games Until Restart! ");
             }
             else
             {
                 WackysRecipeCustomizationLogger.LogDebug("CustomSyncEventDetected was called ");
+                Dbgl($" You did reload SERVER Files");
                 Admin = admin2;
                 recipeDatas.Clear();
                 ItemDatas.Clear();
@@ -440,7 +478,8 @@ namespace recipecustomization
 
             jsonstring = amber.ToString();
             // skillConfigData.Value = jsonstring; Only for server 1st time
-            Dbgl(jsonstring); // maybe disable this for release
+            if (isSetStringisDebug)
+                Dbgl(jsonstring); 
         }
         private static void GetRecipeDataFromFilesForServer()
         {
@@ -490,7 +529,7 @@ namespace recipecustomization
             jsonstring = amber.ToString();
             skillConfigData.Value = jsonstring;
             
-            WackysRecipeCustomizationLogger.LogDebug("Server loaded files");
+            WackysRecipeCustomizationLogger.LogDebug("Loaded files");
         }
 
         private static void CheckModFolder()
@@ -826,6 +865,14 @@ namespace recipecustomization
 
             }
             Dbgl("Setting Piece data for " + data.name);
+            if (string.IsNullOrEmpty(data.m_name)) { 
+            
+            }else
+            {
+                go.GetComponent<Piece>().m_name = data.m_name;
+                go.GetComponent<Piece>().m_description = data.m_description;
+            }
+            
             go.GetComponent<Piece>().m_craftingStation = GetCraftingStation(data.craftingStation);
             if (data.minStationLevel > 1)
             {
@@ -1144,7 +1191,7 @@ namespace recipecustomization
             return data;
         }
 
-        private static PieceData GetPieceRecipeByName(string name)
+        private static PieceData GetPieceRecipeByName(string name, bool warn = true)
         {
             GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name);
             if (go == null)
@@ -1158,21 +1205,30 @@ namespace recipecustomization
                 Dbgl("Piece data not found!");
                 return null;
             }
+            int whichone = 0;
             string piecehammer = "Hammer";
             ItemDrop hammer = ObjectDB.instance.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
             if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
             {
-                piecehammer = "Hammer"; 
-                
+                piecehammer = "Hammer";
+                whichone = 0;
+
+
             }
             ItemDrop hoe = ObjectDB.instance.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
 
             if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
             {
                 piecehammer = "Hoe";
-                
+                whichone = 1;
+
             }
+            if (warn)
             WackysRecipeCustomizationLogger.LogWarning("If using a custom Hammer, make sure to set this in piecehammer otherwise it will default to Hammer");
+            string wackyname ="";
+            string wackydesc ="";
+            wackydesc = piece.m_description;
+            wackyname = piece.m_name;
 
             var data = new PieceData()
             {
@@ -1182,6 +1238,8 @@ namespace recipecustomization
                 minStationLevel = 1,
                 piecehammer = piecehammer,
                 adminonly = false,
+                m_name = wackyname,
+                m_description = wackydesc,
             };
             foreach (Piece.Requirement req in piece.m_resources)
             {
@@ -1561,14 +1619,18 @@ namespace recipecustomization
                     new("wackydb", "Display Help ",
                         args =>
                         {
-                            string output = $"wackydb_reset \r\n"
-                            + $"wackydb_reload\r\n"
+                            string output = $"wackydb_reload\r\n"
+                           // + $"wackydb_reset \r\n"
                             + $"wackydb_dump (2)<item/recipe/piece> <ItemName>\r\n"
+                            + $"wackydb_dump_all (dumps all info already loaded - may not work with clones very well)\r\n"
                             + $"wackydb_save_recipe (1) <ItemName>(recipe output)\r\n"
                             + $"wackydb_save_piece (1) <ItemName>(piece output) (piecehammer only works for clones)\r\n"
                             + $"wackydb_save_item (1)<ItemName>(item Output)\r\n"
                             + $"wackydb_help\r\n"
                             + $"wackydb_clone (3) <itemtype(recipe,item,piece)> <Prefab to clone> <Unquie name for the clone>\r\n"
+                            + $"wackydb_vfx (outputs Future Vfx gameobjects available)\r\n"
+                            + $"wackydb_material (outputs Materials available)\r\n"
+
                             ;
 
                             args.Context?.AddString(output);
@@ -1578,20 +1640,23 @@ namespace recipecustomization
                      new("wackydb_help", "Display Help ",
                          args =>
                          {
-                                string output = $"wackydb_reset \r\n"
-                            + $"wackydb_reload\r\n"
-                            + $"wackydb_dump (2)<item/recipe/piece> <ItemName>\r\n"
-                            + $"wackydb_save_recipe (1) <ItemName>(recipe output)\r\n"
-                            + $"wackydb_save_piece (1) <ItemName>(piece output) (piecehammer only works for clones)\r\n"
-                            + $"wackydb_save_item (1)<ItemName>(item Output)\r\n"
-                            + $"wackydb_help\r\n"
-                            + $"wackydb_clone (3) <itemtype(recipe,item,piece)> <Prefab to clone> <Unquie name for the clone>\r\n"
+                             string output = $"wackydb_reload\r\n"
+                             // + $"wackydb_reset \r\n"
+                             + $"wackydb_dump (2)<item/recipe/piece> <ItemName>\r\n"
+                             + $"wackydb_dump_all (dumps all info already loaded - may not work with clones very well)\r\n"
+                             + $"wackydb_save_recipe (1) <ItemName>(recipe output)\r\n"
+                             + $"wackydb_save_piece (1) <ItemName>(piece output) (piecehammer only works for clones)\r\n"
+                             + $"wackydb_save_item (1)<ItemName>(item Output)\r\n"
+                             + $"wackydb_help\r\n"
+                             + $"wackydb_clone (3) <itemtype(recipe,item,piece)> <Prefab to clone> <Unquie name for the clone>\r\n"
+                             + $"wackydb_vfx (outputs Future Vfx gameobjects available)\r\n"
+                             + $"wackydb_material (outputs Materials available)\r\n"
 
-                            ;
+                         ;
 
                             args.Context?.AddString(output);
                          });
-
+                /*
                 Terminal.ConsoleCommand WackyReset =
                      new("wackydb_reset", "reload the whole config files", // I should probably delete this one?
                          args =>
@@ -1600,7 +1665,7 @@ namespace recipecustomization
                              context.Config.Save();
                              args.Context?.AddString("Configs reloaded");
                          });
-
+                */
                 Terminal.ConsoleCommand WackyReload =
                      new("wackydb_reload", "reload the whole config files", 
                          args =>
@@ -1659,6 +1724,66 @@ namespace recipecustomization
                              }
                          });
 
+                Terminal.ConsoleCommand WackyDumpAll =
+                     new("wackydb_dump_all", "dump all",
+                         args =>
+                         {
+                             string TheStringMaster = "";
+                             string temp = "";
+
+                             foreach (var data in ItemDatas)
+                             {
+                                 if (data != null)
+                                 {
+                                     WItemData output1 = GetItemDataByName(data.name);
+                                     if (output1 == null)
+                                         continue;
+                                     output1.clone = data.clone;
+                                     output1.cloneMaterial = data?.cloneMaterial;
+                                     output1.clonePrefabName = data?.clonePrefabName;
+                                     output1.cloneEffects = data?.cloneEffects;
+                                     temp = JsonUtility.ToJson(output1);
+                                     TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
+                                     Dbgl(temp);
+                                 }
+                             }
+                             foreach (var data2 in PieceDatas)
+                             {
+                                 if (data2 != null)
+                                 {
+                                     PieceData output2 = GetPieceRecipeByName(data2.name ,false);
+                                     if (output2 == null)
+                                         continue;
+                                     output2.clone = data2.clone;
+                                     output2.cloneMaterial = data2.cloneMaterial;
+                                     output2.clonePrefabName = data2?.clonePrefabName;
+                                     output2.cloneEffects = data2?.cloneEffects;
+                                     output2.piecehammer = data2.piecehammer;
+                                     temp = JsonUtility.ToJson(output2);
+                                     TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
+                                     Dbgl(temp);
+                                 }
+                             }
+                             foreach (var data3 in recipeDatas)
+                             {
+                                 if (data3 != null)
+                                 {
+                                     RecipeData output3 = GetRecipeDataByName(data3.name);
+                                     if (output3 == null)
+                                          continue;
+                                     output3.clone = data3.clone;
+                                     output3.cloneColor = data3.cloneColor;
+                                     output3.clonePrefabName = data3.clonePrefabName;
+                                     temp = JsonUtility.ToJson(output3);
+                                     TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
+                                     Dbgl(temp);
+                                 }
+                             }
+                             File.WriteAllText(Path.Combine(assetPath, "DumpAll.txt"), TheStringMaster);
+                             args.Context?.AddString($"WackyDatabase dumped all, created file DumpAll.txt");
+                             
+                         });
+
                 Terminal.ConsoleCommand WackyitemSave =
                     new("wackydb_save_item", "Save an Item ",
                         args =>
@@ -1698,6 +1823,29 @@ namespace recipecustomization
                             args.Context?.AddString($"saved data to Recipe_{file}.json");
 
                         });
+
+                                Terminal.ConsoleCommand WackyMaterials =
+                    new("wackydb_material", "Create txt file of materials",
+                        args =>
+                        {
+                            string theString = GetAllMaterialsFile();
+                            CheckModFolder();
+                            File.WriteAllText(Path.Combine(assetPath, "Materials.txt"), theString);
+                            args.Context?.AddString($"saved data to Materials.txt");
+
+                        });
+
+                                Terminal.ConsoleCommand Wackyvfx=
+                    new("wackydb_vfx", "Create txt file of VFX",
+                        args =>
+                        {
+                            string theString2 = GetAllVFXFile();
+                            CheckModFolder();
+                            File.WriteAllText(Path.Combine(assetPath, "vfx.txt"), theString2);
+                            args.Context?.AddString($"saved data to VFX.txt");
+
+                        });
+
                 /* syntax for cloning
                  * wackydb_clone <item/recipe/piece> <prefab to clone> <nameofclone>(has to be unquie otherwise we would have to check) 
                  * 
@@ -1784,6 +1932,48 @@ namespace recipecustomization
                         });
 
 
+                Terminal.ConsoleCommand Wackyadmin =    //dont look :)
+                     new("customizationGuessing", "Gives you reload powers if you can guess the password",
+                   args =>
+                   {
+                       if (!issettoSinglePlayer && kickcount <4)// backdoor for funizes only availble when on multiplayer mode.. hahaaa
+                       {
+                           string passguess = "";
+                            try
+                           {
+                                passguess = args[1];
+                           }
+                           catch
+                           {
+                               WackysRecipeCustomizationLogger.LogWarning("Congrats on finding the backdoor... You have 3 chances to guess the password or you will be called out that your a dirty cheater in chat and probably being kicked by Azu or an admin");
+                               return;
+                           }
+
+                            WackysRecipeCustomizationLogger.LogWarning($"guess {kickcount + 1}");
+
+                            string file = passguess;
+                            string hash = ComputeSha256Hash(file);
+                            string secrethash = "f289b4717485d90d9dee6ce2a9992e4fcfa4317a9439c148053d52c637b0691b"; // real hash is entered
+                            if (hash == secrethash)
+                            {
+                                WackysRecipeCustomizationLogger.LogWarning("Congrats you cheater, you get to reload the recipes to whatever you want now. Enjoy ");
+
+                            }
+                            else
+                            {
+                                kickcount++;
+                                if (kickcount >= 3)
+                                {
+                                    WackysRecipeCustomizationLogger.LogWarning("Cheater Cheater, pants on fire ");
+                                }
+
+                            }
+                           
+                       }
+
+                   });
+
+
 
             }
         }
@@ -1791,7 +1981,7 @@ namespace recipecustomization
         [HarmonyPatch(typeof(Terminal), "InputText")] // aedenthorn Json mod
         static class InputText_Patch
         {
-            static bool Prefix(Terminal __instance)
+            static bool Prefix(Terminal __instance) // appears to no longer work
             {
                 string text = __instance.m_input.text;
 
@@ -1890,7 +2080,27 @@ namespace recipecustomization
             yield break;
         }
 
+        [HarmonyPatch(typeof(ZNet), "Shutdown")]
+        private class PatchZNetDisconnect
+        {
+            private static bool Prefix()
+            {
+                WackysRecipeCustomizationLogger.LogWarning("Logoff? So reset - character will look empty if using clone gear"  );
+                Cloned.Clear();
+                NoMoreLoading = true;
+                return true;
+            }
+        }
 
+        [HarmonyPatch(typeof(ZNet), "OnDestroy")]
+        private class PatchZNetDestory
+        {
+            private static void Postfix()
+            { // The Server send once last config sync before destory, but after Shutdown which messes stuff up. 
+                recieveServerInfo = false;
+                NoMoreLoading = false;
+            }
+        }
 
 
         #endregion
@@ -1921,6 +2131,8 @@ namespace recipecustomization
             return value;
         }
         private static Dictionary<string, Material> originalMaterials;
+        private static Dictionary<string, GameObject> originalVFX;
+
         public static void GetAllMaterials()
         {
             Material[] array = Resources.FindObjectsOfTypeAll<Material>();
@@ -1932,7 +2144,37 @@ namespace recipecustomization
                 originalMaterials[val.name] = val;
             }
         }
+        public static string GetAllMaterialsFile()
+        {
+            string TheString = "";
+            Material[] array = Resources.FindObjectsOfTypeAll<Material>();
+            Material[] array2 = array;
+            foreach (Material val in array2)
+            {
+                 Dbgl($"Material {val.name}" );
+                TheString = TheString + val.name + System.Environment.NewLine;
+            }
+            return TheString;
+        }
+        
+        public static string GetAllVFXFile()
+        {
+            
+            string TheString = "";
 
+            GameObject[] array4 = Resources.FindObjectsOfTypeAll<GameObject>();
+            originalVFX = new Dictionary<string, GameObject>();
+            foreach (GameObject val2 in array4)
+            {
+                if (val2.name.Contains("vfx"))
+                {
+                    Dbgl($"VFX {val2.name}");
+                    TheString = TheString + val2.name + System.Environment.NewLine;
+                }
+            }
+            return TheString;
+        }
+        
 
         #endregion
 

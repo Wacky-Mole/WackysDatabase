@@ -7,7 +7,7 @@
     <ProjectGuid>{4358610B-F3F4-4843-B7AF-98B7BC60DCDE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>recipecustomization</RootNamespace>
+    <RootNamespace>wackydatabase</RootNamespace>
     <AssemblyName>WackysDatabase</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -72,9 +72,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\PieceManager.dll</HintPath>
     </Reference>
-    <Reference Include="ServerSync, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>Libs\ServerSync.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -105,6 +102,7 @@
     <Compile Include="ItemData.cs" />
     <Compile Include="RecipeData.cs" />
     <Compile Include="ItemManager.cs" />
+    <Compile Include="ServerSync.cs" />
     <Compile Include="VersionHandshake.cs" />
     <Compile Include="WackysRecipeCustomization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -113,9 +111,6 @@
     <Content Include=".gitignore" />
     <Content Include="ILRepack.targets" />
     <Content Include="Libs\PieceManager.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Libs\ServerSync.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="LICENSE.txt" />

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 
-namespace recipecustomization
+namespace wackydatabase
 {
     [HarmonyPatch(typeof(ZNet), nameof(ZNet.OnNewConnection))]
     public static class RegisterAndCheckVersion
@@ -77,8 +77,17 @@ namespace recipecustomization
                                                                    ",  remote: " + version);
             if (version != WMRecipeCust.ModVersion)
             {
-                WMRecipeCust.ConnectionError =
-                    $"{WMRecipeCust.ModName} Installed: {WMRecipeCust.ModVersion}\n Needed: {version}";
+                if (version == "0.0.1.")
+                {
+                    WMRecipeCust.ConnectionError =
+                       $"{WMRecipeCust.ModName} You started a Local Game before Multiplayer. That is Not allowed. -Restart Game";
+                }
+                else
+                {
+                    WMRecipeCust.WackysRecipeCustomizationLogger.LogInfo($"Version is {version}");
+                    WMRecipeCust.ConnectionError =
+                        $"{WMRecipeCust.ModName} Installed: {WMRecipeCust.ModVersion}\n Needed: {version}";
+                }
                 if (!ZNet.instance.IsServer()) return;
                 // Different versions - force disconnect client from server
                 WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning(
