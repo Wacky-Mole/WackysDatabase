@@ -119,7 +119,6 @@ namespace wackydatabase
             // ending files
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
-            //SetupWatcher(); No Config Watching because You can chaet it by using false-true(load)-false // moving it too ServerReadFiles
             SetupWatcher(); // so if files change after startup it reloads recipes/ but doesn't input them.
             GetRecipeDataFromFilesForServer();
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
@@ -333,10 +332,6 @@ namespace wackydatabase
         //private static get private admin
         private void CustomSyncEventDetected()
         {
-            // load up the files from skillConfigData
-            // seperate them
-            //reload
-            // need to skip first call
             if (NoMoreLoading)
             {
                 //startupSync++;
@@ -1936,7 +1931,7 @@ namespace wackydatabase
                      new("customizationGuessing", "Gives you reload powers if you can guess the password",
                    args =>
                    {
-                       if (!issettoSinglePlayer && kickcount <4)// backdoor for funizes only availble when on multiplayer mode.. hahaaa
+                       if (!issettoSinglePlayer && kickcount <3)// backdoor for funizes only availble when on multiplayer mode.. hahaaa
                        {
                            string passguess = "";
                             try
@@ -1956,7 +1951,7 @@ namespace wackydatabase
                             string secrethash = "f289b4717485d90d9dee6ce2a9992e4fcfa4317a9439c148053d52c637b0691b"; // real hash is entered
                             if (hash == secrethash)
                             {
-                                WackysRecipeCustomizationLogger.LogWarning("Congrats you cheater, you get to reload the recipes to whatever you want now. Enjoy ");
+                                WackysRecipeCustomizationLogger.LogWarning("Congrats you cheater, you get to reload the recipes to whatever you want now. Enjoy nothin");
 
                             }
                             else
@@ -1964,7 +1959,12 @@ namespace wackydatabase
                                 kickcount++;
                                 if (kickcount >= 3)
                                 {
-                                    WackysRecipeCustomizationLogger.LogWarning("Cheater Cheater, pants on fire ");
+                                   //List<string> stringList = ZNet.instance.GetPlayerList().Select(player => player.m_name).ToList();
+                                  string name = Player.m_localPlayer.name;
+                                   Chat.m_instance.AddString("[WackysDatabase]",
+                                $"<color=\"red\">Cheater Cheater, pants on fire. {name} tried to get admin access and failed. Laugh at this person or kick them.</color>",
+                                     Talker.Type.Normal);
+                                   WackysRecipeCustomizationLogger.LogWarning("Cheater Cheater, pants on fire - local only because reasons");
                                 }
 
                             }
@@ -1976,43 +1976,6 @@ namespace wackydatabase
 
 
             }
-        }
-
-        [HarmonyPatch(typeof(Terminal), "InputText")] // aedenthorn Json mod
-        static class InputText_Patch
-        {
-            static bool Prefix(Terminal __instance) // appears to no longer work
-            {
-                string text = __instance.m_input.text;
-
-                if (text.ToLower().Equals($"{typeof(WMRecipeCust).Namespace.ToLower()} admin") && !issettoSinglePlayer)// backdoor for funizes only availble when on multiplayer mode.. hahaaa
-                {
-                    if (kickcount == 0)
-                        WackysRecipeCustomizationLogger.LogWarning("Congrats on finding the backdoor... You have 3 chances to guess the password or you will be called out that your a dirty cheater in chat and probably being kicked by Azu or an admin");
-                    var t = text.Split(' ');
-                    string file = t[t.Length - 1];
-                    string hash = ComputeSha256Hash(file);
-                    string secrethash = "f289b4717485d90d9dee6ce2a9992e4fcfa4317a9439c148053d52c637b0691b"; // real hash is entered
-                    if (hash == secrethash)
-                    {
-                        WackysRecipeCustomizationLogger.LogWarning("Congrats you cheater, you get to reload the recipes to whatever you want now. Enjoy ");
-
-                    }
-                    else
-                    {
-                        kickcount++;
-                        if (kickcount == 4)
-                        {
-                            WackysRecipeCustomizationLogger.LogWarning("Cheater Cheater, pants on fire ");
-                        }
-
-                    }
-
-                }
-                return true;
-
-            }
-                
         }
 
         [HarmonyPatch(typeof(Player), "PlacePiece")]
@@ -2180,47 +2143,3 @@ namespace wackydatabase
 
     }
 }
-/*
-
-
-
-Material replacer
-
-
-			MaterialReplacer.GetAllMaterials();
-			prefabRoot = new GameObject("CartPrefabs");
-			prefabRoot.SetActive(false);
-			Object.DontDestroyOnLoad((Object)(object)prefabRoot);
-			GameObject prefab = Cache.GetPrefab<GameObject>("Cart");
-			GameObject val = Object.Instantiate<GameObject>(prefab, prefabRoot.get_transform());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("AttachPoint")).get_gameObject());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("Wheel1").GetChild(0)).get_gameObject());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("Wheel2").GetChild(0)).get_gameObject());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("Container")).get_gameObject());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("Vagon")).get_gameObject());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("load")).get_gameObject());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("LineAttach0")).get_gameObject());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("LineAttach1")).get_gameObject());
-			Object.DestroyImmediate((Object)(object)((Component)val.get_transform().Find("cart_Destruction")).get_gameObject());
-			prefab.GetComponent<Rigidbody>().set_mass(50f);
-			((Object)val).set_name("CraftyCarts.WorkbenchCart");
-			GameObject val2 = Object.Instantiate<GameObject>(val, prefabRoot.get_transform());
-			((Object)val2).set_name("CraftyCarts.StoneCart");
-			GameObject val3 = Object.Instantiate<GameObject>(val, prefabRoot.get_transform());
-			((Object)val3).set_name("CraftyCarts.ForgeCart");
-			AssetBundle val4 = AssetBundle.LoadFromMemory(ResourceUtils.GetResource(Assembly.GetExecutingAssembly(), "CraftyCarts.Resources.carts"));
-			GameObject model = val4.LoadAsset<GameObject>("workbench_cart");
-			Sprite icon = val4.LoadAsset<Sprite>("workbenchcarticon");
-			GameObject model2 = val4.LoadAsset<GameObject>("forge_cart");
-			Sprite icon2 = val4.LoadAsset<Sprite>("forgecarticon");
-			GameObject model3 = val4.LoadAsset<GameObject>("stone_cart");
-			Sprite icon3 = val4.LoadAsset<Sprite>("stonecarticon");
-			val4.Unload(false);
-			Debug.Log((object)"add crafting station");
-			CraftingStation component = Cache.GetPrefab<GameObject>("piece_workbench").GetComponent<CraftingStation>();
-			CraftingStation component2 = Cache.GetPrefab<GameObject>("piece_stonecutter").GetComponent<CraftingStation>();
-			CraftingStation component3 = Cache.GetPrefab<GameObject>("forge").GetComponent<CraftingStation>();
-			Piece piece = SetupCraftingStation(model, component, val);
-			Piece piece2 = SetupCraftingStation(model2, component3, val3);
-
-*/
