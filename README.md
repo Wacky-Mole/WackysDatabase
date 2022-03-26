@@ -1,6 +1,8 @@
 # WackysDatabase
 WackysDatabase by Wackymole
 Version 1.0.2
+
+
 The short summary is OpenDatabase + ServerSync + recipecustomization + armor customization + PieceLvlRequirements(wackys) + some other small fields + item/piece/recipe cloning + material changing for cloned items/pieces + name changing for items/pieces(translating)
 
 
@@ -50,6 +52,7 @@ wackydb_save_item (1) <ItemName> - saves a Item Json in wackysDatabase Item Fold
 wackydb_help -- commands
 
 wackydb_clone (3) <recipe/item/piece> <Prefab to clone> <Unique name for the clone> - clone an object and change it differently than a base game object. 
+
 There is a optional 4th argument<original item prefab to use for recipe>(Optional 4th argument for a cloned item's recipes only)
 For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
 
@@ -70,45 +73,69 @@ clonePrefabName: if it is a clone needs to reference the orginal prefab.
 
 Item Options:
 cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of matierlas. Probably up to a 1/3 don't work or make the object invsiable.
+
 m_damages: how much and what type of damage is inflicted.
+
 m_damagesPerLevel: how much and what type of damge per upgraded lvl
+
 m_armor: If object is equipable, like armor. Gives armor value to player
+
 m_value: if value is >0. Then the object becomes saleable at Trader. The Object Description gets a yellow Valable notice. Just like base game you don't know what object you are selling to Trader.
 
 damageModifiers: - From https://www.nexusmods.com/valheim/mods/1162 - Thx aedenthorn - I did not add the water damage.
+
 Damage modifiers are a list of colon-separated pairs, e.g. for the Wolf Chest armor: - 
 "damageModifiers":["Frost:Resistant"]
+
 The first value is the damage type, the second value is the resistance level.
+
 Valid damage types include:
+
 Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit
+
 Valid resistence levels include:
+
 Normal Resistant Weak Immune Ignore VeryResistant VeryWeak
 
 m_blockPower: Very useful for sheilds
 m_blockPowerPerLevel:
+
 The rest you can probably figure out. 
+
 
 Piece Options:
 
 piecehammer: default is the Hammer or Hoe: it can't really check for modded Hammers. Change this to the modded hammer prefab manually.
+
 adminonly: Makes certain pieces only for admins. 
+
 craftingStation: What craftingstation needs to be near you to build the piece. Default: $piece_workbench
+
 minStationLevel: Checks what level craftingstation is needed before building piece. 
+
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
+
 cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of matierlas. Probably up to a 1/3 don't work or make the object invsiable.
 
 Recipe Options: 
 
 Recipes NEED to have a unique name.
+
 If cloning a recipe of a cloned item, clonePrefabName needs to be cloned item prefab.
+
 Recipe searches for prefab to put recipe next to it. 
+
 Arrows x50 will be put above Arrow x20
+
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
 Last notes:
+
 This mod should load last. It needs to so it can touch all other mods. Change that OP bow and make it more realistic on damage or build requirements. Or set a build piece to adminonly.
+
 clone the Item and change the material to make it a more appealing color. 
+
 Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects though, not to create clones/mocks. 
 
 
