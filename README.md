@@ -48,7 +48,7 @@ IsAutoReload = false // auto reloads instead of wackydb_reload
 
 wackydb_reload  - Primary way to reload all the Json files in wackysDatabase folder
 
-wackydb_dump (2) <item/recipe/piece> <ItemName> - dump indiviudal preloaded object to log
+wackydb_dump (2) <item/recipe/piece> <ItemName> - dump individual preloaded object to log
 
 wackydb_dump_all  - writes a dump log file for all previously loaded info. May or may not work with clones. (doesn't work on multiplayer)
 
@@ -77,22 +77,22 @@ wackydb_material - saves a Materials.txt file in wackysDatabase for the differen
 
 ```sh
 name: is GameObject name must be unique
-m_name: is in game name- can be used for translating
+m_name: is the in game name - can be used for translating
 clone: whether an object is a clone or not - true/false
-clonePrefabName: if it is a clone needs to reference the orginal prefab.
+clonePrefabName: if it is a clone needs to reference the original prefab.
 ```
 
 
 ## Item Options:
-cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of matierlas. Probably up to a 1/3 don't work or make the object invsiable.
+cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
 
 m_damages: how much and what type of damage is inflicted.
 
-m_damagesPerLevel: how much and what type of damge per upgraded lvl
+m_damagesPerLevel: how much and what type of damage per upgraded lvl
 
-m_armor: If object is equipable, like armor. Gives armor value to player
+m_armor: If object is equitable, like armor. Gives armor value to player
 
-m_value: if value is >0. Then the object becomes saleable at Trader. The Object Description gets a yellow Valable notice. Just like base game you don't know what object you are selling to Trader.
+m_value: if value is >0. Then the object becomes salable at Trader. The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
 
 damageModifiers: - From https://www.nexusmods.com/valheim/mods/1162 - Thx aedenthorn - I did not add the water damage.
 
@@ -109,7 +109,7 @@ Valid resistence levels include:
 
 Normal Resistant Weak Immune Ignore VeryResistant VeryWeak
 
-m_blockPower: Very useful for sheilds
+m_blockPower: Very useful for shields
 m_blockPowerPerLevel:
 
 The rest you can probably figure out. 
@@ -127,7 +127,7 @@ minStationLevel: Checks what level craftingstation is needed before building pie
 
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
-cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of matierlas. Probably up to a 1/3 don't work or make the object invsiable.
+cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
 
 ## Recipe Options: 
 
@@ -144,9 +144,11 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ## Last notes:
 
-This mod should load last. It needs to so it can touch all other mods. Change that OP bow and make it more realistic on damage or build requirements. Or set a build piece to adminonly.
+This mod should load last. It needs to so it can touch all other mods. 
 
-clone the Item and change the material to make it a more appealing color. 
+> You can make changes to that OP bow and make it more realistic on damage or build requirements. Or even set a build piece to adminonly.
+
+> clone the Item and change the material to make it a more appealing color. 
 
 Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects though, not to create clones/mocks. 
 
