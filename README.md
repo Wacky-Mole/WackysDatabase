@@ -6,15 +6,15 @@ Version 1.0.2
 The short summary is OpenDatabase + ServerSync + recipecustomization + armor customization + PieceLvlRequirements(wackys) + some other small fields + item/piece/recipe cloning + material changing for cloned items/pieces + name changing for items/pieces(translating)
 
 
-WackysDatabase
+## WackysDatabase
 
-WackysDatabase is a mod for Valheim it requires BepInEx for Valheim.
-With this mod you are able to control all items/recipes/pieces via JSON files.
-WackysDatabase also allows you to make clone/mock of these objects as well. 
-This mod is one of the last to load in the game. As such it can touch almost all normal and modded objects which is the primary goal for this mod, but cloned objects may not behave well with some mods. 
-You can not load into singleplayer and then load into Multiplayer. - No easy cheating
+> WackysDatabase is a mod for Valheim it requires BepInEx for Valheim.
+> With this mod you are able to control all items/recipes/pieces via JSON files.
+> WackysDatabase also allows you to make clone/mock of these objects as well. 
+> This mod is one of the last to load in the game. As such it can touch almost all normal and modded objects which is the primary goal for this mod, but cloned objects may not behave well with some mods. 
+> You can not load into singleplayer and then load into Multiplayer. - No easy cheating
 
-Installation
+## Installation
 
 Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins )
 Now run Valheim and join a world. After that go to Valheim/BepInEx/plugins/. There should be a folder called wackysDatabase, inside of that folder are currently three folders /Items/  /Recipes/ and /Pieces/.
@@ -22,7 +22,7 @@ Put the mod on the Server to force Server Sync. The Jsons files only have to be 
 For Multiplayer, the mod has been locked down to prevent easy cheating, but I recommend https://valheim.thunderstore.io/package/Azumatt/AzuAntiCheat/ and https://valheim.thunderstore.io/package/Smoothbrain/ServerCharacters/ as well.
 
 
-Configuration file BepInEx/config/WackyMole.WackysDatabase.cfg
+## Configuration file BepInEx/config/WackyMole.WackysDatabase.cfg
 
 The configs and their defaults are:
 Force Server Config = true // forces server sync 
@@ -32,7 +32,7 @@ StringisDebug = false  // debugs your strings.. extra logs
 IsAutoReload = false // auto reloads instead of wackydb_reload
 
 
-Console Commands
+## Console Commands
 
 You will need to reference https://valheim-modding.github.io/Jotunn/data/objects/item-list.html for Prefab names. Thank you JVL team
 While in game press F5 to open the game console then type help for more informations. To enable console for valheim - launch options add "-console"
@@ -63,7 +63,7 @@ wackydb_vfx - future use
 wackydb_material - saves a Materials.txt file in wackysDatabase for the different types of materials you can use for cloned items/pieces.
 
 
-General Options:
+## General Options:
 -Don't use the '@' symbol. I use it to break strings apart. It will break everything.
 name: is GameObject name must be unique
 m_name: is in game name- can be used for translating
@@ -71,7 +71,7 @@ clone: whether an object is a clone or not - true/false
 clonePrefabName: if it is a clone needs to reference the orginal prefab.
 
 
-Item Options:
+## Item Options:
 cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of matierlas. Probably up to a 1/3 don't work or make the object invsiable.
 
 m_damages: how much and what type of damage is inflicted.
@@ -103,7 +103,7 @@ m_blockPowerPerLevel:
 The rest you can probably figure out. 
 
 
-Piece Options:
+## Piece Options:
 
 piecehammer: default is the Hammer or Hoe: it can't really check for modded Hammers. Change this to the modded hammer prefab manually.
 
@@ -117,7 +117,7 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of matierlas. Probably up to a 1/3 don't work or make the object invsiable.
 
-Recipe Options: 
+## Recipe Options: 
 
 Recipes NEED to have a unique name.
 
