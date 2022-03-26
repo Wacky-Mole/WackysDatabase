@@ -8,34 +8,43 @@ The short summary is OpenDatabase + ServerSync + recipecustomization + armor cus
 
 ## WackysDatabase
 
-> WackysDatabase is a mod for Valheim it requires BepInEx for Valheim.
-> With this mod you are able to control all items/recipes/pieces via JSON files.
-> WackysDatabase also allows you to make clone/mock of these objects as well. 
-> This mod is one of the last to load in the game. As such it can touch almost all normal and modded objects which is the primary goal for this mod, but cloned objects may not behave well with some mods. 
-> You can not load into singleplayer and then load into Multiplayer. - No easy cheating
+- WackysDatabase is a mod for Valheim it requires BepInEx for Valheim.
+- With this mod you are able to control all items/recipes/pieces via JSON files.
+- WackysDatabase also allows you to make clone/mock of these objects as well. 
+- This mod is one of the last to load in the game. 
+- As such it can touch almost all normal and modded objects which is the primary goal for this mod, but cloned objects may not behave well with some mods. 
+- You can not load into singleplayer and then load into Multiplayer. - No easy cheating
 
 ## Installation
 
 Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins )
+
 Now run Valheim and join a world. After that go to Valheim/BepInEx/plugins/. There should be a folder called wackysDatabase, inside of that folder are currently three folders /Items/  /Recipes/ and /Pieces/.
+
 Put the mod on the Server to force Server Sync. The Jsons files only have to be on the Server. No need to share the Jsons. 
+
 For Multiplayer, the mod has been locked down to prevent easy cheating, but I recommend https://valheim.thunderstore.io/package/Azumatt/AzuAntiCheat/ and https://valheim.thunderstore.io/package/Smoothbrain/ServerCharacters/ as well.
 
 
 ## Configuration file BepInEx/config/WackyMole.WackysDatabase.cfg
 
 The configs and their defaults are:
+
 Force Server Config = true // forces server sync 
+
 Enable this mod = true
+
 IsDebug = true // tells you what is being loaded/ other basic actions
+
 StringisDebug = false  // debugs your strings.. extra logs
+
 IsAutoReload = false // auto reloads instead of wackydb_reload
 
 
 ## Console Commands
 
-You will need to reference https://valheim-modding.github.io/Jotunn/data/objects/item-list.html for Prefab names. Thank you JVL team
-While in game press F5 to open the game console then type help for more informations. To enable console for valheim - launch options add "-console"
+- You will need to reference https://valheim-modding.github.io/Jotunn/data/objects/item-list.html for Prefab names. Thank you JVL team
+- While in game press F5 to open the game console then type help for more informations. To enable console for valheim - launch options add "-console"
 
 wackydb_reload  - Primary way to reload all the Json files in wackysDatabase folder
 
@@ -65,10 +74,13 @@ wackydb_material - saves a Materials.txt file in wackysDatabase for the differen
 
 ## General Options:
 -Don't use the '@' symbol. I use it to break strings apart. It will break everything.
+
+```sh
 name: is GameObject name must be unique
 m_name: is in game name- can be used for translating
 clone: whether an object is a clone or not - true/false
 clonePrefabName: if it is a clone needs to reference the orginal prefab.
+```
 
 
 ## Item Options:
@@ -130,7 +142,7 @@ Arrows x50 will be put above Arrow x20
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
-Last notes:
+## Last notes:
 
 This mod should load last. It needs to so it can touch all other mods. Change that OP bow and make it more realistic on damage or build requirements. Or set a build piece to adminonly.
 
