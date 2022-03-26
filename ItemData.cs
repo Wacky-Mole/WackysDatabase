@@ -19,7 +19,7 @@ public class WItemData
 
 	public string clonePrefabName;
 
-	public string cloneEffects;
+	//public string cloneEffects;
 
 	public string cloneMaterial;
 

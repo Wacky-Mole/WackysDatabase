@@ -7,7 +7,7 @@ namespace wackydatabase
         public string name;
         public bool clone;
         public string clonePrefabName;
-        public string cloneColor;
+        //public string cloneColor;
         public string craftingStation;
         public int minStationLevel;
         public int amount;
@@ -22,7 +22,7 @@ namespace wackydatabase
         public string m_description;
         public bool clone;
         public string clonePrefabName;
-        public string cloneEffects;
+        //public string cloneEffects;
         public string cloneMaterial;
         public string craftingStation;
         public string piecehammer;
