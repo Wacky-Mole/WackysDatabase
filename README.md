@@ -1,9 +1,9 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.0.2
+Version 1.0.5
 
 
-The short summary is OpenDatabase + ServerSync + recipecustomization + armor customization + PieceLvlRequirements(wackys) + some other small fields + item/piece/recipe cloning + material changing for cloned items/pieces + name changing for items/pieces(translating)
+The short summary is OpenDatabase + ServerSync + Recipecustomization + Armor Customization + PieceLvlRequirements + some other small fields + item/piece/recipe cloning + material changing for cloned items/pieces + name changing for items/pieces(translating)
 
 
 ## WackysDatabase
@@ -79,7 +79,7 @@ wackydb_material - saves a Materials.txt file in wackysDatabase for the differen
 name: is GameObject name must be unique
 m_name: is the in game name - can be used for translating
 clone: whether an object is a clone or not - true/false
-clonePrefabName: if it is a clone needs to reference the original prefab.
+clonePrefabName: if it is a clone, the object needs to reference the original prefab.
 ```
 
 

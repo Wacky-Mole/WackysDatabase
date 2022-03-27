@@ -34,12 +34,12 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.0.2";
+        internal const string ModVersion = "1.0.5";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
         private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
-        private static string NexusModID = "1825";
+        public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isautoreload;
@@ -98,7 +98,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName,  MinimumRequiredVersion = "1.0.2" };
+        { DisplayName = ModName,  MinimumRequiredVersion = "1.0.2" }; //1.0.2 change how things loaded
 
 
         #endregion
@@ -159,6 +159,7 @@ namespace wackydatabase
             // ^^ // starting files
             context = this;
             modEnabled = config<bool>("General", "Enabled", true, "Enable this mod");
+            NexusModID = config<string>("General", "NexusModID", "1825", "NexusModID Number", false);
             isDebug = config<bool>("General", "IsDebug", true, "Enable debug logs", false);
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
@@ -182,6 +183,7 @@ namespace wackydatabase
 
         private void SetupWatcher()
         {
+            CheckModFolder();
             /* // watch config files // cheating danger
             FileSystemWatcher watcher2 = new(Paths.ConfigPath, ConfigFileName);
             watcher2.Changed += ReadConfigValues;
@@ -233,9 +235,6 @@ namespace wackydatabase
                 }
             }
         }
-
-
-
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
             bool synchronizedSetting = true)
@@ -305,7 +304,6 @@ namespace wackydatabase
                     {
                         Dbgl($"failed to update Hashes- probably due to too many calls");
                     }
-                
              } 
             else {
                
@@ -455,8 +453,6 @@ namespace wackydatabase
                     catch { WackysRecipeCustomizationLogger.LogWarning("Something went wrong in file " + file); }
 
                 }
-
-
             }
 
             jsonstring = amber.ToString();
@@ -1994,7 +1990,7 @@ namespace wackydatabase
 
 
                 Terminal.ConsoleCommand Wackyadmin =    //dont look :)
-                     new("customizationGuessing", "Gives you reload powers if you can guess the password",
+                     new("customizationGuessing", "Gives you reload powers if you can guess the password",  // just for fun. Doesn't really give you admin powers
                    args =>
                    {
                        if (!issettoSinglePlayer && kickcount <3)// backdoor for funizes only availble when on multiplayer mode.. hahaaa
@@ -2030,7 +2026,7 @@ namespace wackydatabase
                                    Chat.m_instance.AddString("[WackysDatabase]",
                                 $"<color=\"red\">Cheater Cheater, pants on fire. {name} tried to get admin access and failed. Laugh at this person or kick them.</color>",
                                      Talker.Type.Normal);
-                                   WackysRecipeCustomizationLogger.LogWarning("Cheater Cheater, pants on fire - local only because reasons");
+                                   WackysRecipeCustomizationLogger.LogWarning("Cheater Cheater, pants on fire");
                                 }
 
                             }
