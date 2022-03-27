@@ -142,6 +142,12 @@ Arrows x50 will be put above Arrow x20
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
+## Changelog
+
+        Version 1.05
+            Mod Release
+
+
 ## Last notes:
 
 This mod should load last. It needs to so it can touch all other mods. 
