@@ -1051,6 +1051,7 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_timedBlockBonus = data.m_timedBlockBonus;
                     PrimaryItemData.m_shared.m_deflectionForce = data.m_deflectionForce;
                     PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.m_deflectionForcePerLevel;
+                    PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus;
                     PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken;
                     PrimaryItemData.m_shared.m_dodgeable = data.m_dodgeable;
                     PrimaryItemData.m_shared.m_maxDurability = data.m_maxDurability;
@@ -1375,6 +1376,7 @@ namespace wackydatabase
                 m_description = data.m_shared.m_description,
                 m_durabilityDrain = data.m_shared.m_durabilityDrain,
                 m_durabilityPerLevel = data.m_shared.m_durabilityPerLevel,
+                m_backstabbonus = data.m_shared.m_backstabBonus,
                 m_equipDuration = data.m_shared.m_equipDuration,
                 m_foodHealth = data.m_shared.m_food,
                 m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
