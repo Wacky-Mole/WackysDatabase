@@ -63,6 +63,8 @@ public class WItemData
 
 	public float m_backstabbonus;
 
+	public float m_knockback;
+
 	public bool m_destroyBroken;
 
 	public bool m_dodgeable;

@@ -708,13 +708,45 @@ namespace wackydatabase
             {
                 data.name = data.clonePrefabName;
             }
+            Piece piece = null;
             GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name);
             if (go == null)
             {
-                Dbgl($"Item {data.name} not found in SetPiece!");
-                return;
+                go = ObjectDB.instance.GetItemPrefab(data.name); // for modded hammers
+                if (go == null)
+                {
+                    if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
+                    {
+                        object PieceManager = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                        object cr = AccessTools.Method(PieceManager.GetType(), "GetPiece").Invoke(PieceManager, new[] { data.name });
+                        if (cr != null)
+                        {
+                            piece = (Piece)AccessTools.Property(cr.GetType(), "Piece").GetValue(cr);
+                            Dbgl($"Jotunn recipe: found ");
+                            go = piece.gameObject;
+
+                        }
+                    }
+                    if (go == null)
+                    {
+                        Dbgl($"Piece {data.name} not found! 3 layer search");
+                        return;
+                    }
+                    Dbgl($"piece was found in JVL prefabs");
+
+                }
+                else
+                {
+                    Dbgl($"Piece {data.name} from custom hammer");
+                    piece = go.GetComponent<Piece>();
+                }
             }
-            if (go.GetComponent<Piece>() == null)
+            else
+            {
+                piece = go.GetComponent<Piece>();
+            }
+
+            if( piece == null)
             {
                 Dbgl($"Item data for {data.name} not found!");
                 return;
@@ -1069,6 +1101,8 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_value = data.m_value;
                     PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier;
                     PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
+                    PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
+                    
 
                     PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
                     foreach (string modString in data.damageModifiers)
@@ -1197,20 +1231,66 @@ namespace wackydatabase
 
         private static PieceData GetPieceRecipeByName(string name, bool warn = true)
         {
+            Piece piece = null;
+            string piecehammer = "Hammer"; // default
             GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name);
             if (go == null)
             {
-                Dbgl($"Piece {name} not found!");
-                return null;
+                go = ObjectDB.instance.GetItemPrefab(name); // for modded hammers
+                if (go == null)
+                {
+  
+                    if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
+                    {
+                        //Dbgl($"JVL is loaded - checking");
+                        //GameObject JotRoot = ObjectDB.instance.GetItemPrefab("_JotunnRoot");
+
+                        object PieceManager = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                        object cr = AccessTools.Method(PieceManager.GetType(), "GetPiece").Invoke(PieceManager, new[] { name });
+                        if (cr != null)
+                        {
+                            piece = (Piece)AccessTools.Property(cr.GetType(), "Piece").GetValue(cr);
+                            Dbgl($"Jotunn recipe: found ");
+                            go = piece.gameObject;
+                            /*
+                            object ModReg = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Utils.ModRegistry").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                            object PieceTables = AccessTools.Method(ModReg.GetType(), "GetPieceTables");
+                            if (PieceTables != null)
+                            {
+
+                            }
+                                //piecehammer = (String)AccessTools.Property(PieceTables.PieceTable(), "Piece").GetValue(PieceTables);
+                            */
+                        }
+
+                    }
+                    if (go == null)
+                    {
+                        Dbgl($"Piece {name} not found! 3 layer search");
+                        return null;
+                    }
+                    Dbgl($"piece was found in JVL prefabs");
+
+                }
+                else
+                {
+                    Dbgl($"Piece {name} from custom hammer");
+                    //go = ObjectDB.instance.GetItemPrefab(name);
+                    piece = go.GetComponent<Piece>();
+                }
             }
-            Piece piece = go.GetComponent<Piece>();
+            else
+            {
+                piece = go.GetComponent<Piece>();
+            }
+                
             if (piece == null)
             {
                 Dbgl("Piece data not found!");
                 return null;
             }
             int whichone = 0;
-            string piecehammer = "Hammer";
+            
             ItemDrop hammer = ObjectDB.instance.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
             if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
             {
@@ -1404,6 +1484,7 @@ namespace wackydatabase
                 m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
                 m_movementModifier = data.m_shared.m_movementModifier,
                 m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+                m_knockback = data.m_shared.m_attackForce,
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
                 
             };
