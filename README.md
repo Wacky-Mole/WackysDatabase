@@ -120,7 +120,7 @@ The rest you can probably figure out.
 
 
 ## Piece Options:
-<img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648576031-300835300.png" width="128"/>
+<img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648576031-300835300.png" width="450"/>
 
 
 piecehammer: default is the Hammer or Hoe: it can't really check for modded Hammers. Change this to the modded hammer prefab manually.
