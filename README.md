@@ -2,6 +2,7 @@
 WackysDatabase by Wackymole
 Version 1.0.5
 
+<img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309690-252090998.png" width="230"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309553-1371739452.png" width="230"/>
 
 The short summary is OpenDatabase + ServerSync + Recipecustomization + Armor Customization + PieceLvlRequirements + some other small fields + item/piece/recipe cloning + material changing for cloned items/pieces + name changing for items/pieces(translating)
 
@@ -65,7 +66,8 @@ wackydb_clone (3) <recipe/item/piece> <Prefab to clone> <Unique name for the clo
 There is a optional 4th argument<original item prefab to use for recipe>(Optional 4th argument for a cloned item's recipes only)
 For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
 
-wackydb_clone_recipeitem (2)(clones item and recipe at same time) <Prefab to clone> <Unique name for the clone, Recipe name will be Rname> - instead of cloning an item and then recipe, do both at once. Saves you the trouble of manually editing recipe name and prefab.
+wackydb_clone_recipeitem (2) <Prefab to clone> <clone name>(clones item and recipe at same time)( Recipe name will be Rname) - instead of cloning an item and then recipe, do both at once. Saves you the trouble of manually editing recipe name and prefab.
+
 
 wackydb_vfx - future use
 
@@ -115,6 +117,8 @@ Normal Resistant Weak Immune Ignore VeryResistant VeryWeak
 
 m_blockPower: Very useful for shields
 m_blockPowerPerLevel:
+
+m_timedBlockBonus is the Parry bonus
 
 The rest you can probably figure out. 
 
