@@ -84,6 +84,8 @@ clonePrefabName: if it is a clone, the object needs to reference the original pr
 
 
 ## Item Options:
+
+![Glowing Red BronzeSword ](https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648576031-300835300.png)
 cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
 
 m_damages: how much and what type of damage is inflicted.

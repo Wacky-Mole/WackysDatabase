@@ -34,7 +34,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.0.5";
+        internal const string ModVersion = "1.0.6";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -77,6 +77,10 @@ namespace wackydatabase
         readonly bool admin2 = ConfigSync.IsAdmin;
         private static GameObject Root;
         private static bool Firstrun = true;
+        private static string selectedPiecehammer;
+        private static List<string> piecemods = new List<string>();
+        private static PieceTable[] MaybePieceStations;
+        public static List<string> RealPieceStations = new List<string>();
 
 
 
@@ -98,7 +102,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName,  MinimumRequiredVersion = "1.0.5" }; // it is very picky on version number
+        { DisplayName = ModName,  MinimumRequiredVersion = "1.0.6" }; // it is very picky on version number
 
 
         #endregion
@@ -155,6 +159,12 @@ namespace wackydatabase
             Root = new GameObject("myroot");
             Root.SetActive(false);
             DontDestroyOnLoad(Root);
+
+            // modded hammers to look for. Pieces only - JVL pieces don't really work, have to look for them a different way. 
+            piecemods.Add("_ClutterPieceTable");
+            piecemods.Add("_RKCustomTable");
+            piecemods.Add("_PlantitPieceTable");
+            piecemods.Add("BJORKSNAS");
 
             // ^^ // starting files
             context = this;
@@ -317,6 +327,7 @@ namespace wackydatabase
             {
                 GetAllMaterials();
                 Firstrun = false;
+                GetPieceStations();
             }
             if (NoMoreLoading)
             {
@@ -404,6 +415,7 @@ namespace wackydatabase
             {
                 CheckModFolder();
                 GetAllMaterials();
+                GetPieceStations();
                 Firstrun = false;
             }
             recipeDatas.Clear();
@@ -463,7 +475,6 @@ namespace wackydatabase
         private static void GetRecipeDataFromFilesForServer()
         {
             CheckModFolder();
-            //GetAllMaterials(); // MAYBE MOVE somewhere better  call materials
             var amber = new System.Text.StringBuilder();
             foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
             {
@@ -709,49 +720,57 @@ namespace wackydatabase
                 data.name = data.clonePrefabName;
             }
             Piece piece = null;
-            GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name);
+            GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name); // vanilla search
             if (go == null)
             {
-                go = ObjectDB.instance.GetItemPrefab(data.name); // for modded hammers
+                go = GetModdedPieces(data.name); // known modded Hammer search
                 if (go == null)
                 {
-                    if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
-                    {
-                        object PieceManager = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
-                        object cr = AccessTools.Method(PieceManager.GetType(), "GetPiece").Invoke(PieceManager, new[] { data.name });
-                        if (cr != null)
-                        {
-                            piece = (Piece)AccessTools.Property(cr.GetType(), "Piece").GetValue(cr);
-                            Dbgl($"Jotunn recipe: found ");
-                            go = piece.gameObject;
-
-                        }
-                    }
+                    go = ObjectDB.instance.GetItemPrefab(data.name); // last chance for modded hammers before JVL
                     if (go == null)
                     {
-                        Dbgl($"Piece {data.name} not found! 3 layer search");
-                        return;
-                    }
-                    Dbgl($"piece was found in JVL prefabs");
 
+                        if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
+                        {
+                            object PieceManager = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                            object cr = AccessTools.Method(PieceManager.GetType(), "GetPiece").Invoke(PieceManager, new[] { data.name });
+                            if (cr != null)
+                            {
+                                piece = (Piece)AccessTools.Property(cr.GetType(), "Piece").GetValue(cr);
+                                Dbgl($"Jotunn recipe: found for {data.name}");
+                                go = piece.gameObject;
+
+
+                            }
+                        }
+                        if (go == null) // 4th layer
+                        {
+                            Dbgl($"Piece {data.name} not found! 4 layer search");
+                            return;
+                        }
+                    }
+                    else // 3rd layer
+                    {
+                        Dbgl($"Piece {data.name} ");
+                        piece = go.GetComponent<Piece>();
+                    }
                 }
-                else
+                else // 2nd layer
                 {
-                    Dbgl($"Piece {data.name} from custom hammer");
+                    Dbgl($"Piece {data.name} from known custom hammer {selectedPiecehammer}");
                     piece = go.GetComponent<Piece>();
                 }
             }
-            else
+            else // 1st layer
             {
                 piece = go.GetComponent<Piece>();
             }
-
-            if( piece == null)
+            if (piece == null) // final check
             {
-                Dbgl($"Item data for {data.name} not found!");
+                Dbgl("Piece data not found!");
                 return;
             }
-            if (data.clone && !skip) // object is a clone do clonethings
+                if (data.clone && !skip) // object is a clone do clonethings
                 {
                 Dbgl($"Item CLONE DATA in SetPiece for {tempname} ");
                 Transform RootT = Root.transform; // Root set to inactive to perserve components. 
@@ -1103,6 +1122,7 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
                     
+                    
 
                     PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
                     foreach (string modString in data.damageModifiers)
@@ -1174,10 +1194,116 @@ namespace wackydatabase
             ItemDrop hoe = ObjectDB.instance.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
             if (hoe)
                 pieces.AddRange(Traverse.Create(hoe.m_itemData.m_shared.m_buildPieces).Field("m_pieces").GetValue<List<GameObject>>());
+
             return pieces;
 
         }
-        private static RecipeData GetRecipeDataByName(string name)
+        private static GameObject GetModdedPieces(string name)
+        {
+            selectedPiecehammer = "";
+            GameObject Searchingfor = null;
+            foreach (string Station in RealPieceStations) // look for known modded hammers, Forget the indivual item, now just PieceTable
+            {
+                PieceTable table = ObjectDB.instance.GetItemPrefab(Station)?.GetComponent<PieceTable>();
+                if (table != null)
+                    Searchingfor = table.m_pieces.Find(g => Utils.GetPrefabName(g) == name);
+                if (Searchingfor != null)
+                {
+                    selectedPiecehammer = Station;
+                    return Searchingfor;
+                }
+
+            }
+            return Searchingfor;
+        }
+
+        private static void GetPieceStations()
+        {
+            MaybePieceStations = Resources.FindObjectsOfTypeAll<PieceTable>();
+            GameObject temp;
+            foreach (PieceTable p in MaybePieceStations)
+            {
+                Dbgl($"PieceStation found: {p.name}, now filtering the names now");
+
+                switch (p.name)
+                {
+                    case "_HoePieceTable": RealPieceStations.Add("_HoePieceTable"); break;
+                    case "_HammerPieceTable": RealPieceStations.Add("_HammerPieceTable"); break; 
+                    case "_CultivatorPieceTable": RealPieceStations.Add("_CultivatorPieceTable"); break;
+                    case "_BJORKSNASPieceTable": RealPieceStations.Add("_BJORKSNASPieceTable"); break;
+                   // case "JVLmock__RKCustomTable": break; // I don't think there is any reason to go through this, but just in case, it will be added by default
+                    case "_RKCustomTable": RealPieceStations.Add("_RKCustomTable"); break;
+                    case "_PlantitPieceTable": RealPieceStations.Add("_PlantitPieceTable"); break;
+                    case "_ClutterPieceTable": RealPieceStations.Add("_ClutterPieceTable"); break;
+                    // additional mods go here
+
+
+                    default: RealPieceStations.Add(p.name); break;
+                }
+            } 
+            /*  It is close working, but out of order causes problems, needs a second pass. 
+                      try
+                        {z`
+                            temp = ObjectDB.instance.GetItemPrefab(p.name);
+                            if (temp != null)
+                            {
+                                Dbgl($"Found new Hammer that is real {p.name} ");
+                                RealPieceStations.Add(p.name);
+                            } // this will not catch unknown JVL hammers
+                            else // this will probably catch unknown JVL hammers
+                            {
+                                if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
+                                {
+                                    Dbgl($"JVL is loaded, going to try to catch those unknown hammer: {p.name}");
+                                    object PieceManager = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                                    object tryd = AccessTools.Field(PieceManager.GetType(), "PieceTableNameMap").GetValue(PieceManager);
+                                    //https://github.com/Valheim-Modding/Jotunn/blob/dev/JotunnLib/Managers/PieceManager.cs#L40 based on, and reflection
+                                    if (tryd != null)
+                                    {
+                                        Dictionary<string, string> pauler = (Dictionary<string, string>)tryd;
+                                        string temp2 = null;
+                                        string temp1 = null;
+                                        bool inarray = false;
+                                        // Dbgl($"All PieceTableNameMap in JVL loaded:");
+                                        foreach (KeyValuePair<string, string> entry in pauler) // run though Maybe pieces to make sure piece hasn't already been entered, looking for value
+                                        {
+                                            Dbgl($" key {entry.Key} value {entry.Value}"); // list all 
+                                            temp2 = entry.Value;
+                                            temp1 = entry.Key;
+                                            inarray = false;
+                                            foreach (string t in RealPieceStations)
+                                            {
+                                                //Dbgl($" compare {t}");
+                                                if (t == (temp2)) // checking key and value
+                                                    inarray = true;
+                                                if (t == (temp1))
+                                                    inarray = true;
+                                            }
+                                            if (!inarray) // not in RealPieceStations
+                                            {
+                                                Dbgl($"Value {entry.Value} and Key {entry.Key} not found in RealPieceStation, which is the real one? - going with value since it starts usually with _");
+                                                RealPieceStations.Add(entry.Value);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                       }catch { Dbgl($"Error out on {p.name}"); break; }
+                }
+            } // end looking for hammers
+            Dbgl($"end looking");
+            */
+
+            foreach (string s in RealPieceStations)
+            {
+                Dbgl($"RealPiece station found {s}");
+            }
+
+        }
+
+
+            private static RecipeData GetRecipeDataByName(string name)
         {
             GameObject go = ObjectDB.instance.GetItemPrefab(name);
 
@@ -1233,58 +1359,55 @@ namespace wackydatabase
         {
             Piece piece = null;
             string piecehammer = "Hammer"; // default
-            GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name);
+            GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name); // vanilla search
             if (go == null)
             {
-                go = ObjectDB.instance.GetItemPrefab(name); // for modded hammers
+                go = GetModdedPieces(name);// known modded Hammer search
                 if (go == null)
                 {
-  
-                    if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
-                    {
-                        //Dbgl($"JVL is loaded - checking");
-                        //GameObject JotRoot = ObjectDB.instance.GetItemPrefab("_JotunnRoot");
-
-                        object PieceManager = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
-                        object cr = AccessTools.Method(PieceManager.GetType(), "GetPiece").Invoke(PieceManager, new[] { name });
-                        if (cr != null)
-                        {
-                            piece = (Piece)AccessTools.Property(cr.GetType(), "Piece").GetValue(cr);
-                            Dbgl($"Jotunn recipe: found ");
-                            go = piece.gameObject;
-                            /*
-                            object ModReg = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Utils.ModRegistry").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
-                            object PieceTables = AccessTools.Method(ModReg.GetType(), "GetPieceTables");
-                            if (PieceTables != null)
-                            {
-
-                            }
-                                //piecehammer = (String)AccessTools.Property(PieceTables.PieceTable(), "Piece").GetValue(PieceTables);
-                            */
-                        }
-
-                    }
+                    go = ObjectDB.instance.GetItemPrefab(name); // last chance for modded hammers before JVL
                     if (go == null)
                     {
-                        Dbgl($"Piece {name} not found! 3 layer search");
-                        return null;
-                    }
-                    Dbgl($"piece was found in JVL prefabs");
 
-                }
-                else
+                        if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
+                        {
+                            object PieceManager = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                            object cr = AccessTools.Method(PieceManager.GetType(), "GetPiece").Invoke(PieceManager, new[] { name });
+                            if (cr != null)
+                            {
+                                piece = (Piece)AccessTools.Property(cr.GetType(), "Piece").GetValue(cr);
+                                Dbgl($"Jotunn recipe: found for {name}");
+                                go = piece.gameObject;
+                                warn = true;
+                                Dbgl($"Clutter mod uses _ClutterPieceTable");
+                                Dbgl($"Buildit mod uses _RKCustomTable");
+                                Dbgl($"PlantIt mod uses _PlantitPieceTable");
+
+                            }
+                        }
+                        if (go == null) // 4th layer
+                        {
+                            Dbgl($"Piece {name} not found! 4 layer search");
+                            return null;
+                        }
+                    } else // 3rd layer
+                    {
+                        Dbgl($"Piece {name} from unknown custom hammer - setting default to Hammer");
+                        piece = go.GetComponent<Piece>();
+                        warn = true;
+                    }
+                }else // 2nd layer
                 {
-                    Dbgl($"Piece {name} from custom hammer");
-                    //go = ObjectDB.instance.GetItemPrefab(name);
+                    Dbgl($"Piece {name} from known custom hammer {selectedPiecehammer}");
                     piece = go.GetComponent<Piece>();
+                    piecehammer = selectedPiecehammer;
+                    warn = false;
                 }
-            }
-            else
+            }else // 1st layer
             {
                 piece = go.GetComponent<Piece>();
-            }
-                
-            if (piece == null)
+            }   
+            if (piece == null) // final check
             {
                 Dbgl("Piece data not found!");
                 return null;
@@ -1297,7 +1420,6 @@ namespace wackydatabase
                 piecehammer = "Hammer";
                 whichone = 0;
 
-
             }
             ItemDrop hoe = ObjectDB.instance.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
 
@@ -1305,10 +1427,9 @@ namespace wackydatabase
             {
                 piecehammer = "Hoe";
                 whichone = 1;
-
             }
             if (warn)
-            WackysRecipeCustomizationLogger.LogWarning("If using a custom Hammer, make sure to set this in piecehammer otherwise it will default to Hammer");
+                WackysRecipeCustomizationLogger.LogWarning("If using a custom Hammer, make sure to set this in piecehammer otherwise it will default to Hammer");
             string wackyname ="";
             string wackydesc ="";
             wackydesc = piece.m_description;
