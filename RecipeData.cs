@@ -26,6 +26,7 @@ namespace wackydatabase
         public string cloneMaterial;
         public string craftingStation;
         public string piecehammer;
+        public string piecehammerCategory;
         public int minStationLevel;
         public int amount;
         public bool disabled;

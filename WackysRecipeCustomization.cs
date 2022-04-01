@@ -34,7 +34,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.0.6";
+        internal const string ModVersion = "1.1.0";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -81,6 +81,7 @@ namespace wackydatabase
         private static List<string> piecemods = new List<string>();
         private static PieceTable[] MaybePieceStations;
         public static List<string> RealPieceStations = new List<string>();
+        public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
 
 
 
@@ -102,7 +103,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName,  MinimumRequiredVersion = "1.0.6" }; // it is very picky on version number
+        { DisplayName = ModName,  MinimumRequiredVersion = "1.1.0" }; // it is very picky on version number
 
 
         #endregion
@@ -296,14 +297,14 @@ namespace wackydatabase
                         {
                             SetItemData(data);
                         }
-                        foreach (var data in recipeDatas)
-                        {
-                            // Dbgl($"trying to load recipes");
-                            SetRecipeData(data);
-                        }
                         foreach (var data in PieceDatas)
                         {
                             SetPieceRecipeData(data);
+                        }
+                        foreach (var data in recipeDatas) // recipes last
+                        {
+                            // Dbgl($"trying to load recipes");
+                            SetRecipeData(data);
                         }
 
                     }
@@ -640,6 +641,8 @@ namespace wackydatabase
                         Recipe clonerecipe = ObjectDB.instance.m_recipes[i];
                         clonerecipe.m_item = go.GetComponent<ItemDrop>();
                         clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
+                        if (clonerecipe.m_craftingStation == null)
+                            Dbgl("clone craftingStation set to null");
                         clonerecipe.m_minStationLevel = data.minStationLevel;
                         clonerecipe.m_amount = data.amount;
                         clonerecipe.name = tempname; //maybe
@@ -720,7 +723,7 @@ namespace wackydatabase
                 data.name = data.clonePrefabName;
             }
             Piece piece = null;
-            GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name); // vanilla search
+            GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
             if (go == null)
             {
                 go = GetModdedPieces(data.name); // known modded Hammer search
@@ -844,21 +847,34 @@ namespace wackydatabase
                         Dbgl($"piecehammer named {data.piecehammer} will not be use because the Item prefab was not found and it is not a PieceTable, so setting to Hammer in Misc");
                         piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
 
-                        newItem.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_selectedCategory = Piece.PieceCategory.Misc; // set the category
+                        NewItemComp.m_category = Piece.PieceCategory.Misc; // set the category
                         piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem);
                     }
                     else
                     {
+                        if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                        {
+                            try
+                            { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                            catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                        }
                         selectedPiecehammer.m_pieces.Add(newItem); // adding item to PiceTable
                     }
                 }
                 else
                 {
+                    if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                    {
+                        try
+                        { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                        catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                    }
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
                 }
                  
                 data.name = tempname; // putting back name
-                go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name); // just verifying
+                go = FindPieceObjectName(data.name); //no this needs to call to newItem for modifcation otherwise it modifies orginial. Lot of wasted code
+                if (go == null)// just verifying
                 {
                     Dbgl($"Item {data.name} not found in SetPiece! after clone");
                     return;
@@ -922,11 +938,27 @@ namespace wackydatabase
             CraftingStation currentStation = GetCraftingStation(data.craftingStation);
             CraftingStation checkifStation = null;
             if (data.clone)
-                 checkifStation = GetCraftingStation(data.clonePrefabName);// check if they are cloning a crafting station.
+            {
+                //checkifStation = GetCraftingStation("$" + data.clonePrefabName);// check if they are cloning a crafting station with simple $ added
+              //  if (checkifStation == null)
+                //{
+                        //Dbgl(");
+                string tempnam = null;
+                tempnam =  go.GetComponent<CraftingStation>()?.m_name;
+                if (tempnam != null)
+                {
+                    checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                }
+               // }
+            }
             if (data.clone && checkifStation != null)
             {
-                checkifStation.m_name = "$"+ data.name;
-                Dbgl($"Congratulations on your new CraftingStation named {checkifStation} ");
+                //go.GetComponent<Piece>().m_craftingStation = ""; dont change crafting station hopefully it is empty already
+                go.GetComponent<CraftingStation>().name = data.name;
+                go.GetComponent<CraftingStation>().m_name=data.m_name;
+                NewCraftingStations.Add(go.GetComponent<CraftingStation>()); // keeping track of them is hard
+
+                Dbgl($"Congratulations on your new CraftingStation named {data.name} ");
             }
             go.GetComponent<Piece>().m_craftingStation = GetCraftingStation(data.craftingStation);
             if (data.minStationLevel > 1)
@@ -1139,13 +1171,12 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_attackStamina; // set for both
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
                     // someone is going to complain that I am adding too many... I just know it.
-                    int skillme = Enum.TryParse<Skills.SkillType>(data.m_skillType, out Skills.SkillType skillresult) ? (int)skillresult : (int)Enum.Parse(typeof(Skills.SkillType), data.m_skillType);
-                    PrimaryItemData.m_shared.m_skillType = (Skills.SkillType)skillme;
-                    PrimaryItemData.m_shared.m_attack = data.primaryAttack;
-                    PrimaryItemData.m_shared.m_holdAnimationState = data.m_holdAnimationState;
-                    PrimaryItemData.m_shared.m_animationState = (ItemDrop.ItemData.AnimationState)data.m_animationState;
-                    ItemDrop.ItemData.AnimationState
-                    Attack
+                    //int skillme = Enum.TryParse<Skills.SkillType>(data.m_skillType, out Skills.SkillType skillresult) ? (int)skillresult : (int)Enum.Parse(typeof(Skills.SkillType), data.m_skillType);
+                    //PrimaryItemData.m_shared.m_skillType = (Skills.SkillType)skillme;
+                    //PrimaryItemData.m_shared.m_attack = data.primaryAttack;
+                    //PrimaryItemData.m_shared.m_holdAnimationState = data.m_holdAnimationState;
+                    //PrimaryItemData.m_shared.m_animationState = (ItemDrop.ItemData.AnimationState)data.m_animationState;
+                    //Attack
                     /* What do I want
                      * m_speedFactor
                      * m_speedFactorRotation
@@ -1173,7 +1204,7 @@ namespace wackydatabase
                      * m_burstInterval
                      * m_destroyPreviousProjectile
                      */
-
+                    /*
                     foreach (string AttString in data.primaryAttack)
                     {
                         string[] mod = AttString.Split(':');
@@ -1187,7 +1218,7 @@ namespace wackydatabase
                         int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
                         PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
                     }
-
+                    */
 
                     PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
                     foreach (string modString in data.damageModifiers)
@@ -1217,7 +1248,7 @@ namespace wackydatabase
         {
             if (name == "" || name == null)
                 return null;
-                
+
             //Dbgl("Looking for crafting station " + name);
 
             foreach (Recipe recipe in ObjectDB.instance.m_recipes)
@@ -1225,7 +1256,7 @@ namespace wackydatabase
                 if (recipe?.m_craftingStation?.m_name == name)
                 {
 
-                  //  Dbgl("got crafting station " + name);
+                    //  Dbgl("got crafting station " + name);
 
                     return recipe.m_craftingStation;
                 }
@@ -1236,12 +1267,28 @@ namespace wackydatabase
                 if (piece.GetComponent<Piece>()?.m_craftingStation?.m_name == name)
                 {
 
-                   // Dbgl("got crafting station " + name);
+                    // Dbgl("got crafting station " + name);
 
                     return piece.GetComponent<Piece>().m_craftingStation;
 
                 }
             }
+            try { 
+                GameObject piecemod = GetModdedPieces(name); // last check not a good check/ rewrite
+                if (piecemod.GetComponent<Piece>()?.m_craftingStation?.m_name == name)
+                {
+                    return piecemod.GetComponent<Piece>().m_craftingStation;
+                }
+            }
+            catch { }
+
+            // new craftingstatinos created keeping list
+            foreach ( CraftingStation station in NewCraftingStations)
+            {
+                if(station.name == name)
+                   return station;
+            }
+
 
             return null;
         }
@@ -1277,6 +1324,35 @@ namespace wackydatabase
                 }
             }
             return Searchingfor;
+        }
+
+        private static GameObject FindPieceObjectName(string name) // I should do something about this extra code sometime.
+        {
+            Piece piece = null;
+            GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name); // vanilla search
+            if (go == null)
+            {
+                go = GetModdedPieces(name); // known modded Hammer search
+                if (go == null)
+                {
+                    go = ObjectDB.instance.GetItemPrefab(name); // last chance for modded hammers before JVL
+                    if (go == null)
+                    {
+                        if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn")) // JVL hammer search
+                        {
+                            object PieceManager = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                            object cr = AccessTools.Method(PieceManager.GetType(), "GetPiece").Invoke(PieceManager, new[] { name });
+                            if (cr != null)
+                            {
+                                piece = (Piece)AccessTools.Property(cr.GetType(), "Piece").GetValue(cr);
+                                go = piece.gameObject;
+                            }
+
+                        }
+                    }
+                }
+            }
+            return go;
         }
 
         private static void GetPieceStations()
@@ -1488,6 +1564,7 @@ namespace wackydatabase
             string wackydesc ="";
             wackydesc = piece.m_description;
             wackyname = piece.m_name;
+            string wackycatSring = piece.m_category.ToString();
 
             var data = new PieceData()
             {
@@ -1499,6 +1576,7 @@ namespace wackydatabase
                 adminonly = false,
                 m_name = wackyname,
                 m_description = wackydesc,
+                piecehammerCategory = wackycatSring,
             };
             foreach (Piece.Requirement req in piece.m_resources)
             {

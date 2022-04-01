@@ -25,15 +25,15 @@ public class WItemData
 
 	public float m_weight;
 
-	public string m_skillType;
+	//public string m_skillType;
 
-	public string m_animationState;
+	//public string m_animationState;
 
 	public float m_attackStamina; // is set to both attacks
 
-	public List<string> primaryAttack = new List<string>();
+	//public List<string> primaryAttack = new List<string>();
 
-	public List<string> secondaryAttack = new List<string>();
+	//public List<string> secondaryAttack = new List<string>();
 
 	public int m_maxStackSize;
 
@@ -89,7 +89,7 @@ public class WItemData
 
 	public float m_holdStaminaDrain;
 
-	public string m_holdAnimationState;
+	//public string m_holdAnimationState;
 
 	public int m_maxQuality;
 

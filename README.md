@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.0.5
+Version 1.1.0
 
 <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309690-252090998.png" width="248"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309553-1371739452.png" width="230"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648364564-1208178091.jpeg" width="215"/>
 
@@ -120,6 +120,8 @@ m_blockPowerPerLevel:
 
 m_timedBlockBonus is the Parry bonus
 
+m_attackStamina set both Primary and Secondary attacks. Will expand upon in future.
+
 The rest you can probably figure out. 
 
 
@@ -141,6 +143,7 @@ cloneMaterial: You can change the material(colorish) of a cloned object. Images 
 
 ## Recipe Options: 
 
+<img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648781719-1526131418.png" width="600"/>
 Recipes NEED to have a unique name.
 
 If cloning a recipe of a cloned item, clonePrefabName needs to be cloned item prefab.
@@ -154,8 +157,16 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ## Changelog
 
+        Version 1.10
+            All About Pieces with this Update!
+            Adds ability to clone an existing CraftingStation piece and make it a new CraftingStation - The CraftingStation name is "name", add recipes to it with this name.
+            Fixed other mods custom pieces. You should be able access and even clone other mods pieces now.
+            Added piecehammerCategory so you can change the category where piece appears on the hammer. Mods might use numbers instead of words though.
+            Added m_knockback Added m_backstabbonus Made m_attackStamina set both Primary and Secondary attacks.
         Version 1.05
             Mod Release
+
+
 
 
 ## Last notes:
