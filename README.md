@@ -144,7 +144,8 @@ cloneMaterial: You can change the material(colorish) of a cloned object. Images 
 ## Recipe Options: 
 
 <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648781719-1526131418.png" width="700"/>
-Recipes NEED to have a unique name.
+
+Cloned recipes need a unique name. 
 
 If cloning a recipe of a cloned item, clonePrefabName needs to be cloned item prefab.
 
