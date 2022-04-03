@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.1.0
+Version 1.1.5
 
 <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309690-252090998.png" width="248"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309553-1371739452.png" width="230"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648364564-1208178091.jpeg" width="215"/>
 
@@ -158,6 +158,12 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ## Changelog
 
+
+        Version 1.1.5
+            Cleaned up the code a lot. Fixed Pieces from getting null values from Server.
+            Fixed the piece disable/admin for custom pieces.
+            Made it so you can clone stone_floor (4x4 stone prefab) - editing it probably won't make it add to Hammer
+            Added special case list for objects that have multiple Gameobjects. (Bow, SpearBronze)
         Version 1.10
             All About Pieces with this Update!
             Adds ability to clone an existing CraftingStation piece and make it a new CraftingStation 
