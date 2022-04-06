@@ -888,27 +888,28 @@ namespace wackydatabase
             {
                 Dbgl($"Removing recipe for {data.name} from some PieceStation, you need to reload session to get this piece back");
                 GameObject piecehammer = ObjectDB.instance.GetItemPrefab(data.piecehammer);
+                bool keyExists = AdminPiecesOnly.ContainsKey(go); // make sure it only gets set once
                 if (piecehammer == null)
                 {
                     if (selectedPiecehammer == null)
                     {
                         piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
                         piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
-                        if (data.adminonly)
+                        if (data.adminonly && !keyExists) 
                             AdminPiecesOnly.Add(go, piecehammer);
                     }
                     else
                     {
                         selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
                         GameObject temp2 = selectedPiecehammer.gameObject;
-                        if (data.adminonly)
+                        if (data.adminonly && !keyExists)
                             AdminPiecesOnly.Add(go, temp2);
                     }
                 }
                 else
                 {
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
-                    if (data.adminonly)
+                    if (data.adminonly && !keyExists)
                         AdminPiecesOnly.Add(go, piecehammer);
                 }
             }
