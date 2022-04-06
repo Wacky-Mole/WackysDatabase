@@ -76,7 +76,7 @@ namespace wackydatabase
         private static PieceTable selectedPiecehammer;
         //private static List<string> piecemods = new List<string>();
         private static PieceTable[] MaybePieceStations;
-        private static Piece[] PiecesinGame;
+        private static Dictionary<GameObject,GameObject> AdminPiecesOnly;
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
 
@@ -864,7 +864,18 @@ namespace wackydatabase
             {
                 if (Admin)
                 {
-                    // do nothing
+                    // do nothing, but search if it has been disabled before
+                    foreach(GameObject searc in AdminPiecesOnly.Keys)
+                    {
+                        if (searc == go)
+                        { // found object so need to add it back because it was disabled previously
+                            
+                           GameObject newhammer = AdminPiecesOnly[searc];
+                           newhammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(searc);
+                           Dbgl($"Congrats on your new promotion. Enabling previously disabled piece.");
+                           AdminPiecesOnly.Remove(searc); // delete so it is not found again
+                        }
+                    }
                     Dbgl($"{data.name} is set for Adminonly, and you are admin, enjoy this exclusive Piece");
                 } else
                 {
@@ -883,12 +894,23 @@ namespace wackydatabase
                     {
                         piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
                         piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                        if (data.adminonly)
+                            AdminPiecesOnly.Add(go, piecehammer);
                     }
                     else
+                    {
                         selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
+                        GameObject temp2 = selectedPiecehammer.gameObject;
+                        if (data.adminonly)
+                            AdminPiecesOnly.Add(go, temp2);
+                    }
                 }
                 else
+                {
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
+                    if (data.adminonly)
+                        AdminPiecesOnly.Add(go, piecehammer);
+                }
             }
             Dbgl("Setting Piece data for " + data.name);
             if (string.IsNullOrEmpty(data.m_name)) {
