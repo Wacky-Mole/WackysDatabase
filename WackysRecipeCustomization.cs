@@ -1754,12 +1754,13 @@ namespace wackydatabase
                 }
             }
         }
+        // water patch  https://www.nexusmods.com/valheim/mods/1162
 
 
         [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
         static class UpdateEnvStatusEffects_Patch
         {
-            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) // I really wish I knew what this transpiler code was doing for the frost and immune. Going to trust she knows what she's doing
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
                 Dbgl($"Transpiling UpdateEnvStatusEffects");
 
@@ -1785,8 +1786,70 @@ namespace wackydatabase
 
                 return outCodes.AsEnumerable();
             }
-            //skipping wet patches
+            static void Postfix(float dt, Player __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem, SEMan ___m_seman)
+            {
+                if (!modEnabled.Value)
+                    return;
+
+                if (___m_seman.HaveStatusEffect("Wet"))
+                {
+                    HitData.DamageModifier water = GetNewDamageTypeMod(NewDamageTypes.Water, ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem);
+                    var wet = ___m_seman.GetStatusEffect("Wet");
+                    var t = Traverse.Create(wet);
+
+                    if (water == HitData.DamageModifier.Ignore || water == HitData.DamageModifier.Immune)
+                    {
+                        ___m_seman.RemoveStatusEffect("Wet", true);
+                    }
+                    else if (water == HitData.DamageModifier.VeryResistant && !__instance.InLiquidSwimDepth())
+                    {
+                        ___m_seman.RemoveStatusEffect("Wet", true);
+                    }
+                    else if (water == HitData.DamageModifier.Resistant)
+                    {
+                        t.Field("m_time").SetValue(t.Field("m_time").GetValue<float>() + dt);
+                        ___m_seman.RemoveStatusEffect("Wet", true);
+                        ___m_seman.AddStatusEffect(wet);
+                    }
+                    else if (water == HitData.DamageModifier.Weak)
+                    {
+                        t.Field("m_time").SetValue(t.Field("m_time").GetValue<float>() - dt / 3);
+                        ___m_seman.RemoveStatusEffect("Wet", true);
+                        ___m_seman.AddStatusEffect(wet);
+                    }
+                    else if (water == HitData.DamageModifier.VeryWeak)
+                    {
+                        t.Field("m_time").SetValue(t.Field("m_time").GetValue<float>() - dt * 2 / 3);
+                        ___m_seman.RemoveStatusEffect("Wet", true);
+                        ___m_seman.AddStatusEffect(wet);
+                    }
+                }
+            }
         }
+        //Water Patches
+        [HarmonyPatch(typeof(SEMan), "AddStatusEffect", new Type[] { typeof(StatusEffect), typeof(bool) })]
+            static class SEMan_AddStatusEffect_Patch
+            {
+                static bool Prefix(SEMan __instance, StatusEffect statusEffect, Character ___m_character, ref StatusEffect __result)
+                {
+                    if (!modEnabled.Value || !___m_character.IsPlayer())
+                        return true;
+
+                    if (statusEffect.m_name == "$se_wet_name")
+                    {
+                        var mod = GetNewDamageTypeMod(NewDamageTypes.Water, ___m_character);
+                        if (mod == HitData.DamageModifier.Ignore || mod == HitData.DamageModifier.Immune)
+                        {
+                            __result = null;
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+            }
+
         private static bool ShouldOverride(HitData.DamageModifier a, HitData.DamageModifier b)
         {
             return a != HitData.DamageModifier.Ignore && (b == HitData.DamageModifier.Immune || ((a != HitData.DamageModifier.VeryResistant || b != HitData.DamageModifier.Resistant) && (a != HitData.DamageModifier.VeryWeak || b != HitData.DamageModifier.Weak)));
