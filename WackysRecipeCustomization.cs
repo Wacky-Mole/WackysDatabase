@@ -34,7 +34,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.1.6";
+        internal const string ModVersion = "1.1.7";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -48,6 +48,7 @@ namespace wackydatabase
         private static bool isSettoAutoReload;
         private static bool isSetStringisDebug = false;
         private static bool recieveServerInfo = false;
+        private static bool isDedServer= false;
         private static bool NoMoreLoading = false; // for shutdown from Server
         internal static string ConnectionError = "";
         private static WMRecipeCust context;
@@ -61,7 +62,9 @@ namespace wackydatabase
         private static List<WItemData> ItemDatas = new List<WItemData>();
         private static List<PieceData> PieceDatas = new List<PieceData>();
         private static List<ArmorData> armorDatas = new List<ArmorData>();// load with others
-        private static List<string> Cloned = new List<string>();
+        private static List<string> ClonedI = new List<string>();
+        private static List<string> ClonedP = new List<string>();
+        private static List<string> ClonedR = new List<string>();
         private static string assetPath;
         private static string assetPathItems;
         private static string assetPathRecipes;
@@ -287,16 +290,28 @@ namespace wackydatabase
                     GetRecipeDataFromFiles();
                     foreach (var data in ItemDatas) // call items first
                     {
-                        SetItemData(data);
+                        try
+                        {
+                            SetItemData(data);
+                        }
+                        catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data.name} failed"); }
+
                     }
                     foreach (var data in PieceDatas)
                     {
-                        SetPieceRecipeData(data);
+                        try
+                        {
+                            SetPieceRecipeData(data);
+                        }
+                        catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data.name} failed"); }
                     }
                     foreach (var data in recipeDatas) // recipes last
                     {
-                        // Dbgl($"trying to load recipes");
-                        SetRecipeData(data);
+                        try
+                        {
+                            SetRecipeData(data);
+                        }
+                        catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
                     }
 
                 }
@@ -314,8 +329,10 @@ namespace wackydatabase
         }
         private void CustomSyncEventDetected()
         {
-            if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated()) { } // Dedicated Server should not load this
-            else
+            if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated()) {
+               isDedServer = true;
+            } 
+          //  else
             {
 
                 if (Firstrun)
@@ -383,21 +400,33 @@ namespace wackydatabase
                         {
                             if (data2 != null)
                             {
-                                SetItemData(data2);
-                            }
-                        }
-                        foreach (var data in recipeDatas)
-                        {
-                            if (data != null)
-                            {
-                                SetRecipeData(data);
+                                try
+                                {
+                                    SetItemData(data2);
+                                } catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data2.name} failed"); }
                             }
                         }
                         foreach (var data3 in PieceDatas)
                         {
                             if (data3 != null)
                             {
-                                SetPieceRecipeData(data3);
+                                try
+                                {
+                                    SetPieceRecipeData(data3);
+                                }catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data3.name} failed"); }
+
+                            }
+                        }
+                        foreach (var data in recipeDatas) // recipes last
+                        {
+                            if (data != null)
+                            {
+                                try
+                                {
+                                    SetRecipeData(data);
+                                }
+                                catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
+
                             }
                         }
 
@@ -548,8 +577,9 @@ namespace wackydatabase
         private static void SetRecipeData(RecipeData data)
         {
             bool skip = false;
-            foreach (var citem in Cloned)
+            foreach (string citem in ClonedR)
             {
+                //Dbgl($"Recipe clone check {citem} against {data.name}");
                 if (citem == data.name)
                     skip = true;
             }
@@ -563,7 +593,6 @@ namespace wackydatabase
                 go = ObjectDB.instance.GetItemPrefab(data.name);
             if (go == null)
             {
-                //SetPieceRecipeData(data);
                 Dbgl("maybe null " + data.name + " Should not get here");
                 return;
             }
@@ -577,19 +606,19 @@ namespace wackydatabase
             {
                 if (!data.disabled)
                 {
-                    Dbgl("Setting CLONED Recipe for " + tempname);
+                    
                     Recipe clonerecipe = ScriptableObject.CreateInstance<Recipe>();
-                    Cloned.Add(tempname); // add to list
+                    ClonedR.Add(tempname); 
 
                     clonerecipe.m_item = go.GetComponent<ItemDrop>();
                     clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
+                    clonerecipe.m_repairStation = GetCraftingStation(data.craftingStation);
                     clonerecipe.m_minStationLevel = data.minStationLevel;
                     clonerecipe.m_amount = data.amount;
                     clonerecipe.name = tempname; //maybe
-                                                 // clonerecipe.name = $"<color =#4f34eb>{tempname}</color>";
-
+                     // clonerecipe.name = $"<color =#4f34eb>{tempname}</color>";
                     List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-
+                    
                     // Dbgl("Made it to RecipeData!");
                     foreach (string req in data.reqs)
                     {
@@ -624,6 +653,9 @@ namespace wackydatabase
                         }
                     }
                     ObjectDB.instance.m_recipes.Insert(index, clonerecipe);
+                    //Dbgl($"Recipe clone check {citem} against {data.name}");
+                   
+                    return;
                 }
                 else
                 {
@@ -638,15 +670,18 @@ namespace wackydatabase
                 {
                     if (ObjectDB.instance.m_recipes[i].name == tempname)
                     {
+
                         Dbgl("ReSetting Recipe for " + tempname);
                         Recipe clonerecipe = ObjectDB.instance.m_recipes[i];
                         clonerecipe.m_item = go.GetComponent<ItemDrop>();
                         clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
+                        clonerecipe.m_repairStation = GetCraftingStation(data.craftingStation);
                         if (clonerecipe.m_craftingStation == null)
                             Dbgl("clone craftingStation set to null");
                         clonerecipe.m_minStationLevel = data.minStationLevel;
                         clonerecipe.m_amount = data.amount;
                         clonerecipe.name = tempname; //maybe
+                                                     //clonerecipe.m_enabled = true;
 
                         List<Piece.Requirement> reqs = new List<Piece.Requirement>();
 
@@ -674,6 +709,7 @@ namespace wackydatabase
                             }
                         }// foreach
                         clonerecipe.m_resources = reqs.ToArray();
+                        return;
                     }
                 }
             } else // ingame item
@@ -690,10 +726,11 @@ namespace wackydatabase
                             ObjectDB.instance.m_recipes.RemoveAt(i);
                             return;
                         }
-
+                        //ObjectDB.instance.m_recipes[i].
                         ObjectDB.instance.m_recipes[i].m_amount = data.amount;
                         ObjectDB.instance.m_recipes[i].m_minStationLevel = data.minStationLevel;
                         ObjectDB.instance.m_recipes[i].m_craftingStation = GetCraftingStation(data.craftingStation);
+                        //ObjectDB.instance.m_recipes[i].m_repairStation = GetCraftingStation(data.craftingStation); dont mess with maybe? if null repairable by all?
                         List<Piece.Requirement> reqs = new List<Piece.Requirement>();
                         // Dbgl("Made it to RecipeData!");
                         foreach (string req in data.reqs)
@@ -712,7 +749,7 @@ namespace wackydatabase
         private static void SetPieceRecipeData(PieceData data)
         {
             bool skip = false;
-            foreach (var citem in Cloned)
+            foreach (var citem in ClonedP)
             {
                 if (citem == data.name)
                     skip = true;
@@ -752,7 +789,7 @@ namespace wackydatabase
                 GameObject newItem = Instantiate(go, RootT, false);
                 Piece NewItemComp = newItem.GetComponent<Piece>();
 
-                Cloned.Add(tempname); // check against
+                ClonedP.Add(tempname); // check against
                 newItem.name = tempname; // resets the orginal name- needs to be unquie
                 NewItemComp.name = tempname; // ingame name
 
@@ -819,7 +856,7 @@ namespace wackydatabase
                 {
                     if (selectedPiecehammer == null)
                     {
-                        Dbgl($"piecehammer named {data.piecehammer} will not be use because the Item prefab was not found and it is not a PieceTable, so setting to Hammer in Misc");
+                        Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
                         piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
 
                         NewItemComp.m_category = Piece.PieceCategory.Misc; // set the category
@@ -865,6 +902,7 @@ namespace wackydatabase
                 if (Admin)
                 {
                     // do nothing, but search if it has been disabled before
+                    /*
                     foreach(GameObject searc in AdminPiecesOnly.Keys)
                     {
                         if (searc == go)
@@ -875,7 +913,7 @@ namespace wackydatabase
                            Dbgl($"Congrats on your new promotion. Enabling previously disabled piece.");
                            AdminPiecesOnly.Remove(searc); // delete so it is not found again
                         }
-                    }
+                    } */
                     Dbgl($"{data.name} is set for Adminonly, and you are admin, enjoy this exclusive Piece");
                 } else
                 {
@@ -886,31 +924,39 @@ namespace wackydatabase
 
             if (data.disabled)
             {
-                Dbgl($"Removing recipe for {data.name} from some PieceStation, you need to reload session to get this piece back");
+                
+                Dbgl($"Removing recipe for {data.name} from some PieceStation, you need to reload session to get this piece back- including admins");
                 GameObject piecehammer = ObjectDB.instance.GetItemPrefab(data.piecehammer);
-                bool keyExists = AdminPiecesOnly.ContainsKey(go); // make sure it only gets set once
+                bool keyExists = false;
+                try
+                {
+                    // keyExists = AdminPiecesOnly.ContainsKey(go); // make sure it only gets set once
+                } catch {  keyExists = false; } // bad wacky
+               // Dbgl($"Check 0");
                 if (piecehammer == null)
                 {
                     if (selectedPiecehammer == null)
                     {
+                        //Dbgl($"Check 1");
                         piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
                         piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
-                        if (data.adminonly && !keyExists) 
-                            AdminPiecesOnly.Add(go, piecehammer);
+                        //if (data.adminonly && !keyExists) 
+                          //  AdminPiecesOnly.Add(go, piecehammer);
                     }
                     else
                     {
+                        //Dbgl($"Check 2");
                         selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
                         GameObject temp2 = selectedPiecehammer.gameObject;
-                        if (data.adminonly && !keyExists)
-                            AdminPiecesOnly.Add(go, temp2);
+                        //if (data.adminonly && !keyExists)
+                            //AdminPiecesOnly.Add(go, temp2);
                     }
                 }
                 else
                 {
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
-                    if (data.adminonly && !keyExists)
-                        AdminPiecesOnly.Add(go, piecehammer);
+                   // if (data.adminonly && !keyExists)
+                     //   AdminPiecesOnly.Add(go, piecehammer);
                 }
             }
             Dbgl("Setting Piece data for " + data.name);
@@ -923,6 +969,7 @@ namespace wackydatabase
             }
             CraftingStation currentStation = GetCraftingStation(data.craftingStation);
             CraftingStation checkifStation = null;
+            bool CStationAdded = false;
             if (data.clone)
             {
                 string tempnam = null;
@@ -930,9 +977,11 @@ namespace wackydatabase
                 if (tempnam != null)
                 {
                     checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                    if (checkifStation != null)
+                        CStationAdded = NewCraftingStations.Contains(checkifStation);
                 }
             }
-            if (data.clone && checkifStation != null)
+            if (data.clone && checkifStation != null && !CStationAdded)
             {
                 //go.GetComponent<Piece>().m_craftingStation = ""; dont change crafting station hopefully it is empty already
                 go.GetComponent<CraftingStation>().name = data.name;
@@ -962,7 +1011,7 @@ namespace wackydatabase
         {
             // Dbgl("Loaded SetItemData!");
             bool skip = false;
-            foreach (var citem in Cloned)
+            foreach (var citem in ClonedI)
             {
                 if (citem == data.name)
                     skip = true;
@@ -999,7 +1048,7 @@ namespace wackydatabase
                     if (data.clone && !skip) // object is a clone do clonethings
                     {
                         Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
-                        Cloned.Add(tempname);
+                        ClonedI.Add(tempname);
                         Transform RootT = Root.transform; // Root set to inactive to perserve components. 
                         GameObject newItem = Instantiate(go, RootT, false);
                         ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
@@ -1170,6 +1219,7 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
                     PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_attackStamina; // set for both
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
+                    //PrimaryItemData.m_shared.m
 
                     // someone is going to complain that I am adding too many... I just know it.
                     //int skillme = Enum.TryParse<Skills.SkillType>(data.m_skillType, out Skills.SkillType skillresult) ? (int)skillresult : (int)Enum.Parse(typeof(Skills.SkillType), data.m_skillType);
@@ -1321,7 +1371,7 @@ namespace wackydatabase
                 if (Searchingfor != null)
                 {
                     selectedPiecehammer = Station;
-                    return Searchingfor;
+                    return (Searchingfor);
                 }
             }
             return Searchingfor;
@@ -1329,7 +1379,6 @@ namespace wackydatabase
 
         private static GameObject FindPieceObjectName(string name) 
         {
-            Piece piece = null;
             GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name); // vanilla search
             if (go == null)
             {
@@ -2329,7 +2378,14 @@ namespace wackydatabase
             private static bool Prefix()
             {
                 WackysRecipeCustomizationLogger.LogWarning("Logoff? So reset - character will look empty if using clone gear"  );
-                Cloned.Clear();
+                if (issettoSinglePlayer){
+                    DestoryClones(); //causes duplication on relogging
+
+                }
+                else
+                {
+                    DestoryClones(); // multiplayer?
+                }
                 NoMoreLoading = true;
                 return true;
             }
@@ -2348,6 +2404,80 @@ namespace wackydatabase
 
         #endregion
         #region others
+
+        private static void DestoryClones()
+        {
+            GameObject go;
+            ZNetScene znet = ZNetScene.instance;
+            var delObj = ObjectDB.instance;
+            GameObject piecehammer = null;
+            //CraftingStation forge2 = znet.GetPrefab("forge").GetComponent<CraftingStation>();
+
+            foreach (var citem in ClonedR) // just ignore ClonedR just index
+            {
+                try
+                {
+                    // since we are disableing recipes we should always have access
+                    for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
+                    {
+                        if (ObjectDB.instance.m_recipes[i].name == citem)
+                        {
+                            delObj.m_recipes.RemoveAt(i);
+                        }
+                    }
+                            
+                }
+                catch { Dbgl($"Error Disabling recipe {citem}"); }
+            }
+
+            foreach (var citem in ClonedI)
+            {
+                try
+                {
+                    go = CheckforSpecialObjects(citem);// check for special cases
+                    if (go == null)
+                        go = delObj.GetItemPrefab(citem); // normal check
+                    delObj.m_items.Remove(go);
+                    var hash = go.name.GetStableHashCode();
+                    znet.m_prefabs.Remove(go); // removing znets
+                    znet.m_namedPrefabs.Remove(hash);
+                    GameObject.Destroy(go);
+                } catch { Dbgl($"Error Destorying item {citem}"); }
+
+            }
+            foreach (var citem in ClonedP)
+            {
+                piecehammer = null;
+                selectedPiecehammer = null;
+                try
+                {
+                    //go = FindPieceObjectName(citem);
+                    go = GetModdedPieces(citem); // known modded Hammer search
+                    if (go == null)
+                    {
+                        go = CheckforSpecialObjects(citem); // check for special
+                        piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
+                    }
+
+                    if (selectedPiecehammer != null)
+                         selectedPiecehammer.m_pieces.Remove(go);
+                    else piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+
+                    znet.m_prefabs.Remove(go);
+                    var hash = go.name.GetStableHashCode();
+                    znet.m_namedPrefabs.Remove(hash);
+                    //GameObject.Destroy (go); craftingStations get Destoryed TAG
+
+                }
+                catch { Dbgl($"Error Destorying piece {citem}");  }
+            }
+            ClonedI.Clear();
+            ClonedR.Clear();
+            ClonedP.Clear();
+            ObjectDB.instance.UpdateItemHashes();
+
+            Dbgl("All cloned Objects destoryed");
+        }
 
         static string ComputeSha256Hash(string rawData)
         {
