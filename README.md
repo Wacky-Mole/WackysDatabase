@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.1.5
+Version 1.1.7
 
 <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309690-252090998.png" width="248"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309553-1371739452.png" width="230"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648364564-1208178091.jpeg" width="215"/>
 
