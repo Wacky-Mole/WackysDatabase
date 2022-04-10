@@ -111,7 +111,7 @@ Valid damage types include:
 
 Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
 
-    Water
+    ##Water
     Normal - no change
     Resistant - increases Wet status countdown speed by 100%
     Weak - decreases Wet status countdown speed by 1/3
@@ -201,8 +201,7 @@ Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The prima
 (Note!: If you want json files to have default values, close the game and delete the wackysDatabase folder).
 
 Bugs/Incompatible  Mods: 
-
-Friendlies Reloaded - https://valheim.thunderstore.io/package/Horem/Friendlies_Reloaded/ -  Will break WackyDB ( investigating)
+- Friendlies Reloaded - https://valheim.thunderstore.io/package/Horem/Friendlies_Reloaded/ -  Will break WackyDB ( investigating)
 
 Planned features
 - [x] Able to modify item data.
