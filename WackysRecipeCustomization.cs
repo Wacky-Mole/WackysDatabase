@@ -34,7 +34,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.1.7";
+        internal const string ModVersion = "1.1.8";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -44,6 +44,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isautoreload;
         public static ConfigEntry<bool> isDebugString;
+        public static ConfigEntry<string> WaterName;
         private static bool issettoSinglePlayer = false;
         private static bool isSettoAutoReload;
         private static bool isSetStringisDebug = false;
@@ -170,6 +171,7 @@ namespace wackydatabase
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
             //isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
+            WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
             ConfigSync.CurrentVersion = ModVersion;
             if (isDebugString.Value)
                 isSetStringisDebug = true;
@@ -1748,7 +1750,7 @@ namespace wackydatabase
                         }
                         if ((int)damageModPair.m_type == (int)NewDamageTypes.Water)
                         {
-                            __result += "<color=orange>" + waterModifierName.Value + "</color>";
+                            __result += "<color=orange>" + WaterName.Value + "</color>"; 
                         }
                     }
                 }
@@ -2404,10 +2406,6 @@ namespace wackydatabase
                             GameObject temp = GetPieces().Find(g => Utils.GetPrefabName(g) == worktablename);
                             var name = temp.GetComponent<Piece>().m_name;
                             __instance.Message(MessageHud.MessageType.Center, "Need a Level " + CraftingStationlvl + " " + name + " for placement");
-                            //var josh = skillConfigData.Value;
-                            // WackysRecipeCustomizationLogger.LogDebug("Synced String  " + josh);
-
-                            //piecehaslvl = false;
                             return false;
                         }
                     }
@@ -2442,12 +2440,12 @@ namespace wackydatabase
             {
                 WackysRecipeCustomizationLogger.LogWarning("Logoff? So reset - character will look empty if using clone gear"  );
                 if (issettoSinglePlayer){
-                    DestoryClones(); //causes duplication on relogging
+                    DestoryClones(); 
 
                 }
                 else
                 {
-                    DestoryClones(); // multiplayer?
+                    DestoryClones(); 
                 }
                 NoMoreLoading = true;
                 return true;
@@ -2474,7 +2472,6 @@ namespace wackydatabase
             ZNetScene znet = ZNetScene.instance;
             var delObj = ObjectDB.instance;
             GameObject piecehammer = null;
-            //CraftingStation forge2 = znet.GetPrefab("forge").GetComponent<CraftingStation>();
 
             foreach (var citem in ClonedR) // just ignore ClonedR just index
             {
@@ -2616,7 +2613,7 @@ namespace wackydatabase
 
     }
 }
-/*
+/*   Maybe Helpful in the future
   	[HarmonyPatch(typeof(HotkeyBar), "UpdateIcons")]
 	private static class HotkeyBar_UpdateIcons_Patch
 	{

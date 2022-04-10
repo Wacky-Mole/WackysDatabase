@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.1.7
+Version 1.1.8
 
 <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309690-252090998.png" width="248"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309553-1371739452.png" width="230"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648364564-1208178091.jpeg" width="215"/>
 
@@ -100,7 +100,7 @@ m_armor: If object is equitable, like armor. Gives armor value to player
 
 m_value: if value is >0. Then the object becomes salable at Trader. The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
 
-damageModifiers: - From https://www.nexusmods.com/valheim/mods/1162 - Thx aedenthorn - I did not add the water damage.
+damageModifiers: - From https://www.nexusmods.com/valheim/mods/1162 - Thx aedenthorn - I did added water damage in 1.1.8
 
 Damage modifiers are a list of colon-separated pairs, e.g. for the Wolf Chest armor: - 
 "damageModifiers":["Frost:Resistant"]
@@ -109,7 +109,16 @@ The first value is the damage type, the second value is the resistance level.
 
 Valid damage types include:
 
-Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit
+Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
+
+    Water
+    Normal - no change
+    Resistant - increases Wet status countdown speed by 100%
+    Weak - decreases Wet status countdown speed by 1/3
+    Immune - prevents Wet status effect
+    Ignore - prevents Wet status effect
+    VeryResistant - prevent wet status effect application except when swimming, increases Wet status countdown speed by 100%
+    VeryWeak - decreases Wet status countdown speed by 2/3
 
 Valid resistence levels include:
 
@@ -186,11 +195,14 @@ This mod should load last. It needs to so it can touch all other mods.
 
 > clone the Item and change the material to make it a more appealing color. 
 
-Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects though, not to create clones/mocks. 
+Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. 
 
 
 (Note!: If you want json files to have default values, close the game and delete the wackysDatabase folder).
 
+Bugs/Incompatible  Mods: 
+
+Friendlies Reloaded - https://valheim.thunderstore.io/package/Horem/Friendlies_Reloaded/ -  Will break WackyDB ( investigating)
 
 Planned features
 - [x] Able to modify item data.
