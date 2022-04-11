@@ -168,6 +168,11 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 ## Changelog
 
 
+        Version 1.1.8
+            Fixed two main bugs,
+            Properly unloading cloned assets on logout.
+            Made it so some errors are caught better.
+            Incorporated Water Resistance as done by aedenthorn.
         Version 1.1.5
             Cleaned up the code a lot. Fixed Pieces from getting null values from Server.
             Fixed the piece disable/admin for custom pieces.
@@ -197,11 +202,11 @@ This mod should load last. It needs to so it can touch all other mods.
 
 Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. 
 
+Bugs/Incompatible  Mods: 
+- Friendlies Reloaded - https://valheim.thunderstore.io/package/Horem/Friendlies_Reloaded/ -  Will break WackyDB ( investigating)
 
 (Note!: If you want json files to have default values, close the game and delete the wackysDatabase folder).
 
-Bugs/Incompatible  Mods: 
-- Friendlies Reloaded - https://valheim.thunderstore.io/package/Horem/Friendlies_Reloaded/ -  Will break WackyDB ( investigating)
 
 Planned features
 - [x] Able to modify item data.

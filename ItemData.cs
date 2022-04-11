@@ -3,214 +3,217 @@ using wackydatabase;
 using UnityEngine;
 using System.Collections.Generic;
 
-
-
-[Serializable]
-public class WItemData
+namespace wackydatabase
 {
 
-	public string name;
+	[Serializable]
+	public class WItemData
+	{
 
-	public string m_name;
+		public string name;
 
-	public string m_description;
+		public string m_name;
 
-	public bool clone;
+		public string m_description;
 
-	public string clonePrefabName;
+		public bool clone;
 
-	//public string cloneEffects;
+		public string clonePrefabName;
 
-	public string cloneMaterial;
+		//public string cloneEffects;
 
-	public float m_weight;
+		public string cloneMaterial;
 
-	//public string m_skillType;
+		public float m_weight;
 
-	//public string m_animationState;
+		//public string m_skillType;
 
-	public float m_attackStamina; // is set to both attacks
+		//public string m_animationState;
 
-	//public List<string> primaryAttack = new List<string>();
+		public float m_attackStamina; // is set to both attacks
 
-	//public List<string> secondaryAttack = new List<string>();
+		//public List<string> primaryAttack = new List<string>();
 
-	public int m_maxStackSize;
+		//public List<string> secondaryAttack = new List<string>();
 
-	public float m_foodHealth;
+		public int m_maxStackSize;
 
-	public float m_foodStamina;
+		public float m_foodHealth;
 
-	public float m_foodRegen;
+		public float m_foodStamina;
 
-	public float m_foodBurnTime;
+		public float m_foodRegen;
 
-	public string m_foodColor;
+		public float m_foodBurnTime;
 
-	public float m_armor;
+		public string m_foodColor;
 
-	public float m_armorPerLevel;
+		public float m_armor;
 
-	public float m_movementModifier;
+		public float m_armorPerLevel;
 
-	public float m_blockPower;
+		public float m_movementModifier;
 
-	public float m_blockPowerPerLevel;
+		public float m_blockPower;
 
-	public bool m_canBeReparied;
+		public float m_blockPowerPerLevel;
 
-	//public WDamages m_damages;
+		public bool m_canBeReparied;
 
-	// public WDamages m_damagesPerLevel;
+		//public WDamages m_damages;
 
-	public float m_timedBlockBonus;
+		// public WDamages m_damagesPerLevel;
 
-	public float m_deflectionForce;
+		public float m_timedBlockBonus;
 
-	public float m_deflectionForcePerLevel;
+		public float m_deflectionForce;
 
-	public float m_backstabbonus;
+		public float m_deflectionForcePerLevel;
 
-	public float m_knockback;
+		public float m_backstabbonus;
 
-	public bool m_destroyBroken;
+		public float m_knockback;
 
-	public bool m_dodgeable;
+		public bool m_destroyBroken;
 
-	public float m_maxDurability;
+		public bool m_dodgeable;
 
-	public float m_durabilityDrain;
+		public float m_maxDurability;
 
-	public float m_durabilityPerLevel;
+		public float m_durabilityDrain;
 
-	public float m_equipDuration;
+		public float m_durabilityPerLevel;
 
-	public float m_holdDurationMin;
+		public float m_equipDuration;
 
-	public float m_holdStaminaDrain;
+		public float m_holdDurationMin;
 
-	//public string m_holdAnimationState;
+		public float m_holdStaminaDrain;
 
-	public int m_maxQuality;
+		//public string m_holdAnimationState;
 
-	public bool m_useDurability;
+		public int m_maxQuality;
 
-	public float m_useDurabilityDrain;
+		public bool m_useDurability;
 
-	public bool m_questItem;
+		public float m_useDurabilityDrain;
 
-	public bool m_teleportable;
+		public bool m_questItem;
 
-	public int m_toolTier;
+		public bool m_teleportable;
 
-	public int m_value;
+		public int m_toolTier;
 
-	public string m_damages; // not sure what I am doing with my life
+		public int m_value;
 
-	public string m_damagesPerLevel;
+		public string m_damages; // not sure what I am doing with my life
 
-	public List<string> damageModifiers = new List<string>();
+		public string m_damagesPerLevel;
 
+		public List<string> damageModifiers = new List<string>();
 
 
 
 
-}
-[Serializable]
-public class ArmorData
-{
-	public string name;
 
-	public float armor;
-	public float armorPerLevel;
-	public float movementModifier;
+	}
+	[Serializable]
+	public class ArmorData
+	{
+		public string name;
 
-	public List<string> damageModifiers = new List<string>();
-}
+		public float armor;
+		public float armorPerLevel;
+		public float movementModifier;
 
-[Serializable]
-public class WDamages // can't get the inhertance in json to sterilize
-{
-	public float m_blunt;
+		public List<string> damageModifiers = new List<string>();
+	}
 
-	public float m_chop;
+	[Serializable]
+	public class WDamages // can't get the inhertance in json to sterilize
+	{
+		public float m_blunt;
 
-	public float m_damage;
+		public float m_chop;
 
-	public float m_fire;
+		public float m_damage;
 
-	public float m_frost;
+		public float m_fire;
 
-	public float m_lightning;
+		public float m_frost;
 
-	public float m_pickaxe;
+		public float m_lightning;
 
-	public float m_pierce;
+		public float m_pickaxe;
 
-	public float m_poison;
+		public float m_pierce;
 
-	public float m_slash;
+		public float m_poison;
 
-	public float m_spirit;
-}
+		public float m_slash;
 
-[Serializable]
-public class WackDamages
-{
-	public float m_blunt;
+		public float m_spirit;
+	}
 
-	public float m_chop;
+	[Serializable]
+	public class WackDamages
+	{
+		public float m_blunt;
 
-	public float m_damage;
+		public float m_chop;
 
-	public float m_fire;
+		public float m_damage;
 
-	public float m_frost;
+		public float m_fire;
 
-	public float m_lightning;
+		public float m_frost;
 
-	public float m_pickaxe;
+		public float m_lightning;
 
-	public float m_pierce;
+		public float m_pickaxe;
 
-	public float m_poison;
+		public float m_pierce;
 
-	public float m_slash;
+		public float m_poison;
 
-	public float m_spirit;
-}
+		public float m_slash;
 
-public class WackLevelDamages
-{
-	public float m_blunt;
+		public float m_spirit;
+	}
 
-	public float m_chop;
+	public class WackLevelDamages
+	{
+		public float m_blunt;
 
-	public float m_damage;
+		public float m_chop;
 
-	public float m_fire;
+		public float m_damage;
 
-	public float m_frost;
+		public float m_fire;
 
-	public float m_lightning;
+		public float m_frost;
 
-	public float m_pickaxe;
+		public float m_lightning;
 
-	public float m_pierce;
+		public float m_pickaxe;
 
-	public float m_poison;
+		public float m_pierce;
 
-	public float m_slash;
+		public float m_poison;
 
-	public float m_spirit;
-}
+		public float m_slash;
 
+		public float m_spirit;
+	}
 
-[Serializable]
-public class WIngredients
-{
-	public string id;
-	public int amount;
-	public int amountPerLevel;
+
+	[Serializable]
+	public class WIngredients
+	{
+		public string id;
+		public int amount;
+		public int amountPerLevel;
+
+	}
 
 }

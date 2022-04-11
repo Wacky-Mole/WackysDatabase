@@ -369,6 +369,7 @@ namespace wackydatabase
                     ItemDatas.Clear();
                     PieceDatas.Clear();
                     armorDatas.Clear();
+                    pieceWithLvl.Clear(); // ready for new
                     string SyncedString = skillConfigData.Value;
                     if (SyncedString != null && SyncedString != "")
                     {
@@ -397,7 +398,6 @@ namespace wackydatabase
 
                             //WackysRecipeCustomizationLogger.LogDebug(word);
                         }
-                        pieceWithLvl.Clear(); // ready for new
                         foreach (var data2 in ItemDatas)
                         {
                             if (data2 != null)
@@ -456,6 +456,7 @@ namespace wackydatabase
             ItemDatas.Clear();
             PieceDatas.Clear();
             armorDatas.Clear();
+            pieceWithLvl.Clear(); // ready for new
             var amber = new System.Text.StringBuilder();
             foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
             {
