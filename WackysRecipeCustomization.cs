@@ -489,10 +489,12 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                         }
                         foreach (var data in recipeDatas) // recipes last
                         {
+                            
                             if (data != null)
                             {
                                 try
                                 {
+                                   
                                     SetRecipeData(data, Instant);
                                 }
                                 catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
@@ -677,7 +679,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
             {
                 if (!data.disabled)
                 {
-                    
+                    Dbgl("Setting Cloned Recipe for " + tempname);
                     Recipe clonerecipe = ScriptableObject.CreateInstance<Recipe>();
                     ClonedR.Add(tempname); 
 
@@ -715,7 +717,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                     }// foreach
                     int index = 0;
                     clonerecipe.m_resources = reqs.ToArray();
-                    for (int i = Instant.m_recipes.Count - 1; i > 0; i--)
+                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                     {
                         if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                         {
@@ -737,12 +739,12 @@ FileSystemWatcher watcher = new(assetPath); // jsons
             }
             else if (skip) // if a previous clone
             {
-                for (int i = Instant.m_recipes.Count - 1; i > 0; i--)
+                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                 {
                     if (Instant.m_recipes[i].name == tempname)
                     {
 
-                        Dbgl("ReSetting Recipe for " + tempname);
+                        Dbgl("ReSetting Cloned Recipe for " + tempname);
                         Recipe clonerecipe = ObjectDB.instance.m_recipes[i];
                         clonerecipe.m_item = go.GetComponent<ItemDrop>();
                         clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
@@ -783,9 +785,10 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                         return;
                     }
                 }
+
             } else // ingame item
             {
-                for (int i = Instant.m_recipes.Count - 1; i > 0; i--)
+                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                 {
                     if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                     {
@@ -797,7 +800,6 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                             Instant.m_recipes.RemoveAt(i);
                             return;
                         }
-                        //ObjectDB.instance.m_recipes[i].
                         Instant.m_recipes[i].m_amount = data.amount;
                         Instant.m_recipes[i].m_minStationLevel = data.minStationLevel;
                         Instant.m_recipes[i].m_craftingStation = GetCraftingStation(data.craftingStation);
@@ -809,7 +811,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                             string[] parts = req.Split(':');
                             reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
                         }
-                        // Dbgl("Amost done with RecipeData!");
+                        //Dbgl("Amost done with RecipeData!");
                         Instant.m_recipes[i].m_resources = reqs.ToArray();
                         return;
                     } // end normal
@@ -1111,7 +1113,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                 Dbgl($"Item cloned name is empty!");
                 return;
             }
-            for (int i = Instant.m_items.Count - 1; i > 0; i--)  // need to handle clones
+            for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
                 if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                 {
