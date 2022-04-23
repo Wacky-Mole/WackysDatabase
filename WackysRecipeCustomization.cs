@@ -6,6 +6,13 @@
 // Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
 // CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
 // Thx Aedenthorn again
+/*
+ * i wouldn't say there is a single bottleneck that you can remove and everything is fine.
+but lots of small stuff that can be improved.
+you iterate the entire object db for each item, just to find an item with a matching name.
+you instantiate every item.
+you call update item hashes for each item.
+so, it's mostly suffering, because you reload everything for each update. */
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -34,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.1.8";
+        internal const string ModVersion = "1.1.9";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -202,7 +209,7 @@ namespace wackydatabase
             watcher2.EnableRaisingEvents = true;
             */
 
-            FileSystemWatcher watcher = new(assetPath); // jsons
+FileSystemWatcher watcher = new(assetPath); // jsons
             watcher.Changed += ReadJsonValues;
             watcher.Created += ReadJsonValues;
             watcher.Renamed += ReadJsonValues;
@@ -290,20 +297,41 @@ namespace wackydatabase
                 else
                 {
                     GetRecipeDataFromFiles();
+                    ObjectDB Instant = ObjectDB.instance;
+                    // CLONE PASS FIRST - only for craftingStation
+                    foreach (var data3 in PieceDatas)
+                    {
+                        if (data3 != null && data3.clone)
+                        {
+                            try
+                            {
+                                CraftingStation checkifStation = null;
+                                checkifStation = GetCraftingStation(data3.clonePrefabName);
+                                if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                                {
+                                    SetPieceRecipeData(data3, Instant);
+                                }
+                            }
+                            catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Clone PASS for {data3.name} failed"); }
+                        }
+                    }
+                    // END CLONE PASS
+                    // Real PASS NOW
                     foreach (var data in ItemDatas) // call items first
                     {
                         try
                         {
-                            SetItemData(data);
+                            SetItemData(data, Instant);
                         }
                         catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data.name} failed"); }
 
                     }
+                    Instant.UpdateItemHashes();
                     foreach (var data in PieceDatas)
                     {
                         try
                         {
-                            SetPieceRecipeData(data);
+                            SetPieceRecipeData(data, Instant);
                         }
                         catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data.name} failed"); }
                     }
@@ -311,11 +339,11 @@ namespace wackydatabase
                     {
                         try
                         {
-                            SetRecipeData(data);
+                            SetRecipeData(data, Instant);
                         }
                         catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
                     }
-
+                    Dbgl($" You did reload LOCAL Files");
                 }
                 try {
                     ObjectDB.instance.UpdateItemHashes();
@@ -326,7 +354,7 @@ namespace wackydatabase
             }
             else {
 
-                Dbgl($" You did NOT reload LOCAL Files");
+               // Dbgl($" You did NOT reload LOCAL Files");
             }
         }
         private void CustomSyncEventDetected()
@@ -370,6 +398,7 @@ namespace wackydatabase
                     PieceDatas.Clear();
                     armorDatas.Clear();
                     pieceWithLvl.Clear(); // ready for new
+                    ObjectDB Instant = ObjectDB.instance;
                     string SyncedString = skillConfigData.Value;
                     if (SyncedString != null && SyncedString != "")
                     {
@@ -382,8 +411,7 @@ namespace wackydatabase
                                 WItemData data2 = JsonUtility.FromJson<WItemData>(word);
                                 ItemDatas.Add(data2);
                                 ArmorData data3 = JsonUtility.FromJson<ArmorData>(word);
-                                armorDatas.Add(data3);
-
+                                armorDatas.Add(data3);                             
                             }
                             else if (word.Contains("piecehammer")) // only piece
                             {
@@ -398,23 +426,45 @@ namespace wackydatabase
 
                             //WackysRecipeCustomizationLogger.LogDebug(word);
                         }
+                        
+                        // CLONE PASS FIRST - only for craftingStation
+
+                        foreach (var data3 in PieceDatas)
+                        {
+                            if (data3 != null && data3.clone)
+                            {
+                                try
+                                {
+                                    CraftingStation checkifStation = null;
+                                    checkifStation = GetCraftingStation(data3.clonePrefabName);
+                                    if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                                    {
+                                        SetPieceRecipeData(data3, Instant);
+                                    }                 
+                                }
+                                catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Clone PASS for {data3.name} failed"); }
+                            }
+                        }
+                        // END CLONE PASS
+                        // Real PASS NOW
                         foreach (var data2 in ItemDatas)
                         {
                             if (data2 != null)
                             {
                                 try
                                 {
-                                    SetItemData(data2);
+                                    SetItemData(data2, Instant);
                                 } catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data2.name} failed"); }
                             }
                         }
+                        Instant.UpdateItemHashes();
                         foreach (var data3 in PieceDatas)
                         {
                             if (data3 != null)
                             {
                                 try
                                 {
-                                    SetPieceRecipeData(data3);
+                                    SetPieceRecipeData(data3, Instant);
                                 }catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data3.name} failed"); }
 
                             }
@@ -425,7 +475,7 @@ namespace wackydatabase
                             {
                                 try
                                 {
-                                    SetRecipeData(data);
+                                    SetRecipeData(data, Instant);
                                 }
                                 catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
 
@@ -577,7 +627,7 @@ namespace wackydatabase
         #region Set Object
 
         private static Vector3 tempvalue;
-        private static void SetRecipeData(RecipeData data)
+        private static void SetRecipeData(RecipeData data, ObjectDB Instant)
         {
             bool skip = false;
             foreach (string citem in ClonedR)
@@ -593,7 +643,7 @@ namespace wackydatabase
             }
             GameObject go = CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
-                go = ObjectDB.instance.GetItemPrefab(data.name);
+                go = Instant.GetItemPrefab(data.name);
             if (go == null)
             {
                 Dbgl("maybe null " + data.name + " Should not get here");
@@ -629,7 +679,7 @@ namespace wackydatabase
                         {
                             string[] array = req.Split(':'); // safer vewrsion
                             string itemname = array[0];
-                            if (ObjectDB.instance.GetItemPrefab(itemname))
+                            if (Instant.GetItemPrefab(itemname))
                             {
                                 int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
                                 int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
@@ -647,15 +697,15 @@ namespace wackydatabase
                     }// foreach
                     int index = 0;
                     clonerecipe.m_resources = reqs.ToArray();
-                    for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
+                    for (int i = Instant.m_recipes.Count - 1; i > 0; i--)
                     {
-                        if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                        if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                         {
                             index = i++; // some extra resourses, but I think it's worth it
                             break;
                         }
                     }
-                    ObjectDB.instance.m_recipes.Insert(index, clonerecipe);
+                    Instant.m_recipes.Insert(index, clonerecipe);
                     //Dbgl($"Recipe clone check {citem} against {data.name}");
                    
                     return;
@@ -669,9 +719,9 @@ namespace wackydatabase
             }
             else if (skip) // if a previous clone
             {
-                for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
+                for (int i = Instant.m_recipes.Count - 1; i > 0; i--)
                 {
-                    if (ObjectDB.instance.m_recipes[i].name == tempname)
+                    if (Instant.m_recipes[i].name == tempname)
                     {
 
                         Dbgl("ReSetting Recipe for " + tempname);
@@ -695,7 +745,7 @@ namespace wackydatabase
                             {
                                 string[] array = req.Split(':'); // safer vewrsion
                                 string itemname = array[0];
-                                if (ObjectDB.instance.GetItemPrefab(itemname))
+                                if (Instant.GetItemPrefab(itemname))
                                 {
                                     int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
                                     int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
@@ -717,39 +767,39 @@ namespace wackydatabase
                 }
             } else // ingame item
             {
-                for (int i = ObjectDB.instance.m_recipes.Count - 1; i > 0; i--)
+                for (int i = Instant.m_recipes.Count - 1; i > 0; i--)
                 {
-                    if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                    if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                     {
                         // if not clone normal edit
                         Dbgl("Setting Recipe for " + data.name);
                         if (data.disabled)
                         {
                             Dbgl($"Removing recipe for {data.name} from the game");
-                            ObjectDB.instance.m_recipes.RemoveAt(i);
+                            Instant.m_recipes.RemoveAt(i);
                             return;
                         }
                         //ObjectDB.instance.m_recipes[i].
-                        ObjectDB.instance.m_recipes[i].m_amount = data.amount;
-                        ObjectDB.instance.m_recipes[i].m_minStationLevel = data.minStationLevel;
-                        ObjectDB.instance.m_recipes[i].m_craftingStation = GetCraftingStation(data.craftingStation);
+                        Instant.m_recipes[i].m_amount = data.amount;
+                        Instant.m_recipes[i].m_minStationLevel = data.minStationLevel;
+                        Instant.m_recipes[i].m_craftingStation = GetCraftingStation(data.craftingStation);
                         //ObjectDB.instance.m_recipes[i].m_repairStation = GetCraftingStation(data.craftingStation); dont mess with maybe? if null repairable by all?
                         List<Piece.Requirement> reqs = new List<Piece.Requirement>();
                         // Dbgl("Made it to RecipeData!");
                         foreach (string req in data.reqs)
                         {
                             string[] parts = req.Split(':');
-                            reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                            reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
                         }
                         // Dbgl("Amost done with RecipeData!");
-                        ObjectDB.instance.m_recipes[i].m_resources = reqs.ToArray();
+                        Instant.m_recipes[i].m_resources = reqs.ToArray();
                         return;
                     } // end normal
                 } // checking recipes
             }
         }
 
-        private static void SetPieceRecipeData(PieceData data)
+        private static void SetPieceRecipeData(PieceData data, ObjectDB Instant)
         {
             bool skip = false;
             foreach (var citem in ClonedP)
@@ -766,7 +816,7 @@ namespace wackydatabase
             GameObject go = CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
             {
-                go = GetPieces().Find(g => Utils.GetPrefabName(g) == data.name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
+                go = GetPieces(Instant).Find(g => Utils.GetPrefabName(g) == data.name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
                 if (go == null)
                 {
                     go = GetModdedPieces(data.name); // known modded Hammer search
@@ -854,13 +904,13 @@ namespace wackydatabase
                     catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
                 }
 
-                GameObject piecehammer = ObjectDB.instance.GetItemPrefab(data.piecehammer);
+                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
                 if (piecehammer == null)
                 {
                     if (selectedPiecehammer == null)
                     {
                         Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
-                        piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
+                        piecehammer = Instant.GetItemPrefab("Hammer");
 
                         NewItemComp.m_category = Piece.PieceCategory.Misc; // set the category
                         piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem);
@@ -929,7 +979,7 @@ namespace wackydatabase
             {
                 
                 Dbgl($"Removing recipe for {data.name} from some PieceStation, you need to reload session to get this piece back- including admins");
-                GameObject piecehammer = ObjectDB.instance.GetItemPrefab(data.piecehammer);
+                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
                 bool keyExists = false;
                 try
                 {
@@ -1010,7 +1060,7 @@ namespace wackydatabase
 
 
         public static Component[] renderfinder;
-        private static void SetItemData(WItemData data)
+        private static void SetItemData(WItemData data, ObjectDB Instant)
         {
             // Dbgl("Loaded SetItemData!");
             bool skip = false;
@@ -1026,7 +1076,7 @@ namespace wackydatabase
             }
             GameObject go = CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
-                 go = ObjectDB.instance.GetItemPrefab(data.name); // normal check
+                 go = Instant.GetItemPrefab(data.name); // normal check
 
             if (go == null)
             {
@@ -1043,11 +1093,11 @@ namespace wackydatabase
                 Dbgl($"Item cloned name is empty!");
                 return;
             }
-            for (int i = ObjectDB.instance.m_items.Count - 1; i > 0; i--)  // need to handle clones
+            for (int i = Instant.m_items.Count - 1; i > 0; i--)  // need to handle clones
             {
-                if (ObjectDB.instance.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                 {
-                    ItemDrop.ItemData PrimaryItemData = ObjectDB.instance.m_items[i].GetComponent<ItemDrop>().m_itemData;
+                    ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                     if (data.clone && !skip) // object is a clone do clonethings
                     {
                         Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
@@ -1097,7 +1147,7 @@ namespace wackydatabase
                         */ 
 
 
-                        ObjectDB.instance.UpdateItemHashes();
+                        //ObjectDB.instance.UpdateItemHashes();
                         if (!string.IsNullOrEmpty(data.cloneMaterial))
                         {
                             Dbgl($"Material name searching for {data.cloneMaterial}");
@@ -1131,7 +1181,7 @@ namespace wackydatabase
                             catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
                         }
 
-                        PrimaryItemData = ObjectDB.instance.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
+                        PrimaryItemData = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
                         try {
                             // ObjectDB.instance.UpdateItemHashes();
@@ -1346,6 +1396,24 @@ namespace wackydatabase
 
             return null;
         }
+        private static List<GameObject> GetPieces(ObjectDB Instant)
+        {
+            var pieces = new List<GameObject>();
+            if (!Instant)
+                return pieces;
+
+            ItemDrop hammer = Instant.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
+
+            if (hammer)
+                pieces.AddRange(Traverse.Create(hammer.m_itemData.m_shared.m_buildPieces).Field("m_pieces").GetValue<List<GameObject>>());
+
+            ItemDrop hoe = Instant.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
+            if (hoe)
+                pieces.AddRange(Traverse.Create(hoe.m_itemData.m_shared.m_buildPieces).Field("m_pieces").GetValue<List<GameObject>>());
+
+            return pieces;
+
+        }
         private static List<GameObject> GetPieces()
         {
             var pieces = new List<GameObject>();
@@ -1406,28 +1474,31 @@ namespace wackydatabase
         private static GameObject CheckforSpecialObjects(string name) // should handle all times of special cases, manual entry
         {
             GameObject go = null;
-            string test2 = null;
+            string ZnetName = null;
             switch (name)
             {
-                case "stone_floor": test2 = "stone_floor";  // going to restrict it to make sure mod can't get in trouble
+                case "stone_floor": ZnetName = "stone_floor";  // going to restrict it to make sure mod can't get in trouble
                     break;
-
-                case "bow": test2 = "Bow";
+                case "bow": ZnetName = "Bow";
                     break;
-                case "Bow": test2 = "Bow";
+                case "Bow": ZnetName = "Bow";
                     break;
-                case "SpearBronze": test2 = "SpearBronze";
+                case "SpearBronze": ZnetName = "SpearBronze";
                     break;
-
-
+                case "ShieldBronzeBuckler": ZnetName = "ShieldBronzeBuckler";
+                    break;
+                case "HelmetBronze": ZnetName = "HelmetBronze";
+                    break;
+                case "AxeIron": ZnetName = "AxeIron";
+                    break;
 
                 default: go = null;
                     break;
             }
-            if (test2 != null) {
+            if (ZnetName != null) {
                 try
                 {
-                    go = ZNetScene.instance.GetPrefab(test2); // damn why didn't I discover this sooner// that is sooo brutal. 
+                    go = ZNetScene.instance.GetPrefab(ZnetName); // damn why didn't I discover this sooner// that is sooo brutal. 
                 }
                 catch { }
                 
@@ -2387,7 +2458,7 @@ namespace wackydatabase
                     var PiecetoLookFor = stringwithnumber[0];
                     int CraftingStationlvl = int.Parse(stringwithnumber[1]);
 
-                    if (piece.name == PiecetoLookFor && !__instance.m_noPlacementCost) // portal
+                    if (piece.name == PiecetoLookFor && !__instance.m_noPlacementCost) // check for piece name
                     {
                         if (__instance.transform.position != null)
                             tempvalue = __instance.transform.position; // save position //must be assigned
