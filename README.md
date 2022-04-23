@@ -62,6 +62,7 @@ wackydb_save_item <ItemName> - saves a Item Json in wackysDatabase Item Folder
 wackydb_help -- commands
 
 wackydb_clone <recipe/item/piece> <Prefab to clone> <Unique name for the clone> - clone an object and change it differently than a base game object. 
+
 - For Example: wackydb_clone item SwordIron WackySword
 
 There is a optional 4th parameter for clone RECIPES ONLY <original item prefab to use for recipe>(Optional 4th parameter for a cloned item's recipes ONLY)
