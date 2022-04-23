@@ -306,13 +306,19 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                             try
                             {
                                 CraftingStation checkifStation = null;
-                                checkifStation = GetCraftingStation(data3.clonePrefabName);
-                                if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                                GameObject go = FindPieceObjectName(data3.clonePrefabName);
+                                string tempnam = null;
+                                tempnam = go.GetComponent<CraftingStation>()?.m_name;
+                                if (tempnam != null)
                                 {
-                                    SetPieceRecipeData(data3, Instant);
+                                    checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                                    if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                                    {
+                                        SetPieceRecipeData(data3, Instant);
+                                    }
                                 }
                             }
-                            catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Clone PASS for {data3.name} failed"); }
+                            catch { } // spams just catch any empty
                         }
                     }
                     // END CLONE PASS
@@ -353,8 +359,14 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                 }
             }
             else {
+                if (issettoSinglePlayer)
+                {
+                    Dbgl($" You did NOT reload LOCAL Files. You probably should have.");
+                }
+                else
+                {
 
-               // Dbgl($" You did NOT reload LOCAL Files");
+                }
             }
         }
         private void CustomSyncEventDetected()
@@ -436,11 +448,17 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                                 try
                                 {
                                     CraftingStation checkifStation = null;
-                                    checkifStation = GetCraftingStation(data3.clonePrefabName);
-                                    if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                                    GameObject go = FindPieceObjectName(data3.clonePrefabName);
+                                    string tempnam = null;
+                                    tempnam = go.GetComponent<CraftingStation>()?.m_name;
+                                    if (tempnam != null)
                                     {
-                                        SetPieceRecipeData(data3, Instant);
-                                    }                 
+                                        checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                                        if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                                        {
+                                            SetPieceRecipeData(data3, Instant);
+                                        }
+                                    }
                                 }
                                 catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Clone PASS for {data3.name} failed"); }
                             }
