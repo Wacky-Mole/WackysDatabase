@@ -49,19 +49,19 @@ IsAutoReload = false // auto reloads instead of wackydb_reload
 
 wackydb_reload  - Primary way to reload all the Json files in wackysDatabase folder
 
-wackydb_dump <item/recipe/piece> <ItemName> - dump individual preloaded object to log
+wackydb_dump [item/recipe/piece] [ItemName] - dump individual preloaded object to log
 
 wackydb_dump_all  - writes a dump log file for all previously loaded info. May or may not work with clones. (doesn't work on multiplayer)
 
-wackydb_save_recipe <ItemName> - saves a Recipe Json in wackysDatabase Recipe Folder
+wackydb_save_recipe [ItemName] - saves a Recipe Json in wackysDatabase Recipe Folder
 
-wackydb_save_piece <ItemName> - saves a Piece for easy editing in Json (piecehammer only works for clones)
+wackydb_save_piece [ItemName] - saves a Piece for easy editing in Json (piecehammer only works for clones)
 
-wackydb_save_item <ItemName> - saves a Item Json in wackysDatabase Item Folder
+wackydb_save_item [ItemName] - saves a Item Json in wackysDatabase Item Folder
 
 wackydb_help -- commands
 
-wackydb_clone  [recipe/item/piece] [Prefab to clone] [Unique name for the clone]  + clone an object and change it differently than a base game object. 
+wackydb_clone  [recipe/item/piece] [Prefab to clone] [Unique name for the clone]  - clone an object and change it differently than a base game object. 
 
 - For Example: wackydb_clone item SwordIron WackySword
 
@@ -69,7 +69,6 @@ There is a optional 4th parameter for clone RECIPES ONLY [original item prefab t
 For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
 
 wackydb_clone_recipeitem <Prefab to clone> <clone name>(clones item and recipe at same time)( Recipe name will be Rname) - instead of cloning an item and then recipe, do both at once. Saves you the trouble of manually editing recipe name and prefab.
-
 
 wackydb_vfx - future use
 
