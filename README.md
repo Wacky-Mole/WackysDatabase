@@ -2,7 +2,7 @@
 WackysDatabase by Wackymole
 Version 1.1.9
 
-<img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309690-252090998.png" width="248"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309553-1371739452.png" width="230"/> <img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648364564-1208178091.jpeg" width="215"/>
+<img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
 The short summary is OpenDatabase + ServerSync + Recipecustomization + Armor Customization + PieceLvlRequirements + some other small fields + item/piece/recipe cloning + material changing for cloned items/pieces + name changing for items/pieces(translating)
 
@@ -88,7 +88,7 @@ clonePrefabName: if it is a clone, the object needs to reference the original pr
 
 ## Item Options:
 
-![Glowing Red BronzeSword ](https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648309701-1586954284.png)
+![Glowing Red BronzeSword ](https://wackymole.com/hosts/redsword.png)
 
 
 cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
@@ -136,7 +136,7 @@ The rest you can probably figure out.
 
 
 ## Piece Options:
-<img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648576031-300835300.png" width="450"/>
+<img src="https://wackymole.com/hosts/red%20walls.png" width="450"/>
 
 
 piecehammer: default is the Hammer or Hoe: it can't really check for modded Hammers. Change this to the modded hammer prefab manually.
@@ -153,7 +153,7 @@ cloneMaterial: You can change the material(colorish) of a cloned object. Images 
 
 ## Recipe Options: 
 
-<img src="https://staticdelivery.nexusmods.com/mods/3667/images/1825/1825-1648781719-1526131418.png" width="700"/>
+<img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
 
 Cloned recipes need a unique name. 
 
