@@ -169,6 +169,8 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 ## Changelog
 
 
+        Version 1.1.9
+            Bug Fixes. Cleaned up Logs
         Version 1.1.8
             Fixed two main bugs,
             Properly unloading cloned assets on logout.
