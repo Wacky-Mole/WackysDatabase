@@ -1,11 +1,9 @@
 ﻿using System;
-using wackydatabase;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace wackydatabase
+namespace wackydatabase.ID
 {
-
 	[Serializable]
 	public class WItemData
 	{
@@ -29,12 +27,6 @@ namespace wackydatabase
 		//public string m_skillType;
 
 		//public string m_animationState;
-
-		public float m_attackStamina; // is set to both attacks
-
-		//public List<string> primaryAttack = new List<string>();
-
-		//public List<string> secondaryAttack = new List<string>();
 
 		public int m_maxStackSize;
 
@@ -63,6 +55,10 @@ namespace wackydatabase
 		//public WDamages m_damages;
 
 		// public WDamages m_damagesPerLevel;
+
+		public Dictionary<string, Attack> PrimaryAttack;
+
+		public Dictionary<string, Attack> SecondaryAttack;
 
 		public float m_timedBlockBonus;
 
@@ -113,10 +109,14 @@ namespace wackydatabase
 		public List<string> damageModifiers = new List<string>();
 
 
-
-
-
 	}
+		public class Attack
+        {
+			public float m_attackStamina;
+
+		}
+
+
 	[Serializable]
 	public class ArmorData
 	{
@@ -155,56 +155,7 @@ namespace wackydatabase
 		public float m_spirit;
 	}
 
-	[Serializable]
-	public class WackDamages
-	{
-		public float m_blunt;
 
-		public float m_chop;
-
-		public float m_damage;
-
-		public float m_fire;
-
-		public float m_frost;
-
-		public float m_lightning;
-
-		public float m_pickaxe;
-
-		public float m_pierce;
-
-		public float m_poison;
-
-		public float m_slash;
-
-		public float m_spirit;
-	}
-
-	public class WackLevelDamages
-	{
-		public float m_blunt;
-
-		public float m_chop;
-
-		public float m_damage;
-
-		public float m_fire;
-
-		public float m_frost;
-
-		public float m_lightning;
-
-		public float m_pickaxe;
-
-		public float m_pierce;
-
-		public float m_poison;
-
-		public float m_slash;
-
-		public float m_spirit;
-	}
 
 
 	[Serializable]

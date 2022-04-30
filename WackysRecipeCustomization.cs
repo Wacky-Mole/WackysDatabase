@@ -34,6 +34,11 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Reflection.Emit;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
+using wackydatabase.ID;
+using wackydatabase.PD; 
+using wackydatabase.RD;
 
 namespace wackydatabase
 {
@@ -41,7 +46,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.1.9";
+        internal const string ModVersion = "2.0.0";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -91,7 +96,15 @@ namespace wackydatabase
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
 
-
+        /*Okay this is going to be a big rewrite to incorpate yamldot for some reason
+         * Also allows the people to delete all configurations that they don't use- This is the primary reason why rewrite
+         * So people can pick and choose what they want to update instead of having to have all options always there. If I went with Json files instead
+         * This work be backwards compatiblbe
+         * 
+         * 
+         * 
+         * 
+         */
 
         #region extra functions
         private enum NewDamageTypes
@@ -111,7 +124,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = ModVersion }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.0.0" }; // it is very picky on version number
 
 
         #endregion
@@ -390,7 +403,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                     recieveServerInfo = true;
                     NoMoreLoading = false;
                     Dbgl($" No More Loading was true");
-                    WackysRecipeCustomizationLogger.LogWarning("Warning any ServerFiles will see be On Your Local Games Until Restart! ");
+                    WackysRecipeCustomizationLogger.LogWarning("Warning any ServerFiles Synced will be On Your Local Games Until Restart! ");
                 }
                 else
                 {
@@ -646,8 +659,9 @@ FileSystemWatcher watcher = new(assetPath); // jsons
         #endregion
         #region Set Object
 
+
         private static Vector3 tempvalue;
-        private static void SetRecipeData(RecipeData data, ObjectDB Instant)
+        private static void SetRecipeData(RecipeData data, ObjectDB Instant) 
         {
             bool skip = false;
             foreach (string citem in ClonedR)
@@ -818,7 +832,6 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                 } // checking recipes
             }
         }
-
         private static void SetPieceRecipeData(PieceData data, ObjectDB Instant)
         {
             bool skip = false;
@@ -911,7 +924,8 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                                 else if (!renderitem.receiveShadows)
                                     renderitem.material = part;
                             }
-                        } else
+                        }
+                        else
                         {
                             Material mat = originalMaterials[data.cloneMaterial];
                             foreach (Renderer renderitem in renderfinder)
@@ -988,7 +1002,8 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                         }
                     } */
                     Dbgl($"{data.name} is set for Adminonly, and you are admin, enjoy this exclusive Piece");
-                } else
+                }
+                else
                 {
                     data.disabled = true;
                     Dbgl($"{data.name} is set for Adminonly, you are not an admin");
@@ -997,15 +1012,16 @@ FileSystemWatcher watcher = new(assetPath); // jsons
 
             if (data.disabled)
             {
-                
+
                 Dbgl($"Removing recipe for {data.name} from some PieceStation, you need to reload session to get this piece back- including admins");
                 GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
                 bool keyExists = false;
                 try
                 {
                     // keyExists = AdminPiecesOnly.ContainsKey(go); // make sure it only gets set once
-                } catch {  keyExists = false; } // bad wacky
-               // Dbgl($"Check 0");
+                }
+                catch { keyExists = false; } // bad wacky
+                                             // Dbgl($"Check 0");
                 if (piecehammer == null)
                 {
                     if (selectedPiecehammer == null)
@@ -1014,7 +1030,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                         piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
                         piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
                         //if (data.adminonly && !keyExists) 
-                          //  AdminPiecesOnly.Add(go, piecehammer);
+                        //  AdminPiecesOnly.Add(go, piecehammer);
                     }
                     else
                     {
@@ -1022,20 +1038,22 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                         selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
                         GameObject temp2 = selectedPiecehammer.gameObject;
                         //if (data.adminonly && !keyExists)
-                            //AdminPiecesOnly.Add(go, temp2);
+                        //AdminPiecesOnly.Add(go, temp2);
                     }
                 }
                 else
                 {
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
-                   // if (data.adminonly && !keyExists)
-                     //   AdminPiecesOnly.Add(go, piecehammer);
+                                                                                                                 // if (data.adminonly && !keyExists)
+                                                                                                                 //   AdminPiecesOnly.Add(go, piecehammer);
                 }
             }
             Dbgl("Setting Piece data for " + data.name);
-            if (string.IsNullOrEmpty(data.m_name)) {
+            if (string.IsNullOrEmpty(data.m_name))
+            {
 
-            } else
+            }
+            else
             {
                 go.GetComponent<Piece>().m_name = data.m_name;
                 go.GetComponent<Piece>().m_description = data.m_description;
@@ -1117,7 +1135,9 @@ FileSystemWatcher watcher = new(assetPath); // jsons
             {
                 if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                 {
-                    ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
+                    ItemDrop.ItemData PID = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData; // PrimaryItemData PID  // Secondary Item Data SID  // PIDA primary item data attack// SIDA  secondary item data attack
+                    Attack PIDA = PID.m_shared.m_attack;
+                    Attack SIDA = PID.m_shared.m_secondaryAttack;
                     if (data.clone && !skip) // object is a clone do clonethings
                     {
                         Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
@@ -1201,7 +1221,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                             catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
                         }
 
-                        PrimaryItemData = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
+                        PID = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
                         try {
                             // ObjectDB.instance.UpdateItemHashes();
@@ -1214,7 +1234,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
 
                     if (data.m_damages != null && data.m_damages != "")
                     {
-                        Dbgl($"   {data.name} Item has damage values ");
+                        Dbgl($"   {data.name} Item has damage values ");  // I need to redo damage values to be inline with yaml format
                         // has to be in order, should be
                         char[] delims = new[] { ',' };
                         string[] divideme = data.m_damages.Split(delims, StringSplitOptions.RemoveEmptyEntries);
@@ -1231,7 +1251,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                         damages.m_poison = stringtoFloat(divideme[8]);
                         damages.m_slash = stringtoFloat(divideme[9]);
                         damages.m_spirit = stringtoFloat(divideme[10]);
-                        PrimaryItemData.m_shared.m_damages = damages;
+                        PID.m_shared.m_damages = damages;
                     }
                     if (data.m_damagesPerLevel != null && data.m_damagesPerLevel != "")
                     {
@@ -1250,56 +1270,62 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                         damagesPerLevel.m_poison = stringtoFloat(divideme[8]);
                         damagesPerLevel.m_slash = stringtoFloat(divideme[9]);
                         damagesPerLevel.m_spirit = stringtoFloat(divideme[10]);
-                        PrimaryItemData.m_shared.m_damagesPerLevel = damagesPerLevel;
+                        PID.m_shared.m_damagesPerLevel = damagesPerLevel;
                     }
-                    PrimaryItemData.m_shared.m_name = data.m_name;
-                    PrimaryItemData.m_shared.m_description = data.m_description;
-                    PrimaryItemData.m_shared.m_weight = data.m_weight;
-                    PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize;
-                    PrimaryItemData.m_shared.m_food = data.m_foodHealth;
-                    PrimaryItemData.m_shared.m_foodStamina = data.m_foodStamina;
-                    PrimaryItemData.m_shared.m_foodRegen = data.m_foodRegen;
-                    PrimaryItemData.m_shared.m_foodBurnTime = data.m_foodBurnTime;
+                    PID.m_shared.m_name = data.m_name;
+                    PID.m_shared.m_description = CheckifSet(data.m_description, PID.m_shared.m_description);
+                    PID.m_shared.m_weight = CheckifSet(data.m_weight, PID.m_shared.m_weight);
+                    PID.m_shared.m_maxStackSize = CheckifSet(data.m_maxStackSize, PID.m_shared.m_maxStackSize);
+                    PID.m_shared.m_food = CheckifSet(data.m_foodHealth, PID.m_shared.m_food);
+                    PID.m_shared.m_foodStamina = CheckifSet(data.m_foodStamina, PID.m_shared.m_foodStamina);
+                    PID.m_shared.m_foodRegen = CheckifSet(data.m_foodRegen, PID.m_shared.m_foodRegen);
+                    PID.m_shared.m_foodBurnTime = CheckifSet(data.m_foodBurnTime, PID.m_shared.m_foodBurnTime);
                     if (data.m_foodColor != null && data.m_foodColor != "" && data.m_foodColor.StartsWith("#"))
                     {
-                        PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
+                        PID.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
                     }
-                    PrimaryItemData.m_shared.m_armor = data.m_armor;
-                    PrimaryItemData.m_shared.m_armorPerLevel = data.m_armorPerLevel;
-                    PrimaryItemData.m_shared.m_blockPower = data.m_blockPower;
-                    PrimaryItemData.m_shared.m_blockPowerPerLevel = data.m_blockPowerPerLevel;
-                    PrimaryItemData.m_shared.m_canBeReparied = data.m_canBeReparied;
-                    PrimaryItemData.m_shared.m_timedBlockBonus = data.m_timedBlockBonus;
-                    PrimaryItemData.m_shared.m_deflectionForce = data.m_deflectionForce;
-                    PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.m_deflectionForcePerLevel;
-                    PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus;
-                    PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken;
-                    PrimaryItemData.m_shared.m_dodgeable = data.m_dodgeable;
-                    PrimaryItemData.m_shared.m_maxDurability = data.m_maxDurability;
-                    PrimaryItemData.m_shared.m_durabilityDrain = data.m_durabilityDrain;
-                    PrimaryItemData.m_shared.m_durabilityPerLevel = data.m_durabilityPerLevel;
-                    PrimaryItemData.m_shared.m_equipDuration = data.m_equipDuration;
-                    PrimaryItemData.m_shared.m_holdDurationMin = data.m_holdDurationMin;
-                    PrimaryItemData.m_shared.m_holdStaminaDrain = data.m_holdStaminaDrain;
-                    PrimaryItemData.m_shared.m_maxQuality = data.m_maxQuality;
-                    PrimaryItemData.m_shared.m_useDurability = data.m_useDurability;
-                    PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain;
-                    PrimaryItemData.m_shared.m_questItem = data.m_questItem;
-                    PrimaryItemData.m_shared.m_teleportable = data.m_teleportable;
-                    PrimaryItemData.m_shared.m_toolTier = data.m_toolTier;
-                    PrimaryItemData.m_shared.m_value = data.m_value;
-                    PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier;
-                    PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_attackStamina; // set for both
-                    PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
-                    //PrimaryItemData.m_shared.m
+                    PID.m_shared.m_armor = CheckifSet(data.m_armor, PID.m_shared.m_armor);
+                    PID.m_shared.m_armorPerLevel = CheckifSet(data.m_armorPerLevel, PID.m_shared.m_armorPerLevel);
+                    PID.m_shared.m_blockPower = CheckifSet(data.m_blockPower, PID.m_shared.m_blockPower);
+                    PID.m_shared.m_blockPowerPerLevel = CheckifSet(data.m_blockPowerPerLevel, PID.m_shared.m_blockPowerPerLevel);
+                    PID.m_shared.m_canBeReparied = CheckifSet(data.m_canBeReparied, PID.m_shared.m_canBeReparied);
+                    PID.m_shared.m_timedBlockBonus = CheckifSet(data.m_timedBlockBonus, PID.m_shared.m_timedBlockBonus);
+                    PID.m_shared.m_deflectionForce = CheckifSet(data.m_deflectionForce, PID.m_shared.m_deflectionForce);
+                    PID.m_shared.m_deflectionForcePerLevel = CheckifSet(data.m_deflectionForcePerLevel, PID.m_shared.m_deflectionForcePerLevel);
+                    PID.m_shared.m_backstabBonus =  CheckifSet(data.m_backstabbonus, PID.m_shared.m_backstabBonus);
+                    PID.m_shared.m_destroyBroken =  CheckifSet(data.m_destroyBroken, PID.m_shared.m_destroyBroken);
+                    PID.m_shared.m_dodgeable = CheckifSet(data.m_dodgeable, PID.m_shared.m_dodgeable);
+                    PID.m_shared.m_maxDurability =  CheckifSet(data.m_maxDurability, PID.m_shared.m_maxDurability);
+                    PID.m_shared.m_durabilityDrain =  CheckifSet(data.m_durabilityDrain, PID.m_shared.m_durabilityDrain);
+                    PID.m_shared.m_durabilityPerLevel =  CheckifSet(data.m_durabilityPerLevel, PID.m_shared.m_durabilityPerLevel);
+                    PID.m_shared.m_equipDuration = CheckifSet(data.m_equipDuration, PID.m_shared.m_equipDuration);
+                    PID.m_shared.m_holdDurationMin =  CheckifSet(data.m_holdDurationMin, PID.m_shared.m_holdDurationMin);
+                    PID.m_shared.m_holdStaminaDrain =  CheckifSet(data.m_holdStaminaDrain, PID.m_shared.m_holdStaminaDrain);
+                    PID.m_shared.m_maxQuality =  CheckifSet(data.m_maxQuality, PID.m_shared.m_maxQuality);
+                    PID.m_shared.m_useDurability =  CheckifSet(data.m_useDurability, PID.m_shared.m_useDurability);
+                    PID.m_shared.m_useDurabilityDrain =  CheckifSet(data.m_useDurabilityDrain, PID.m_shared.m_useDurabilityDrain);
+                    PID.m_shared.m_questItem = CheckifSet(data.m_questItem, PID.m_shared.m_questItem);
+                    PID.m_shared.m_teleportable =  CheckifSet(data.m_teleportable, PID.m_shared.m_teleportable);
+                    PID.m_shared.m_toolTier =  CheckifSet(data.m_toolTier, PID.m_shared.m_toolTier);
+                    PID.m_shared.m_value = CheckifSet(data.m_value, PID.m_shared.m_value);
+                    PID.m_shared.m_movementModifier =  CheckifSet(data.m_movementModifier, PID.m_shared.m_movementModifier);
+                    PID.m_shared.m_attackForce = CheckifSet(data.m_knockback, PID.m_shared.m_attackForce);
+
+                    // seperate attacks
+                    var primary = data.PrimaryAttack;
+                    var secondary = data.SecondaryAttack;
+                    PIDA.m_attackStamina = CheckifSet(stringtoFloat(primary["m_attackStamina"].ToString()), PIDA.m_attackStamina); // need to test this monstrosity
+                    SIDA.m_attackStamina = CheckifSet(stringtoFloat(secondary["m_attackStamina"].ToString()), SIDA.m_attackStamina);
+                    //PIDA.
+
+                    //PID.m_shared.m
 
                     // someone is going to complain that I am adding too many... I just know it.
                     //int skillme = Enum.TryParse<Skills.SkillType>(data.m_skillType, out Skills.SkillType skillresult) ? (int)skillresult : (int)Enum.Parse(typeof(Skills.SkillType), data.m_skillType);
-                    //PrimaryItemData.m_shared.m_skillType = (Skills.SkillType)skillme;
-                    //PrimaryItemData.m_shared.m_attack = data.primaryAttack;
-                    //PrimaryItemData.m_shared.m_holdAnimationState = data.m_holdAnimationState;
-                    //PrimaryItemData.m_shared.m_animationState = (ItemDrop.ItemData.AnimationState)data.m_animationState;
+                    //PID.m_shared.m_skillType = (Skills.SkillType)skillme;
+                    //PID.m_shared.m_attack = data.primaryAttack;
+                    //PID.m_shared.m_holdAnimationState = data.m_holdAnimationState;
+                    //PID.m_shared.m_animationState = (ItemDrop.ItemData.AnimationState)data.m_animationState;
                     //Attack
                     /* What do I want
                      * m_speedFactor
@@ -1333,28 +1359,28 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                     {
                         string[] mod = AttString.Split(':');
                         int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
-                        PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
+                        PID.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
                     }
 
                     foreach (string SecAttString in data.secondaryAttack)
                     {
                         string[] mod = SecAttString.Split(':');
                         int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
-                        PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
+                        PID.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
                     }
                     */
 
-                    PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
+                    PID.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
                     foreach (string modString in data.damageModifiers)
                     {
                         string[] mod = modString.Split(':');
                         int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
-                        PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
+                        PID.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
                     }
-                    if (PrimaryItemData.m_shared.m_value > 0)
+                    if (PID.m_shared.m_value > 0)
                     {
                         string valu = "              <color=#edd221>Valuable</color>";
-                        PrimaryItemData.m_shared.m_description = data.m_description + valu;
+                        PID.m_shared.m_description = data.m_description + valu;
                     }
                     return; // done, I don't need to continue?
                 } // Dbgl("Amost done with SetItemData!");
@@ -2699,7 +2725,36 @@ FileSystemWatcher watcher = new(assetPath); // jsons
             }
             return TheString;
         }
-        
+        // checkifset for string/bool/float/int
+        public static string CheckifSet (string mightbenull,  string original)
+        {
+            if (mightbenull != null)
+            {
+                return mightbenull;
+            }
+            return original;
+        }
+        public static bool CheckifSet(bool mightbenull,  bool original)
+        {
+            return mightbenull ? mightbenull : original;
+        }
+        public static float CheckifSet(float mightbenull, float original)
+        {
+            if (mightbenull.Equals(null)) 
+            {
+                return original;
+            }
+            return mightbenull;
+        }
+        public static int CheckifSet(int mightbenull, int original)
+        {
+            if (mightbenull.Equals(null))
+            {
+                return original;
+            }
+            return mightbenull;
+        }
+
 
         #endregion
 

@@ -100,13 +100,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="color.cs" />
-    <Compile Include="ConfigurationManagerAttributes.cs" />
-    <Compile Include="ItemData.cs" />
-    <Compile Include="RecipeData.cs" />
-    <Compile Include="ItemManager.cs" />
-    <Compile Include="ServerSync.cs" />
-    <Compile Include="VersionHandshake.cs" />
+    <Compile Include="Utility\color.cs" />
+    <Compile Include="Utility\ConfigurationManagerAttributes.cs" />
+    <Compile Include="Datas\ItemData.cs" />
+    <Compile Include="Datas\PieceData.cs" />
+    <Compile Include="Datas\RecipeData.cs" />
+    <Compile Include="Utility\functions.cs" />
+    <Compile Include="Utility\ItemManager.cs" />
+    <Compile Include="Utility\ServerSync.cs" />
     <Compile Include="WackysRecipeCustomization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -120,6 +121,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GetData\" />
+    <Folder Include="SetData\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\ILRepack.Lib.MSBuild.Task.2.0.18.2\build\ILRepack.Lib.MSBuild.Task.targets" Condition="Exists('packages\ILRepack.Lib.MSBuild.Task.2.0.18.2\build\ILRepack.Lib.MSBuild.Task.targets')" />
