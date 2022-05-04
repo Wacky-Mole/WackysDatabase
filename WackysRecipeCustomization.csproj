@@ -108,6 +108,7 @@
     <Compile Include="Utility\functions.cs" />
     <Compile Include="Utility\ItemManager.cs" />
     <Compile Include="Utility\ServerSync.cs" />
+    <Compile Include="Utility\SpriteTools.cs" />
     <Compile Include="WackysRecipeCustomization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

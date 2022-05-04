@@ -108,6 +108,8 @@ namespace wackydatabase.ID
 
 		public List<string> damageModifiers = new List<string>();
 
+		public string m_skilltype;
+
 
 	}
 		public class Attack

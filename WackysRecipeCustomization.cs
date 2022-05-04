@@ -96,6 +96,8 @@ namespace wackydatabase
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
 
+        public static WMRecipeCust WInstance { get; private set; }
+
         /*Okay this is going to be a big rewrite to incorpate yamldot for some reason
          * Also allows the people to delete all configurations that they don't use- This is the primary reason why rewrite
          * So people can pick and choose what they want to update instead of having to have all options always there. If I went with Json files instead
@@ -145,7 +147,6 @@ namespace wackydatabase
             SetupWatcher(); // so if files change after startup it reloads recipes/ but doesn't input them.
             GetRecipeDataFromFilesForServer();
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
-  
 
 
         }
@@ -310,66 +311,10 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                 else
                 {
                     GetRecipeDataFromFiles();
-                    ObjectDB Instant = ObjectDB.instance;
-                    // CLONE PASS FIRST - only for craftingStation
-                    foreach (var data3 in PieceDatas)
-                    {
-                        if (data3 != null && data3.clone)
-                        {
-                            try
-                            {
-                                CraftingStation checkifStation = null;
-                                GameObject go = FindPieceObjectName(data3.clonePrefabName);
-                                string tempnam = null;
-                                tempnam = go.GetComponent<CraftingStation>()?.m_name;
-                                if (tempnam != null)
-                                {
-                                    checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
-                                    if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
-                                    {
-                                        SetPieceRecipeData(data3, Instant);
-                                    }
-                                }
-                            }
-                            catch { } // spams just catch any empty
-                        }
-                    }
-                    // END CLONE PASS
-                    // Real PASS NOW
-                    foreach (var data in ItemDatas) // call items first
-                    {
-                        try
-                        {
-                            SetItemData(data, Instant);
-                        }
-                        catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data.name} failed"); }
+                    SetDATAClone();
+                    Dbgl($" You are about to reload LOCAL Files");
+                }
 
-                    }
-                    Instant.UpdateItemHashes();
-                    foreach (var data in PieceDatas)
-                    {
-                        try
-                        {
-                            SetPieceRecipeData(data, Instant);
-                        }
-                        catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data.name} failed"); }
-                    }
-                    foreach (var data in recipeDatas) // recipes last
-                    {
-                        try
-                        {
-                            SetRecipeData(data, Instant);
-                        }
-                        catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
-                    }
-                    Dbgl($" You did reload LOCAL Files");
-                }
-                try {
-                    ObjectDB.instance.UpdateItemHashes();
-                } catch
-                {
-                    Dbgl($"failed to update Hashes- probably due to too many calls");
-                }
             }
             else {
                 if (issettoSinglePlayer)
@@ -382,6 +327,135 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                 }
             }
         }
+
+        // SetDATA
+        private static void SetDATAClone()
+        {
+            ObjectDB Instant = ObjectDB.instance;
+            // CLONE PASS FIRST - only for craftingStation
+            foreach (var data3 in PieceDatas)
+            {
+                if (data3 != null && data3.clone)
+                {
+                    try
+                    {
+                        CraftingStation checkifStation = null;
+                        GameObject go = FindPieceObjectName(data3.clonePrefabName);
+                        string tempnam = null;
+                        tempnam = go.GetComponent<CraftingStation>()?.m_name;
+                        if (tempnam != null)
+                        {
+                            checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                            if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                            {
+                                SetPieceRecipeData(data3, Instant);
+                            }
+                        }
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Clone PASS for {data3.name} failed"); }
+                }
+                
+            }// END CLONE PASS
+             // start the SplitSetData
+
+            StartCoroutine(SplitSetData()); // probably need to give it a class or something
+        }
+
+        IEnumerator SplitSetData() // to make large wackydatabase entrees lag free
+        {
+            ObjectDB Instant = ObjectDB.instance;
+            // Real PASS NOW
+            int ItemC = 0;
+            int PieceC = 0;
+            int RecipeC = 0;
+            int ItemL = ItemDatas.Count;
+            int PieceL = PieceDatas.Count;
+            int RecipeL = recipeDatas.Count;
+            int i = 0;
+
+            int stopevery = 25;
+            float stopfor = .1f;
+
+            while (ItemC < ItemL)
+            {
+                i++;
+                var data2 = ItemDatas[ItemC];
+                if (data2 != null)
+                {
+                    try
+                    {
+                        SetItemData(data2, Instant);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data2.name} failed"); }
+                }
+                ItemC++;
+                if (i == stopevery) 
+                {
+                    yield return new WaitForSeconds(stopfor); 
+                    i = 0;
+                }
+            }
+            Instant.UpdateItemHashes(); // update items
+
+            while (PieceC < PieceL)
+            {
+                i++;
+                var data3 = PieceDatas[PieceC];
+                if (data3 != null)
+                {
+                    try
+                    {
+                        SetPieceRecipeData(data3, Instant);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data3.name} failed"); }
+                }
+                PieceC++;
+                if (i == stopevery) // number of items to set before it waits
+                {
+                    yield return new WaitForSeconds(stopfor);
+                    i = 0;
+                }
+                }
+            while (RecipeC < RecipeL) // recipes last
+            {
+                i++;
+                var data = recipeDatas[RecipeC];
+                if (data != null)
+                {
+                    try
+                    {
+                        SetRecipeData(data, Instant);
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
+                }
+                RecipeC++;
+                if (i == stopevery)
+                {
+                    yield return new WaitForSeconds(stopfor); 
+                    i = 0;
+                }
+            }
+            try
+            {
+                ObjectDB.instance.UpdateItemHashes();
+            }
+            catch
+            {
+                Dbgl($"failed to update Hashes- probably due to too many calls");
+            }
+            if (issettoSinglePlayer)
+            {
+                Dbgl($" You did reload LOCAL Files");
+            }
+        }
+
+        IEnumerator SyncDelay()
+        {
+            yield return new WaitForSeconds(5);
+            // then start setting the mod files here
+            SetDATAClone();
+
+        }
         private void CustomSyncEventDetected()
         {
             if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated()) {
@@ -389,13 +463,12 @@ FileSystemWatcher watcher = new(assetPath); // jsons
             } 
           //  else
             {
-
                 if (Firstrun)
                 {
                     GetAllMaterials();
-                    Firstrun = false;
                     GetPieceStations();
                     GetPiecesatStart();
+                    // Set firstrun = false below
                 }
                 if (NoMoreLoading)
                 {
@@ -451,69 +524,12 @@ FileSystemWatcher watcher = new(assetPath); // jsons
 
                             //WackysRecipeCustomizationLogger.LogDebug(word);
                         }
-                        
-                        // CLONE PASS FIRST - only for craftingStation
 
-                        foreach (var data3 in PieceDatas)
-                        {
-                            if (data3 != null && data3.clone)
-                            {
-                                try
-                                {
-                                    CraftingStation checkifStation = null;
-                                    GameObject go = FindPieceObjectName(data3.clonePrefabName);
-                                    string tempnam = null;
-                                    tempnam = go.GetComponent<CraftingStation>()?.m_name;
-                                    if (tempnam != null)
-                                    {
-                                        checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
-                                        if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
-                                        {
-                                            SetPieceRecipeData(data3, Instant);
-                                        }
-                                    }
-                                }
-                                catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Clone PASS for {data3.name} failed"); }
-                            }
-                        }
-                        // END CLONE PASS
-                        // Real PASS NOW
-                        foreach (var data2 in ItemDatas)
-                        {
-                            if (data2 != null)
-                            {
-                                try
-                                {
-                                    SetItemData(data2, Instant);
-                                } catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data2.name} failed"); }
-                            }
-                        }
-                        Instant.UpdateItemHashes();
-                        foreach (var data3 in PieceDatas)
-                        {
-                            if (data3 != null)
-                            {
-                                try
-                                {
-                                    SetPieceRecipeData(data3, Instant);
-                                }catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data3.name} failed"); }
-
-                            }
-                        }
-                        foreach (var data in recipeDatas) // recipes last
-                        {
-                            
-                            if (data != null)
-                            {
-                                try
-                                {
-                                   
-                                    SetRecipeData(data, Instant);
-                                }
-                                catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
-
-                            }
-                        }
+                        // wait for 5 seconds for any other mods to sync and load first
+                        if (Firstrun)
+                            StartCoroutine(SyncDelay());
+                        else
+                            SetDATAClone(); // no start delay, but still split.
 
                         WackysRecipeCustomizationLogger.LogDebug("done with customSyncEvent");
                     }
@@ -521,6 +537,7 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                     {
                         WackysRecipeCustomizationLogger.LogDebug("Synced String was blank " + SyncedString);
                     }
+                    Firstrun = false;
                 }
             }// end is not the server
         }
@@ -1311,12 +1328,20 @@ FileSystemWatcher watcher = new(assetPath); // jsons
                     PID.m_shared.m_movementModifier =  CheckifSet(data.m_movementModifier, PID.m_shared.m_movementModifier);
                     PID.m_shared.m_attackForce = CheckifSet(data.m_knockback, PID.m_shared.m_attackForce);
 
+                    int skillme = Enum.TryParse<Skills.SkillType>(data.m_skilltype, out Skills.SkillType skillresult) ? (int)skillresult : (int)Enum.Parse(typeof(Skills.SkillType), data.m_skilltype);
+                    PID.m_shared.m_skillType = (Skills.SkillType)skillme;
+
                     // seperate attacks
                     var primary = data.PrimaryAttack;
                     var secondary = data.SecondaryAttack;
                     PIDA.m_attackStamina = CheckifSet(stringtoFloat(primary["m_attackStamina"].ToString()), PIDA.m_attackStamina); // need to test this monstrosity
                     SIDA.m_attackStamina = CheckifSet(stringtoFloat(secondary["m_attackStamina"].ToString()), SIDA.m_attackStamina);
-                    //PIDA.
+/*
+                    foreach (var field in typeof(Attack).GetFields())
+                    {
+                        PIDA.field.Name 
+                    }
+*/
 
                     //PID.m_shared.m
 
