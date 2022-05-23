@@ -58,6 +58,7 @@ namespace wackydatabase
         private static bool recieveServerInfo = false;
         private static bool isDedServer = false;
         private static bool NoMoreLoading = false; // for shutdown from Server
+        private static bool LoadinMultiplayerFirst = false; // forces multiplayer sync to wait for first time
         internal static string ConnectionError = "";
         private static WMRecipeCust context;
         private static int kickcount = 0;
@@ -367,9 +368,10 @@ namespace wackydatabase
                 {
                     Dbgl($" You did NOT reload LOCAL Files. You probably should have.");
                 }
-                else
+                if (LoadinMultiplayerFirst)
                 {
-
+                    WMRecipeCust goman = new WMRecipeCust();
+                    goman.CustomSyncEventDetected();
                 }
             }
         }
@@ -388,6 +390,7 @@ namespace wackydatabase
                     Firstrun = false;
                     GetPieceStations();
                     GetPiecesatStart();
+                    //LoadinMultiplayerFirst = true; // this is going to require some rewrite
                 }
                 if (NoMoreLoading)
                 {
@@ -442,6 +445,12 @@ namespace wackydatabase
                             }
 
                             //WackysRecipeCustomizationLogger.LogDebug(word);
+                        }
+                        if(LoadinMultiplayerFirst)
+                        {
+                            LoadinMultiplayerFirst = false; // Only for first Load in on Multiplayer, Keeps Mutliplayer loading last 
+                            Dbgl($" Delaying Server Reloading Until very end");
+                            return;
                         }
 
                         // CLONE PASS FIRST - only for craftingStation
