@@ -671,6 +671,37 @@ namespace wackydatabase
             GameObject go = CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
                 go = Instant.GetItemPrefab(data.name);
+
+            if (go == null)
+            {
+                foreach (Recipe recipes in Instant.m_recipes)
+                {
+                    if (!(recipes.m_item == null) && recipes.name == data.name)
+                    {
+                        Dbgl($"An actual Recipe_ {data.name} has been found!-- Only modification allowed");
+                        if (data.disabled)
+                        {
+                            Dbgl($"Removing recipe for {data.name} from the game");
+                            Instant.m_recipes.Remove(recipes);
+                            return;
+                        }
+                        recipes.m_amount = data.amount;
+                        recipes.m_minStationLevel = data.minStationLevel;
+                        recipes.m_craftingStation = GetCraftingStation(data.craftingStation);
+                        List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+                        // Dbgl("Made it to RecipeData!");
+                        foreach (string req in data.reqs)
+                        {
+                            string[] parts = req.Split(':');
+                            reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                        }
+                        //Dbgl("Amost done with RecipeData!");
+                        recipes.m_resources = reqs.ToArray();
+                        return;
+
+                    }
+                }
+            }
             if (go == null)
             {
                 Dbgl("maybe null " + data.name + " Should not get here");
@@ -1555,7 +1586,33 @@ namespace wackydatabase
 
         private static RecipeData GetRecipeDataByName(string name)
         {
-            GameObject go = ObjectDB.instance.GetItemPrefab(name);
+            GameObject go = CheckforSpecialObjects(name);// check for special cases
+            if (go == null)
+                go = ObjectDB.instance.GetItemPrefab(name);
+            
+            if (go == null)
+            {
+                foreach (Recipe recipes in ObjectDB.instance.m_recipes)
+                {
+                    if (!(recipes.m_item == null) && recipes.name == name)
+                    {
+                        Dbgl($"An actual Recipe_ {name} has been found!-- Only Modification - No Cloning");
+                        var data2 = new RecipeData()
+                        {
+                            name = name,
+                            amount = recipes.m_amount,
+                            craftingStation = recipes.m_craftingStation?.m_name ?? "",
+                            minStationLevel = recipes.m_minStationLevel,
+                        };
+                        foreach (Piece.Requirement req in recipes.m_resources)
+                        {
+                            data2.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
+                        }
+
+                        return data2;
+                    }
+                }
+            }
 
             if (go == null)
             {
@@ -2537,7 +2594,7 @@ namespace wackydatabase
         }
         [HarmonyPatch(typeof(ZNetScene), "Awake")]
         [HarmonyPriority(Priority.Last)]
-        static class ZNetScene_Awake_Patch
+        static class ZNetScene_Awake_Patch_WackysDatabase
         {
             static void Postfix()
             {
