@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.2.0";
+        internal const string ModVersion = "1.2.2";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -112,7 +112,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.1.9" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.2.0" }; // it is very picky on version number
 
 
         #endregion
@@ -391,6 +391,8 @@ namespace wackydatabase
                     GetPieceStations();
                     GetPiecesatStart();
                     //LoadinMultiplayerFirst = true; // this is going to require some rewrite
+                    if (!isDebug.Value)
+                        WackysRecipeCustomizationLogger.LogWarning($"Debug String is off, which suprisingly makes it hard to debug");
                 }
                 if (NoMoreLoading)
                 {
@@ -937,74 +939,6 @@ namespace wackydatabase
                         Dbgl($"Added prefab {name}");
                     }
                 }
-                CraftingStation craft = GetCraftingStation(data.craftingStation);
-                newItem.GetComponent<Piece>().m_craftingStation = craft; // sets crafing item place
-
-                if (!string.IsNullOrEmpty(data.cloneMaterial))
-                {
-                    Dbgl($"Material name searching for {data.cloneMaterial}");
-                    try
-                    {
-                        renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
-                        if (data.cloneMaterial.Contains(','))
-                        {
-                            string[] materialstr = data.cloneMaterial.Split(',');
-                            Material mat = originalMaterials[materialstr[0]];
-                            Material part = originalMaterials[materialstr[1]];
-
-                            foreach (Renderer renderitem in renderfinder)
-                            {
-                                if (renderitem.receiveShadows && materialstr[0] != "none")
-                                    renderitem.material = mat;
-                                else if (!renderitem.receiveShadows)
-                                    renderitem.material = part;
-                            }
-                        }
-                        else
-                        {
-                            Material mat = originalMaterials[data.cloneMaterial];
-                            foreach (Renderer renderitem in renderfinder)
-                            {
-                                if (renderitem.receiveShadows)
-                                    renderitem.material = mat;
-                            }
-                        }
-                    }
-                    catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
-                }
-
-                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
-                if (piecehammer == null)
-                {
-                    if (selectedPiecehammer == null)
-                    {
-                        Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
-                        piecehammer = Instant.GetItemPrefab("Hammer");
-
-                        NewItemComp.m_category = Piece.PieceCategory.Misc; // set the category
-                        piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem);
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(data.piecehammerCategory))
-                        {
-                            try
-                            { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
-                            catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
-                        }
-                        selectedPiecehammer.m_pieces.Add(newItem); // adding item to PiceTable
-                    }
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(data.piecehammerCategory))
-                    {
-                        try
-                        { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
-                        catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
-                    }
-                    piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
-                }
                 data.name = tempname; // putting back name
                 go = FindPieceObjectName(data.name); // this needs to call to newItem for modifcation otherwise it modifies orginial.
                 if (go == null)// just verifying
@@ -1018,7 +952,98 @@ namespace wackydatabase
                     return;
                 }
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
-            } // end clone 
+            } // end clone 1st pass
+
+            if (!string.IsNullOrEmpty(data.cloneMaterial)) // allows changing of any piece
+            {
+                Dbgl($"Material name searching for {data.cloneMaterial}");
+                try
+                {
+                    renderfinder = go.GetComponentsInChildren<Renderer>();
+                    if (data.cloneMaterial.Contains(','))
+                    {
+                        string[] materialstr = data.cloneMaterial.Split(',');
+                        Material mat = originalMaterials[materialstr[0]];
+                        Material part = originalMaterials[materialstr[1]];
+
+                        foreach (Renderer renderitem in renderfinder)
+                        {
+                            if (renderitem.receiveShadows && materialstr[0] != "none")
+                                renderitem.material = mat;
+                            else if (!renderitem.receiveShadows)
+                                renderitem.material = part;
+                        }
+                    }
+                    else
+                    {
+                        Material mat = originalMaterials[data.cloneMaterial];
+                        foreach (Renderer renderitem in renderfinder)
+                        {
+                            if (renderitem.receiveShadows)
+                                renderitem.material = mat;
+                        }
+                    }
+                }
+                catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+            }
+            { // CraftingStation and Cats
+                CraftingStation craft = GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
+                go.GetComponent<Piece>().m_craftingStation = craft;
+                Piece ItemComp = go.GetComponent<Piece>();
+
+                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer); // need to check to make sure hammer didn't change, if it did then needs to disable piece in certain cat before moving to next
+                // Can't check the hammer easily, so checking the PieceCategory, hopefully someone doesn't make two Misc
+                if (data.piecehammerCategory != null && data.piecehammer != null) // check that category and hammer is actually set
+                {
+                    if (ItemComp.m_category != (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory))
+                    { // now disable old 
+                        Dbgl($"Category change has been detected for {data.name}, disabling old piece and setting new piece location");
+                        if (piecehammer == null)
+                        {
+                            if (selectedPiecehammer == null)
+                            {
+                                piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
+                                piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                            }
+                            else selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
+                        }
+                        else piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
+
+                        // Now add to new Cat and hammer
+                        if (piecehammer == null)
+                        {
+                            if (selectedPiecehammer == null)
+                            {
+                                Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
+                                piecehammer = Instant.GetItemPrefab("Hammer");
+
+                                ItemComp.m_category = Piece.PieceCategory.Misc; // set the category
+                                piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                                {
+                                    try
+                                    { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                                    catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                                }
+                                selectedPiecehammer.m_pieces.Add(go); // adding item to PiceTable
+                            }
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                            {
+                                try
+                                { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                                catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                            }
+                            piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go); // if piecehammer is the actual item and not the PieceTable
+                        }
+                    }
+                }
+            } //end Cat
             if (data.adminonly)
             {
                 if (Admin)
@@ -1084,11 +1109,7 @@ namespace wackydatabase
                 }
             }
             Dbgl("Setting Piece data for " + data.name);
-            if (string.IsNullOrEmpty(data.m_name))
-            {
-
-            }
-            else
+            if (!string.IsNullOrEmpty(data.m_name))
             {
                 go.GetComponent<Piece>().m_name = data.m_name;
                 go.GetComponent<Piece>().m_description = data.m_description;
