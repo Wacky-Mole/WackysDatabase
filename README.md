@@ -22,7 +22,7 @@ There are three (3) Objects that WackyDB touches. Items, Recipes, Pieces.
 
 Items are things in your inventory, you can pickup and maybe equip. 
 
-Recipes are used to construct items, CraftingStations can be workbench, forge, or hand crafted
+Recipes are used to construct items, CraftingStations can be workbench, forge, or hand crafted (craftingStation": "")
 
 Pieces are what you use in your hammer and hoe to construct or plant. piecehammers
 
