@@ -36,6 +36,8 @@ Put the mod on the Server to force Server Sync. The Jsons files only have to be 
 
 For Multiplayer, the mod has been locked down to prevent easy cheating, but I recommend https://valheim.thunderstore.io/package/Azumatt/AzuAntiCheat/ and https://valheim.thunderstore.io/package/Smoothbrain/ServerCharacters/ as well.
 
+## Warning 1.2.5 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.
+
 
 ## Configuration file BepInEx/config/WackyMole.WackysDatabase.cfg
 
@@ -185,7 +187,8 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 ## Changelog
 
         Version 1.2.5
-            Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates
+            Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates.
+            Warning 1.2.5 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.
         Version 1.2.4 
             Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning),  Can now change any material's type,
             category, craftingstation instead of just clones. Cannot change piecehammer of non clones. You can now set the piece's 
