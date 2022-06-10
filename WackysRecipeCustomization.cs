@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.2.2";
+        internal const string ModVersion = "1.2.3";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -939,6 +939,76 @@ namespace wackydatabase
                         Dbgl($"Added prefab {name}");
                     }
                 }
+                CraftingStation craft2 = GetCraftingStation(data.craftingStation);
+                newItem.GetComponent<Piece>().m_craftingStation = craft2; // sets crafing item place
+                /*
+                if (!string.IsNullOrEmpty(data.cloneMaterial))
+                {
+                    Dbgl($"Material name searching for {data.cloneMaterial}");
+                    try
+                    {
+                        renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
+                        if (data.cloneMaterial.Contains(','))
+                        {
+                            string[] materialstr = data.cloneMaterial.Split(',');
+                            Material mat = originalMaterials[materialstr[0]];
+                            Material part = originalMaterials[materialstr[1]];
+
+                            foreach (Renderer renderitem in renderfinder)
+                            {
+                                if (renderitem.receiveShadows && materialstr[0] != "none")
+                                    renderitem.material = mat;
+                                else if (!renderitem.receiveShadows)
+                                    renderitem.material = part;
+                            }
+                        }
+                        else
+                        {
+                            Material mat = originalMaterials[data.cloneMaterial];
+                            foreach (Renderer renderitem in renderfinder)
+                            {
+                                if (renderitem.receiveShadows)
+                                    renderitem.material = mat;
+                            }
+                        }
+                    }
+                    catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                }
+                */ //Set  later
+
+                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
+                skip = true;
+                if (piecehammer == null)
+                {
+                    if (selectedPiecehammer == null)
+                    {
+                        Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
+                        piecehammer = Instant.GetItemPrefab("Hammer");
+
+                        NewItemComp.m_category = Piece.PieceCategory.Misc; // set the category
+                        piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem);
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                        {
+                            try
+                            { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                            catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                        }
+                        selectedPiecehammer.m_pieces.Add(newItem); // adding item to PiceTable
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                    {
+                        try
+                        { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                        catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                    }
+                    piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
+                }
                 data.name = tempname; // putting back name
                 go = FindPieceObjectName(data.name); // this needs to call to newItem for modifcation otherwise it modifies orginial.
                 if (go == null)// just verifying
@@ -956,39 +1026,67 @@ namespace wackydatabase
 
             if (!string.IsNullOrEmpty(data.cloneMaterial)) // allows changing of any piece
             {
-                Dbgl($"Material name searching for {data.cloneMaterial}");
+                Dbgl($"Material name searching for {data.cloneMaterial} for piece"); // need to take in account worn at %50
                 try
                 {
-                    renderfinder = go.GetComponentsInChildren<Renderer>();
-                    if (data.cloneMaterial.Contains(','))
+                    renderfinder = go.GetComponentsInChildren<Renderer>(); 
+                    renderfinder2 = go.GetComponentsInChildren<Renderer>(true); // include inactives
+                    if (data.cloneMaterial.Contains("same_mat") || data.cloneMaterial.Contains("no_wear"))
                     {
-                        string[] materialstr = data.cloneMaterial.Split(',');
-                        Material mat = originalMaterials[materialstr[0]];
-                        Material part = originalMaterials[materialstr[1]];
-
-                        foreach (Renderer renderitem in renderfinder)
+                        Material samematerial = null; 
+                        foreach (Renderer renderitem in renderfinder) // get for piece at full heatlh
                         {
-                            if (renderitem.receiveShadows && materialstr[0] != "none")
-                                renderitem.material = mat;
-                            else if (!renderitem.receiveShadows)
-                                renderitem.material = part;
+                            if (renderitem.receiveShadows)
+                                samematerial = renderitem.material;                 
+                        }
+                        foreach (Renderer renderitem in renderfinder2) // set for Pieces @ 50%
+                        {
+                            if (renderitem.receiveShadows)
+                                renderitem.material = samematerial;
                         }
                     }
                     else
                     {
-                        Material mat = originalMaterials[data.cloneMaterial];
-                        foreach (Renderer renderitem in renderfinder)
+                        if (data.cloneMaterial.Contains(','))
                         {
-                            if (renderitem.receiveShadows)
-                                renderitem.material = mat;
+                            string[] materialstr = data.cloneMaterial.Split(',');
+                            Material mat = originalMaterials[materialstr[0]];
+                            Material part = originalMaterials[materialstr[1]];
+
+                            foreach (Renderer renderitem in renderfinder2) // for Pieces @ 50%
+                            {
+                                if (renderitem.receiveShadows)
+                                    renderitem.material = part;
+                            }
+
+                            foreach (Renderer renderitem in renderfinder) // set after all of the piece for %50
+                            {
+                                if (renderitem.receiveShadows)
+                                    renderitem.material = mat;
+                            }
+
+                        }
+                        else
+                        {
+
+                            Material mat = originalMaterials[data.cloneMaterial];
+                            foreach (Renderer renderitem in renderfinder2)
+                            {
+                                if (renderitem.receiveShadows)
+                                {
+                                    renderitem.material = mat;
+                                }
+                            }
+
                         }
                     }
                 }
                 catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
             }
-            { // CraftingStation and Cats
-                CraftingStation craft = GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
-                go.GetComponent<Piece>().m_craftingStation = craft;
+            CraftingStation craft = GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
+            go.GetComponent<Piece>().m_craftingStation = craft;
+
+            if (!skip){ // Cats // if just added cloned doesn't need to be category changed.
                 Piece ItemComp = go.GetComponent<Piece>();
 
                 GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer); // need to check to make sure hammer didn't change, if it did then needs to disable piece in certain cat before moving to next
@@ -1154,6 +1252,8 @@ namespace wackydatabase
 
 
         public static Component[] renderfinder;
+        private static Renderer[] renderfinder2;
+
         private static void SetItemData(WItemData data, ObjectDB Instant)
         {
             // Dbgl("Loaded SetItemData!");

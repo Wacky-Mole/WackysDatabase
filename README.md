@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.1.9
+Version 1.2.3
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -68,7 +68,7 @@ wackydb_clone  [recipe/item/piece] [Prefab to clone] [Unique name for the clone]
 There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
 
-wackydb_clone_recipeitem <Prefab to clone> <clone name>(clones item and recipe at same time)( Recipe name will be Rname) - instead of cloning an item and then recipe, do both at once. Saves you the trouble of manually editing recipe name and prefab.
+wackydb_clone_recipeitem [Prefab to clone] [clone name](clones item and recipe at same time)( Recipe name will be Rname) - instead of cloning an item and then recipe, do both at once. Saves you the trouble of manually editing recipe name and prefab.
 
 wackydb_vfx - future use
 
@@ -149,13 +149,19 @@ minStationLevel: Checks what level craftingstation is needed before building pie
 
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
-cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
+cloneMaterial: You can change the material(colorish) of any (1.2.3) object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. 
+    Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible. "material1, material2" (full, half health)
+    Otherwise just setting one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
+
+
 
 ## Recipe Options: 
 
 <img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
 
 Cloned recipes need a unique name. 
+
+1.2.3 Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning)
 
 If cloning a recipe of a cloned item, clonePrefabName needs to be cloned item prefab.
 
@@ -168,7 +174,11 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ## Changelog
 
-
+        Version 1.2.3 
+            Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning),  Cam now change any material's type,
+            category, craftingstation instead of just clones. Cannot change piecehammer of non clones. You can now set the piece's 
+            material at 50% health. If you only set 1 it sets to both "full health" and "half health" otherwise,
+            "material1, material2" (full, half health). "same_mat" or "no_wear" sets pieces to have no wear material. 
         Version 1.1.9
             Bug Fixes. Cleaned up Logs
         Version 1.1.8
