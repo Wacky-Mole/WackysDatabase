@@ -188,7 +188,7 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
         Version 1.2.5
             Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates.
-            Warning 1.2.5 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.
+            Warning 1.2.4 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.
         Version 1.2.4 
             Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning),  Can now change any material's type,
             category, craftingstation instead of just clones. Cannot change piecehammer of non clones. You can now set the piece's 
