@@ -185,7 +185,7 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 ## Changelog
 
         Version 1.2.4 
-            Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning),  Cam now change any material's type,
+            Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning),  Can now change any material's type,
             category, craftingstation instead of just clones. Cannot change piecehammer of non clones. You can now set the piece's 
             material at 50% health. If you only set 1 it sets to both "full health" and "half health" otherwise,
             "material1, material2" (full, half health). "same_mat" or "no_wear" sets pieces to have no wear material. 
