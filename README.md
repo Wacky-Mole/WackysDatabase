@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.2.4
+Version 1.2.5
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -30,7 +30,7 @@ Pieces are what you use in your hammer and hoe to construct or plant. piecehamme
 
 Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins )
 
-Now run Valheim and join a world. After that go to Valheim/BepInEx/plugins/. There should be a folder called wackysDatabase, inside of that folder are currently three folders /Items/  /Recipes/ and /Pieces/.
+Now run Valheim and join a world. After that go to Valheim/BepInEx/config/. There should be a folder called wackysDatabase, inside of that folder are currently three folders /Items/  /Recipes/ and /Pieces/. Old wackyDatabase was in plugins, this should automatically be moved.
 
 Put the mod on the Server to force Server Sync. The Jsons files only have to be on the Server. No need to share the Jsons. 
 
@@ -184,6 +184,8 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ## Changelog
 
+        Version 1.2.5
+            Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates
         Version 1.2.4 
             Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning),  Can now change any material's type,
             category, craftingstation instead of just clones. Cannot change piecehammer of non clones. You can now set the piece's 

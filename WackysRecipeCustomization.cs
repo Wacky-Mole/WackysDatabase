@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.2.4";
+        internal const string ModVersion = "1.2.5";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -75,6 +75,7 @@ namespace wackydatabase
         private static List<string> ClonedP = new List<string>();
         private static List<string> ClonedR = new List<string>();
         private static string assetPath;
+        private static string assetPathconfig;
         private static string assetPathItems;
         private static string assetPathRecipes;
         private static string assetPathPieces;
@@ -122,9 +123,10 @@ namespace wackydatabase
         {
             StartupConfig(); // startup varables 
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
-            assetPathItems = Path.Combine(assetPath, "Items");
-            assetPathRecipes = Path.Combine(assetPath, "Recipes");
-            assetPathPieces = Path.Combine(assetPath, "Pieces");
+            assetPathconfig = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase");
+            assetPathItems = Path.Combine(assetPathconfig, "Items");
+            assetPathRecipes = Path.Combine(assetPathconfig, "Recipes");
+            assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
             // testme(); // function for testing things
 
             // ending files
@@ -208,8 +210,7 @@ namespace wackydatabase
             watcher2.IncludeSubdirectories = true;
             watcher2.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher2.EnableRaisingEvents = true;
-            */
-
+           
             FileSystemWatcher watcher = new(assetPath); // jsons
             watcher.Changed += ReadJsonValues;
             watcher.Created += ReadJsonValues;
@@ -217,6 +218,15 @@ namespace wackydatabase
             watcher.IncludeSubdirectories = true;
             watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher.EnableRaisingEvents = true;
+            */
+
+            FileSystemWatcher watcher3 = new(assetPathconfig); // jsons in config
+            watcher3.Changed += ReadJsonValues;
+            watcher3.Created += ReadJsonValues;
+            watcher3.Renamed += ReadJsonValues;
+            watcher3.IncludeSubdirectories = true;
+            watcher3.SynchronizingObject = ThreadingHelper.SynchronizingObject;
+            watcher3.EnableRaisingEvents = true;
         }
 
         private void ReadConfigValues(object sender, FileSystemEventArgs e)
@@ -546,7 +556,7 @@ namespace wackydatabase
             armorDatas.Clear();
             pieceWithLvl.Clear(); // ready for new
             var amber = new System.Text.StringBuilder();
-            foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
+            foreach (string file in Directory.GetFiles(assetPathconfig, "*.json", SearchOption.AllDirectories))
             {
                 if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
                 {
@@ -596,7 +606,7 @@ namespace wackydatabase
         {
             CheckModFolder();
             var amber = new System.Text.StringBuilder();
-            foreach (string file in Directory.GetFiles(assetPath, "*.json", SearchOption.AllDirectories))
+            foreach (string file in Directory.GetFiles(assetPathconfig, "*.json", SearchOption.AllDirectories))
             {
                 if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
                 {
@@ -645,16 +655,15 @@ namespace wackydatabase
 
         private static void CheckModFolder()
         {
-            if (!Directory.Exists(assetPath))
+            if (Directory.Exists(assetPath) && !Directory.Exists(assetPathconfig))
             {
-                Dbgl("Creating mod folder");
-                Directory.CreateDirectory(assetPath);
-                Directory.CreateDirectory(assetPathItems);
-                Directory.CreateDirectory(assetPathPieces);
-                Directory.CreateDirectory(assetPathRecipes);
+                WackysRecipeCustomizationLogger.LogWarning("Creating Config Mod folder and Moving Old WackysDatafolder to configs");
+                try { Directory.Move(assetPath, assetPathconfig); } catch { WackysRecipeCustomizationLogger.LogWarning("Error caught,but should have moved wackyDatabase folder correctly though"); }
             }
-            if (!Directory.Exists(assetPathItems))
+            if (!Directory.Exists(assetPathconfig))
             {
+                Dbgl("Creating Config Mod folder");
+                Directory.CreateDirectory(assetPathconfig);
                 Directory.CreateDirectory(assetPathItems);
                 Directory.CreateDirectory(assetPathPieces);
                 Directory.CreateDirectory(assetPathRecipes);
@@ -2428,7 +2437,7 @@ namespace wackydatabase
                                          Dbgl(temp);
                                      }
                                  }
-                                 File.WriteAllText(Path.Combine(assetPath, "DumpAll.txt"), TheStringMaster);
+                                 File.WriteAllText(Path.Combine(assetPathconfig, "DumpAll.txt"), TheStringMaster);
                                  args.Context?.AddString($"WackyDatabase dumped all, created file DumpAll.txt");
                              }
                              else
@@ -2484,7 +2493,7 @@ namespace wackydatabase
         {
             string theString = GetAllMaterialsFile();
             CheckModFolder();
-            File.WriteAllText(Path.Combine(assetPath, "Materials.txt"), theString);
+            File.WriteAllText(Path.Combine(assetPathconfig, "Materials.txt"), theString);
             args.Context?.AddString($"saved data to Materials.txt");
 
         });
@@ -2495,7 +2504,7 @@ namespace wackydatabase
         {
             string theString2 = GetAllVFXFile();
             CheckModFolder();
-            File.WriteAllText(Path.Combine(assetPath, "vfx.txt"), theString2);
+            File.WriteAllText(Path.Combine(assetPathconfig, "vfx.txt"), theString2);
             args.Context?.AddString($"saved data to VFX.txt");
 
         });
