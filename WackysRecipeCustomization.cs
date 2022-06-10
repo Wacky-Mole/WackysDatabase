@@ -1026,18 +1026,23 @@ namespace wackydatabase
 
             if (!string.IsNullOrEmpty(data.cloneMaterial)) // allows changing of any piece
             {
-                Dbgl($"Material name searching for {data.cloneMaterial} for piece"); // need to take in account worn at %50
+                Dbgl($"Material name searching for {data.cloneMaterial} for piece {data.name}"); // need to take in account worn at %50
                 try
                 {
+                    
                     renderfinder = go.GetComponentsInChildren<Renderer>(); 
                     renderfinder2 = go.GetComponentsInChildren<Renderer>(true); // include inactives
                     if (data.cloneMaterial.Contains("same_mat") || data.cloneMaterial.Contains("no_wear"))
                     {
+                        Dbgl($"No Wear set for {data.name}");
                         Material samematerial = null; 
                         foreach (Renderer renderitem in renderfinder) // get for piece at full heatlh
                         {
                             if (renderitem.receiveShadows)
-                                samematerial = renderitem.material;                 
+                            {
+                                samematerial = renderitem.material;
+                                break;
+                            }
                         }
                         foreach (Renderer renderitem in renderfinder2) // set for Pieces @ 50%
                         {

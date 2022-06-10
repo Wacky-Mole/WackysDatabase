@@ -162,7 +162,7 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 cloneMaterial: You can change the material(colorish) of any (1.2.3) object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. 
 - Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible. "material1,material2" (full,half health)(no spaces)
 - Otherwise "material1", one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
-
+- Should work for any piece at full health, some pieces change textures and models at 3/4 and 1/2 health, this won't stop them from changing. Maybe in future.
 
 
 ## Recipe Options: 
