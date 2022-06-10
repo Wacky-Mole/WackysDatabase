@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.2.3
+Version 1.2.4
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -159,7 +159,7 @@ minStationLevel: Checks what level craftingstation is needed before building pie
 
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
-cloneMaterial: You can change the material(colorish) of any (1.2.3) object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. 
+cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. 
 - Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible. "material1,material2" (full,half health)(no spaces)
 - Otherwise "material1", one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
 - Should work for any piece at full health, some pieces change textures and models at 3/4 and 1/2 health, this won't stop them from changing. Maybe in future.
@@ -171,7 +171,7 @@ cloneMaterial: You can change the material(colorish) of any (1.2.3) object. Imag
 
 Cloned recipes need a unique name. 
 
-1.2.3 Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning)
+1.2.4 Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning)
 
 If cloning a recipe of a cloned item, clonePrefabName needs to be cloned item prefab.
 
@@ -184,11 +184,12 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ## Changelog
 
-        Version 1.2.3 
+        Version 1.2.4 
             Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning),  Cam now change any material's type,
             category, craftingstation instead of just clones. Cannot change piecehammer of non clones. You can now set the piece's 
             material at 50% health. If you only set 1 it sets to both "full health" and "half health" otherwise,
             "material1, material2" (full, half health). "same_mat" or "no_wear" sets pieces to have no wear material. 
+            Updated ServerSync and PieceManager
         Version 1.1.9
             Bug Fixes. Cleaned up Logs
         Version 1.1.8
