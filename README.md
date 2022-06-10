@@ -150,8 +150,8 @@ minStationLevel: Checks what level craftingstation is needed before building pie
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 cloneMaterial: You can change the material(colorish) of any (1.2.3) object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. 
-    Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible. "material1, material2" (full, half health)
-    Otherwise just setting one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
+        Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible. "material1, material2" (full, half health)
+        Otherwise just setting one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
 
 
 
