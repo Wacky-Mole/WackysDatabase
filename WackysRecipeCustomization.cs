@@ -211,22 +211,15 @@ namespace wackydatabase
             watcher2.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher2.EnableRaisingEvents = true;
            
-            FileSystemWatcher watcher = new(assetPath); // jsons
+            */
+
+            FileSystemWatcher watcher = new(assetPathconfig); // jsons in config
             watcher.Changed += ReadJsonValues;
             watcher.Created += ReadJsonValues;
             watcher.Renamed += ReadJsonValues;
             watcher.IncludeSubdirectories = true;
             watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher.EnableRaisingEvents = true;
-            */
-
-            FileSystemWatcher watcher3 = new(assetPathconfig); // jsons in config
-            watcher3.Changed += ReadJsonValues;
-            watcher3.Created += ReadJsonValues;
-            watcher3.Renamed += ReadJsonValues;
-            watcher3.IncludeSubdirectories = true;
-            watcher3.SynchronizingObject = ThreadingHelper.SynchronizingObject;
-            watcher3.EnableRaisingEvents = true;
         }
 
         private void ReadConfigValues(object sender, FileSystemEventArgs e)
