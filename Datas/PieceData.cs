@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace wackydatabase.PD
+namespace wackydatabase.Datas
 {
     [Serializable]
     public class PieceData

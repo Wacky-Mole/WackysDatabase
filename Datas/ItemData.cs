@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace wackydatabase.ID
+namespace wackydatabase.Datas
 {
 	[Serializable]
 	public class WItemData

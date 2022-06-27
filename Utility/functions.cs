@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace wackydatabase
+namespace wackydatabase.Util
 {
+
     public static class CheckIt
     {
         public static void SetWhenNotNull(string mightBeNull, ref string notNullable)
