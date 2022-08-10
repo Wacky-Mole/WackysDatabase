@@ -100,7 +100,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Armor\armor.cs" />
+    <Compile Include="Datas\DataHelpers.cs" />
+    <Compile Include="GetData\GetData.cs" />
+    <Compile Include="PatchClasses\basicpatches.cs" />
     <Compile Include="PatchClasses\console.cs" />
+    <Compile Include="PatchClasses\status.cs" />
+    <Compile Include="SetData\reload.cs" />
+    <Compile Include="SetData\SetData.cs" />
+    <Compile Include="Startup\closing.cs" />
+    <Compile Include="Startup\startup.cs" />
+    <Compile Include="Startup\startupclient.cs" />
+    <Compile Include="Startup\startupserver.cs" />
     <Compile Include="Utility\color.cs" />
     <Compile Include="Utility\ConfigurationManagerAttributes.cs" />
     <Compile Include="Datas\ItemData.cs" />
@@ -130,8 +141,7 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="GetData\" />
-    <Folder Include="SetData\" />
+    <Folder Include="Cache\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\ILRepack.Lib.MSBuild.Task.2.0.18.2\build\ILRepack.Lib.MSBuild.Task.targets" Condition="Exists('packages\ILRepack.Lib.MSBuild.Task.2.0.18.2\build\ILRepack.Lib.MSBuild.Task.targets')" />
