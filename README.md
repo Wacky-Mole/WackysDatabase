@@ -1,6 +1,17 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.2.5
+Version 2.0
+
+- Need to do 
+
+1) switch to yaml instead of json
+2) make more OOP
+3) add icon colors/ability to modify icons
+4) modular on yml files. 
+5) support color and material changes on armor now. 
+6) maybe vfx changes
+7) maybe set effects.
+
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
