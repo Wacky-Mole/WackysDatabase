@@ -11,13 +11,15 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using wackydatabase.Datas;
+using wackydatabase.Util;
+using wackydatabase.Armor;
 
 namespace wackydatabase.SetData
 {
     public class SetData : WMRecipeCust
     {
         
-        private static void SetRecipeData(RecipeData data, ObjectDB Instant)
+        internal static void SetRecipeData(RecipeData data, ObjectDB Instant)
         {
             bool skip = false;
             foreach (string citem in ClonedR)
@@ -31,7 +33,7 @@ namespace wackydatabase.SetData
             {
                 data.name = data.clonePrefabName;
             }
-            GameObject go = CheckforSpecialObjects(data.name);// check for special cases
+            GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
                 go = Instant.GetItemPrefab(data.name);
 
@@ -50,7 +52,7 @@ namespace wackydatabase.SetData
                         }
                         recipes.m_amount = data.amount;
                         recipes.m_minStationLevel = data.minStationLevel;
-                        recipes.m_craftingStation = GetCraftingStation(data.craftingStation);
+                        recipes.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
                         List<Piece.Requirement> reqs = new List<Piece.Requirement>();
                         // Dbgl("Made it to RecipeData!");
                         foreach (string req in data.reqs)
@@ -85,8 +87,8 @@ namespace wackydatabase.SetData
                     ClonedR.Add(tempname);
 
                     clonerecipe.m_item = go.GetComponent<ItemDrop>();
-                    clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
-                    clonerecipe.m_repairStation = GetCraftingStation(data.craftingStation);
+                    clonerecipe.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
+                    clonerecipe.m_repairStation = DataHelpers.GetCraftingStation(data.craftingStation);
                     clonerecipe.m_minStationLevel = data.minStationLevel;
                     clonerecipe.m_amount = data.amount;
                     clonerecipe.name = tempname; //maybe
@@ -148,8 +150,8 @@ namespace wackydatabase.SetData
                         Dbgl("ReSetting Cloned Recipe for " + tempname);
                         Recipe clonerecipe = ObjectDB.instance.m_recipes[i];
                         clonerecipe.m_item = go.GetComponent<ItemDrop>();
-                        clonerecipe.m_craftingStation = GetCraftingStation(data.craftingStation);
-                        clonerecipe.m_repairStation = GetCraftingStation(data.craftingStation);
+                        clonerecipe.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
+                        clonerecipe.m_repairStation = DataHelpers.GetCraftingStation(data.craftingStation);
                         if (clonerecipe.m_craftingStation == null)
                             Dbgl("clone craftingStation set to null");
                         clonerecipe.m_minStationLevel = data.minStationLevel;
@@ -204,7 +206,7 @@ namespace wackydatabase.SetData
                         }
                         Instant.m_recipes[i].m_amount = data.amount;
                         Instant.m_recipes[i].m_minStationLevel = data.minStationLevel;
-                        Instant.m_recipes[i].m_craftingStation = GetCraftingStation(data.craftingStation);
+                        Instant.m_recipes[i].m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
                         //ObjectDB.instance.m_recipes[i].m_repairStation = GetCraftingStation(data.craftingStation); dont mess with maybe? if null repairable by all?
                         List<Piece.Requirement> reqs = new List<Piece.Requirement>();
                         // Dbgl("Made it to RecipeData!");
@@ -221,7 +223,7 @@ namespace wackydatabase.SetData
             }
         }
 
-        private static void SetPieceRecipeData(PieceData data, ObjectDB Instant)
+        internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant)
         {
             bool skip = false;
             foreach (var citem in ClonedP)
@@ -235,13 +237,13 @@ namespace wackydatabase.SetData
                 data.name = data.clonePrefabName;
             }
             Piece piece = null;
-            GameObject go = CheckforSpecialObjects(data.name);// check for special cases
+            GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
             {
-                go = GetPieces(Instant).Find(g => Utils.GetPrefabName(g) == data.name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
+                go = DataHelpers.GetPieces(Instant).Find(g => Utils.GetPrefabName(g) == data.name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
                 if (go == null)
                 {
-                    go = GetModdedPieces(data.name); // known modded Hammer search
+                    go = DataHelpers.GetModdedPieces(data.name); // known modded Hammer search
                     if (go == null)
                     {
                         Dbgl($"Piece {data.name} not found! 3 layer search");
@@ -291,7 +293,7 @@ namespace wackydatabase.SetData
                         Dbgl($"Added prefab {name}");
                     }
                 }
-                CraftingStation craft2 = GetCraftingStation(data.craftingStation);
+                CraftingStation craft2 = DataHelpers.GetCraftingStation(data.craftingStation);
                 newItem.GetComponent<Piece>().m_craftingStation = craft2; // sets crafing item place
                 /*
                 if (!string.IsNullOrEmpty(data.cloneMaterial))
@@ -362,7 +364,7 @@ namespace wackydatabase.SetData
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
                 }
                 data.name = tempname; // putting back name
-                go = FindPieceObjectName(data.name); // this needs to call to newItem for modifcation otherwise it modifies orginial.
+                go = DataHelpers.FindPieceObjectName(data.name); // this needs to call to newItem for modifcation otherwise it modifies orginial.
                 if (go == null)// just verifying
                 {
                     Dbgl($"Item {data.name} not found in SetPiece! after clone");
@@ -440,7 +442,7 @@ namespace wackydatabase.SetData
                 }
                 catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
             }
-            CraftingStation craft = GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
+            CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
             go.GetComponent<Piece>().m_craftingStation = craft;
 
             if (!skip)
@@ -570,7 +572,7 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_name = data.m_name;
                 go.GetComponent<Piece>().m_description = data.m_description;
             }
-            CraftingStation currentStation = GetCraftingStation(data.craftingStation);
+            CraftingStation currentStation = DataHelpers.GetCraftingStation(data.craftingStation);
             CraftingStation checkifStation = null;
             bool CStationAdded = false;
             if (data.clone)
@@ -579,7 +581,7 @@ namespace wackydatabase.SetData
                 tempnam = go.GetComponent<CraftingStation>()?.m_name;
                 if (tempnam != null)
                 {
-                    checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                    checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
                     if (checkifStation != null)
                         CStationAdded = NewCraftingStations.Contains(checkifStation);
                 }
@@ -593,7 +595,7 @@ namespace wackydatabase.SetData
 
                 Dbgl($"  new CraftingStation named {data.name} ");
             }
-            go.GetComponent<Piece>().m_craftingStation = GetCraftingStation(data.craftingStation);
+            go.GetComponent<Piece>().m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
             if (data.minStationLevel > 1)
             {
                 pieceWithLvl.Add(go.name + "." + data.minStationLevel);
@@ -610,9 +612,9 @@ namespace wackydatabase.SetData
 
 
         public static Component[] renderfinder;
-        private static Renderer[] renderfinder2;
+        internal static Renderer[] renderfinder2;
 
-        private static void SetItemData(WItemData data, ObjectDB Instant)
+        internal static void SetItemData(WItemData data, ObjectDB Instant)
         {
             // Dbgl("Loaded SetItemData!");
             bool skip = false;
@@ -626,7 +628,7 @@ namespace wackydatabase.SetData
             {
                 data.name = data.clonePrefabName;
             }
-            GameObject go = CheckforSpecialObjects(data.name);// check for special cases
+            GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
                 go = Instant.GetItemPrefab(data.name); // normal check
 
@@ -754,17 +756,17 @@ namespace wackydatabase.SetData
                         string[] divideme = data.m_damages.Split(delims, StringSplitOptions.RemoveEmptyEntries);
                         //Dbgl($"Item damge for 0 {divideme[0]} " + $" Item damge for 10 {divideme[10]} ");
                         HitData.DamageTypes damages = default(HitData.DamageTypes);
-                        damages.m_blunt = stringtoFloat(divideme[0]);
-                        damages.m_chop = stringtoFloat(divideme[1]);
-                        damages.m_damage = stringtoFloat(divideme[2]);
-                        damages.m_fire = stringtoFloat(divideme[3]);
-                        damages.m_frost = stringtoFloat(divideme[4]);
-                        damages.m_lightning = stringtoFloat(divideme[5]);
-                        damages.m_pickaxe = stringtoFloat(divideme[6]);
-                        damages.m_pierce = stringtoFloat(divideme[7]);
-                        damages.m_poison = stringtoFloat(divideme[8]);
-                        damages.m_slash = stringtoFloat(divideme[9]);
-                        damages.m_spirit = stringtoFloat(divideme[10]);
+                        damages.m_blunt = Functions.stringtoFloat(divideme[0]);
+                        damages.m_chop = Functions.stringtoFloat(divideme[1]);
+                        damages.m_damage = Functions.stringtoFloat(divideme[2]);
+                        damages.m_fire = Functions.stringtoFloat(divideme[3]);
+                        damages.m_frost = Functions.stringtoFloat(divideme[4]);
+                        damages.m_lightning = Functions.stringtoFloat(divideme[5]);
+                        damages.m_pickaxe = Functions.stringtoFloat(divideme[6]);
+                        damages.m_pierce = Functions.stringtoFloat(divideme[7]);
+                        damages.m_poison = Functions.stringtoFloat(divideme[8]);
+                        damages.m_slash = Functions.stringtoFloat(divideme[9]);
+                        damages.m_spirit = Functions.stringtoFloat(divideme[10]);
                         PrimaryItemData.m_shared.m_damages = damages;
                     }
                     if (data.m_damagesPerLevel != null && data.m_damagesPerLevel != "")
@@ -773,17 +775,17 @@ namespace wackydatabase.SetData
                         string[] divideme = data.m_damagesPerLevel.Split(delims, StringSplitOptions.RemoveEmptyEntries);
 
                         HitData.DamageTypes damagesPerLevel = default(HitData.DamageTypes);
-                        damagesPerLevel.m_blunt = stringtoFloat(divideme[0]);
-                        damagesPerLevel.m_chop = stringtoFloat(divideme[1]);
-                        damagesPerLevel.m_damage = stringtoFloat(divideme[2]);
-                        damagesPerLevel.m_fire = stringtoFloat(divideme[3]);
-                        damagesPerLevel.m_frost = stringtoFloat(divideme[4]);
-                        damagesPerLevel.m_lightning = stringtoFloat(divideme[5]);
-                        damagesPerLevel.m_pickaxe = stringtoFloat(divideme[6]);
-                        damagesPerLevel.m_pierce = stringtoFloat(divideme[7]);
-                        damagesPerLevel.m_poison = stringtoFloat(divideme[8]);
-                        damagesPerLevel.m_slash = stringtoFloat(divideme[9]);
-                        damagesPerLevel.m_spirit = stringtoFloat(divideme[10]);
+                        damagesPerLevel.m_blunt = Functions.stringtoFloat(divideme[0]);
+                        damagesPerLevel.m_chop = Functions.stringtoFloat(divideme[1]);
+                        damagesPerLevel.m_damage = Functions.stringtoFloat(divideme[2]);
+                        damagesPerLevel.m_fire = Functions.stringtoFloat(divideme[3]);
+                        damagesPerLevel.m_frost = Functions.stringtoFloat(divideme[4]);
+                        damagesPerLevel.m_lightning = Functions.stringtoFloat(divideme[5]);
+                        damagesPerLevel.m_pickaxe = Functions.stringtoFloat(divideme[6]);
+                        damagesPerLevel.m_pierce = Functions.stringtoFloat(divideme[7]);
+                        damagesPerLevel.m_poison = Functions.stringtoFloat(divideme[8]);
+                        damagesPerLevel.m_slash = Functions.stringtoFloat(divideme[9]);
+                        damagesPerLevel.m_spirit = Functions.stringtoFloat(divideme[10]);
                         PrimaryItemData.m_shared.m_damagesPerLevel = damagesPerLevel;
                     }
                     PrimaryItemData.m_shared.m_name = data.m_name;
@@ -882,7 +884,7 @@ namespace wackydatabase.SetData
                     foreach (string modString in data.damageModifiers)
                     {
                         string[] mod = modString.Split(':');
-                        int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
+                        int modType = Enum.TryParse<ArmorHelpers.NewDamageTypes>(mod[0], out ArmorHelpers.NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
                         PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
                     }
                     if (PrimaryItemData.m_shared.m_value > 0)

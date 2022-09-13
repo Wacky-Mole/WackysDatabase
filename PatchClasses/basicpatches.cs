@@ -14,6 +14,9 @@ using System.Security.Cryptography;
 using wackydatabase.Datas;
 using wackydatabase.Util;
 using wackydatabase.GetData;
+using wackydatabase.Startup;
+using wackydatabase.SetData;
+
 
 
 namespace wackydatabase.PatchClasses
@@ -53,7 +56,7 @@ namespace wackydatabase.PatchClasses
                     else
                     {
                         string worktablename = piece.m_craftingStation.name;
-                        GameObject temp = GetPieces().Find(g => Utils.GetPrefabName(g) == worktablename);
+                        GameObject temp = DataHelpers.GetPieces().Find(g => Utils.GetPrefabName(g) == worktablename);
                         var name = temp.GetComponent<Piece>().m_name;
                         __instance.Message(MessageHud.MessageType.Center, "Need a Level " + CraftingStationlvl + " " + name + " for placement");
                         return false;
@@ -66,16 +69,22 @@ namespace wackydatabase.PatchClasses
     }
     [HarmonyPatch(typeof(ZNetScene), "Awake")]
     [HarmonyPriority(Priority.Last)]
-    static class ZNetScene_Awake_Patch_WackysDatabase
+         class ZNetScene_Awake_Patch_WackysDatabase
     {
-        static void Postfix()
+         void Postfix()
         {
             if (!wackydatabase.WMRecipeCust.modEnabled.Value)
                 return;
-            context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
-                                                         //LoadAllRecipeData(true);
-        }
+            //StartCoroutine(CurrentReload.DelayedLoadRecipes());// very importrant for last sec load
+            //LoadAllRecipeData(true);
+
+            
+            //public Reload CurrentReload = new Reload();
+                 // Reload.DelayedLoadRecipes();
+
     }
+    }
+
 
 
     [HarmonyPatch(typeof(ZNet), "Shutdown")]
@@ -86,12 +95,12 @@ namespace wackydatabase.PatchClasses
             wackydatabase.WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("Logoff? So reset - character will look empty if using clone gear");
             if (wackydatabase.WMRecipeCust.issettoSinglePlayer)
             {
-                DestoryClones();
+                Closing.DestoryClones();
 
             }
             else
             {
-                DestoryClones();
+                Closing.DestoryClones();
             }
             wackydatabase.WMRecipeCust.NoMoreLoading = true;
             return true;

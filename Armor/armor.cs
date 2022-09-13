@@ -17,12 +17,17 @@ namespace wackydatabase.Armor
   public class ArmorHelpers : WMRecipeCust
     {
 
-     private static bool ShouldOverride(HitData.DamageModifier a, HitData.DamageModifier b)
+    public enum NewDamageTypes
+    {
+        Water = 1024
+    }
+
+  internal static bool ShouldOverride(HitData.DamageModifier a, HitData.DamageModifier b)
     {
         return a != HitData.DamageModifier.Ignore && (b == HitData.DamageModifier.Immune || ((a != HitData.DamageModifier.VeryResistant || b != HitData.DamageModifier.Resistant) && (a != HitData.DamageModifier.VeryWeak || b != HitData.DamageModifier.Weak)));
     }
 
-    private static void LoadAllArmorData(ZNetScene scene)
+  internal static void LoadAllArmorData(ZNetScene scene)
     {
         foreach (var armor in armorDatas)
         {
@@ -50,7 +55,7 @@ namespace wackydatabase.Armor
         }
     }
 
-    private static void SetArmorData(ref ItemDrop.ItemData item, ArmorData armor)
+  internal static void SetArmorData(ref ItemDrop.ItemData item, ArmorData armor)
     {
         //item.m_shared.m_armor = armor.armor;
         //item.m_shared.m_armorPerLevel = armor.armorPerLevel;
@@ -65,13 +70,13 @@ namespace wackydatabase.Armor
         }
     }
 
-    private static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, Character character)
+   internal static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, Character character)
     {
         Traverse t = Traverse.Create(character);
         return GetNewDamageTypeMod(type, t.Field("m_chestItem").GetValue<ItemDrop.ItemData>(), t.Field("m_legItem").GetValue<ItemDrop.ItemData>(), t.Field("m_helmetItem").GetValue<ItemDrop.ItemData>(), t.Field("m_shoulderItem").GetValue<ItemDrop.ItemData>());
     }
 
-    private static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, ItemDrop.ItemData chestItem, ItemDrop.ItemData legItem, ItemDrop.ItemData helmetItem, ItemDrop.ItemData shoulderItem)
+  internal static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, ItemDrop.ItemData chestItem, ItemDrop.ItemData legItem, ItemDrop.ItemData helmetItem, ItemDrop.ItemData shoulderItem)
     {
         HitData.DamageModPair modPair = new HitData.DamageModPair();
 

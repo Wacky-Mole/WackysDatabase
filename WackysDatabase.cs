@@ -45,10 +45,6 @@ using wackydatabase.SetData;
 
 namespace wackydatabase
 {
-    public static class Globals
-    {
-
-    }
 
     [BepInPlugin(ModGUID, ModName, ModVersion)]
     public class WMRecipeCust : BaseUnityPlugin
@@ -74,7 +70,7 @@ namespace wackydatabase
         internal static bool LoadinMultiplayerFirst = false; // forces multiplayer sync to wait for first time
         internal static string ConnectionError = "";
         internal static WMRecipeCust context;
-        //private static int kickcount = 0;
+        internal static int kickcount = 0;
 
         public static ConfigEntry<float> globalArmorDurabilityLossMult;
         public static ConfigEntry<float> globalArmorMovementModMult;
@@ -116,7 +112,7 @@ namespace wackydatabase
 
         Startupserver startupserver = new Startupserver();
         ReadFiles readFiles = new ReadFiles();
-        Reload CurrentReload = new Reload();
+        public SetData.Reload CurrentReload = new Reload();
 
 
 
@@ -239,6 +235,14 @@ namespace wackydatabase
             public bool? Browsable = false;
         }
 
+        public static IEnumerator DelayedLoadRecipes()
+        {
+            yield return new WaitForSeconds(0.1f);
+            // CurrentReload.
+            SetData.Reload josh = new SetData.Reload();
+            josh.LoadAllRecipeData(true);
+            yield break;
+        }
 
         private void CustomSyncEventDetected()
         {

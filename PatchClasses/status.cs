@@ -18,10 +18,6 @@ using wackydatabase.Armor;
 
 namespace wackydatabase.PatchClasses
 {
-    public enum NewDamageTypes
-    {
-        Water = 1024
-    }
 
     [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
         static class UpdateEnvStatusEffects_Patch
@@ -59,7 +55,7 @@ namespace wackydatabase.PatchClasses
 
                 if (___m_seman.HaveStatusEffect("Wet"))
                 {
-                    HitData.DamageModifier water = GetNewDamageTypeMod(NewDamageTypes.Water, ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem);
+                    HitData.DamageModifier water = ArmorHelpers.GetNewDamageTypeMod(ArmorHelpers.NewDamageTypes.Water, ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem);
                     var wet = ___m_seman.GetStatusEffect("Wet");
                     var t = Traverse.Create(wet);
 
@@ -103,7 +99,7 @@ namespace wackydatabase.PatchClasses
 
                 if (statusEffect.m_name == "$se_wet_name")
                 {
-                    var mod = ArmorHelpers.GetNewDamageTypeMod(NewDamageTypes.Water, ___m_character);
+                    var mod = ArmorHelpers.GetNewDamageTypeMod(ArmorHelpers.NewDamageTypes.Water, ___m_character);
                     if (mod == HitData.DamageModifier.Ignore || mod == HitData.DamageModifier.Immune)
                     {
                         __result = null;
@@ -161,7 +157,7 @@ namespace wackydatabase.PatchClasses
                                 __result += "\n$inventory_dmgmod: <color=orange>$inventory_veryweak</color> VS ";
                                 break;
                         }
-                        if ((int)damageModPair.m_type == (int)NewDamageTypes.Water)
+                        if ((int)damageModPair.m_type == (int)ArmorHelpers.NewDamageTypes.Water)
                         {
                             __result += "<color=orange>" + wackydatabase.WMRecipeCust.WaterName.Value + "</color>";
                         }

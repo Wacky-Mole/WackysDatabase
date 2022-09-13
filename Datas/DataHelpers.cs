@@ -13,10 +13,10 @@ using wackydatabase.Datas;
 
 namespace wackydatabase.Datas
 {
-    internal class DataHelpers : WMRecipeCust
+    public class DataHelpers : WMRecipeCust
     {
 
-        private static CraftingStation GetCraftingStation(string name)
+        public static CraftingStation GetCraftingStation(string name)
         {
             if (name == "" || name == null)
                 return null;
@@ -65,7 +65,7 @@ namespace wackydatabase.Datas
 
             return null;
         }
-        private static List<GameObject> GetPieces(ObjectDB Instant)
+        public static List<GameObject> GetPieces(ObjectDB Instant)
         {
             var pieces = new List<GameObject>();
             if (!Instant)
@@ -83,7 +83,7 @@ namespace wackydatabase.Datas
             return pieces;
 
         }
-        private static List<GameObject> GetPieces()
+        public static List<GameObject> GetPieces()
         {
             var pieces = new List<GameObject>();
             if (!ObjectDB.instance)
@@ -101,7 +101,7 @@ namespace wackydatabase.Datas
             return pieces;
 
         }
-        private static GameObject GetModdedPieces(string name)
+        public static GameObject GetModdedPieces(string name)
         {
             selectedPiecehammer = null;
             GameObject Searchingfor = null;
@@ -117,7 +117,7 @@ namespace wackydatabase.Datas
             return Searchingfor;
         }
 
-        private static GameObject FindPieceObjectName(string name)
+        public static GameObject FindPieceObjectName(string name)
         {
             GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name); // vanilla search
             if (go == null)
@@ -131,16 +131,16 @@ namespace wackydatabase.Datas
             return go;
         }
 
-        private static void GetPieceStations()
+        public static void GetPieceStations()
         {
             MaybePieceStations = Resources.FindObjectsOfTypeAll<PieceTable>(); // so easy
         }
-        private static void GetPiecesatStart()
+        public static void GetPiecesatStart()
         {
             // PiecesinGame = Resources.FindObjectsOfTypeAll<Piece>();  don't call this bad bad idea for ram
         }
 
-        private static GameObject CheckforSpecialObjects(string name) // should handle all times of special cases, manual entry
+        public static GameObject CheckforSpecialObjects(string name) // should handle all times of special cases, manual entry
         {
             GameObject go = null;
             string ZnetName = null;

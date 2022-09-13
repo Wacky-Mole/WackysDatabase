@@ -16,7 +16,7 @@ namespace wackydatabase.Startup
     internal class Closing : WMRecipeCust
     {
 
-        private static void DestoryClones()
+        internal static void DestoryClones()
         {
             GameObject go;
             ZNetScene znet = ZNetScene.instance;
@@ -44,7 +44,7 @@ namespace wackydatabase.Startup
             {
                 try
                 {
-                    go = CheckforSpecialObjects(citem);// check for special cases
+                    go = DataHelpers.CheckforSpecialObjects(citem);// check for special cases
                     if (go == null)
                         go = delObj.GetItemPrefab(citem); // normal check
                     delObj.m_items.Remove(go);
@@ -63,10 +63,10 @@ namespace wackydatabase.Startup
                 try
                 {
                     //go = FindPieceObjectName(citem);
-                    go = GetModdedPieces(citem); // known modded Hammer search
+                    go = DataHelpers.GetModdedPieces(citem); // known modded Hammer search
                     if (go == null)
                     {
-                        go = CheckforSpecialObjects(citem); // check for special
+                        go = DataHelpers.CheckforSpecialObjects(citem); // check for special
                         piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
                     }
 

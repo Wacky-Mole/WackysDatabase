@@ -13,6 +13,8 @@ using wackydatabase.Util;
 using System.IO;
 using System.Collections;
 
+using wackydatabase.Startup;
+
 namespace wackydatabase.SetData
 {
     public class Reload : WMRecipeCust
@@ -23,8 +25,8 @@ namespace wackydatabase.SetData
             {
                 GetAllMaterials();
                 Firstrun = false;
-                GetPieceStations();
-                GetPiecesatStart();
+                DataHelpers.GetPieceStations();
+                DataHelpers.GetPiecesatStart();
                 //LoadinMultiplayerFirst = true; // this is going to require some rewrite
                 if (!isDebug.Value)
                     WackysRecipeCustomizationLogger.LogWarning($"Debug String is off, which suprisingly makes it hard to debug");
@@ -99,15 +101,15 @@ namespace wackydatabase.SetData
                             try
                             {
                                 CraftingStation checkifStation = null;
-                                GameObject go = FindPieceObjectName(data3.clonePrefabName);
+                                GameObject go = DataHelpers.FindPieceObjectName(data3.clonePrefabName);
                                 string tempnam = null;
                                 tempnam = go.GetComponent<CraftingStation>()?.m_name;
                                 if (tempnam != null)
                                 {
-                                    checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                                    checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
                                     if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
                                     {
-                                        SetPieceRecipeData(data3, Instant);
+                                        SetData.SetPieceRecipeData(data3, Instant);
                                     }
                                 }
                             }
@@ -122,7 +124,7 @@ namespace wackydatabase.SetData
                         {
                             try
                             {
-                                SetItemData(data2, Instant);
+                                SetData.SetItemData(data2, Instant);
                             }
                             catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data2.name} failed"); }
                         }
@@ -134,7 +136,7 @@ namespace wackydatabase.SetData
                         {
                             try
                             {
-                                SetPieceRecipeData(data3, Instant);
+                                SetData.SetPieceRecipeData(data3, Instant);
                             }
                             catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data3.name} failed"); }
 
@@ -148,7 +150,7 @@ namespace wackydatabase.SetData
                             try
                             {
 
-                                SetRecipeData(data, Instant);
+                                SetData.SetRecipeData(data, Instant);
                             }
                             catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
 
@@ -163,19 +165,14 @@ namespace wackydatabase.SetData
                 }
             }
         }
-        public static IEnumerator DelayedLoadRecipes()
-        {
-            yield return new WaitForSeconds(0.1f);
-            LoadAllRecipeData(true);
-            yield break;
-        }
 
-        public static void LoadAllRecipeData(bool reload)
+
+        public void LoadAllRecipeData(bool reload)
         {
             if (reload)
             {
                 ZNet Net = new ZNet();
-                IsLocalInstance(Net);
+                Startup.Startup.IsLocalInstance(Net);
             }
             if (reload && (issettoSinglePlayer || recieveServerInfo)) // single player only or recievedServerInfo
             {
@@ -186,7 +183,7 @@ namespace wackydatabase.SetData
                 }
                 else
                 {
-                    GetRecipeDataFromFiles();
+                    ReadFiles.GetRecipeDataFromFiles();
                     ObjectDB Instant = ObjectDB.instance;
                     // CLONE PASS FIRST - only for craftingStation
                     foreach (var data3 in PieceDatas)
@@ -196,15 +193,15 @@ namespace wackydatabase.SetData
                             try
                             {
                                 CraftingStation checkifStation = null;
-                                GameObject go = FindPieceObjectName(data3.clonePrefabName);
+                                GameObject go = DataHelpers.FindPieceObjectName(data3.clonePrefabName);
                                 string tempnam = null;
                                 tempnam = go.GetComponent<CraftingStation>()?.m_name;
                                 if (tempnam != null)
                                 {
-                                    checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                                    checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
                                     if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
                                     {
-                                        SetPieceRecipeData(data3, Instant);
+                                        SetData.SetPieceRecipeData(data3, Instant);
                                     }
                                 }
                             }
@@ -217,7 +214,7 @@ namespace wackydatabase.SetData
                     {
                         try
                         {
-                            SetItemData(data, Instant);
+                            SetData.SetItemData(data, Instant);
                         }
                         catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data.name} failed"); }
 
@@ -227,7 +224,7 @@ namespace wackydatabase.SetData
                     {
                         try
                         {
-                            SetPieceRecipeData(data, Instant);
+                            SetData.SetPieceRecipeData(data, Instant);
                         }
                         catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data.name} failed"); }
                     }
@@ -235,7 +232,7 @@ namespace wackydatabase.SetData
                     {
                         try
                         {
-                            SetRecipeData(data, Instant);
+                            SetData.SetRecipeData(data, Instant);
                         }
                         catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
                     }
@@ -258,8 +255,8 @@ namespace wackydatabase.SetData
                 }
                 if (LoadinMultiplayerFirst)
                 {
-                    WMRecipeCust goman = new WMRecipeCust();
-                    goman.CustomSyncEventDetected();
+                    //WMRecipeCust goman = new WMRecipeCust();
+                   // goman.CustomSyncEventDetected();
                 }
             }
         }

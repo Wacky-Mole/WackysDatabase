@@ -29,7 +29,7 @@ namespace wackydatabase.Util
     }
     public class Functions : WMRecipeCust
     {
-        static string ComputeSha256Hash(string rawData)
+        internal static string ComputeSha256Hash(string rawData)
         {
             // Create a SHA256   
             using (SHA256 sha256Hash = SHA256.Create())

@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using wackydatabase.Datas;
 using wackydatabase.Util;
 using static wackydatabase.WMRecipeCust;
+using wackydatabase.GetData;
 
 
 namespace wackydatabase.PatchClasses
@@ -88,18 +89,25 @@ namespace wackydatabase.PatchClasses
                  new("wackydb_reload", "reload the whole config files",
                      args =>
                      {
-                             // GetRecipeDataFromFiles(); called in loadallrecipes
-                             if (ObjectDB.instance && issettoSinglePlayer)
+                         // GetRecipeDataFromFiles(); called in loadallrecipes
+                         if (ObjectDB.instance && issettoSinglePlayer)
                          {
 
-                             LoadAllRecipeData(true);
+                             SetData.Reload josh = new SetData.Reload();
+                             //WMRecipeCust.CurrentReload = josh;
+                             // this needs to be fix
+
+                             josh.LoadAllRecipeData(true);
+
+                             
+                             
                              args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
                              Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
                          }
                          else
                          {
                              args.Context?.AddString($"WackyDatabase did NOT reload recipes/items/pieces from files"); // maybe?
-                                 Dbgl("WackyDatabase did NOT reload recipes/items/pieces from files");
+                             Dbgl("WackyDatabase did NOT reload recipes/items/pieces from files");
                          }
 
                      });
@@ -119,7 +127,7 @@ namespace wackydatabase.PatchClasses
                              string comtype = args[2];
                              if (recipe == "item" || recipe == "Item")
                              {
-                                 WItemData recipeData = GetItemDataByName(comtype);
+                                 WItemData recipeData = GetData.GetData.GetItemDataByName(comtype);
                                  if (recipeData == null)
                                      return;
                                  Dbgl(JsonUtility.ToJson(recipeData));
@@ -127,14 +135,14 @@ namespace wackydatabase.PatchClasses
                              }
                              else if (recipe == "piece" || recipe == "Piece")
                              {
-                                 PieceData data = GetPieceRecipeByName(comtype);
+                                 PieceData data = GetData.GetData.GetPieceRecipeByName(comtype);
                                  if (data == null)
                                      return;
                                  Dbgl(JsonUtility.ToJson(data));
                              }
                              else
                              {
-                                 RecipeData recipeData = GetRecipeDataByName(comtype);
+                                 RecipeData recipeData = GetData.GetData.GetRecipeDataByName(comtype);
                                  if (recipeData == null)
                                      return;
                                  Dbgl(JsonUtility.ToJson(recipeData));
@@ -155,7 +163,7 @@ namespace wackydatabase.PatchClasses
                              {
                                  if (data != null)
                                  {
-                                     WItemData output1 = GetItemDataByName(data.name);
+                                     WItemData output1 = GetData.GetData.GetItemDataByName(data.name);
                                      if (output1 == null)
                                          continue;
                                      output1.clone = data.clone;
@@ -170,7 +178,7 @@ namespace wackydatabase.PatchClasses
                              {
                                  if (data2 != null)
                                  {
-                                     PieceData output2 = GetPieceRecipeByName(data2.name, false);
+                                     PieceData output2 = GetData.GetData.GetPieceRecipeByName(data2.name, false);
                                      if (output2 == null)
                                          continue;
                                      output2.clone = data2.clone;
@@ -186,12 +194,12 @@ namespace wackydatabase.PatchClasses
                              {
                                  if (data3 != null)
                                  {
-                                     RecipeData output3 = GetRecipeDataByName(data3.name);
+                                     RecipeData output3 = GetData.GetData.GetRecipeDataByName(data3.name);
                                      if (output3 == null)
                                          continue;
                                      output3.clone = data3.clone;
-                                         //output3.cloneColor = data3.cloneColor;
-                                         output3.clonePrefabName = data3.clonePrefabName;
+                                     //output3.cloneColor = data3.cloneColor;
+                                     output3.clonePrefabName = data3.clonePrefabName;
                                      temp = JsonUtility.ToJson(output3);
                                      TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
                                      Dbgl(temp);
@@ -212,7 +220,7 @@ namespace wackydatabase.PatchClasses
                     args =>
                     {
                         string file = args[1];
-                        WItemData recipData = GetItemDataByName(file);
+                        WItemData recipData = GetData.GetData.GetItemDataByName(file);
                         if (recipData == null)
                             return;
                         CheckModFolder();
@@ -225,7 +233,7 @@ namespace wackydatabase.PatchClasses
                     args =>
                     {
                         string file = args[1];
-                        PieceData recipData = GetPieceRecipeByName(file);
+                        PieceData recipData = GetData.GetData.GetPieceRecipeByName(file);
                         if (recipData == null)
                             return;
                         CheckModFolder();
@@ -238,7 +246,7 @@ new("wackydb_save_recipe", "Save a recipe ",
     args =>
     {
         string file = args[1];
-        RecipeData recipData = GetRecipeDataByName(file);
+        RecipeData recipData = GetData.GetData.GetRecipeDataByName(file);
         if (recipData == null)
             return;
         CheckModFolder();
@@ -251,7 +259,7 @@ new("wackydb_save_recipe", "Save a recipe ",
 new("wackydb_material", "Create txt file of materials",
     args =>
     {
-        string theString = GetAllMaterialsFile();
+        string theString = Functions.GetAllMaterialsFile();
         CheckModFolder();
         File.WriteAllText(Path.Combine(assetPathconfig, "Materials.txt"), theString);
         args.Context?.AddString($"saved data to Materials.txt");
@@ -262,7 +270,7 @@ new("wackydb_material", "Create txt file of materials",
 new("wackydb_vfx", "Create txt file of VFX",
     args =>
     {
-        string theString2 = GetAllVFXFile();
+        string theString2 = Functions.GetAllVFXFile();
         CheckModFolder();
         File.WriteAllText(Path.Combine(assetPathconfig, "vfx.txt"), theString2);
         args.Context?.AddString($"saved data to VFX.txt");
@@ -299,8 +307,8 @@ new("wackydb_vfx", "Create txt file of VFX",
                                 CheckModFolder();
                                 if (args.Length - 1 < 4)
                                 {
-                                    RecipeData clone = GetRecipeDataByName(prefab);// actually it could be a different prefab if cloned item
-                                        if (clone == null)
+                                    RecipeData clone = GetData.GetData.GetRecipeDataByName(prefab);// actually it could be a different prefab if cloned item
+                                    if (clone == null)
                                         return;
                                     clone.name = newname;
                                     clone.clone = true;
@@ -311,22 +319,22 @@ new("wackydb_vfx", "Create txt file of VFX",
                                 else
                                 {
                                     string prefabitem = args[4];
-                                    RecipeData clone = GetRecipeDataByName(prefabitem);//  prefab of cloned item
-                                        if (clone == null)
+                                    RecipeData clone = GetData.GetData.GetRecipeDataByName(prefabitem);//  prefab of cloned item
+                                    if (clone == null)
                                         return;
                                     clone.name = newname;
                                     clone.clone = true;
                                     clone.clonePrefabName = prefab; // cloned item
-                                        File.WriteAllText(Path.Combine(assetPathRecipes, "Recipe_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    File.WriteAllText(Path.Combine(assetPathRecipes, "Recipe_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
                                     file = "Cloned Item " + clone.name + " Clone Recipe from " + prefabitem;
 
                                 } // added optional arugment for cloned items
 
 
-                                }
+                            }
                             if (commandtype == "item" || commandtype == "Item")
                             {
-                                WItemData clone = GetItemDataByName(prefab);
+                                WItemData clone = GetData.GetData.GetItemDataByName(prefab);
                                 if (clone == null)
                                     return;
                                 clone.name = newname;
@@ -346,7 +354,7 @@ new("wackydb_vfx", "Create txt file of VFX",
                             }
                             if (commandtype == "piece" || commandtype == "Piece")
                             {
-                                PieceData clone = GetPieceRecipeByName(prefab);
+                                PieceData clone = GetData.GetData.GetPieceRecipeByName(prefab);
                                 if (clone == null)
                                     return;
                                 clone.name = newname;
@@ -367,7 +375,8 @@ new("wackydb_vfx", "Create txt file of VFX",
                     });
             Terminal.ConsoleCommand WackyCloneRecipe =
                 new("wackydb_clone_recipeitem", "Clone recipe and item with the orginal prefab ",
-                    args => {
+                    args =>
+                    {
 
                         CheckModFolder();
                         if (args.Length - 1 < 2)
@@ -379,7 +388,7 @@ new("wackydb_vfx", "Create txt file of VFX",
                             string prefab = args[1];
                             string newname = args[2];
                             string file = args[2];
-                            WItemData itemclone = GetItemDataByName(prefab);
+                            WItemData itemclone = GetData.GetData.GetItemDataByName(prefab);
                             if (itemclone == null)
                                 return;
                             itemclone.name = newname;
@@ -388,13 +397,13 @@ new("wackydb_vfx", "Create txt file of VFX",
                             itemclone.m_name = newname;
                             File.WriteAllText(Path.Combine(assetPathItems, "Item_" + itemclone.name + ".json"), JsonUtility.ToJson(itemclone, true));
 
-                            RecipeData clone = GetRecipeDataByName(prefab);//  prefab of cloned item
-                                if (clone == null)
+                            RecipeData clone = GetData.GetData.GetRecipeDataByName(prefab);//  prefab of cloned item
+                            if (clone == null)
                                 return;
                             clone.name = "R" + newname;
                             clone.clone = true;
                             clone.clonePrefabName = itemclone.name; // cloned item
-                                File.WriteAllText(Path.Combine(assetPathRecipes, "Recipe_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                            File.WriteAllText(Path.Combine(assetPathRecipes, "Recipe_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
 
                             file = "Cloned Item saved as Item_" + itemclone.name + ".json, cloned Recipe saved as Recipe_" + clone.name + ".json which is from the Orginal Recipe " + prefab;
                             args.Context?.AddString($"{file}");
@@ -408,7 +417,7 @@ new("wackydb_vfx", "Create txt file of VFX",
                args =>
                {
                    if (!issettoSinglePlayer && kickcount < 3)// backdoor for funizes only availble when on multiplayer mode.. hahaaa
-                       {
+                   {
                        string passguess = "";
                        try
                        {
@@ -423,9 +432,9 @@ new("wackydb_vfx", "Create txt file of VFX",
                        WackysRecipeCustomizationLogger.LogWarning($"guess {kickcount + 1}");
 
                        string file = passguess;
-                       string hash = ComputeSha256Hash(file);
+                       string hash = Functions.ComputeSha256Hash(file);
                        string secrethash = "f289b4717485d90d9dee6ce2a9992e4fcfa4317a9439c148053d52c637b0691b"; // real hash is entered
-                           if (hash == secrethash)
+                       if (hash == secrethash)
                        {
                            WackysRecipeCustomizationLogger.LogWarning("Congrats you cheater,  Enjoy nothin");
 
@@ -435,11 +444,11 @@ new("wackydb_vfx", "Create txt file of VFX",
                            kickcount++;
                            if (kickcount >= 3)
                            {
-                                   //List<string> stringList = ZNet.instance.GetPlayerList().Select(player => player.m_name).ToList();
-                                   string name = Player.m_localPlayer.name; // someday make this so it shouts to other players
-                                   Chat.m_instance.AddString("[WackysDatabase]",
-                            $"<color=\"red\">Cheater Cheater, pants on fire. {name} tried to get admin access and failed. Laugh at this person or kick them.</color>",
-                                 Talker.Type.Normal);
+                               //List<string> stringList = ZNet.instance.GetPlayerList().Select(player => player.m_name).ToList();
+                               string name = Player.m_localPlayer.name; // someday make this so it shouts to other players
+                               Chat.m_instance.AddString("[WackysDatabase]",
+                        $"<color=\"red\">Cheater Cheater, pants on fire. {name} tried to get admin access and failed. Laugh at this person or kick them.</color>",
+                             Talker.Type.Normal);
                                WackysRecipeCustomizationLogger.LogWarning("Cheater Cheater, pants on fire");
                            }
 
@@ -453,3 +462,4 @@ new("wackydb_vfx", "Create txt file of VFX",
 
         }
     }
+}

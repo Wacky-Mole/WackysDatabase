@@ -121,7 +121,6 @@
     <Compile Include="Utility\ItemManager.cs" />
     <Compile Include="Utility\ServerSync.cs" />
     <Compile Include="Utility\SpriteTools.cs" />
-    <Compile Include="Utility\VersionHandshake.cs" />
     <Compile Include="WackysDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

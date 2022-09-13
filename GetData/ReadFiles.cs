@@ -52,14 +52,14 @@ namespace wackydatabase.Startup
             }
         }
 
-        private static void GetRecipeDataFromFiles()
+        internal static void GetRecipeDataFromFiles()
         {
             if (Firstrun)
             {
                 CheckModFolder();
                 GetAllMaterials();
-                GetPieceStations();
-                GetPiecesatStart();
+                DataHelpers.GetPieceStations();
+                DataHelpers.GetPiecesatStart();
                 Firstrun = false;
             }
             recipeDatas.Clear();
@@ -109,4 +109,5 @@ namespace wackydatabase.Startup
                 }
             }
         }
+    }
 }

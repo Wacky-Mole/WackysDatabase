@@ -11,13 +11,15 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using wackydatabase.Datas;
+using BepInEx.Bootstrap;
+using System.Reflection;
 
 namespace wackydatabase.GetData
 {
     public class GetData : WMRecipeCust    {
-        private static RecipeData GetRecipeDataByName(string name)
+        internal static RecipeData GetRecipeDataByName(string name)
         {
-            GameObject go = CheckforSpecialObjects(name);// check for special cases
+            GameObject go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
             if (go == null)
                 go = ObjectDB.instance.GetItemPrefab(name);
 
@@ -93,17 +95,17 @@ namespace wackydatabase.GetData
             return data;
         }
 
-        private static PieceData GetPieceRecipeByName(string name, bool warn = true)
+        internal static PieceData GetPieceRecipeByName(string name, bool warn = true)
         {
             Piece piece = null;
             selectedPiecehammer = null; // makes sure doesn't use an old one. 
-            GameObject go = GetPieces().Find(g => Utils.GetPrefabName(g) == name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
+            GameObject go = DataHelpers.GetPieces().Find(g => Utils.GetPrefabName(g) == name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
             if (go == null)
             {
-                go = GetModdedPieces(name); // known modded Hammer search
+                go = DataHelpers.GetModdedPieces(name); // known modded Hammer search
                 if (go == null)
                 {
-                    go = CheckforSpecialObjects(name);// check for special cases
+                    go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
                     if (go == null) // 3th layer
                     {
                         Dbgl($"Piece {name} not found! 3 layer search");
@@ -161,7 +163,7 @@ namespace wackydatabase.GetData
             return data;
         }
 
-        private static WItemData GetItemDataByName(string name)
+        internal static WItemData GetItemDataByName(string name)
         {
             GameObject go = ObjectDB.instance.GetItemPrefab(name);
             if (go == null)
