@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.2.5
+Version 1.2.6
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -185,7 +185,8 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
 ## Changelog
-
+        Version 1.2.6
+            Allows the Server to apply configs to itself for cloned items that other mods count on. 
         Version 1.2.5
             Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates.
             Warning 1.2.4 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.

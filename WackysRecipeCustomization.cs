@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.2.5";
+        internal const string ModVersion = "1.2.6";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -292,7 +292,7 @@ namespace wackydatabase
                 ZNet Net = new ZNet();
                 IsLocalInstance(Net);
             }
-            if (reload && (issettoSinglePlayer || recieveServerInfo)) // single player only or recievedServerInfo
+            if (reload ) // single player only or recievedServerInfo
             {
                 if (recieveServerInfo && issettoSinglePlayer)
                 {
