@@ -14,7 +14,7 @@ using System.IO;
 
 namespace wackydatabase.Startup
 {
-    internal class Startupserver : WMRecipeCust
+    public class Startupserver : WMRecipeCust
     {
 
          public void GetRecipeDataFromFilesForServer()

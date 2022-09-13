@@ -52,17 +52,7 @@ namespace wackydatabase.Util
         }
 
 
-        public static void GetAllMaterials()
-        {
-            Material[] array = Resources.FindObjectsOfTypeAll<Material>();
-            originalMaterials = new Dictionary<string, Material>();
-            Material[] array2 = array;
-            foreach (Material val in array2)
-            {
-                // Dbgl($"Material {val.name}" );
-                originalMaterials[val.name] = val;
-            }
-        }
+
         public static string GetAllMaterialsFile()
         {
             string TheString = "";

@@ -3,11 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using wackydatabase.Datas;
+using wackydatabase.Util;
+using System.IO;
 
 namespace wackydatabase.Startup
 {
-    internal class Startupclient
+    public class ReadFiles
     {
+        public void SetupWatcher()
+        {
+            CheckModFolder();
+            FileSystemWatcher watcher = new(assetPathconfig); // jsons in config
+            watcher.Changed += ReadJsonValues;
+            watcher.Created += ReadJsonValues;
+            watcher.Renamed += ReadJsonValues;
+            watcher.IncludeSubdirectories = true;
+            watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private void ReadJsonValues(object sender, FileSystemEventArgs e)
+        {
+            if (!File.Exists(ConfigFileFullPath)) return;
+            try
+            {
+                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() || issettoSinglePlayer && isSettoAutoReload)
+                {  // should only load for the server now
+                    Dbgl("Jsons files have changed and access is either on a dedicated server or singleplayer with autoreload on therefore reloading everything");
+                    GetRecipeDataFromFiles(); // load stuff in mem
+                    skillConfigData.Value = jsonstring; //Sync Event // Single player forces client to reload as well. 
+                }
+            }
+            catch
+            {
+                //WackysRecipeCustomizationLogger.LogError($"There was an issue loading your Sync ");
+                if (issettoSinglePlayer)
+                    WackysRecipeCustomizationLogger.LogError("Please check your JSON entries for spelling and format!");
+                else
+                {
+                    WackysRecipeCustomizationLogger.LogDebug("Not checking Json Files because either in Main Screen or ....");
+                }
+            }
+        }
 
         private static void GetRecipeDataFromFiles()
         {

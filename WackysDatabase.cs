@@ -40,10 +40,16 @@ using wackydatabase.Datas;
 using Object = UnityEngine.Object;
 using wackydatabase.Startup;
 using wackydatabase.Util;
+using wackydatabase.SetData;
 
 
 namespace wackydatabase
 {
+    public static class Globals
+    {
+
+    }
+
     [BepInPlugin(ModGUID, ModName, ModVersion)]
     public class WMRecipeCust : BaseUnityPlugin
     {
@@ -100,12 +106,14 @@ namespace wackydatabase
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
 
+        Startupserver startupserver = new Startupserver();
+        ReadFiles readFiles = new ReadFiles();
+        Reload CurrentReload = new Reload();
+
         private enum NewDamageTypes
         {
             Water = 1024
         }
-
-
 
         private readonly Harmony _harmony = new(ModGUID);
 
@@ -116,6 +124,11 @@ namespace wackydatabase
         { DisplayName = ModName, MinimumRequiredVersion = "2.0.0" }; // it is very picky on version number
 
 
+        public static void Dbgl(string str = "", bool pref = true)
+        {
+            if (isDebug.Value)
+                Debug.Log((pref ? ModName + " " : "") + str);
+        }
 
         public void Awake() // start
         {
@@ -130,9 +143,11 @@ namespace wackydatabase
             // ending files
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
-            SetupWatcher(); // so if files change after startup it reloads recipes/ but doesn't input them.
-            startupserver startupserver = new startupserver();
-            startupserver.GetRecipeDataFromFilesForServer();
+
+            startupserver.GetRecipeDataFromFilesForServer(); // read jsons for server
+
+            readFiles.SetupWatcher(); // json watcher
+
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
 
 
@@ -178,17 +193,6 @@ namespace wackydatabase
             //need to unload cloned objects
         }
 
-        private void SetupWatcher()
-        {
-            CheckModFolder();
-            FileSystemWatcher watcher = new(assetPathconfig); // jsons in config
-            watcher.Changed += ReadJsonValues;
-            watcher.Created += ReadJsonValues;
-            watcher.Renamed += ReadJsonValues;
-            watcher.IncludeSubdirectories = true;
-            watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
-            watcher.EnableRaisingEvents = true;
-        }
 
         private void ReadConfigValues(object sender, FileSystemEventArgs e)
         {
@@ -199,29 +203,6 @@ namespace wackydatabase
             }
             catch { WackysRecipeCustomizationLogger.LogError($"There was an issue loading Config File "); }
 
-        }
-        private void ReadJsonValues(object sender, FileSystemEventArgs e)
-        {
-            if (!File.Exists(ConfigFileFullPath)) return;
-            try
-            {
-                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() || issettoSinglePlayer && isSettoAutoReload)
-                {  // should only load for the server now
-                    Dbgl("Jsons files have changed and access is either on a dedicated server or singleplayer with autoreload on therefore reloading everything");
-                    GetRecipeDataFromFiles(); // load stuff in mem
-                    skillConfigData.Value = jsonstring; //Sync Event // Single player forces client to reload as well. 
-                }
-            }
-            catch
-            {
-                //WackysRecipeCustomizationLogger.LogError($"There was an issue loading your Sync ");
-                if (issettoSinglePlayer)
-                    WackysRecipeCustomizationLogger.LogError("Please check your JSON entries for spelling and format!");
-                else
-                {
-                    WackysRecipeCustomizationLogger.LogDebug("Not checking Json Files because either in Main Screen or ....");
-                }
-            }
         }
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
@@ -253,8 +234,9 @@ namespace wackydatabase
             public bool? Browsable = false;
         }
 
-        private static Dictionary<string, Material> originalMaterials;
-        private static Dictionary<string, GameObject> originalVFX;
+        public static Dictionary<string, Material> originalMaterials;
+        public static Dictionary<string, GameObject> originalVFX;
+
         private void CustomSyncEventDetected()
         {
             if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
@@ -263,150 +245,8 @@ namespace wackydatabase
             }
             //  else
             {
-
-                if (Firstrun)
-                {
-                    GetAllMaterials();
-                    Firstrun = false;
-                    GetPieceStations();
-                    GetPiecesatStart();
-                    //LoadinMultiplayerFirst = true; // this is going to require some rewrite
-                    if (!isDebug.Value)
-                        WackysRecipeCustomizationLogger.LogWarning($"Debug String is off, which suprisingly makes it hard to debug");
-                }
-                if (NoMoreLoading)
-                {
-                    //startupSync++;
-                    recieveServerInfo = true;
-                    NoMoreLoading = false;
-                    Dbgl($" No More Loading was true");
-                    WackysRecipeCustomizationLogger.LogWarning("Warning any ServerFiles will see be On Your Local Games Until Restart! ");
-                }
-                else
-                {
-                    WackysRecipeCustomizationLogger.LogDebug("CustomSyncEventDetected was called ");
-                    Dbgl($" You did reload SERVER Files");
-                    Admin = ConfigSync.IsAdmin;
-                    if (Admin)
-                    {
-                        Dbgl($" You are an Admin");
-                    }
-                    else
-                    {
-                        Dbgl($" You are not an admin");
-                    }
-                    recipeDatas.Clear();
-                    ItemDatas.Clear();
-                    PieceDatas.Clear();
-                    armorDatas.Clear();
-                    pieceWithLvl.Clear(); // ready for new
-                    ObjectDB Instant = ObjectDB.instance;
-                    string SyncedString = skillConfigData.Value;
-                    if (SyncedString != null && SyncedString != "")
-                    {
-                        WackysRecipeCustomizationLogger.LogDebug("Synced String was  " + SyncedString);
-                        string[] jsons = SyncedString.Split('@');
-                        foreach (var word in jsons) // Should really do a first pass for clones?
-                        {
-                            if (word.Contains("m_weight")) //item
-                            {
-                                WItemData data2 = JsonUtility.FromJson<WItemData>(word);
-                                ItemDatas.Add(data2);
-                                ArmorData data3 = JsonUtility.FromJson<ArmorData>(word);
-                                armorDatas.Add(data3);
-                            }
-                            else if (word.Contains("piecehammer")) // only piece
-                            {
-                                PieceData data = JsonUtility.FromJson<PieceData>(word);
-                                PieceDatas.Add(data);
-                            }
-                            else // has to be recipes
-                            {
-                                RecipeData data = JsonUtility.FromJson<RecipeData>(word);
-                                recipeDatas.Add(data);
-                            }
-
-                            //WackysRecipeCustomizationLogger.LogDebug(word);
-                        }
-                        if(LoadinMultiplayerFirst)
-                        {
-                            LoadinMultiplayerFirst = false; // Only for first Load in on Multiplayer, Keeps Mutliplayer loading last 
-                            Dbgl($" Delaying Server Reloading Until very end");
-                            return;
-                        }
-
-                        // CLONE PASS FIRST - only for craftingStation
-
-                        foreach (var data3 in PieceDatas)
-                        {
-                            if (data3 != null && data3.clone)
-                            {
-                                try
-                                {
-                                    CraftingStation checkifStation = null;
-                                    GameObject go = FindPieceObjectName(data3.clonePrefabName);
-                                    string tempnam = null;
-                                    tempnam = go.GetComponent<CraftingStation>()?.m_name;
-                                    if (tempnam != null)
-                                    {
-                                        checkifStation = GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
-                                        if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
-                                        {
-                                            SetPieceRecipeData(data3, Instant);
-                                        }
-                                    }
-                                }
-                                catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Clone PASS for {data3.name} failed"); }
-                            }
-                        }
-                        // END CLONE PASS
-                        // Real PASS NOW
-                        foreach (var data2 in ItemDatas)
-                        {
-                            if (data2 != null)
-                            {
-                                try
-                                {
-                                    SetItemData(data2, Instant);
-                                }
-                                catch { WackysRecipeCustomizationLogger.LogWarning($"SetItem Data for {data2.name} failed"); }
-                            }
-                        }
-                        Instant.UpdateItemHashes();
-                        foreach (var data3 in PieceDatas)
-                        {
-                            if (data3 != null)
-                            {
-                                try
-                                {
-                                    SetPieceRecipeData(data3, Instant);
-                                }
-                                catch { WackysRecipeCustomizationLogger.LogWarning($"SetPiece Data for {data3.name} failed"); }
-
-                            }
-                        }
-                        foreach (var data in recipeDatas) // recipes last
-                        {
-
-                            if (data != null)
-                            {
-                                try
-                                {
-
-                                    SetRecipeData(data, Instant);
-                                }
-                                catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
-
-                            }
-                        }
-
-                        WackysRecipeCustomizationLogger.LogDebug("done with customSyncEvent");
-                    }
-                    else
-                    {
-                        WackysRecipeCustomizationLogger.LogDebug("Synced String was blank " + SyncedString);
-                    }
-                }
+                CurrentReload.SyncEventDetected();
+              
             }// end is not the server
         }
 
@@ -425,6 +265,18 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathItems);
                 Directory.CreateDirectory(assetPathPieces);
                 Directory.CreateDirectory(assetPathRecipes);
+            }
+        }
+
+        public static void GetAllMaterials()
+        {
+            Material[] array = Resources.FindObjectsOfTypeAll<Material>();
+            originalMaterials = new Dictionary<string, Material>();
+            Material[] array2 = array;
+            foreach (Material val in array2)
+            {
+                // Dbgl($"Material {val.name}" );
+                originalMaterials[val.name] = val;
             }
         }
     }
