@@ -11,10 +11,11 @@ using BepInEx.Logging;
 using wackydatabase.Datas;
 using wackydatabase.Util;
 using System.IO;
+using System.Collections;
 
 namespace wackydatabase.SetData
 {
-    public class Reload
+    public class Reload : WMRecipeCust
     {
         public void SyncEventDetected()
         {
@@ -161,6 +162,12 @@ namespace wackydatabase.SetData
                     WackysRecipeCustomizationLogger.LogDebug("Synced String was blank " + SyncedString);
                 }
             }
+        }
+        public static IEnumerator DelayedLoadRecipes()
+        {
+            yield return new WaitForSeconds(0.1f);
+            LoadAllRecipeData(true);
+            yield break;
         }
 
         public static void LoadAllRecipeData(bool reload)

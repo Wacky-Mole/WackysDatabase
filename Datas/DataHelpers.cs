@@ -13,7 +13,7 @@ using wackydatabase.Datas;
 
 namespace wackydatabase.Datas
 {
-    internal class DataHelpers
+    internal class DataHelpers : WMRecipeCust
     {
 
         private static CraftingStation GetCraftingStation(string name)

@@ -14,7 +14,7 @@ using System.IO;
 
 namespace wackydatabase.Startup
 {
-    public class ReadFiles
+    public class ReadFiles : WMRecipeCust
     {
         public void SetupWatcher()
         {

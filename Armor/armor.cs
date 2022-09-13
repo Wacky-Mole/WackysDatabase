@@ -10,10 +10,11 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using wackydatabase.Datas;
+using wackydatabase.PatchClasses;
 
 namespace wackydatabase.Armor
 {
-  public class ArmorHelpers 
+  public class ArmorHelpers : WMRecipeCust
     {
 
      private static bool ShouldOverride(HitData.DamageModifier a, HitData.DamageModifier b)
@@ -34,7 +35,7 @@ namespace wackydatabase.Armor
         }
     }
 
-    private static void CheckArmorData(ref ItemDrop.ItemData instance)
+    internal static void CheckArmorData(ref ItemDrop.ItemData instance)
     {
         try
         {

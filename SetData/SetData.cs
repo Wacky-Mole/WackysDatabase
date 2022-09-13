@@ -14,9 +14,9 @@ using wackydatabase.Datas;
 
 namespace wackydatabase.SetData
 {
-    public class SetData
+    public class SetData : WMRecipeCust
     {
-        private static Vector3 tempvalue;
+        
         private static void SetRecipeData(RecipeData data, ObjectDB Instant)
         {
             bool skip = false;

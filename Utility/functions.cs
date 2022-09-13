@@ -10,6 +10,9 @@ using UnityEngine.SceneManagement;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using System.Security.Cryptography;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace wackydatabase.Util
 {

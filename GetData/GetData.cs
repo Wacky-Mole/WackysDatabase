@@ -14,8 +14,7 @@ using wackydatabase.Datas;
 
 namespace wackydatabase.GetData
 {
-    public class GetData 
-    {
+    public class GetData : WMRecipeCust    {
         private static RecipeData GetRecipeDataByName(string name)
         {
             GameObject go = CheckforSpecialObjects(name);// check for special cases

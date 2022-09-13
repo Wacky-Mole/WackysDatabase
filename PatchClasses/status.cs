@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
-using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using System.IO;
 using System.Security.Cryptography;
@@ -13,17 +12,23 @@ using System.Security.Cryptography;
 
 using wackydatabase.Datas;
 using wackydatabase.Util;
-
+using System.Reflection.Emit;
+using System.Text.RegularExpressions;
+using wackydatabase.Armor;
 
 namespace wackydatabase.PatchClasses
 {
+    public enum NewDamageTypes
+    {
+        Water = 1024
+    }
 
-        [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
+    [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
         static class UpdateEnvStatusEffects_Patch
         {
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                Dbgl($"Transpiling UpdateEnvStatusEffects");
+            wackydatabase.WMRecipeCust.Dbgl($"Transpiling UpdateEnvStatusEffects");
 
                 var codes = new List<CodeInstruction>(instructions);
                 var outCodes = new List<CodeInstruction>();
@@ -32,7 +37,7 @@ namespace wackydatabase.PatchClasses
                 {
                     if (notFound && codes[i].opcode == OpCodes.Ldloc_S && codes[i + 1].opcode == OpCodes.Ldc_I4_1 && codes[i + 2].opcode == OpCodes.Beq && codes[i + 3].opcode == OpCodes.Ldloc_S && codes[i + 3].operand == codes[i].operand && codes[i + 4].opcode == OpCodes.Ldc_I4_5)
                     {
-                        Dbgl($"Adding frost immune and ignore");
+                    wackydatabase.WMRecipeCust.Dbgl($"Adding frost immune and ignore");
 
                         outCodes.Add(new CodeInstruction(codes[i]));
                         outCodes.Add(new CodeInstruction(OpCodes.Ldc_I4_3));
@@ -49,7 +54,7 @@ namespace wackydatabase.PatchClasses
             }
             static void Postfix(float dt, Player __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem, SEMan ___m_seman)
             {
-                if (!modEnabled.Value)
+                if (!wackydatabase.WMRecipeCust.modEnabled.Value)
                     return;
 
                 if (___m_seman.HaveStatusEffect("Wet"))
@@ -93,12 +98,12 @@ namespace wackydatabase.PatchClasses
         {
             static bool Prefix(SEMan __instance, StatusEffect statusEffect, Character ___m_character, ref StatusEffect __result)
             {
-                if (!modEnabled.Value || !___m_character.IsPlayer())
+                if (!wackydatabase.WMRecipeCust.modEnabled.Value || !___m_character.IsPlayer())
                     return true;
 
                 if (statusEffect.m_name == "$se_wet_name")
                 {
-                    var mod = GetNewDamageTypeMod(NewDamageTypes.Water, ___m_character);
+                    var mod = ArmorHelpers.GetNewDamageTypeMod(NewDamageTypes.Water, ___m_character);
                     if (mod == HitData.DamageModifier.Ignore || mod == HitData.DamageModifier.Immune)
                     {
                         __result = null;
@@ -117,9 +122,9 @@ namespace wackydatabase.PatchClasses
         {
             static void Postfix(ref ItemDrop __instance)
             {
-                if (!modEnabled.Value)
+                if (!wackydatabase.WMRecipeCust.modEnabled.Value)
                     return;
-                CheckArmorData(ref __instance.m_itemData);
+            ArmorHelpers.CheckArmorData(ref __instance.m_itemData);
             }
         }
         [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]
@@ -127,7 +132,7 @@ namespace wackydatabase.PatchClasses
         {
             static void Postfix(ref string __result, List<HitData.DamageModPair> mods)
             {
-                if (!modEnabled.Value)
+                if (!wackydatabase.WMRecipeCust.modEnabled.Value)
                     return;
 
                 __result = Regex.Replace(__result, @"\n.*<color=orange></color>", "");
@@ -158,7 +163,7 @@ namespace wackydatabase.PatchClasses
                         }
                         if ((int)damageModPair.m_type == (int)NewDamageTypes.Water)
                         {
-                            __result += "<color=orange>" + WaterName.Value + "</color>";
+                            __result += "<color=orange>" + wackydatabase.WMRecipeCust.WaterName.Value + "</color>";
                         }
                     }
                 }

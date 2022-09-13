@@ -87,33 +87,38 @@ namespace wackydatabase
         public static List<string> ClonedI = new List<string>();
         public static List<string> ClonedP = new List<string>();
         public static List<string> ClonedR = new List<string>();
+
         internal static string assetPath;
         internal static string assetPathconfig;
         internal static string assetPathItems;
         internal static string assetPathRecipes;
         internal static string assetPathPieces;
         internal static string jsonstring;
+
         internal static bool Admin = true; // for single player, sets to false for multiplayer on connect
-        internal static List<string> pieceWithLvl = new List<string>();
+        public static List<string> pieceWithLvl = new List<string>();
+
         //bool admin = !ConfigSync.IsLocked;
         // bool admin2 = ConfigSync.IsAdmin;
+
         internal static GameObject Root;
-        internal static bool Firstrun = true;
-        internal static PieceTable selectedPiecehammer;
+        public static bool Firstrun = true;
+        public static PieceTable selectedPiecehammer;
         //private static List<string> piecemods = new List<string>();
-        internal static PieceTable[] MaybePieceStations;
-        internal static Dictionary<GameObject, GameObject> AdminPiecesOnly;
+        public static PieceTable[] MaybePieceStations;
+        public static Dictionary<GameObject, GameObject> AdminPiecesOnly;
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
+
+
+        public static Dictionary<string, Material> originalMaterials;
+        public static Dictionary<string, GameObject> originalVFX;
 
         Startupserver startupserver = new Startupserver();
         ReadFiles readFiles = new ReadFiles();
         Reload CurrentReload = new Reload();
 
-        private enum NewDamageTypes
-        {
-            Water = 1024
-        }
+
 
         private readonly Harmony _harmony = new(ModGUID);
 
@@ -234,8 +239,6 @@ namespace wackydatabase
             public bool? Browsable = false;
         }
 
-        public static Dictionary<string, Material> originalMaterials;
-        public static Dictionary<string, GameObject> originalVFX;
 
         private void CustomSyncEventDetected()
         {

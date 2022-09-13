@@ -13,20 +13,24 @@ using System.Security.Cryptography;
 
 using wackydatabase.Datas;
 using wackydatabase.Util;
+using wackydatabase.GetData;
+
 
 namespace wackydatabase.PatchClasses
 {
 
 
     [HarmonyPatch(typeof(Player), "PlacePiece")]
-     static class Player_MessageforPortal_Patch
+     static class Player_MessageforPortal_Patch 
     {
+        private static Vector3 tempvalue;
+
         [HarmonyPrefix]
         private static bool Prefix(ref Player __instance, ref Piece piece)
 
-        {
+        { 
             if (piece == null) return true;
-            foreach (var item in pieceWithLvl)
+            foreach (var item in wackydatabase.WMRecipeCust.pieceWithLvl)
             {
                 var stringwithnumber = item.Split('.');
                 var PiecetoLookFor = stringwithnumber[0];
@@ -66,26 +70,21 @@ namespace wackydatabase.PatchClasses
     {
         static void Postfix()
         {
-            if (!modEnabled.Value)
+            if (!wackydatabase.WMRecipeCust.modEnabled.Value)
                 return;
             context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
                                                          //LoadAllRecipeData(true);
         }
     }
-    public static IEnumerator DelayedLoadRecipes()
-    {
-        yield return new WaitForSeconds(0.1f);
-        LoadAllRecipeData(true);
-        yield break;
-    }
+
 
     [HarmonyPatch(typeof(ZNet), "Shutdown")]
      class PatchZNetDisconnect
     {
         private static bool Prefix()
         {
-            WackysRecipeCustomizationLogger.LogWarning("Logoff? So reset - character will look empty if using clone gear");
-            if (issettoSinglePlayer)
+            wackydatabase.WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("Logoff? So reset - character will look empty if using clone gear");
+            if (wackydatabase.WMRecipeCust.issettoSinglePlayer)
             {
                 DestoryClones();
 
@@ -94,7 +93,7 @@ namespace wackydatabase.PatchClasses
             {
                 DestoryClones();
             }
-            NoMoreLoading = true;
+            wackydatabase.WMRecipeCust.NoMoreLoading = true;
             return true;
         }
     }
@@ -104,8 +103,8 @@ namespace wackydatabase.PatchClasses
     {
         private static void Postfix()
         { // The Server send once last config sync before destory, but after Shutdown which messes stuff up. 
-            recieveServerInfo = false;
-            NoMoreLoading = false;
+            wackydatabase.WMRecipeCust.recieveServerInfo = false;
+            wackydatabase.WMRecipeCust.NoMoreLoading = false;
         }
     }
 }
