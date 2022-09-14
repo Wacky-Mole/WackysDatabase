@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace wackydatabase.Datas
 {
 	[Serializable]
-	public class WItemData
+	public class WItemData_json
 	{
 
 		public string name;
@@ -112,16 +112,10 @@ namespace wackydatabase.Datas
 
 
 	}
-		public class Attack
-        {
-			public float m_attackStamina;
-
-		}
-
 
 	[Serializable]
-	public class ArmorData { 
-	
+	public class ArmorData_json
+	{
 		public string name;
 
 		public float armor;
@@ -131,42 +125,5 @@ namespace wackydatabase.Datas
 		public List<string> damageModifiers = new List<string>();
 	}
 
-	[Serializable]
-	public class WDamages // can't get the inhertance in json to sterilize
-	{
-		public float m_blunt;
-
-		public float m_chop;
-
-		public float m_damage;
-
-		public float m_fire;
-
-		public float m_frost;
-
-		public float m_lightning;
-
-		public float m_pickaxe;
-
-		public float m_pierce;
-
-		public float m_poison;
-
-		public float m_slash;
-
-		public float m_spirit;
-	}
-
-
-
-
-	[Serializable]
-	public class WIngredients
-	{
-		public string id;
-		public int amount;
-		public int amountPerLevel;
-
-	}
 
 }

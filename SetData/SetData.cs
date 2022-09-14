@@ -19,7 +19,7 @@ namespace wackydatabase.SetData
     public class SetData 
     {
         
-        internal static void SetRecipeData(RecipeData data, ObjectDB Instant)
+        internal static void SetRecipeData(RecipeData_json data, ObjectDB Instant)
         {
             bool skip = false;
             foreach (string citem in WMRecipeCust.ClonedR)
@@ -223,7 +223,7 @@ namespace wackydatabase.SetData
             }
         }
 
-        internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant)
+        internal static void SetPieceRecipeData(PieceData_json data, ObjectDB Instant)
         {
             bool skip = false;
             foreach (var citem in WMRecipeCust.ClonedP)
@@ -326,7 +326,7 @@ namespace wackydatabase.SetData
                             }
                         }
                     }
-                    catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                    catch { WLog.LogWarning("Material was not found or was not set correctly"); }
                 }
                 */ //Set  later
 
@@ -440,7 +440,7 @@ namespace wackydatabase.SetData
                         }
                     }
                 }
-                catch { WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
             }
             CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
             go.GetComponent<Piece>().m_craftingStation = craft;
@@ -614,7 +614,7 @@ namespace wackydatabase.SetData
         public static Component[] renderfinder;
         internal static Renderer[] renderfinder2;
 
-        internal static void SetItemData(WItemData data, ObjectDB Instant)
+        internal static void SetItemData(WItemData_json data, ObjectDB Instant)
         {
             // Dbgl("Loaded SetItemData!");
             bool skip = false;
@@ -671,7 +671,7 @@ namespace wackydatabase.SetData
                         {
                             string name = newItem.name;
                             if (znet.m_namedPrefabs.ContainsKey(hash))
-                                WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning($"Prefab {name} already in ZNetScene");
+                                WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
                             else
                             {
                                 if (newItem.GetComponent<ZNetView>() != null)
@@ -732,7 +732,7 @@ namespace wackydatabase.SetData
                                     }
                                 }
                             }
-                            catch { WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                            catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
                         }
 
                         PrimaryItemData = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff

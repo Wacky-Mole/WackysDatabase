@@ -54,31 +54,49 @@ namespace wackydatabase
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
         internal static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
+        internal static WMRecipeCust context;
+        private readonly Harmony _harmony = new(ModGUID);
+        public static readonly ManualLogSource WLog =
+            BepInEx.Logging.Logger.CreateLogSource(ModName);
+
+        internal static readonly ConfigSync ConfigSync = new(ModGUID)
+        { DisplayName = ModName, MinimumRequiredVersion = "2.0.0" }; // it is very picky on version number
+
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isautoreload;
         public static ConfigEntry<bool> isDebugString;
         public static ConfigEntry<string> WaterName;
+        public static ConfigEntry<float> globalArmorDurabilityLossMult;
+        public static ConfigEntry<float> globalArmorMovementModMult;
+        public static ConfigEntry<string> waterModifierName;
+        internal static ConfigEntry<bool>? _serverConfigLocked;
+        internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
+
         internal static bool issettoSinglePlayer = false;
-        internal static bool isSettoAutoReload;
+        internal static bool isSettoAutoReload = false;
         internal static bool isSetStringisDebug = false;
         internal static bool recieveServerInfo = false;
         internal static bool isDedServer = false;
         internal static bool NoMoreLoading = false; // for shutdown from Server
         internal static bool LoadinMultiplayerFirst = false; // forces multiplayer sync to wait for first time
         internal static string ConnectionError = "";
-        internal static WMRecipeCust context;
-        internal static int kickcount = 0;
+        internal static bool Firstrun = true;
+        internal static bool AwakeHasRun = false;
 
-        public static ConfigEntry<float> globalArmorDurabilityLossMult;
-        public static ConfigEntry<float> globalArmorMovementModMult;
-        public static ConfigEntry<string> waterModifierName;
 
-        public static List<RecipeData> recipeDatas = new List<RecipeData>();
-        public static List<WItemData> ItemDatas = new List<WItemData>();
-        public static List<PieceData> PieceDatas = new List<PieceData>();
-        public static List<ArmorData> armorDatas = new List<ArmorData>();// load with others
+        public static List<RecipeData_json> recipeDatas = new List<RecipeData_json>();
+        public static List<WItemData_json> ItemDatas = new List<WItemData_json>();
+        public static List<PieceData_json> PieceDatas = new List<PieceData_json>();
+        public static List<ArmorData_json> armorDatas = new List<ArmorData_json>();
+ 
+        public static List<RecipeData> recipeDatasYml = new List<RecipeData>();
+        public static List<WItemData> itemDatasYml = new List<WItemData>();
+        public static List<PieceData> pieceDatasYml = new List<PieceData>();
+        public static List<ArmorData> armorDatasYml = new List<ArmorData>();
+       
+
         public static List<string> ClonedI = new List<string>();
         public static List<string> ClonedP = new List<string>();
         public static List<string> ClonedR = new List<string>();
@@ -88,7 +106,11 @@ namespace wackydatabase
         internal static string assetPathItems;
         internal static string assetPathRecipes;
         internal static string assetPathPieces;
+        internal static string assetPathOldJsons;
+        internal static string assetPathBulkYML;
         internal static string jsonstring;
+        internal static string ymlstring;
+        internal static char StringSeparator = '@';
 
         internal static bool Admin = true; // for single player, sets to false for multiplayer on connect
         public static List<string> pieceWithLvl = new List<string>();
@@ -97,15 +119,12 @@ namespace wackydatabase
         // bool admin2 = ConfigSync.IsAdmin;
 
         internal static GameObject Root;
-        public static bool Firstrun = true;
         public static PieceTable selectedPiecehammer;
         //private static List<string> piecemods = new List<string>();
         public static PieceTable[] MaybePieceStations;
         public static Dictionary<GameObject, GameObject> AdminPiecesOnly;
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
-
-
         public static Dictionary<string, Material> originalMaterials;
         public static Dictionary<string, GameObject> originalVFX;
 
@@ -113,22 +132,10 @@ namespace wackydatabase
         ReadFiles readFiles = new ReadFiles();
         public SetData.Reload CurrentReload = new Reload();
 
+        internal static int kickcount = 0;
+        internal static bool jsonsFound = false;
 
 
-        private readonly Harmony _harmony = new(ModGUID);
-
-        public static readonly ManualLogSource WackysRecipeCustomizationLogger =
-            BepInEx.Logging.Logger.CreateLogSource(ModName);
-
-        internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.0.0" }; // it is very picky on version number
-
-
-        public static void Dbgl(string str = "", bool pref = true)
-        {
-            if (isDebug.Value)
-                Debug.Log((pref ? ModName + " " : "") + str);
-        }
 
         public void Awake() // start
         {
@@ -138,25 +145,36 @@ namespace wackydatabase
             assetPathItems = Path.Combine(assetPathconfig, "Items");
             assetPathRecipes = Path.Combine(assetPathconfig, "Recipes");
             assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
+            assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabaseOldJsons");
+            assetPathBulkYML = Path.Combine(assetPathconfig, "BulkYMLGet");
             // testme(); // function for testing things
 
             // ending files
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
 
-            startupserver.GetRecipeDataFromFilesForServer(); // read jsons for server
+            startupserver.CheckForJsons(); // read jsons for server
+            if (jsonsFound)
+            {
+                startupserver.BeginConvertingJsons();
+            }
+            readFiles.GetDataFromFiles(); // YML get
+            AwakeHasRun = true;
+            skillConfigData.Value = ymlstring; // Shouldn't matter - maybe...
 
-            readFiles.SetupWatcher(); // json watcher
+            readFiles.SetupWatcher(); // json watcher no json watcher now
 
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
 
-
-
+        }
+        public static void Dbgl(string str = "", bool pref = true)
+        {
+            if (isDebug.Value)
+                Debug.Log((pref ? ModName + " " : "") + str);
         }
 
 
-        internal static ConfigEntry<bool>? _serverConfigLocked;
-        internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
+        
 
         private void StartupConfig()
         {
@@ -180,7 +198,7 @@ namespace wackydatabase
             if (isDebugString.Value)
                 isSetStringisDebug = true;
 
-            WackysRecipeCustomizationLogger.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
+            WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
             if (isautoreload.Value)
                 isSettoAutoReload = true;
             else isSettoAutoReload = false;
@@ -189,7 +207,7 @@ namespace wackydatabase
         private void OnDestroy()
         {
             Config.Save();
-            WackysRecipeCustomizationLogger.LogWarning("Calling the Destoryer of Worlds -End Game");
+            WLog.LogWarning("Calling the Destoryer of Worlds -End Game");
             //need to unload cloned objects
         }
 
@@ -201,7 +219,7 @@ namespace wackydatabase
             {
                 Config.Reload();
             }
-            catch { WackysRecipeCustomizationLogger.LogError($"There was an issue loading Config File "); }
+            catch { WLog.LogError($"There was an issue loading Config File "); }
 
         }
 
@@ -256,6 +274,10 @@ namespace wackydatabase
             yield return new WaitForSeconds(0.1f);
             // CurrentReload.
             SetData.Reload josh = new SetData.Reload();
+            ReadFiles readnow = new ReadFiles();
+
+            //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
+
             josh.LoadAllRecipeData(true);
             yield break;
         }
@@ -278,8 +300,8 @@ namespace wackydatabase
         {
             if (Directory.Exists(assetPath) && !Directory.Exists(assetPathconfig))
             {
-                WackysRecipeCustomizationLogger.LogWarning("Creating Config Mod folder and Moving Old WackysDatafolder to configs");
-                try { Directory.Move(assetPath, assetPathconfig); } catch { WackysRecipeCustomizationLogger.LogWarning("Error caught,but should have moved wackyDatabase folder correctly though"); }
+                WLog.LogWarning("Creating Config Mod folder and Moving Old WackysDatafolder to configs");
+                try { Directory.Move(assetPath, assetPathconfig); } catch { WLog.LogWarning("Error caught,but should have moved wackyDatabase folder correctly though"); }
             }
             if (!Directory.Exists(assetPathconfig))
             {

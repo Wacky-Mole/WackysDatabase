@@ -76,7 +76,7 @@ namespace wackydatabase.PatchClasses
     {
         private static bool Prefix()
         {
-            wackydatabase.WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("Logoff? So reset - character will look empty if using clone gear");
+            wackydatabase.WMRecipeCust.WLog.LogWarning("Logoff? So reset - character will look empty if using clone gear");
             if (wackydatabase.WMRecipeCust.issettoSinglePlayer)
             {
                 Closing.DestoryClones();

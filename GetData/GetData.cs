@@ -17,7 +17,7 @@ using System.Reflection;
 namespace wackydatabase.GetData
 {
     public class GetData     {
-        internal static RecipeData GetRecipeDataByName(string name)
+        internal static RecipeData_json GetRecipeDataByName(string name)
         {
             GameObject go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
             if (go == null)
@@ -30,7 +30,7 @@ namespace wackydatabase.GetData
                     if (!(recipes.m_item == null) && recipes.name == name)
                     {
                         WMRecipeCust.Dbgl($"An actual Recipe_ {name} has been found!-- Only Modification - No Cloning");
-                        var data2 = new RecipeData()
+                        var data2 = new RecipeData_json()
                         {
                             name = name,
                             amount = recipes.m_amount,
@@ -80,7 +80,7 @@ namespace wackydatabase.GetData
                 }
             }
 
-            var data = new RecipeData()
+            var data = new RecipeData_json()
             {
                 name = name,
                 amount = recipe.m_amount,
@@ -95,7 +95,7 @@ namespace wackydatabase.GetData
             return data;
         }
 
-        internal static PieceData GetPieceRecipeByName(string name, bool warn = true)
+        internal static PieceData_json GetPieceRecipeByName(string name, bool warn = true)
         {
             Piece piece = null;
             WMRecipeCust.selectedPiecehammer = null; // makes sure doesn't use an old one. 
@@ -143,7 +143,7 @@ namespace wackydatabase.GetData
             wackyname = piece.m_name;
             string wackycatSring = piece.m_category.ToString();
 
-            var data = new PieceData()
+            var data = new PieceData_json()
             {
                 name = name,
                 amount = 1,
@@ -163,7 +163,7 @@ namespace wackydatabase.GetData
             return data;
         }
 
-        internal static WItemData GetItemDataByName(string name)
+        internal static WItemData_json GetItemDataByName(string name)
         {
             GameObject go = ObjectDB.instance.GetItemPrefab(name);
             if (go == null)
@@ -254,7 +254,7 @@ namespace wackydatabase.GetData
                 data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
             }*/
 
-            WItemData jItemData = new WItemData
+            WItemData_json jItemData = new WItemData_json
             {
 
                 name = name,

@@ -68,6 +68,10 @@
     <Reference Include="BepInEx, Version=5.4.17.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="ItemManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\MagicPortalFluid\MagicPortalFluid\Libs\ItemManager.dll</HintPath>
+    </Reference>
     <Reference Include="PieceManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\PieceManager.dll</HintPath>
@@ -102,6 +106,9 @@
   <ItemGroup>
     <Compile Include="Armor\armor.cs" />
     <Compile Include="Datas\DataHelpers.cs" />
+    <Compile Include="Datas\ItemData.cs" />
+    <Compile Include="Datas\PieceData.cs" />
+    <Compile Include="Datas\RecipeData.cs" />
     <Compile Include="GetData\GetData.cs" />
     <Compile Include="PatchClasses\basicpatches.cs" />
     <Compile Include="PatchClasses\console.cs" />
@@ -114,11 +121,10 @@
     <Compile Include="Startup\startupserver.cs" />
     <Compile Include="Utility\color.cs" />
     <Compile Include="Utility\ConfigurationManagerAttributes.cs" />
-    <Compile Include="Datas\ItemData.cs" />
-    <Compile Include="Datas\PieceData.cs" />
-    <Compile Include="Datas\RecipeData.cs" />
+    <Compile Include="Datas\DatasOld\ItemData_json.cs" />
+    <Compile Include="Datas\DatasOld\PieceData_json.cs" />
+    <Compile Include="Datas\DatasOld\RecipeData_json.cs" />
     <Compile Include="Utility\functions.cs" />
-    <Compile Include="Utility\ItemManager.cs" />
     <Compile Include="Utility\ServerSync.cs" />
     <Compile Include="Utility\SpriteTools.cs" />
     <Compile Include="WackysDatabase.cs" />
@@ -127,6 +133,9 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="ILRepack.targets" />
+    <Content Include="Libs\ItemManager.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Libs\PieceManager.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

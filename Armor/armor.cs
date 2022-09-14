@@ -55,7 +55,7 @@ namespace wackydatabase.Armor
         }
     }
 
-  internal static void SetArmorData(ref ItemDrop.ItemData item, ArmorData armor)
+  internal static void SetArmorData(ref ItemDrop.ItemData item, ArmorData_json armor) // jsons -- this might not be need anymore just Use WitemDatas
     {
         //item.m_shared.m_armor = armor.armor;
         //item.m_shared.m_armorPerLevel = armor.armorPerLevel;

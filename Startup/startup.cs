@@ -24,7 +24,7 @@ namespace wackydatabase.Startup
             {
                 WMRecipeCust.issettoSinglePlayer = true;
                 WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + WMRecipeCust.ConfigSync.CurrentVersion);
+                WMRecipeCust.WLog.LogWarning("You Will be kicked from Multiplayer Servers! " + WMRecipeCust.ConfigSync.CurrentVersion);
             }
             return WMRecipeCust.issettoSinglePlayer;
         }
