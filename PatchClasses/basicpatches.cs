@@ -67,23 +67,7 @@ namespace wackydatabase.PatchClasses
         }
 
     }
-    [HarmonyPatch(typeof(ZNetScene), "Awake")]
-    [HarmonyPriority(Priority.Last)]
-         class ZNetScene_Awake_Patch_WackysDatabase
-    {
-         void Postfix()
-        {
-            if (!wackydatabase.WMRecipeCust.modEnabled.Value)
-                return;
-            //StartCoroutine(CurrentReload.DelayedLoadRecipes());// very importrant for last sec load
-            //LoadAllRecipeData(true);
 
-            
-            //public Reload CurrentReload = new Reload();
-                 // Reload.DelayedLoadRecipes();
-
-    }
-    }
 
 
 

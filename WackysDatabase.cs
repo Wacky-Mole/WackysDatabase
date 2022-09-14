@@ -45,7 +45,6 @@ using wackydatabase.SetData;
 
 namespace wackydatabase
 {
-
     [BepInPlugin(ModGUID, ModName, ModVersion)]
     public class WMRecipeCust : BaseUnityPlugin
     {
@@ -235,6 +234,23 @@ namespace wackydatabase
             public bool? Browsable = false;
         }
 
+        [HarmonyPatch(typeof(ZNetScene), "Awake")]
+        [HarmonyPriority(Priority.Last)]
+        class ZNetScene_Awake_Patch_WackysDatabase
+        {
+            static void Postfix()
+            {
+                if (!WMRecipeCust.modEnabled.Value)
+                    return;
+                context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
+                                                                               //LoadAllRecipeData(true);
+
+
+                //public Reload CurrentReload = new Reload();
+                // Reload.DelayedLoadRecipes();
+
+            }
+        }
         public static IEnumerator DelayedLoadRecipes()
         {
             yield return new WaitForSeconds(0.1f);

@@ -13,7 +13,7 @@ using wackydatabase.Datas;
 
 namespace wackydatabase.Startup
 {
-    internal class Closing : WMRecipeCust
+    internal class Closing 
     {
 
         internal static void DestoryClones()
@@ -23,7 +23,7 @@ namespace wackydatabase.Startup
             var delObj = ObjectDB.instance;
             GameObject piecehammer = null;
 
-            foreach (var citem in ClonedR) // just ignore ClonedR just index
+            foreach (var citem in WMRecipeCust.ClonedR) // just ignore ClonedR just index
             {
                 try
                 {
@@ -37,10 +37,10 @@ namespace wackydatabase.Startup
                     }
 
                 }
-                catch { Dbgl($"Error Disabling recipe {citem}"); }
+                catch { WMRecipeCust.Dbgl($"Error Disabling recipe {citem}"); }
             }
 
-            foreach (var citem in ClonedI)
+            foreach (var citem in WMRecipeCust.ClonedI)
             {
                 try
                 {
@@ -53,13 +53,13 @@ namespace wackydatabase.Startup
                     znet.m_namedPrefabs.Remove(hash);
                     GameObject.Destroy(go);
                 }
-                catch { Dbgl($"Error Destorying item {citem}"); }
+                catch { WMRecipeCust.Dbgl($"Error Destorying item {citem}"); }
 
             }
-            foreach (var citem in ClonedP)
+            foreach (var citem in WMRecipeCust.ClonedP)
             {
                 piecehammer = null;
-                selectedPiecehammer = null;
+                WMRecipeCust.selectedPiecehammer = null;
                 try
                 {
                     //go = FindPieceObjectName(citem);
@@ -70,8 +70,8 @@ namespace wackydatabase.Startup
                         piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
                     }
 
-                    if (selectedPiecehammer != null)
-                        selectedPiecehammer.m_pieces.Remove(go);
+                    if (WMRecipeCust.selectedPiecehammer != null)
+                        WMRecipeCust.selectedPiecehammer.m_pieces.Remove(go);
                     else piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
 
                     znet.m_prefabs.Remove(go);
@@ -80,14 +80,14 @@ namespace wackydatabase.Startup
                     //GameObject.Destroy (go); craftingStations get Destoryed TAG
 
                 }
-                catch { Dbgl($"Error Destorying piece {citem}"); }
+                catch { WMRecipeCust.Dbgl($"Error Destorying piece {citem}"); }
             }
-            ClonedI.Clear();
-            ClonedR.Clear();
-            ClonedP.Clear();
+            WMRecipeCust.ClonedI.Clear();
+            WMRecipeCust.ClonedR.Clear();
+            WMRecipeCust.ClonedP.Clear();
             ObjectDB.instance.UpdateItemHashes();
 
-            Dbgl("All cloned Objects destoryed");
+            WMRecipeCust.Dbgl("All cloned Objects destoryed");
         }
     }
 }

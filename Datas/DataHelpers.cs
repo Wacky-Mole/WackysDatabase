@@ -13,7 +13,7 @@ using wackydatabase.Datas;
 
 namespace wackydatabase.Datas
 {
-    public class DataHelpers : WMRecipeCust
+    public class DataHelpers 
     {
 
         public static CraftingStation GetCraftingStation(string name)
@@ -56,7 +56,7 @@ namespace wackydatabase.Datas
             catch { }
 
             // new craftingstatinos created keeping list
-            foreach (CraftingStation station in NewCraftingStations)
+            foreach (CraftingStation station in WMRecipeCust.NewCraftingStations)
             {
                 if (station.name == name)
                     return station;
@@ -103,14 +103,14 @@ namespace wackydatabase.Datas
         }
         public static GameObject GetModdedPieces(string name)
         {
-            selectedPiecehammer = null;
+            WMRecipeCust.selectedPiecehammer = null;
             GameObject Searchingfor = null;
-            foreach (PieceTable Station in MaybePieceStations) // look for known modded hammers, Forget the indivual item, now just PieceTable
+            foreach (PieceTable Station in WMRecipeCust.MaybePieceStations) // look for known modded hammers, Forget the indivual item, now just PieceTable
             {
                 Searchingfor = Station.m_pieces.Find(g => Utils.GetPrefabName(g) == name);
                 if (Searchingfor != null)
                 {
-                    selectedPiecehammer = Station;
+                    WMRecipeCust.selectedPiecehammer = Station;
                     return (Searchingfor);
                 }
             }
@@ -133,7 +133,7 @@ namespace wackydatabase.Datas
 
         public static void GetPieceStations()
         {
-            MaybePieceStations = Resources.FindObjectsOfTypeAll<PieceTable>(); // so easy
+            WMRecipeCust.MaybePieceStations = Resources.FindObjectsOfTypeAll<PieceTable>(); // so easy
         }
         public static void GetPiecesatStart()
         {

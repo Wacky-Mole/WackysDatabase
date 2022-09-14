@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace wackydatabase.Startup
 {
-    internal class Startup : WMRecipeCust
+    internal class Startup 
     {
         public static bool SinglePlayerchecker
         {
-            get { return issettoSinglePlayer; }
+            get { return WMRecipeCust.issettoSinglePlayer; }
             set
             {
-                issettoSinglePlayer = true;
+                WMRecipeCust.issettoSinglePlayer = true;
                 return;
             }
         }
@@ -21,11 +22,11 @@ namespace wackydatabase.Startup
         {
             if (znet.IsServer() && !znet.IsDedicated())
             {
-                issettoSinglePlayer = true;
-                ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + ConfigSync.CurrentVersion);
+                WMRecipeCust.issettoSinglePlayer = true;
+                WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+                WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + WMRecipeCust.ConfigSync.CurrentVersion);
             }
-            return issettoSinglePlayer;
+            return WMRecipeCust.issettoSinglePlayer;
         }
 
 

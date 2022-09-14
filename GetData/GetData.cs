@@ -16,7 +16,7 @@ using System.Reflection;
 
 namespace wackydatabase.GetData
 {
-    public class GetData : WMRecipeCust    {
+    public class GetData     {
         internal static RecipeData GetRecipeDataByName(string name)
         {
             GameObject go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
@@ -29,7 +29,7 @@ namespace wackydatabase.GetData
                 {
                     if (!(recipes.m_item == null) && recipes.name == name)
                     {
-                        Dbgl($"An actual Recipe_ {name} has been found!-- Only Modification - No Cloning");
+                        WMRecipeCust.Dbgl($"An actual Recipe_ {name} has been found!-- Only Modification - No Cloning");
                         var data2 = new RecipeData()
                         {
                             name = name,
@@ -49,14 +49,14 @@ namespace wackydatabase.GetData
 
             if (go == null)
             {
-                Dbgl($"Recipe {name} not found!");
+                WMRecipeCust.Dbgl($"Recipe {name} not found!");
                 return null; //GetPieceRecipeByName(name);
             }
 
             ItemDrop.ItemData item = go.GetComponent<ItemDrop>().m_itemData;
             if (item == null)
             {
-                Dbgl("Item data not found!");
+                WMRecipeCust.Dbgl("Item data not found!");
                 return null;
             }
             Recipe recipe = ObjectDB.instance.GetRecipe(item);
@@ -69,13 +69,13 @@ namespace wackydatabase.GetData
                     if (cr != null)
                     {
                         recipe = (Recipe)AccessTools.Property(cr.GetType(), "Recipe").GetValue(cr);
-                        Dbgl($"Jotunn recipe: {item.m_shared.m_name} {recipe != null}");
+                        WMRecipeCust.Dbgl($"Jotunn recipe: {item.m_shared.m_name} {recipe != null}");
                     }
                 }
 
                 if (!recipe)
                 {
-                    Dbgl($"Recipe not found for item {item.m_shared.m_name}!");
+                    WMRecipeCust.Dbgl($"Recipe not found for item {item.m_shared.m_name}!");
                     return null;
                 }
             }
@@ -98,7 +98,7 @@ namespace wackydatabase.GetData
         internal static PieceData GetPieceRecipeByName(string name, bool warn = true)
         {
             Piece piece = null;
-            selectedPiecehammer = null; // makes sure doesn't use an old one. 
+            WMRecipeCust.selectedPiecehammer = null; // makes sure doesn't use an old one. 
             GameObject go = DataHelpers.GetPieces().Find(g => Utils.GetPrefabName(g) == name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
             if (go == null)
             {
@@ -108,22 +108,22 @@ namespace wackydatabase.GetData
                     go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
                     if (go == null) // 3th layer
                     {
-                        Dbgl($"Piece {name} not found! 3 layer search");
+                        WMRecipeCust.Dbgl($"Piece {name} not found! 3 layer search");
                         return null;
                     }
                 }
                 else // 2nd layer
-                    Dbgl($"Piece {name} from known hammer {selectedPiecehammer}");
+                    WMRecipeCust.Dbgl($"Piece {name} from known hammer {WMRecipeCust.selectedPiecehammer}");
             }
             piece = go.GetComponent<Piece>();
             if (piece == null) // final check
             {
-                Dbgl("Piece data not found!");
+                WMRecipeCust.Dbgl("Piece data not found!");
                 return null;
             }
             string piecehammer = null;
-            if (selectedPiecehammer != null)
-                piecehammer = selectedPiecehammer.name;
+            if (WMRecipeCust.selectedPiecehammer != null)
+                piecehammer = WMRecipeCust.selectedPiecehammer.name;
 
             if (piecehammer == null)
                 piecehammer = "Hammer"; // default
@@ -168,14 +168,14 @@ namespace wackydatabase.GetData
             GameObject go = ObjectDB.instance.GetItemPrefab(name);
             if (go == null)
             {
-                Dbgl("GetItemDataByName data not found!");
+                WMRecipeCust.Dbgl("GetItemDataByName data not found!");
                 return null;
             }
 
             ItemDrop.ItemData data = go.GetComponent<ItemDrop>().m_itemData;
             if (data == null)
             {
-                Dbgl("Item GetItemDataByName not found! - componets");
+                WMRecipeCust.Dbgl("Item GetItemDataByName not found! - componets");
                 return null;
             }
             WDamages damages = null;
@@ -183,7 +183,7 @@ namespace wackydatabase.GetData
             // Dbgl("Item "+ name + " data.m_shared.m_damages.mslash" + data.m_shared.m_damages.m_slash);
             if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
             {
-                Dbgl("Item " + name + " damage on ");
+                WMRecipeCust.Dbgl("Item " + name + " damage on ");
 
                 damages = new WDamages // not used
                 {

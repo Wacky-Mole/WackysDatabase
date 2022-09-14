@@ -14,7 +14,7 @@ using wackydatabase.PatchClasses;
 
 namespace wackydatabase.Armor
 {
-  public class ArmorHelpers : WMRecipeCust
+  public class ArmorHelpers 
     {
 
     public enum NewDamageTypes
@@ -29,7 +29,7 @@ namespace wackydatabase.Armor
 
   internal static void LoadAllArmorData(ZNetScene scene)
     {
-        foreach (var armor in armorDatas)
+        foreach (var armor in WMRecipeCust.armorDatas)
         {
             GameObject go = scene.GetPrefab(armor.name);
             if (go == null)
@@ -45,7 +45,7 @@ namespace wackydatabase.Armor
         try
         {
             var name = instance.m_dropPrefab.name;
-            var armor = armorDatas.First(d => d.name == name);
+            var armor = WMRecipeCust.armorDatas.First(d => d.name == name);
             SetArmorData(ref instance, armor);
             //Dbgl($"Set armor data for {instance.name}");
         }

@@ -27,7 +27,7 @@ namespace wackydatabase.Util
             }
         }
     }
-    public class Functions : WMRecipeCust
+    public class Functions 
     {
         internal static string ComputeSha256Hash(string rawData)
         {
@@ -75,7 +75,7 @@ namespace wackydatabase.Util
             string TheString = "";
 
             GameObject[] array4 = Resources.FindObjectsOfTypeAll<GameObject>();
-            originalVFX = new Dictionary<string, GameObject>();
+            WMRecipeCust.originalVFX = new Dictionary<string, GameObject>();
             foreach (GameObject val2 in array4)
             {
                 if (val2.name.Contains("vfx"))
@@ -89,8 +89,8 @@ namespace wackydatabase.Util
 
         public static void Dbgl(string str = "", bool pref = true)
         {
-            if (isDebug.Value)
-                Debug.Log((pref ? ModName + " " : "") + str);
+            if (WMRecipeCust.isDebug.Value)
+                Debug.Log((pref ? WMRecipeCust.ModName + " " : "") + str);
         }
 
     }
