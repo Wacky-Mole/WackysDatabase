@@ -12,6 +12,8 @@ using wackydatabase.Datas;
 using wackydatabase.Util;
 using System.IO;
 using YamlDotNet.Serialization;
+using wackydatabase.GetData;
+using VisualsModifier;
 
 namespace wackydatabase.Startup
 {
@@ -70,60 +72,34 @@ namespace wackydatabase.Startup
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
 
             WMRecipeCust.CheckModFolder();
-            var amber = new System.Text.StringBuilder();
-            var deserializer = new DeserializerBuilder()
-                  .Build();
 
-            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "*.yml", SearchOption.AllDirectories))
+            YamlLoader yaml = new YamlLoader();
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
             {
-                if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
-                {
-                    try
-                    {
-                        var yml = File.ReadAllText(file);
-                        amber.Append(yml);
-                        amber.Append(WMRecipeCust.StringSeparator);
-                        WMRecipeCust.itemDatasYml.Add(deserializer.Deserialize<WItemData>(yml));
-
-                        /* // I think this is no longer needed?
-                        ArmorData_json data3 = JsonUtility.FromJson<ArmorData_json>(File.ReadAllText(file));
-                        WMRecipeCust.armorDatasYml.Add(data3);
-                        */
-                    }
-                    catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }
-
-                }
-                else if (file.Contains("Piece") || file.Contains("piece"))
-                {
-                    try
-                    {
-                        var yml = File.ReadAllText(file);
-                        amber.Append(yml);
-                        amber.Append(WMRecipeCust.StringSeparator);
-                        WMRecipeCust.pieceDatasYml.Add(deserializer.Deserialize<PieceData>(yml));
-                    }
-                    catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }
-                }
-                else // recipes
-                {
-                    try
-                    {
-                        var yml = File.ReadAllText(file);
-                        amber.Append(yml);
-                        amber.Append(WMRecipeCust.StringSeparator);
-                        WMRecipeCust.recipeDatasYml.Add(deserializer.Deserialize<RecipeData>(yml));
-                    }
-                    catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }
-
-                }
+                yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml, WMRecipeCust.isSetStringisDebug);
             }
-            WMRecipeCust.ymlstring = amber.ToString();
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?iece_*.yml", SearchOption.AllDirectories))
+            {
+                yaml.Load<PieceData>(file, WMRecipeCust.pieceDatasYml, WMRecipeCust.isSetStringisDebug);
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ecipe_*.yml", SearchOption.AllDirectories))
+            {
+                yaml.Load<RecipeData>(file, WMRecipeCust.recipeDatasYml, WMRecipeCust.isSetStringisDebug);
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?isual_*.yml", SearchOption.AllDirectories))
+            {
+                yaml.Load<VisualData>(file, WMRecipeCust.visualDatasYml, WMRecipeCust.isSetStringisDebug);
+            }
+
+            WMRecipeCust.ymlstring = yaml.ToString();
 
             WMRecipeCust.WLog.LogDebug("Loaded YML files");
             if (WMRecipeCust.isSetStringisDebug)
                 WMRecipeCust.Dbgl(WMRecipeCust.ymlstring);
         }
-
-       
     }
 }

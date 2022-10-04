@@ -751,43 +751,20 @@ namespace wackydatabase.SetData
                     if (data.m_damages != null && data.m_damages != "")
                     {
                         WMRecipeCust.Dbgl($"   {data.name} Item has damage values ");
-                        // has to be in order, should be
-                        char[] delims = new[] { ',' };
-                        string[] divideme = data.m_damages.Split(delims, StringSplitOptions.RemoveEmptyEntries);
-                        //Dbgl($"Item damge for 0 {divideme[0]} " + $" Item damge for 10 {divideme[10]} ");
-                        HitData.DamageTypes damages = default(HitData.DamageTypes);
-                        damages.m_blunt = Functions.stringtoFloat(divideme[0]);
-                        damages.m_chop = Functions.stringtoFloat(divideme[1]);
-                        damages.m_damage = Functions.stringtoFloat(divideme[2]);
-                        damages.m_fire = Functions.stringtoFloat(divideme[3]);
-                        damages.m_frost = Functions.stringtoFloat(divideme[4]);
-                        damages.m_lightning = Functions.stringtoFloat(divideme[5]);
-                        damages.m_pickaxe = Functions.stringtoFloat(divideme[6]);
-                        damages.m_pierce = Functions.stringtoFloat(divideme[7]);
-                        damages.m_poison = Functions.stringtoFloat(divideme[8]);
-                        damages.m_slash = Functions.stringtoFloat(divideme[9]);
-                        damages.m_spirit = Functions.stringtoFloat(divideme[10]);
-                        PrimaryItemData.m_shared.m_damages = damages;
+
+                        // Separate the CSV value of weapon damages (perhaps this should be loaded/mapped differently?)
+                        string[] entries = data.m_damages.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        PrimaryItemData.m_shared.m_damages = WeaponDamage.ParseDamageTypes(entries);
                     }
+
                     if (data.m_damagesPerLevel != null && data.m_damagesPerLevel != "")
                     {
-                        char[] delims = new[] { ',' };
-                        string[] divideme = data.m_damagesPerLevel.Split(delims, StringSplitOptions.RemoveEmptyEntries);
+                        string[] entries = data.m_damagesPerLevel.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                        HitData.DamageTypes damagesPerLevel = default(HitData.DamageTypes);
-                        damagesPerLevel.m_blunt = Functions.stringtoFloat(divideme[0]);
-                        damagesPerLevel.m_chop = Functions.stringtoFloat(divideme[1]);
-                        damagesPerLevel.m_damage = Functions.stringtoFloat(divideme[2]);
-                        damagesPerLevel.m_fire = Functions.stringtoFloat(divideme[3]);
-                        damagesPerLevel.m_frost = Functions.stringtoFloat(divideme[4]);
-                        damagesPerLevel.m_lightning = Functions.stringtoFloat(divideme[5]);
-                        damagesPerLevel.m_pickaxe = Functions.stringtoFloat(divideme[6]);
-                        damagesPerLevel.m_pierce = Functions.stringtoFloat(divideme[7]);
-                        damagesPerLevel.m_poison = Functions.stringtoFloat(divideme[8]);
-                        damagesPerLevel.m_slash = Functions.stringtoFloat(divideme[9]);
-                        damagesPerLevel.m_spirit = Functions.stringtoFloat(divideme[10]);
-                        PrimaryItemData.m_shared.m_damagesPerLevel = damagesPerLevel;
+                        PrimaryItemData.m_shared.m_damagesPerLevel = WeaponDamage.ParseDamageTypes(entries);
                     }
+
                     PrimaryItemData.m_shared.m_name = data.m_name;
                     PrimaryItemData.m_shared.m_description = data.m_description;
                     PrimaryItemData.m_shared.m_weight = data.m_weight;

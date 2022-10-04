@@ -90,12 +90,12 @@ namespace wackydatabase
         public static List<WItemData_json> ItemDatas = new List<WItemData_json>();
         public static List<PieceData_json> PieceDatas = new List<PieceData_json>();
         public static List<ArmorData_json> armorDatas = new List<ArmorData_json>();
- 
+
         public static List<RecipeData> recipeDatasYml = new List<RecipeData>();
         public static List<WItemData> itemDatasYml = new List<WItemData>();
         public static List<PieceData> pieceDatasYml = new List<PieceData>();
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
-       
+        public static List<VisualData> visualDatasYml = new List<VisualData>();
 
         public static List<string> ClonedI = new List<string>();
         public static List<string> ClonedP = new List<string>();
@@ -106,6 +106,7 @@ namespace wackydatabase
         internal static string assetPathItems;
         internal static string assetPathRecipes;
         internal static string assetPathPieces;
+        internal static string assetPathVisuals;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
         internal static string jsonstring;
@@ -145,6 +146,7 @@ namespace wackydatabase
             assetPathItems = Path.Combine(assetPathconfig, "Items");
             assetPathRecipes = Path.Combine(assetPathconfig, "Recipes");
             assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
+            assetPathVisuals = Path.Combine(assetPathconfig, "Visuals");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabaseOldJsons");
             assetPathBulkYML = Path.Combine(assetPathconfig, "BulkYMLGet");
             // testme(); // function for testing things
