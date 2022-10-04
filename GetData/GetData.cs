@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using HarmonyLib;
 using UnityEngine;
-using System.Threading.Tasks;
-using UnityEngine.SceneManagement;
-using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
 using wackydatabase.Datas;
 using BepInEx.Bootstrap;
 using System.Reflection;

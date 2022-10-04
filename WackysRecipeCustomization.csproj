@@ -92,12 +92,17 @@
     <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.JSONSerializeModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Modding\Valheim 205.5\unstripped_corlib\UnityEngine.JSONSerializeModule.dll</HintPath>
+    <Reference Include="UnityEngine.JSONSerializeModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.JSONSerializeModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
       <HintPath>packages\YamlDotNet.11.2.1\lib\net45\YamlDotNet.dll</HintPath>
@@ -109,12 +114,16 @@
     <Compile Include="Datas\ItemData.cs" />
     <Compile Include="Datas\PieceData.cs" />
     <Compile Include="Datas\RecipeData.cs" />
+    <Compile Include="Datas\TextureData.cs" />
+    <Compile Include="Datas\ValheimTime.cs" />
     <Compile Include="GetData\GetData.cs" />
+    <Compile Include="GetData\YamlLoader.cs" />
     <Compile Include="PatchClasses\basicpatches.cs" />
     <Compile Include="PatchClasses\console.cs" />
     <Compile Include="PatchClasses\status.cs" />
     <Compile Include="SetData\Reload.cs" />
     <Compile Include="SetData\SetData.cs" />
+    <Compile Include="SetData\WeaponDamage.cs" />
     <Compile Include="Startup\closing.cs" />
     <Compile Include="Startup\startup.cs" />
     <Compile Include="GetData\ReadFiles.cs" />
@@ -127,8 +136,42 @@
     <Compile Include="Utility\functions.cs" />
     <Compile Include="Utility\ServerSync.cs" />
     <Compile Include="Utility\SpriteTools.cs" />
+    <Compile Include="Visuals\Manipulators\IRendererEffect.cs" />
+    <Compile Include="Visuals\Manipulators\MaterialManipulator.cs" />
+    <Compile Include="Visuals\Manipulators\RendererManipulator.cs" />
+    <Compile Include="Visuals\Manipulators\Renderer\RendererMaterialEffect.cs" />
+    <Compile Include="Visuals\Manipulators\Renderer\RendererShaderEffect.cs" />
     <Compile Include="WackysDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Visuals\Colour.cs" />
+    <Compile Include="Visuals\ItemEffects\ISetEffect.cs" />
+    <Compile Include="Visuals\ItemEffects\SetDamageModifier.cs" />
+    <Compile Include="Visuals\ItemEffects\SetHealthRegenerationMultiplier.cs" />
+    <Compile Include="Visuals\ItemEffects\SetSkillModifier.cs" />
+    <Compile Include="Visuals\ItemEffects\ItemSet.cs" />
+    <Compile Include="Visuals\Manipulators\IManipulator.cs" />
+    <Compile Include="Visuals\Manipulators\IMaterialEffect.cs" />
+    <Compile Include="Visuals\Manipulators\Realtime\IRealtimeEffect.cs" />
+    <Compile Include="Visuals\Manipulators\Realtime\RealtimeApplicator.cs" />
+    <Compile Include="Visuals\Manipulators\Realtime\RealtimeColorEffect.cs" />
+    <Compile Include="Visuals\Manipulators\Realtime\RealtimeFloatEffect.cs" />
+    <Compile Include="Visuals\Manipulators\RealtimeManipulator.cs" />
+    <Compile Include="Visuals\Manipulators\Material\MaterialColorEffect.cs" />
+    <Compile Include="Visuals\Manipulators\Material\MaterialFloatEffect.cs" />
+    <Compile Include="Visuals\Manipulators\Material\MaterialEffect.cs" />
+    <Compile Include="Visuals\Manipulators\TextureManipulator.cs" />
+    <Compile Include="Visuals\Manipulators\Textures\TextureMultiplyEffect.cs" />
+    <Compile Include="Visuals\Manipulators\Textures\TextureScreenEffect.cs" />
+    <Compile Include="Visuals\Manipulators\Textures\TextureToonEffect.cs" />
+    <Compile Include="Visuals\MonoBehaviours\BiomeEffector.cs" />
+    <Compile Include="Visuals\MonoBehaviours\IRealtimeEffector.cs" />
+    <Compile Include="Visuals\MonoBehaviours\ProximityEffector.cs" />
+    <Compile Include="Visuals\MonoBehaviours\TimeEffector.cs" />
+    <Compile Include="GetData\Converters\ColorConverter.cs" />
+    <Compile Include="GetData\Converters\ValheimTimeConverter.cs" />
+    <Compile Include="Datas\VisualData.cs" />
+    <Compile Include="Visuals\VisualController.cs" />
+
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />

@@ -15,6 +15,7 @@ using System.Collections;
 
 using wackydatabase.Startup;
 using YamlDotNet.Serialization;
+using VisualsModifier;
 
 namespace wackydatabase.SetData
 {
@@ -175,6 +176,9 @@ namespace wackydatabase.SetData
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
                     }
+                    
+                    // Ignore visual data here for now, this is all JSON related
+
                     WMRecipeCust.Dbgl($" You did reload LOCAL Files");
                 }
                 try
