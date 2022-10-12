@@ -186,7 +186,8 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ## Changelog
         Version 1.2.6
-            Allows the Server to apply configs to itself for cloned items that other mods count on. 
+            Updated ServerSync for crossplay - Custom Message for Ver 0.0.1 is not displayed. No Singleplayer before multiplayer without restart.s
+            Added TrophyDraugr to special cases
         Version 1.2.5
             Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates.
             Warning 1.2.4 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.

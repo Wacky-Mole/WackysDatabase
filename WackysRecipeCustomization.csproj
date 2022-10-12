@@ -11,7 +11,8 @@
     <AssemblyName>WackysDatabase</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <LangVersion>9</LangVersion>
+    <LangVersion>10</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -72,6 +73,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\PieceManager.dll</HintPath>
     </Reference>
+    <Reference Include="ServerSync, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\MagicPortalFluid\MagicPortalFluid\Libs\ServerSync.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -102,7 +107,6 @@
     <Compile Include="ItemData.cs" />
     <Compile Include="RecipeData.cs" />
     <Compile Include="ItemManager.cs" />
-    <Compile Include="ServerSync.cs" />
     <Compile Include="VersionHandshake.cs" />
     <Compile Include="WackysRecipeCustomization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -111,6 +115,9 @@
     <Content Include=".gitignore" />
     <Content Include="ILRepack.targets" />
     <Content Include="Libs\PieceManager.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Libs\ServerSync.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="LICENSE.txt" />
