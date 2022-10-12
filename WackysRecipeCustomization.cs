@@ -292,7 +292,7 @@ namespace wackydatabase
                 ZNet Net = new ZNet();
                 IsLocalInstance(Net);
             }
-            if (reload ) // single player only or recievedServerInfo
+            if (reload && (issettoSinglePlayer || recieveServerInfo)) // single player only or recievedServerInfo
             {
                 if (recieveServerInfo && issettoSinglePlayer)
                 {
