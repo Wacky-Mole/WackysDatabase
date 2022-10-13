@@ -187,7 +187,8 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 ## Changelog
         Version 1.2.7
             Updated ServerSync for crossplay - Custom Message for Ver 0.0.1 is not displayed. No Singleplayer before multiplayer without restart.
-            Added TrophyDraugr to special cases
+            Known issue of TrophyDraugr is not able to be set (targets TrophyDraugrFem) use Fem or clone TrophyDraugr. 
+            Destroyer is spelled with "troy", also now a loginfo instead of warning
         Version 1.2.5
             Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates.
             Warning 1.2.4 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.

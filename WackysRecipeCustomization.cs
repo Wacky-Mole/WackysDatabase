@@ -195,7 +195,7 @@ namespace wackydatabase
         private void OnDestroy()
         {
             Config.Save();
-            WackysRecipeCustomizationLogger.LogWarning("Calling the Destoryer of Worlds -End Game");
+            WackysRecipeCustomizationLogger.LogInfo("Calling the Destroyer of Worlds - Game Over");
             //need to unload cloned objects
         }
 
@@ -1679,6 +1679,7 @@ namespace wackydatabase
         {
             GameObject go = null;
             string ZnetName = null;
+            int hash = 0;
             switch (name)
             {
                 case "stone_floor":
@@ -1704,6 +1705,8 @@ namespace wackydatabase
                     break;
                 case "TrophyDraugr":
                     ZnetName = "TrophyDraugr";
+                    hash = 255610059; // it is still being overwritten
+                    //hash = 2113459109; // Fem
                     break;
 
                 default:
@@ -1713,8 +1716,17 @@ namespace wackydatabase
             if (ZnetName != null)
             {
                 try
-                {
+                { 
+                    
                     go = ZNetScene.instance.GetPrefab(ZnetName); // damn why didn't I discover this sooner// that is sooo brutal. 
+                    if (hash != 0)
+                    {
+                        go = ZNetScene.instance.GetPrefab(hash);
+
+                        if (go != null)
+                            WackysRecipeCustomizationLogger.LogInfo($"Found Special Object with Hash {go.name} but TrophyDraugr is actually being set for TrophyDraugrFem - known issue");
+                    }
+                    
                 }
                 catch { }
 
@@ -2822,7 +2834,7 @@ namespace wackydatabase
                     znet.m_namedPrefabs.Remove(hash);
                     GameObject.Destroy(go);
                 }
-                catch { Dbgl($"Error Destorying item {citem}"); }
+                catch { Dbgl($"Error Destroying item {citem}"); }
 
             }
             foreach (var citem in ClonedP)
@@ -2846,17 +2858,17 @@ namespace wackydatabase
                     znet.m_prefabs.Remove(go);
                     var hash = go.name.GetStableHashCode();
                     znet.m_namedPrefabs.Remove(hash);
-                    //GameObject.Destroy (go); craftingStations get Destoryed TAG
+                    //GameObject.Destroy (go); craftingStations get destroyer TAG
 
                 }
-                catch { Dbgl($"Error Destorying piece {citem}"); }
+                catch { Dbgl($"Error Destroying piece {citem}"); }
             }
             ClonedI.Clear();
             ClonedR.Clear();
             ClonedP.Clear();
             ObjectDB.instance.UpdateItemHashes();
 
-            Dbgl("All cloned Objects destoryed");
+            Dbgl("All cloned Objects Destroyed");
         }
 
         static string ComputeSha256Hash(string rawData)
