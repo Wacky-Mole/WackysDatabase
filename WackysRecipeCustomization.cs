@@ -19,7 +19,6 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using ItemManager;
 using ServerSync;
 using UnityEngine;
 using System.Collections;
@@ -41,7 +40,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.2.7";
+        internal const string ModVersion = "1.2.8";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -148,10 +147,13 @@ namespace wackydatabase
                 return;
             }
         }
-        public static bool IsLocalInstance(ZNet znet)
+        public static bool IsLocalInstance()
         {
-            if (znet.IsServer() && !znet.IsDedicated())
+            ZNet zNet = ZNet.instance;
+            
+            if (zNet.IsServer() && !zNet.IsDedicated() && zNet) // Only singleplayer not a client. 
             {
+                WackysRecipeCustomizationLogger.LogWarning("Admin checker");
                 issettoSinglePlayer = true;
                 ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
                 WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + ConfigSync.CurrentVersion);
@@ -289,8 +291,8 @@ namespace wackydatabase
         {
             if (reload)
             {
-                ZNet Net = new ZNet();
-                IsLocalInstance(Net);
+                WackysRecipeCustomizationLogger.LogWarning("Hello?");
+                IsLocalInstance();
             }
             if (reload && (issettoSinglePlayer || recieveServerInfo)) // single player only or recievedServerInfo
             {
@@ -2346,8 +2348,8 @@ namespace wackydatabase
                              }
                              else
                              {
-                                 args.Context?.AddString($"WackyDatabase did NOT reload recipes/items/pieces from files"); // maybe?
-                                 Dbgl("WackyDatabase did NOT reload recipes/items/pieces from files");
+                                 args.Context?.AddString($"WackyDatabase did NOT reload recipes/items/pieces from files because not singleplayer"); // maybe?
+                                 Dbgl("WackyDatabase did NOT reload recipes/items/pieces from files because not singleplayer");
                              }
 
                          });
