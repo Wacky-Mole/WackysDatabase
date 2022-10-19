@@ -61,6 +61,8 @@ namespace wackydatabase
         internal static string ConnectionError = "";
         private static WMRecipeCust context;
         private static int kickcount = 0;
+        private static bool LobbyRegistered = false;
+        private static bool HasLobbied = false;
 
         public static ConfigEntry<float> globalArmorDurabilityLossMult;
         public static ConfigEntry<float> globalArmorMovementModMult;
@@ -150,14 +152,21 @@ namespace wackydatabase
         public static bool IsLocalInstance()
         {
             ZNet zNet = ZNet.instance;
-            
-            if (zNet.IsServer() && !zNet.IsDedicated() && zNet) // Only singleplayer not a client. 
+
+            if (zNet.IsServer() && !zNet.IsDedicated() && !LobbyRegistered) // Only singleplayer not a client or hosting anything
             {
-                WackysRecipeCustomizationLogger.LogWarning("Admin checker");
+                //WackysRecipeCustomizationLogger.LogWarning("Admin checker");
                 issettoSinglePlayer = true;
                 ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
                 WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + ConfigSync.CurrentVersion);
             }
+            if (LobbyRegistered)
+            {
+               ConfigSync.CurrentVersion = ModVersion; // Just in case goes from singleplayer to hosting. 
+               HasLobbied = true;
+
+            }
+
             return issettoSinglePlayer;
         }
 
@@ -291,7 +300,6 @@ namespace wackydatabase
         {
             if (reload)
             {
-                WackysRecipeCustomizationLogger.LogWarning("Hello?");
                 IsLocalInstance();
             }
             if (reload && (issettoSinglePlayer || recieveServerInfo)) // single player only or recievedServerInfo
@@ -2755,6 +2763,14 @@ namespace wackydatabase
                 if (!modEnabled.Value)
                     return;
                 context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
+
+                if (!ZNet.instance.IsServer() && HasLobbied) // is client now
+                {
+                    // Has Lobbied in Past and could try to use this to get around lockout. 
+                   // issettoSinglePlayer = true;
+                    ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+                    WackysRecipeCustomizationLogger.LogWarning("You hosted a COOP game before trying to connect to a server - LOCKOUT - 0.0.1 - Restart Game " + ConfigSync.CurrentVersion);
+                }
                 //LoadAllRecipeData(true);
             }
         }
@@ -2765,12 +2781,35 @@ namespace wackydatabase
             yield break;
         }
 
+        [HarmonyPatch(typeof(ZSteamMatchmaking), "RegisterServer")]
+        private class COOPCheckSteam
+        {
+            private static void Postfix()
+            {
+                WackysRecipeCustomizationLogger.LogWarning("Steam Lobby is active");
+                LobbyRegistered = true;
+            }
+
+        }
+
+        [HarmonyPatch(typeof(ZPlayFabMatchmaking), "RegisterServer")]
+        private class COOPCheckPlayfab
+        {
+            private static void Postfix()
+            {
+                WackysRecipeCustomizationLogger.LogWarning("Zplay Lobby is active");
+                LobbyRegistered = true;
+            }
+
+        }
+
         [HarmonyPatch(typeof(ZNet), "Shutdown")]
         private class PatchZNetDisconnect
         {
             private static bool Prefix()
             {
                 WackysRecipeCustomizationLogger.LogWarning("Logoff? So reset - character will look empty if using clone gear");
+                LobbyRegistered = false;
                 if (issettoSinglePlayer)
                 {
                     DestoryClones();

@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.2.7
+Version 1.2.8
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -185,6 +185,8 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
 ## Changelog
+        Version 1.2.8
+            Hopefully fixed issue with Co-op hosting. Added 0.0.1 Custom message back. 
         Version 1.2.7
             Updated ServerSync for crossplay - Custom Message for Ver 0.0.1 is not displayed. No Singleplayer before multiplayer without restart.
             Known issue of TrophyDraugr is not able to be set (targets TrophyDraugrFem) use Fem or clone TrophyDraugr. 
