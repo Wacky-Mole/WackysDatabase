@@ -40,7 +40,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.2.8";
+        internal const string ModVersion = "1.2.9";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -990,6 +990,16 @@ namespace wackydatabase
 
                 GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
                 skip = true;
+                /*
+                if (Chainloader.PluginInfos.ContainsKey("com.maxsch.valheim.HammerTime"))
+                {
+                    piecehammer = Instant.GetItemPrefab("Hammer");
+                    piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem);
+                    try
+                            { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                            catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                }
+                */
                 if (piecehammer == null)
                 {
                     if (selectedPiecehammer == null)
@@ -1112,28 +1122,59 @@ namespace wackydatabase
                 {
                     if (ItemComp.m_category != (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory))
                     { // now disable old 
-                        Dbgl($"Category change has been detected for {data.name}, disabling old piece and setting new piece location");
-                        if (piecehammer == null)
+                        // change to only allow default categories.
+                        if ((int)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory) > 4 && Chainloader.PluginInfos.ContainsKey("com.maxsch.valheim.HammerTime"))
                         {
-                            if (selectedPiecehammer == null)
-                            {
-                                piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
-                                piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
-                            }
-                            else selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
+                            Dbgl($"Category is above 4 and HammerTime is install, so no change will happen");
                         }
-                        else piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
-
-                        // Now add to new Cat and hammer
-                        if (piecehammer == null)
+                        else
                         {
-                            if (selectedPiecehammer == null)
-                            {
-                                Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
-                                piecehammer = Instant.GetItemPrefab("Hammer");
 
-                                ItemComp.m_category = Piece.PieceCategory.Misc; // set the category
-                                piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                            Dbgl($"Category change has been detected for {data.name}, disabling old piece and setting new piece location");
+
+                            if (piecehammer == null)
+                            {
+                                if (selectedPiecehammer == null)
+                                {
+                                    piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
+                                    piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                                }
+                                else selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
+                            }
+                            else piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
+
+                            /*
+                            if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
+                            {
+                                object PieceManagerjvl = Chainloader.PluginInfos["com.jotunn.jotunn"].Instance.GetType().Assembly.GetType("Jotunn.Managers.PieceManager").GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                                object cr = AccessTools.Method(PieceManagerjvl.GetType(), "AddPieceCategory").Invoke(PieceManagerjvl, new[] { data.piecehammerCategory });
+                                if (cr != null)
+                                {
+                                    var piecejvl = (Piece)AccessTools.Property(cr.GetType(), "Piece").GetValue(cr);
+                                }
+                            }
+                            */
+                            // Now add to new Cat and hammer
+                            if (piecehammer == null)
+                            {
+                                if (selectedPiecehammer == null)
+                                {
+                                    Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
+                                    piecehammer = Instant.GetItemPrefab("Hammer");
+
+                                    ItemComp.m_category = Piece.PieceCategory.Misc; // set the category
+                                    piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                                    {
+                                        try
+                                        { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                                        catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                                    }
+                                    selectedPiecehammer.m_pieces.Add(go); // adding item to PiceTable
+                                }
                             }
                             else
                             {
@@ -1143,19 +1184,9 @@ namespace wackydatabase
                                     { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
                                     catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                                 }
-                                selectedPiecehammer.m_pieces.Add(go); // adding item to PiceTable
+                                piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go); // if piecehammer is the actual item and not the PieceTable
                             }
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(data.piecehammerCategory))
-                            {
-                                try
-                                { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
-                                catch { Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
-                            }
-                            piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go); // if piecehammer is the actual item and not the PieceTable
-                        }
+                        } // HammerTime
                     }
                 }
             } //end Cat
@@ -1163,19 +1194,7 @@ namespace wackydatabase
             {
                 if (Admin)
                 {
-                    // do nothing, but search if it has been disabled before
-                    /*
-                    foreach(GameObject searc in AdminPiecesOnly.Keys)
-                    {
-                        if (searc == go)
-                        { // found object so need to add it back because it was disabled previously
-                            
-                           GameObject newhammer = AdminPiecesOnly[searc];
-                           newhammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(searc);
-                           Dbgl($"Congrats on your new promotion. Enabling previously disabled piece.");
-                           AdminPiecesOnly.Remove(searc); // delete so it is not found again
-                        }
-                    } */
+
                     Dbgl($"{data.name} is set for Adminonly, and you are admin, enjoy this exclusive Piece");
                 }
                 else
@@ -1187,16 +1206,11 @@ namespace wackydatabase
 
             if (data.disabled)
             {
-
+                Dbgl($"Disabling Piece {data.name}");
+                go.GetComponent<Piece>().m_enabled = false;
+                /*
                 Dbgl($"Removing recipe for {data.name} from some PieceStation, you need to reload session to get this piece back- including admins");
                 GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
-                bool keyExists = false;
-                try
-                {
-                    // keyExists = AdminPiecesOnly.ContainsKey(go); // make sure it only gets set once
-                }
-                catch { keyExists = false; } // bad wacky
-                                             // Dbgl($"Check 0");
                 if (piecehammer == null)
                 {
                     if (selectedPiecehammer == null)
@@ -1222,8 +1236,9 @@ namespace wackydatabase
                                                                                                                  // if (data.adminonly && !keyExists)
                                                                                                                  //   AdminPiecesOnly.Add(go, piecehammer);
                 }
-            }
-            Dbgl("Setting Piece data for " + data.name);
+                */
+            }else 
+                Dbgl("Setting Piece data for " + data.name);
             if (!string.IsNullOrEmpty(data.m_name))
             {
                 go.GetComponent<Piece>().m_name = data.m_name;
