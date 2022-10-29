@@ -114,7 +114,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.2.7" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.2.9" }; // it is very picky on version number
 
 
         #endregion

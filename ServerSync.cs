@@ -12,10 +12,8 @@ using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using JetBrains.Annotations;
-using Mono.Cecil;
 using UnityEngine;
 using wackydatabase;
-using YamlDotNet.Core;
 
 namespace ServerSync;
 
@@ -721,6 +719,7 @@ public class ConfigSync
         private class BufferingSocket : ISocket
         {
             public volatile bool finished = false;
+            public volatile int versionMatchQueued = -1;
             public readonly List<ZPackage> Package = new();
             public readonly ISocket Original;
 
@@ -744,6 +743,18 @@ public class ConfigSync
             public int GetHostPort() => Original.GetHostPort();
             public bool Flush() => Original.Flush();
             public string GetHostName() => Original.GetHostName();
+
+            public void VersionMatch()
+            {
+                if (finished)
+                {
+                    Original.VersionMatch();
+                }
+                else
+                {
+                    versionMatchQueued = Package.Count;
+                }
+            }
 
             public void Send(ZPackage pkg)
             {
@@ -772,6 +783,11 @@ public class ConfigSync
             {
                 BufferingSocket bufferingSocket = new(rpc.GetSocket());
                 AccessTools.DeclaredField(typeof(ZRpc), "m_socket").SetValue(rpc, bufferingSocket);
+                // Don't replace on steam sockets, RPC_PeerInfo does peer.m_socket as ZSteamSocket - which will cause a nullref when replaced
+                if (AccessTools.DeclaredMethod(typeof(ZNet), "GetPeer", new[] { typeof(ZRpc) }).Invoke(__instance, new object[] { rpc }) is ZNetPeer peer && ZNet.m_onlineBackend != OnlineBackendType.Steamworks)
+                {
+                    AccessTools.DeclaredField(typeof(ZNetPeer), "m_socket").SetValue(peer, bufferingSocket);
+                }
 
                 __state ??= new Dictionary<Assembly, BufferingSocket>();
                 __state[Assembly.GetExecutingAssembly()] = bufferingSocket;
@@ -791,14 +807,26 @@ public class ConfigSync
                 if (rpc.GetSocket() is BufferingSocket bufferingSocket)
                 {
                     AccessTools.DeclaredField(typeof(ZRpc), "m_socket").SetValue(rpc, bufferingSocket.Original);
+                    if (AccessTools.DeclaredMethod(typeof(ZNet), "GetPeer", new[] { typeof(ZRpc) }).Invoke(__instance, new object[] { rpc }) is ZNetPeer peer)
+                    {
+                        AccessTools.DeclaredField(typeof(ZNetPeer), "m_socket").SetValue(peer, bufferingSocket.Original);
+                    }
                 }
 
                 bufferingSocket = __state[Assembly.GetExecutingAssembly()];
                 bufferingSocket.finished = true;
 
-                foreach (ZPackage package in bufferingSocket.Package)
+                for (int i = 0; i < bufferingSocket.Package.Count; ++i)
                 {
-                    bufferingSocket.Original.Send(package);
+                    if (i == bufferingSocket.versionMatchQueued)
+                    {
+                        bufferingSocket.Original.VersionMatch();
+                    }
+                    bufferingSocket.Original.Send(bufferingSocket.Package[i]);
+                }
+                if (bufferingSocket.Package.Count == bufferingSocket.versionMatchQueued)
+                {
+                    bufferingSocket.Original.VersionMatch();
                 }
             }
 
@@ -1146,10 +1174,8 @@ public class VersionCheck
         {
             return !ModRequired;
         }
-        // bool myVersionOk = new Version(CurrentVersion) >= new Version(ReceivedMinimumRequiredVersion);
-        bool myVersionOk = StringArry(CurrentVersion, ReceivedMinimumRequiredVersion);
-        //bool otherVersionOk = new Version(ReceivedCurrentVersion) >= new Version(MinimumRequiredVersion);
-        bool otherVersionOk = StringArry(ReceivedCurrentVersion, MinimumRequiredVersion);
+        bool myVersionOk = new System.Version(CurrentVersion) >= new System.Version(ReceivedMinimumRequiredVersion);
+        bool otherVersionOk = new System.Version(ReceivedCurrentVersion) >= new System.Version(MinimumRequiredVersion);
         return myVersionOk && otherVersionOk;
     }
 
@@ -1159,44 +1185,16 @@ public class VersionCheck
         {
             return $"Mod {DisplayName} must not be installed.";
         }
-        // bool myVersionOk = new Version() >= new Version(ReceivedMinimumRequiredVersion);
+        
+        bool myVersionOk = new System.Version(CurrentVersion) >= new System.Version(ReceivedMinimumRequiredVersion);
         if (CurrentVersion == "0.0.1")
         {
             WMRecipeCust.ConnectionError =
                $"{WMRecipeCust.ModName} You started a Local Game before Multiplayer. That is Not allowed. -Restart Game";
             return $"{WMRecipeCust.ModName} You started a Local Game before Multiplayer. That is Not allowed. -Restart Game";
         }
-        bool myVersionOk = StringArry(CurrentVersion, ReceivedMinimumRequiredVersion);
         return myVersionOk ? $"Mod {DisplayName} requires maximum {ReceivedCurrentVersion}. Installed is version {CurrentVersion}." : $"Mod {DisplayName} requires minimum {ReceivedMinimumRequiredVersion}. Installed is version {CurrentVersion}.";
     }
-
-    private bool StringArry(string CurrentVersion, string MinReqVer)
-    {
-        var ListCurrentVersion = CurrentVersion?.Split('.')?.Select(Int32.Parse)?.ToList();
-        var ListMinReqVer = MinReqVer?.Split('.')?.Select(Int32.Parse)?.ToList();
-
-        if (ListCurrentVersion[0] > ListMinReqVer[0])
-        {
-            return true;
-        }
-        if ( (ListCurrentVersion[0] == ListMinReqVer[0]) && ListCurrentVersion[1] > ListMinReqVer[1])
-        {
-            return true;
-        }
-        if ((ListCurrentVersion[0] == ListMinReqVer[0]) && ListCurrentVersion[1] == ListMinReqVer[1])
-        {
-            if (ListMinReqVer[2] >= 0)
-            {
-                return ListCurrentVersion[2] > ListMinReqVer[2];
-            }
-            if (ListCurrentVersion[2] >= 0)
-                return true;
-
-            return ListCurrentVersion[2] < ListMinReqVer[2];
-        }
-        return false;
-    }
-    
 
     private string ErrorServer(ZRpc rpc)
     {
@@ -1230,6 +1228,7 @@ public class VersionCheck
     }
 
     private static void CheckVersion(ZRpc rpc, ZPackage pkg) => CheckVersion(rpc, pkg, null);
+
     private static void CheckVersion(ZRpc rpc, ZPackage pkg, Action<ZRpc, ZPackage>? original)
     {
         string guid = pkg.ReadString();
