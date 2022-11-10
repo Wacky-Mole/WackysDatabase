@@ -695,7 +695,7 @@ namespace ServerSync
                 ZPackage compressedPackage = new();
                 compressedPackage.Write(COMPRESSED_CONFIG);
                 MemoryStream output = new();
-                using (DeflateStream deflateStream = new(output, CompressionLevel.Optimal))
+                using (DeflateStream deflateStream = new(output, System.IO.Compression.CompressionLevel.Optimal))
                 {
                     deflateStream.Write(rawData, 0, rawData.Length);
                 }
