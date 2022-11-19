@@ -40,7 +40,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.2.9";
+        internal const string ModVersion = "1.3.0";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -162,8 +162,8 @@ namespace wackydatabase
             }
             if (LobbyRegistered)
             {
-               ConfigSync.CurrentVersion = ModVersion; // Just in case goes from singleplayer to hosting. 
-               HasLobbied = true;
+                ConfigSync.CurrentVersion = ModVersion; // Just in case goes from singleplayer to hosting. 
+                HasLobbied = true;
 
             }
 
@@ -302,7 +302,7 @@ namespace wackydatabase
             {
                 IsLocalInstance();
             }
-            if (reload && (issettoSinglePlayer || recieveServerInfo)) // single player only or recievedServerInfo
+            if (reload && (issettoSinglePlayer || recieveServerInfo || LobbyRegistered)) // single player only or recievedServerInfo
             {
                 if (recieveServerInfo && issettoSinglePlayer)
                 {

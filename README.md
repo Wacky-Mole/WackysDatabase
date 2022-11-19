@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.2.9
+Version 1.3.0
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -185,6 +185,8 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
 ## Changelog
+        Version 1.3.0
+            Hopefully fixed Co-Op hosting bug again..
         Version 1.2.9
             Updated ServerSync for 211.11
         Version 1.2.8
