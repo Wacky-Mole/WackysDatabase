@@ -40,7 +40,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.3.0";
+        internal const string ModVersion = "1.3.1";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -114,7 +114,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.2.9" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.3.1" }; // it is very picky on version number
 
 
         #endregion
@@ -192,7 +192,7 @@ namespace wackydatabase
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
             //isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
-            WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
+            //WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
             ConfigSync.CurrentVersion = ModVersion;
             if (isDebugString.Value)
                 isSetStringisDebug = true;
@@ -1468,10 +1468,10 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_foodStamina = data.m_foodStamina;
                     PrimaryItemData.m_shared.m_foodRegen = data.m_foodRegen;
                     PrimaryItemData.m_shared.m_foodBurnTime = data.m_foodBurnTime;
-                    if (data.m_foodColor != null && data.m_foodColor != "" && data.m_foodColor.StartsWith("#"))
-                    {
-                        PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
-                    }
+                   // if (data.m_foodColor != null && data.m_foodColor != "" && data.m_foodColor.StartsWith("#"))
+                    //{
+                      //  PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
+                    //}
                     PrimaryItemData.m_shared.m_armor = data.m_armor;
                     PrimaryItemData.m_shared.m_armorPerLevel = data.m_armorPerLevel;
                     PrimaryItemData.m_shared.m_blockPower = data.m_blockPower;
@@ -1487,8 +1487,8 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_durabilityDrain = data.m_durabilityDrain;
                     PrimaryItemData.m_shared.m_durabilityPerLevel = data.m_durabilityPerLevel;
                     PrimaryItemData.m_shared.m_equipDuration = data.m_equipDuration;
-                    PrimaryItemData.m_shared.m_holdDurationMin = data.m_holdDurationMin;
-                    PrimaryItemData.m_shared.m_holdStaminaDrain = data.m_holdStaminaDrain;
+                    //PrimaryItemData.m_shared.m_holdDurationMin = data.m_holdDurationMin;
+                    //PrimaryItemData.m_shared.m_holdStaminaDrain = data.m_holdStaminaDrain;
                     PrimaryItemData.m_shared.m_maxQuality = data.m_maxQuality;
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain;
@@ -2015,12 +2015,12 @@ namespace wackydatabase
                 m_backstabbonus = data.m_shared.m_backstabBonus,
                 m_equipDuration = data.m_shared.m_equipDuration,
                 m_foodHealth = data.m_shared.m_food,
-                m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
+               // m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
                 m_foodBurnTime = data.m_shared.m_foodBurnTime,
                 m_foodRegen = data.m_shared.m_foodRegen,
                 m_foodStamina = data.m_shared.m_foodStamina,
-                m_holdDurationMin = data.m_shared.m_holdDurationMin,
-                m_holdStaminaDrain = data.m_shared.m_holdStaminaDrain,
+               // m_holdDurationMin = data.m_shared.m_holdDurationMin,
+                //m_holdStaminaDrain = data.m_shared.m_holdStaminaDrain,
                 m_maxDurability = data.m_shared.m_maxDurability,
                 m_maxQuality = data.m_shared.m_maxQuality,
                 m_maxStackSize = data.m_shared.m_maxStackSize,
@@ -2053,6 +2053,8 @@ namespace wackydatabase
 
         }
         #endregion
+        
+        /*
         #region Armor
 
         [HarmonyPatch(typeof(ItemDrop), "SlowUpdate")] //checks every once in a while
@@ -2065,6 +2067,7 @@ namespace wackydatabase
                 CheckArmorData(ref __instance.m_itemData);
             }
         }
+        
         [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]
         static class GetDamageModifiersTooltipString_Patch
         {
@@ -2284,9 +2287,10 @@ namespace wackydatabase
             }
             return modPair.m_modifier;
         }
-
+        
 
         #endregion
+        */
         #region Patches
 
 
