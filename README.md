@@ -1,6 +1,6 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.3.0
+Version 1.3.2
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -122,9 +122,9 @@ The first value is the damage type, the second value is the resistance level.
 
 Valid damage types include:
 
-Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
+Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit  
 
-    ##Water
+    ##Water - Depreciated since Mistland update - 1.3.2
     Normal - no change
     Resistant - increases Wet status countdown speed by 100%
     Weak - decreases Wet status countdown speed by 1/3
@@ -185,6 +185,9 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
 ## Changelog
+        Version 1.3.2
+            Mistlands Update: Removed extra Wet effect/restance since Mistlands adds its own. 
+            Removed FoodColor, as it was removed from game and didn't really do anything.
         Version 1.3.0
             Hopefully fixed Co-Op hosting bug again..
         Version 1.2.9

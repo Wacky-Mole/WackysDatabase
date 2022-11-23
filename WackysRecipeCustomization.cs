@@ -40,7 +40,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.3.1";
+        internal const string ModVersion = "1.3.2";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -50,7 +50,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isautoreload;
         public static ConfigEntry<bool> isDebugString;
-        public static ConfigEntry<string> WaterName;
+       // public static ConfigEntry<string> WaterName;
         private static bool issettoSinglePlayer = false;
         private static bool isSettoAutoReload;
         private static bool isSetStringisDebug = false;
@@ -114,7 +114,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.3.1" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.3.2" }; // it is very picky on version number
 
 
         #endregion
@@ -2019,8 +2019,8 @@ namespace wackydatabase
                 m_foodBurnTime = data.m_shared.m_foodBurnTime,
                 m_foodRegen = data.m_shared.m_foodRegen,
                 m_foodStamina = data.m_shared.m_foodStamina,
-               // m_holdDurationMin = data.m_shared.m_holdDurationMin,
-                //m_holdStaminaDrain = data.m_shared.m_holdStaminaDrain,
+                m_holdDurationMin = data.m_shared.m_attack.m_drawDurationMin,
+                m_holdStaminaDrain = data.m_shared.m_attack.m_drawStaminaDrain,
                 m_maxDurability = data.m_shared.m_maxDurability,
                 m_maxQuality = data.m_shared.m_maxQuality,
                 m_maxStackSize = data.m_shared.m_maxStackSize,
