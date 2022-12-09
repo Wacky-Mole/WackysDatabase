@@ -1,6 +1,11 @@
 # WackysDatabase
 WackysDatabase by Wackymole
-Version 1.3.2
+
+Support me at https://www.buymeacoffee.com/WackyMole 
+
+<img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
+
+Version 1.3.5
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -142,7 +147,8 @@ m_blockPowerPerLevel:
 
 m_timedBlockBonus is the Parry bonus
 
-m_attackStamina set both Primary and Secondary attacks. Will expand upon in future.
+m_attackStamina is primary
+m_secattackStatmina is secondary attack
 
 The rest you can probably figure out. 
 
@@ -185,6 +191,12 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
 ## Changelog
+        Version 1.3.5
+            I have decided to add more parameters to Json file, so please do not use older version of Wackydb after upgrading. Wackydb 2.0 is not coming soon
+            Existing Jsons are fine to use, you can regenerate them to get new values. 
+            Added m_EitrCost, m_secEitrCost - These are attack costs for primary and secondary weapon attacks, no Eitr, no swing. 
+            m_FoodEitr - Food Eitr amount, m_EitrRegen- Modifier to Eitr Regen - Very powerful on clothes, weapons, added more warnings. 
+            Seperated out m_attackStamina and secondary m_attackStamina
         Version 1.3.2
             Mistlands Update: Removed extra Wet effect/restance since Mistlands adds its own. 
             Removed FoodColor, as it was removed from game and didn't really do anything.

@@ -32,6 +32,11 @@ namespace wackydatabase
 
 		public float m_attackStamina; // is set to both attacks
 
+		public float m_secAttackStamina;
+
+		public float m_EitrCost;
+
+		public float m_secEitrCost;
 		//public List<string> primaryAttack = new List<string>();
 
 		//public List<string> secondaryAttack = new List<string>();
@@ -48,13 +53,17 @@ namespace wackydatabase
 
 		public string m_foodColor;
 
+		public float m_FoodEitr;
+
 		public float m_armor;
 
 		public float m_armorPerLevel;
 
 		public float m_movementModifier;
 
-		public float m_blockPower;
+		public float m_EitrRegen;
+
+        public float m_blockPower;
 
 		public float m_blockPowerPerLevel;
 

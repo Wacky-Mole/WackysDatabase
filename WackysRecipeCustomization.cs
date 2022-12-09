@@ -33,6 +33,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Reflection.Emit;
+using YamlDotNet;
 
 namespace wackydatabase
 {
@@ -40,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.3.2";
+        internal const string ModVersion = "1.3.5";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -114,7 +115,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.3.2" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.3.5" }; // it is very picky on version number
 
 
         #endregion
@@ -727,13 +728,13 @@ namespace wackydatabase
             }
             if (go == null)
             {
-                Dbgl("maybe null " + data.name + " Should not get here");
+                WackysRecipeCustomizationLogger.LogWarning("maybe null " + data.name);
                 return;
             }
 
             if (go.GetComponent<ItemDrop>() == null)
             {
-                Dbgl($"Item recipe data for {data.name} not found!");
+                WackysRecipeCustomizationLogger.LogWarning($"Item recipe data for {data.name} not found!");
                 return;
             } // it is a prefab and it is an item.
             if (data.clone && !skip)
@@ -1306,17 +1307,17 @@ namespace wackydatabase
 
             if (go == null)
             {
-                Dbgl(" item in SetItemData null " + data.name);
+                WackysRecipeCustomizationLogger.LogWarning(" item in SetItemData null " + data.name);
                 return;
             }
             if (go.GetComponent<ItemDrop>() == null)
             {
-                Dbgl($"Item data in SetItemData for {data.name} not found!");
+                WackysRecipeCustomizationLogger.LogWarning($"Item data in SetItemData for {data.name} not found!");
                 return;
             } // it is a prefab and it is an item.
             if (string.IsNullOrEmpty(tempname) && data.clone)
             {
-                Dbgl($"Item cloned name is empty!");
+                WackysRecipeCustomizationLogger.LogWarning($"Item cloned name is empty!");
                 return;
             }
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
@@ -1468,10 +1469,11 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_foodStamina = data.m_foodStamina;
                     PrimaryItemData.m_shared.m_foodRegen = data.m_foodRegen;
                     PrimaryItemData.m_shared.m_foodBurnTime = data.m_foodBurnTime;
+                    PrimaryItemData.m_shared.m_foodEitr = data.m_FoodEitr;
                    // if (data.m_foodColor != null && data.m_foodColor != "" && data.m_foodColor.StartsWith("#"))
-                    //{
-                      //  PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
-                    //}
+                   //{
+                   //  PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
+                   //}
                     PrimaryItemData.m_shared.m_armor = data.m_armor;
                     PrimaryItemData.m_shared.m_armorPerLevel = data.m_armorPerLevel;
                     PrimaryItemData.m_shared.m_blockPower = data.m_blockPower;
@@ -1497,9 +1499,15 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_toolTier = data.m_toolTier;
                     PrimaryItemData.m_shared.m_value = data.m_value;
                     PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier;
+                    PrimaryItemData.m_shared.m_eitrRegenModifier = data.m_EitrRegen;
+
                     PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_attackStamina; // set for both
-                    PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_secAttackStamina;
+
+                    PrimaryItemData.m_shared.m_attack.m_attackEitr = data.m_EitrCost;
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.m_secEitrCost;
+
+                   PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
                     //PrimaryItemData.m_shared.m
 
                     // someone is going to complain that I am adding too many... I just know it.
@@ -2015,10 +2023,11 @@ namespace wackydatabase
                 m_backstabbonus = data.m_shared.m_backstabBonus,
                 m_equipDuration = data.m_shared.m_equipDuration,
                 m_foodHealth = data.m_shared.m_food,
-               // m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
+                // m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
                 m_foodBurnTime = data.m_shared.m_foodBurnTime,
                 m_foodRegen = data.m_shared.m_foodRegen,
                 m_foodStamina = data.m_shared.m_foodStamina,
+                m_FoodEitr = data.m_shared.m_foodEitr,
                 m_holdDurationMin = data.m_shared.m_attack.m_drawDurationMin,
                 m_holdStaminaDrain = data.m_shared.m_attack.m_drawStaminaDrain,
                 m_maxDurability = data.m_shared.m_maxDurability,
@@ -2039,8 +2048,13 @@ namespace wackydatabase
                 m_teleportable = data.m_shared.m_teleportable,
                 m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
                 m_movementModifier = data.m_shared.m_movementModifier,
+                m_EitrRegen = data.m_shared.m_eitrRegenModifier,
                 m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+                m_secAttackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
+                m_EitrCost = data.m_shared.m_attack.m_attackEitr,
+                m_secEitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
                 m_knockback = data.m_shared.m_attackForce,
+                
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 
             };
