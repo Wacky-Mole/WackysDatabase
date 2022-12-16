@@ -5,7 +5,7 @@ Support me at https://www.buymeacoffee.com/WackyMole
 
 <img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
 
-Version 1.3.5
+Version 1.3.6
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -191,6 +191,9 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
 ## Changelog
+        Version 1.3.6
+            Added m_attackHealthPercentage and m_secAttackHealthPercentage- Warning any Items that uses this Must be recreated. 
+            Otherwise default will go to 0. These items include the staffs that use a percentage of player health to power. 
         Version 1.3.5
             I have decided to add more parameters to Json file, so please do not use older version of Wackydb after upgrading. Wackydb 2.0 is not coming soon
             Existing Jsons are fine to use, you can regenerate them to get new values. 

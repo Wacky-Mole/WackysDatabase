@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.3.5";
+        internal const string ModVersion = "1.3.6";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -115,7 +115,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.3.5" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.3.6" }; // it is very picky on version number
 
 
         #endregion
@@ -1501,10 +1501,12 @@ namespace wackydatabase
                     PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier;
                     PrimaryItemData.m_shared.m_eitrRegenModifier = data.m_EitrRegen;
 
+                    PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.m_attackHealthPercentage;
                     PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_secAttackStamina;
-
                     PrimaryItemData.m_shared.m_attack.m_attackEitr = data.m_EitrCost;
+
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage = data.m_secAttackHealthPercentage;
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_secAttackStamina;
                     PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.m_secEitrCost;
 
                    PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
@@ -2053,6 +2055,8 @@ namespace wackydatabase
                 m_secAttackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
                 m_EitrCost = data.m_shared.m_attack.m_attackEitr,
                 m_secEitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
+                m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
+                m_secAttackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
                 m_knockback = data.m_shared.m_attackForce,
                 
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),

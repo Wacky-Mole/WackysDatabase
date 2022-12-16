@@ -37,11 +37,16 @@ namespace wackydatabase
 		public float m_EitrCost;
 
 		public float m_secEitrCost;
-		//public List<string> primaryAttack = new List<string>();
 
-		//public List<string> secondaryAttack = new List<string>();
+		public float m_attackHealthPercentage;
 
-		public int m_maxStackSize;
+		public float m_secAttackHealthPercentage;
+
+        //public List<string> primaryAttack = new List<string>();
+
+        //public List<string> secondaryAttack = new List<string>();
+
+        public int m_maxStackSize;
 
 		public float m_foodHealth;
 
