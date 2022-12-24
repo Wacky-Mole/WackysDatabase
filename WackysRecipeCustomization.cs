@@ -787,6 +787,10 @@ namespace wackydatabase
                             break;
                         }
                     }
+                    if (Instant.m_recipes.Count == 0)
+                    {
+                        index = 0;
+                    }
                     Instant.m_recipes.Insert(index, clonerecipe);
                     //Dbgl($"Recipe clone check {citem} against {data.name}");
 
@@ -1605,11 +1609,11 @@ namespace wackydatabase
             }
             foreach (GameObject piece in GetPieces())
             {
+                //if (piece.GetComponent<Piece>()?.m_craftingStation)
+                  //  Dbgl("got crafting station " + name);
 
                 if (piece.GetComponent<Piece>()?.m_craftingStation?.m_name == name)
                 {
-
-                    // Dbgl("got crafting station " + name);
 
                     return piece.GetComponent<Piece>().m_craftingStation;
 
