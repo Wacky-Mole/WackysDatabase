@@ -1,11 +1,7 @@
 # WackysDatabase
 WackysDatabase by Wackymole
 
-Support me at https://www.buymeacoffee.com/WackyMole 
-
-<img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
-
-Version 1.3.6
+Version 1.4.0
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -190,9 +186,28 @@ Arrows x50 will be put above Arrow x20
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
+<details><summary>Feedback</summary>
+
+https://github.com/Wacky-Mole/WackysDatabase
+
+For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus)
+
+It has been a lot of fun making this mod, if you need help please ask in Odin's Server
+
+Support me at https://www.buymeacoffee.com/WackyMole 
+
+<img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
+
+</details> 
+
+
 ## Changelog
+        Version 1.4.0
+            Added DedServer load Memory config to allow people to see if loading Wackydb on DedServer helps or hinders. 
+            extraSecurity - Allows people who don't want the extra cheat protection to disable it and not get 0.0.1 Error
+            Big News! Added auto Icon Generation to cloned Items with custom material, and all Pieces with custom material(pieces angles are a little wonky) - Thx Blaxx for code
         Version 1.3.6
-            Added m_attackHealthPercentage and m_secAttackHealthPercentage- Warning any Items that uses this Must be recreated. 
+            Added m_attackHealthPercentage and m_secAttackHealthPercentage- Warning any Items that uses this Must be recreated. s
             Otherwise default will go to 0. These items include the staffs that use a percentage of player health to power. 
         Version 1.3.5
             I have decided to add more parameters to Json file, so please do not use older version of Wackydb after upgrading. Wackydb 2.0 is not coming soon

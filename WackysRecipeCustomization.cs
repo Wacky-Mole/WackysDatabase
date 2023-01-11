@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.3.6";
+        internal const string ModVersion = "1.4.0";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -51,6 +51,8 @@ namespace wackydatabase
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isautoreload;
         public static ConfigEntry<bool> isDebugString;
+        public static ConfigEntry<bool> ServerDedLoad;
+        public static ConfigEntry<bool> extraSecurity;
        // public static ConfigEntry<string> WaterName;
         private static bool issettoSinglePlayer = false;
         private static bool isSettoAutoReload;
@@ -94,6 +96,7 @@ namespace wackydatabase
         private static Dictionary<GameObject, GameObject> AdminPiecesOnly;
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
+        public static bool ForceLogout = false;
 
 
 
@@ -115,7 +118,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.3.6" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.4.0" }; // it is very picky on version number
 
 
         #endregion
@@ -158,8 +161,12 @@ namespace wackydatabase
             {
                 //WackysRecipeCustomizationLogger.LogWarning("Admin checker");
                 issettoSinglePlayer = true;
-                ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + ConfigSync.CurrentVersion);
+                ForceLogout = true;
+                if (extraSecurity.Value)
+                {
+                    ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+                    WackysRecipeCustomizationLogger.LogWarning("You Will be kicked from Multiplayer Servers! " + ConfigSync.CurrentVersion);
+                }
             }
             if (LobbyRegistered)
             {
@@ -192,6 +199,8 @@ namespace wackydatabase
             isDebug = config<bool>("General", "IsDebug", true, "Enable debug logs", false);
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
+            ServerDedLoad = config<bool>("General", "DedServer load Memory", false, "Dedicated Servers will load wackydb files as a client would, this is usually not needed");
+            extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             //isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
             //WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
             ConfigSync.CurrentVersion = ModVersion;
@@ -313,6 +322,10 @@ namespace wackydatabase
                 else
                 {
                     GetRecipeDataFromFiles();
+
+                    if (ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
+                        return;
+
                     ObjectDB Instant = ObjectDB.instance;
                     // CLONE PASS FIRST - only for craftingStation
                     foreach (var data3 in PieceDatas)
@@ -365,16 +378,21 @@ namespace wackydatabase
                         }
                         catch { WackysRecipeCustomizationLogger.LogWarning($"SetRecipe Data for {data.name} failed"); }
                     }
+                    Dbgl($"Item Hashes Ready to Update");
+                    try
+                    {
+                        ObjectDB.instance.UpdateItemHashes();
+                    }
+                    catch
+                    {
+                        Dbgl($"failed to update Hashes- probably due to too many calls");
+                    }
+                    
                     Dbgl($" You did reload LOCAL Files");
-                }
-                try
-                {
-                    ObjectDB.instance.UpdateItemHashes();
-                }
-                catch
-                {
-                    Dbgl($"failed to update Hashes- probably due to too many calls");
-                }
+
+                    FindandDestoryCamerasandLights();
+                }// else end
+
             }
             else
             {
@@ -397,7 +415,12 @@ namespace wackydatabase
             }
             //  else
             {
-
+                if (extraSecurity.Value && ForceLogout)
+                {
+                    WackysRecipeCustomizationLogger.LogWarning("Server has extraSecurity enabled and you entered singleplayer before connecing - Logoff forced");
+                    Game.instance.Logout();
+                }
+               
                 if (Firstrun)
                 {
                     GetAllMaterials();
@@ -535,6 +558,8 @@ namespace wackydatabase
                         }
 
                         WackysRecipeCustomizationLogger.LogDebug("done with customSyncEvent");
+                        FindandDestoryCamerasandLights();
+
                     }
                     else
                     {
@@ -1114,6 +1139,7 @@ namespace wackydatabase
                     }
                 }
                 catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                SnapshotItem(null, go.GetComponent<Piece>());
             }
             CraftingStation craft = GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
             go.GetComponent<Piece>().m_craftingStation = craft;
@@ -1422,6 +1448,7 @@ namespace wackydatabase
                         {
                             Dbgl($"Item {tempname} failed to update Hashes");
                         }
+                        SnapshotItem(NewItemComp); // snapshot go
                     }
                     Dbgl($"Item being Set in SetItemData for {data.name} ");
 
@@ -2805,12 +2832,16 @@ namespace wackydatabase
                     return;
                 context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
 
-                if (!ZNet.instance.IsServer() && HasLobbied) // is client now
+                if (!ZNet.instance.IsServer() && HasLobbied ) // is client now
                 {
+                    ForceLogout = true;
                     // Has Lobbied in Past and could try to use this to get around lockout. 
-                   // issettoSinglePlayer = true;
-                    ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                    WackysRecipeCustomizationLogger.LogWarning("You hosted a COOP game before trying to connect to a server - LOCKOUT - 0.0.1 - Restart Game " + ConfigSync.CurrentVersion);
+                    // issettoSinglePlayer = true;
+                    if (extraSecurity.Value)
+                    {
+                        ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+                        WackysRecipeCustomizationLogger.LogWarning("You hosted a COOP game before trying to connect to a server - LOCKOUT - 0.0.1 - Restart Game " + ConfigSync.CurrentVersion);
+                    }
                 }
                 //LoadAllRecipeData(true);
             }
@@ -3020,6 +3051,123 @@ namespace wackydatabase
                 }
             }
             return TheString;
+        }
+
+
+        public static void SnapshotItem(ItemDrop item = null, Piece pieceobj = null, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
+        {
+            const int layer = 30;
+
+            Camera camera = new GameObject("CameraIcon", typeof(Camera)).GetComponent<Camera>();
+            camera.backgroundColor = Color.clear;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.fieldOfView = 0.5f;
+            camera.farClipPlane = 10000000;
+            camera.cullingMask = 1 << layer;
+            if (item != null)
+                camera.transform.rotation = cameraRotation ?? Quaternion.Euler(90, 0, 45);
+            else
+                camera.transform.rotation = cameraRotation ?? Quaternion.Euler(90, 0, 45);
+
+            Light topLight = new GameObject("LightIcon", typeof(Light)).GetComponent<Light>();
+            topLight.transform.rotation = Quaternion.Euler(150, 0, -5f);
+            topLight.type = LightType.Directional;
+            topLight.cullingMask = 1 << layer;
+            topLight.intensity = lightIntensity;
+
+            Rect rect = new(0, 0, 64, 64);
+            GameObject visualSnapshot;
+            if (item != null)
+            {
+                WackysRecipeCustomizationLogger.LogInfo("Object is an Item for snapshot clone");
+                visualSnapshot = UnityEngine.Object.Instantiate(item.transform.Find("attach").gameObject);
+                foreach (Transform child in visualSnapshot.GetComponentsInChildren<Transform>())
+                {
+                    child.gameObject.layer = layer;
+                }
+            }
+            else
+            {
+                WackysRecipeCustomizationLogger.LogInfo("Object is an Piece for snapshot clone"); // broken right now
+                visualSnapshot = UnityEngine.Object.Instantiate(pieceobj.gameObject);
+                foreach (Transform child in visualSnapshot.GetComponentsInChildren<Transform>())
+                {
+                    child.gameObject.layer = layer; 
+                }
+               // visualSnapshot.transform.position = new Vector3(-135, 90, 135);
+            }
+          
+            Renderer[] renderers = visualSnapshot.GetComponentsInChildren<Renderer>();
+            Vector3 min = renderers.Aggregate(Vector3.positiveInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Min(cur, renderer.bounds.min));
+            Vector3 max = renderers.Aggregate(Vector3.negativeInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Max(cur, renderer.bounds.max));
+            Vector3 size = max - min;
+ 
+            camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
+            float maxDim = Mathf.Max(size.x, size.z);
+            float minDim = Mathf.Min(size.x, size.z);
+            float yDist = (maxDim + minDim) / Mathf.Sqrt(2) / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad);
+            Transform transform = camera.transform;
+            if (item != null)
+             transform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
+            else
+                transform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
+
+            topLight.transform.position = transform.position + new Vector3(-2, 0, 0.2f) / 3 * -yDist;
+
+            camera.Render();
+ 
+            RenderTexture currentRenderTexture = RenderTexture.active;
+            RenderTexture.active = camera.targetTexture;
+
+            Texture2D texture = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+            texture.ReadPixels(rect, 0, 0);
+            texture.Apply();
+
+            RenderTexture.active = currentRenderTexture;
+
+            if (item != null)
+                item.m_itemData.m_shared.m_icons = new[] { Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f)) };
+            else
+            {
+                pieceobj.m_icon =  Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f)) ;
+            }
+            
+            topLight.gameObject.SetActive(false);
+            camera.targetTexture.Release();
+            camera.gameObject.SetActive(false);
+
+            if (item != null)
+            {
+                UnityEngine.Object.DestroyImmediate(visualSnapshot);
+            }else
+            {
+                visualSnapshot.gameObject.SetActive(false);
+                //UnityEngine.Object.Destroy(visual);
+            }
+       
+            UnityEngine.Object.Destroy(camera);
+            UnityEngine.Object.Destroy(topLight);
+            UnityEngine.Object.Destroy(camera.gameObject);
+            UnityEngine.Object.Destroy(topLight.gameObject);
+    
+
+        }
+
+       public static void FindandDestoryCamerasandLights()
+        {
+           foreach (var cam in Resources.FindObjectsOfTypeAll<Camera>().Where(c => c.GetComponent<Camera>().enabled).ToList())
+            {
+                if (cam.name == "CameraIcon")
+                    UnityEngine.Object.DestroyImmediate(cam);
+            }
+            foreach (var light in Resources.FindObjectsOfTypeAll<Light>().Where(c => c.GetComponent<Light>().enabled).ToList())
+            {
+                if (light.name == "LightIcon")
+                    UnityEngine.Object.DestroyImmediate(light);
+            }
+
+
+
         }
 
 
