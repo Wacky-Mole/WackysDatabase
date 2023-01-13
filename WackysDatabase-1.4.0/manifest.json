@@ -1,6 +1,6 @@
 ﻿{
   "name": "WackysDatabase",
-  "version_number": "1.3.6",
+  "version_number": "1.4.0",
   "website_url": "https://www.nexusmods.com/valheim/mods/1825",
   "description": "WackysDatabase allows you to control all items/recipes/pieces via JSON files with ServerSync and so much more.",
   "dependencies": [

@@ -54,6 +54,10 @@ StringisDebug = false  // debugs your strings.. extra logs
 
 IsAutoReload = false // auto reloads instead of wackydb_reload
 
+ ServerDedLoad = false // Actually loads changes into memeory for dedicated servers - not that useful, but may fix problems.
+
+ extraSecurity = true // This sets the 0.0.1 Message when people log onto Singleplayer and then try to connect to hosted servers. Disabling this could allow cheating, but help crossplay Coop servers or others.
+
 
 ## Console Commands
 
@@ -105,6 +109,8 @@ clonePrefabName: if it is a clone, the object needs to reference the original pr
 
 
 cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
+
+Cloned items automatically generate an new Icon when cloned. 
 
 m_damages: how much and what type of damage is inflicted.
 
@@ -167,6 +173,7 @@ cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Imag
 - Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible. "material1,material2" (full,half health)(no spaces)
 - Otherwise "material1", one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
 - Should work for any piece at full health, some pieces change textures and models at 3/4 and 1/2 health, this won't stop them from changing. Maybe in future.
+- Anytime cloneMaterial gets set for pieces a new icon is created. Icons for pieces is kind of wonky or wacky if you will. Sorry about that, but at least you have icons. 
 
 
 ## Recipe Options: 
@@ -205,7 +212,7 @@ Support me at https://www.buymeacoffee.com/WackyMole
         Version 1.4.0
             Added DedServer load Memory config to allow people to see if loading Wackydb on DedServer helps or hinders. 
             extraSecurity - Allows people who don't want the extra cheat protection to disable it and not get 0.0.1 Error
-            Big News! Added auto Icon Generation to cloned Items with custom material, and all Pieces with custom material(pieces angles are a little wonky) - Thx Blaxx for code
+            Big News! Added auto Icon Generation to cloned Items, and all Pieces with custom material(pieces angles are a little wonky or wacky if you will) - Thx Blaxx for code
         Version 1.3.6
             Added m_attackHealthPercentage and m_secAttackHealthPercentage- Warning any Items that uses this Must be recreated. s
             Otherwise default will go to 0. These items include the staffs that use a percentage of player health to power. 

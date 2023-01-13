@@ -323,7 +323,7 @@ namespace wackydatabase
                 {
                     GetRecipeDataFromFiles();
 
-                    if (ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
+                    if (!ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
                         return;
 
                     ObjectDB Instant = ObjectDB.instance;
@@ -413,7 +413,7 @@ namespace wackydatabase
             {
                 isDedServer = true;
             }
-            //  else
+            
             {
                 if (extraSecurity.Value && ForceLogout)
                 {
