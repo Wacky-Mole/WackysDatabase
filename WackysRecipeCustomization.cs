@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.4.0";
+        internal const string ModVersion = "1.4.1";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -118,7 +118,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.4.0" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.4.1" }; // it is very picky on version number
 
 
         #endregion
@@ -1448,8 +1448,15 @@ namespace wackydatabase
                         {
                             Dbgl($"Item {tempname} failed to update Hashes");
                         }
-                        SnapshotItem(NewItemComp); // snapshot go
+                        if (!string.IsNullOrEmpty(data.cloneMaterial))
+                        {
+                            try
+                            {
+                                SnapshotItem(NewItemComp); // snapshot go
+                            }catch { WackysRecipeCustomizationLogger.LogInfo("Icon cloned failed"); }
+                        }
                     }
+
                     Dbgl($"Item being Set in SetItemData for {data.name} ");
 
                     if (data.m_damages != null && data.m_damages != "")

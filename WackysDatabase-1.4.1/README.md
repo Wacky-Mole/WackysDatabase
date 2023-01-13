@@ -1,7 +1,7 @@
 # WackysDatabase
 WackysDatabase by Wackymole
 
-Version 1.4.0
+Version 1.4.1
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -209,6 +209,8 @@ Support me at https://www.buymeacoffee.com/WackyMole
 
 
 ## Changelog
+        Version 1.4.1
+            Some items don't like snapshot icons - Added extra checks and only items with material changes get new icons
         Version 1.4.0
             Added DedServer load Memory config to allow people to see if loading Wackydb on DedServer helps or hinders. 
             extraSecurity - Allows people who don't want the extra cheat protection to disable it and not get 0.0.1 Error
