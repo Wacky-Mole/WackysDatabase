@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.4.1";
+        internal const string ModVersion = "1.4.2";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -118,7 +118,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.4.1" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.4.2" }; // it is very picky on version number
 
 
         #endregion
@@ -1139,7 +1139,7 @@ namespace wackydatabase
                     }
                 }
                 catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
-                SnapshotItem(null, go.GetComponent<Piece>());
+                //SnapshotItem(null, go.GetComponent<Piece>());
             }
             CraftingStation craft = GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
             go.GetComponent<Piece>().m_craftingStation = craft;
@@ -1441,7 +1441,7 @@ namespace wackydatabase
                         PrimaryItemData = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
                         try
-                        {
+                        { 
                             // ObjectDB.instance.UpdateItemHashes();
                         }
                         catch
@@ -3097,6 +3097,8 @@ namespace wackydatabase
             {
                 WackysRecipeCustomizationLogger.LogInfo("Object is an Piece for snapshot clone"); // broken right now
                 visualSnapshot = UnityEngine.Object.Instantiate(pieceobj.gameObject);
+                visualSnapshot.GetComponent<Piece>().enabled = false;
+                visualSnapshot.GetComponent<ZNetView>().enabled = false;
                 foreach (Transform child in visualSnapshot.GetComponentsInChildren<Transform>())
                 {
                     child.gameObject.layer = layer; 
@@ -3149,7 +3151,9 @@ namespace wackydatabase
             }else
             {
                 visualSnapshot.gameObject.SetActive(false);
-                //UnityEngine.Object.Destroy(visual);
+                visualSnapshot = null;
+                //Destroy(visualSnapshot, 10);
+               // Destroy();
             }
        
             UnityEngine.Object.Destroy(camera);
