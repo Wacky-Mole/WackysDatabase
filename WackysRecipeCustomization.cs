@@ -34,6 +34,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Reflection.Emit;
 using YamlDotNet;
+using Object = UnityEngine.Object;
 
 namespace wackydatabase
 {
@@ -41,7 +42,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.4.2";
+        internal const string ModVersion = "1.4.3";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -1139,6 +1140,7 @@ namespace wackydatabase
                     }
                 }
                 catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                //SnapshotPiece(go); // piece snapshot doesn't work without instancing
                 //SnapshotItem(null, go.GetComponent<Piece>());
             }
             CraftingStation craft = GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
@@ -3029,6 +3031,86 @@ namespace wackydatabase
                 originalMaterials[val.name] = val;
             }
         }
+        internal static void SnapshotPiece(GameObject prefab, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
+        {
+            const int layer = 3;
+            if (prefab == null) return;
+            if (!prefab.GetComponentsInChildren<Renderer>().Any() && !prefab.GetComponentsInChildren<MeshFilter>().Any())
+            {
+                return;
+            }
+
+            Camera camera = new GameObject("CameraIcon", typeof(Camera)).GetComponent<Camera>();
+            camera.backgroundColor = Color.clear;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.transform.position = new Vector3(10000f, 10000f, 10000f);
+            camera.transform.rotation = cameraRotation ?? Quaternion.Euler(0f, 180f, 0f);
+            camera.fieldOfView = 0.5f;
+            camera.farClipPlane = 100000;
+            camera.cullingMask = 1 << layer;
+
+            Light sideLight = new GameObject("LightIcon", typeof(Light)).GetComponent<Light>();
+            sideLight.transform.position = new Vector3(10000f, 10000f, 10000f);
+            sideLight.transform.rotation = Quaternion.Euler(5f, 180f, 5f);
+            sideLight.type = LightType.Directional;
+            sideLight.cullingMask = 1 << layer;
+            sideLight.intensity = lightIntensity;
+
+            GameObject visual = Object.Instantiate(prefab);
+            foreach (Transform child in visual.GetComponentsInChildren<Transform>())
+            {
+                child.gameObject.layer = layer;
+            }
+
+            visual.transform.position = Vector3.zero;
+            visual.transform.rotation = Quaternion.Euler(23, 51, 25.8f);
+            visual.name = prefab.name;
+
+            MeshRenderer[] renderers = visual.GetComponentsInChildren<MeshRenderer>();
+            Vector3 min = renderers.Aggregate(Vector3.positiveInfinity,
+                (cur, renderer) => Vector3.Min(cur, renderer.bounds.min));
+            Vector3 max = renderers.Aggregate(Vector3.negativeInfinity,
+                (cur, renderer) => Vector3.Max(cur, renderer.bounds.max));
+            // center the prefab
+            visual.transform.position = (new Vector3(10000f, 10000f, 10000f)) - (min + max) / 2f;
+            Vector3 size = max - min;
+
+            // just in case it doesn't gets deleted properly later
+            TimedDestruction timedDestruction = visual.AddComponent<TimedDestruction>();
+            timedDestruction.Trigger(1f);
+            Rect rect = new(0, 0, 128, 128);
+            camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
+
+            camera.fieldOfView = 20f;
+            // calculate the Z position of the prefab as it needs to be far away from the camera
+            float maxMeshSize = Mathf.Max(size.x, size.y) + 0.1f;
+            float distance = maxMeshSize / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad) * 1.1f;
+
+            camera.transform.position = (new Vector3(10000f, 10000f, 10000f)) + new Vector3(0, 0, distance);
+
+            camera.Render();
+
+            RenderTexture currentRenderTexture = RenderTexture.active;
+            RenderTexture.active = camera.targetTexture;
+
+            Texture2D previewImage = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+            previewImage.ReadPixels(new Rect(0, 0, (int)rect.width, (int)rect.height), 0, 0);
+            previewImage.Apply();
+
+            RenderTexture.active = currentRenderTexture;
+
+            prefab.GetComponent<Piece>().m_icon = Sprite.Create(previewImage, new Rect(0, 0, (int)rect.width, (int)rect.height), Vector2.one / 2f);
+            sideLight.gameObject.SetActive(false);
+            camera.targetTexture.Release();
+            camera.gameObject.SetActive(false);
+            visual.SetActive(false);
+            Object.DestroyImmediate(visual);
+            Object.Destroy(camera);
+            Object.Destroy(sideLight);
+            Object.Destroy(camera.gameObject);
+            Object.Destroy(sideLight.gameObject);
+        }
+
         public static string GetAllMaterialsFile()
         {
             string TheString = "";
