@@ -418,7 +418,7 @@ namespace wackydatabase
             {
                 if (extraSecurity.Value && ForceLogout)
                 {
-                    WackysRecipeCustomizationLogger.LogWarning("Server has extraSecurity enabled and you entered singleplayer before connecing - Logoff forced");
+                    WackysRecipeCustomizationLogger.LogError("Server has extraSecurity enabled and you entered singleplayer before connecting - Logoff forced");
                     Game.instance.Logout();
                 }
                
