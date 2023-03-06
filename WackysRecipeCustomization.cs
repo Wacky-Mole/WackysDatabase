@@ -145,6 +145,12 @@ namespace wackydatabase
 
 
         }
+
+      /*  [HarmonyPatch(typeof(Recipe), "GetRequiredStationLevel")]
+        private class RecipePatch
+        {
+
+        } */
         public static bool SinglePlayerchecker
         {
             get { return issettoSinglePlayer; }
