@@ -69,35 +69,4 @@ namespace wackydatabase.PatchClasses
     }
 
 
-
-
-    [HarmonyPatch(typeof(ZNet), "Shutdown")]
-     class PatchZNetDisconnect
-    {
-        private static bool Prefix()
-        {
-            wackydatabase.WMRecipeCust.WLog.LogWarning("Logoff? So reset - character will look empty if using clone gear");
-            if (wackydatabase.WMRecipeCust.issettoSinglePlayer)
-            {
-                Closing.DestoryClones();
-
-            }
-            else
-            {
-                Closing.DestoryClones();
-            }
-            wackydatabase.WMRecipeCust.NoMoreLoading = true;
-            return true;
-        }
-    }
-
-    [HarmonyPatch(typeof(ZNet), "OnDestroy")]
-     class PatchZNetDestory
-    {
-        private static void Postfix()
-        { // The Server send once last config sync before destory, but after Shutdown which messes stuff up. 
-            wackydatabase.WMRecipeCust.recieveServerInfo = false;
-            wackydatabase.WMRecipeCust.NoMoreLoading = false;
-        }
-    }
 }

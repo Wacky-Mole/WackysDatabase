@@ -126,7 +126,7 @@ namespace wackydatabase.SetData
                     WMRecipeCust.WLog.LogWarning($" Reloading - remove before final");
                     ObjectDB Instant = ObjectDB.instance;
                     // CLONE PASS FIRST - only for craftingStation
-                    foreach (var data3 in WMRecipeCust.PieceDatas)
+                    foreach (var data3 in WMRecipeCust.pieceDatasYml)
                     {
                         if (data3 != null && data3.clone)
                         {
@@ -150,7 +150,7 @@ namespace wackydatabase.SetData
                     }
                     // END CLONE PASS
                     // Real PASS NOW
-                    foreach (var data in WMRecipeCust.ItemDatas) // call items first
+                    foreach (var data in WMRecipeCust.itemDatasYml) // call items first
                     {
                         try
                         {
@@ -160,7 +160,7 @@ namespace wackydatabase.SetData
 
                     }
                     Instant.UpdateItemHashes();
-                    foreach (var data in WMRecipeCust.PieceDatas)
+                    foreach (var data in WMRecipeCust.pieceDatasYml)
                     {
                         try
                         {
@@ -168,7 +168,7 @@ namespace wackydatabase.SetData
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data.name} failed"); }
                     }
-                    foreach (var data in WMRecipeCust.recipeDatas) // recipes last
+                    foreach (var data in WMRecipeCust.recipeDatasYml) // recipes last
                     {
                         try
                         {

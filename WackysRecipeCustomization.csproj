@@ -118,7 +118,8 @@
     <Compile Include="Datas\RecipeData.cs" />
     <Compile Include="Datas\TextureData.cs" />
     <Compile Include="Datas\ValheimTime.cs" />
-    <Compile Include="GetData\GetData.cs" />
+    <Compile Include="GetData\GetDataYML.cs" />
+    <Compile Include="GetData\GetDataOld\GetData.cs" />
     <Compile Include="GetData\YamlLoader.cs" />
     <Compile Include="PatchClasses\basicpatches.cs" />
     <Compile Include="PatchClasses\console.cs" />

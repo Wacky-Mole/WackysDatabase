@@ -13,7 +13,8 @@ using System.Security.Cryptography;
 using wackydatabase.Datas;
 using wackydatabase.Util;
 using wackydatabase.GetData;
-
+using YamlDotNet.Serialization;
+using YamlDotNet.Core;
 
 namespace wackydatabase.PatchClasses
 {
@@ -110,7 +111,7 @@ namespace wackydatabase.PatchClasses
                          }
 
                      });
-
+/*
             Terminal.ConsoleCommand WackyDump =
                  new("wackydb_dump", "dump the item or recipe into the logs",
                      args =>
@@ -149,7 +150,7 @@ namespace wackydatabase.PatchClasses
                              args.Context?.AddString($"WackyDatabase dumped {comtype}");
                          }
                      });
-
+            
             Terminal.ConsoleCommand WackyDumpAll =
                  new("wackydb_dump_all", "dump all",
                      args =>
@@ -213,17 +214,22 @@ namespace wackydatabase.PatchClasses
                          }
 
                      });
+            */
 
             Terminal.ConsoleCommand WackyitemSave =
                 new("wackydb_save_item", "Save an Item ",
                     args =>
                     {
                         string file = args[1];
-                        WItemData_json recipData = GetData.GetData.GetItemDataByName(file);
+                        GetDataYML ItemCheck = new GetDataYML();
+
+                        WItemData recipData = ItemCheck.GetItemDataByName(file, ObjectDB.instance);
                         if (recipData == null)
                             return;
                         WMRecipeCust.CheckModFolder();
-                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
+                        var serializer = new SerializerBuilder()
+                            .Build();
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved item data to Item_{file}.json");
 
                     });
@@ -232,49 +238,55 @@ namespace wackydatabase.PatchClasses
                     args =>
                     {
                         string file = args[1];
-                        PieceData_json recipData = GetData.GetData.GetPieceRecipeByName(file);
+                        GetDataYML PieceCheck = new GetDataYML();
+                        PieceData recipData = PieceCheck.GetPieceRecipeByName(file, ObjectDB.instance);
                         if (recipData == null)
                             return;
                         WMRecipeCust.CheckModFolder();
-                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
+                        var serializer = new SerializerBuilder()
+                            .Build();
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved data to Piece_{file}.json");
 
                     });
             Terminal.ConsoleCommand WackyRecipeSave =
-new("wackydb_save_recipe", "Save a recipe ",
-    args =>
-    {
-        string file = args[1];
-        RecipeData_json recipData = GetData.GetData.GetRecipeDataByName(file);
-        if (recipData == null)
-            return;
-        WMRecipeCust.CheckModFolder();
-        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipData.name + ".json"), JsonUtility.ToJson(recipData, true));
-        args.Context?.AddString($"saved data to Recipe_{file}.json");
+                new("wackydb_save_recipe", "Save a recipe ",
+                    args =>
+                    {
+                        string file = args[1];
+                        GetDataYML RecipeCheck = new GetDataYML();
+                        RecipeData recipData = RecipeCheck.GetRecipeDataByName(file, ObjectDB.instance);
+                        if (recipData == null)
+                            return;
+                        WMRecipeCust.CheckModFolder();
+                        var serializer = new SerializerBuilder()
+                            .Build();
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipData.name + ".yml"), serializer.Serialize(recipData));
+                        args.Context?.AddString($"saved data to Recipe_{file}.json");
 
-    });
+                    });
 
             Terminal.ConsoleCommand WackyMaterials =
-new("wackydb_material", "Create txt file of materials",
-    args =>
-    {
-        string theString = Functions.GetAllMaterialsFile();
-        WMRecipeCust.CheckModFolder();
-        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "Materials.txt"), theString);
-        args.Context?.AddString($"saved data to Materials.txt");
+                new("wackydb_material", "Create txt file of materials",
+                    args =>
+                    {
+                        string theString = Functions.GetAllMaterialsFile();
+                        WMRecipeCust.CheckModFolder();
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "Materials.txt"), theString);
+                        args.Context?.AddString($"saved data to Materials.txt");
 
-    });
+                    });
 
             Terminal.ConsoleCommand Wackyvfx =
-new("wackydb_vfx", "Create txt file of VFX",
-    args =>
-    {
-        string theString2 = Functions.GetAllVFXFile();
-        WMRecipeCust.CheckModFolder();
-        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "vfx.txt"), theString2);
-        args.Context?.AddString($"saved data to VFX.txt");
+                new("wackydb_vfx", "Create txt file of VFX",
+                    args =>
+                    {
+                        string theString2 = Functions.GetAllVFXFile();
+                        WMRecipeCust.CheckModFolder();
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "vfx.txt"), theString2);
+                        args.Context?.AddString($"saved data to VFX.txt");
 
-    });
+                    });
 
             /* syntax for cloning
              * wackydb_clone <item/recipe/piece> <prefab to clone> <nameofclone>(has to be unquie otherwise we would have to check) 
@@ -300,31 +312,34 @@ new("wackydb_vfx", "Create txt file of VFX",
                                 args.Context?.AddString($"<color=red>{newname} is already a ingame name. -Bad </color>");
                                 return;
                             }
+                            var serializer = new SerializerBuilder()
+                            .Build();
+                            GetDataYML RecipeCheck = new GetDataYML();
 
                             if (commandtype == "recipe" || commandtype == "Recipe")
                             {
                                 WMRecipeCust.CheckModFolder();
                                 if (args.Length - 1 < 4)
                                 {
-                                    RecipeData_json clone = GetData.GetData.GetRecipeDataByName(prefab);// actually it could be a different prefab if cloned item
+                                    RecipeData clone = RecipeCheck.GetRecipeDataByName(prefab, ObjectDB.instance);// actually it could be a different prefab if cloned item
                                     if (clone == null)
                                         return;
                                     clone.name = newname;
                                     clone.clone = true;
                                     clone.clonePrefabName = prefab;
-                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
                                     file = "Recipe" + clone.name;
                                 }
                                 else
                                 {
                                     string prefabitem = args[4];
-                                    RecipeData_json clone = GetData.GetData.GetRecipeDataByName(prefabitem);//  prefab of cloned item
+                                    RecipeData clone = RecipeCheck.GetRecipeDataByName(prefabitem, ObjectDB.instance);//  prefab of cloned item
                                     if (clone == null)
                                         return;
                                     clone.name = newname;
                                     clone.clone = true;
                                     clone.clonePrefabName = prefab; // cloned item
-                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
                                     file = "Cloned Item " + clone.name + " Clone Recipe from " + prefabitem;
 
                                 } // added optional arugment for cloned items
@@ -333,7 +348,7 @@ new("wackydb_vfx", "Create txt file of VFX",
                             }
                             if (commandtype == "item" || commandtype == "Item")
                             {
-                                WItemData_json clone = GetData.GetData.GetItemDataByName(prefab);
+                                WItemData clone = RecipeCheck.GetItemDataByName(prefab, ObjectDB.instance);
                                 if (clone == null)
                                     return;
                                 clone.name = newname;
@@ -345,7 +360,7 @@ new("wackydb_vfx", "Create txt file of VFX",
                                 if (clone == null)
                                     return;
                                 WMRecipeCust.CheckModFolder();
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + clone.name + ".yml"), serializer.Serialize(clone));
                                 file = "Item_" + clone.name;
 
 
@@ -353,7 +368,7 @@ new("wackydb_vfx", "Create txt file of VFX",
                             }
                             if (commandtype == "piece" || commandtype == "Piece")
                             {
-                                PieceData_json clone = GetData.GetData.GetPieceRecipeByName(prefab);
+                                PieceData clone = RecipeCheck.GetPieceRecipeByName(prefab, ObjectDB.instance);
                                 if (clone == null)
                                     return;
                                 clone.name = newname;
@@ -365,11 +380,11 @@ new("wackydb_vfx", "Create txt file of VFX",
                                 if (clone == null)
                                     return;
                                 WMRecipeCust.CheckModFolder();
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + clone.name + ".yml"), serializer.Serialize(clone));
                                 file = "Piece_" + clone.name;
 
                             }
-                            args.Context?.AddString($"saved cloned data to {file}.json");
+                            args.Context?.AddString($"saved cloned data to {file}.yml");
                         }
                     });
             Terminal.ConsoleCommand WackyCloneRecipe =
@@ -384,27 +399,30 @@ new("wackydb_vfx", "Create txt file of VFX",
                         }
                         else
                         {
+                            var serializer = new SerializerBuilder()
+                            .Build();
+                            GetDataYML RecipeCheck = new GetDataYML();
                             string prefab = args[1];
                             string newname = args[2];
                             string file = args[2];
-                            WItemData_json itemclone = GetData.GetData.GetItemDataByName(prefab);
+                            WItemData itemclone = RecipeCheck.GetItemDataByName(prefab, ObjectDB.instance);
                             if (itemclone == null)
                                 return;
                             itemclone.name = newname;
                             itemclone.clone = true;
                             itemclone.clonePrefabName = prefab;
                             itemclone.m_name = newname;
-                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + itemclone.name + ".json"), JsonUtility.ToJson(itemclone, true));
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + itemclone.name + ".yml"), serializer.Serialize(itemclone));
 
-                            RecipeData_json clone = GetData.GetData.GetRecipeDataByName(prefab);//  prefab of cloned item
+                            RecipeData clone = RecipeCheck.GetRecipeDataByName(prefab, ObjectDB.instance);//  prefab of cloned item
                             if (clone == null)
                                 return;
                             clone.name = "R" + newname;
                             clone.clone = true;
                             clone.clonePrefabName = itemclone.name; // cloned item
-                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".json"), JsonUtility.ToJson(clone, true));
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
 
-                            file = "Cloned Item saved as Item_" + itemclone.name + ".json, cloned Recipe saved as Recipe_" + clone.name + ".json which is from the Orginal Recipe " + prefab;
+                            file = "Cloned Item saved as Item_" + itemclone.name + ".yml, cloned Recipe saved as Recipe_" + clone.name + ".yml which is from the Orginal Recipe " + prefab;
                             args.Context?.AddString($"{file}");
                         }
 
@@ -412,7 +430,7 @@ new("wackydb_vfx", "Create txt file of VFX",
 
 
             Terminal.ConsoleCommand Wackyadmin =    //dont look :)
-                 new("customizationGuessing", "Gives you reload powers if you can guess the password",  // just for fun. Doesn't really give you admin powers
+                 new("wackydb_backdoor", "Gives you reload powers if you can guess the password",  // just for fun. Doesn't really give you admin powers
                args =>
                {
                    if (!WMRecipeCust.issettoSinglePlayer && WMRecipeCust.kickcount < 3)// backdoor for funizes only availble when on multiplayer mode.. hahaaa

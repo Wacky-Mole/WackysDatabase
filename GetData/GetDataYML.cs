@@ -7,21 +7,21 @@ using System.Reflection;
 
 namespace wackydatabase.GetData
 {
-    public class GetData     {
-        internal static RecipeData_json GetRecipeDataByName(string name)
+    public class GetDataYML     {
+        internal  RecipeData GetRecipeDataByName(string name, ObjectDB tod)
         {
             GameObject go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
             if (go == null)
-                go = ObjectDB.instance.GetItemPrefab(name);
+                go = tod.GetItemPrefab(name);
 
             if (go == null)
             {
-                foreach (Recipe recipes in ObjectDB.instance.m_recipes)
+                foreach (Recipe recipes in tod.m_recipes)
                 {
                     if (!(recipes.m_item == null) && recipes.name == name)
                     {
                         WMRecipeCust.Dbgl($"An actual Recipe_ {name} has been found!-- Only Modification - No Cloning");
-                        var data2 = new RecipeData_json()
+                        var dataRec = new RecipeData()
                         {
                             name = name,
                             amount = recipes.m_amount,
@@ -30,10 +30,10 @@ namespace wackydatabase.GetData
                         };
                         foreach (Piece.Requirement req in recipes.m_resources)
                         {
-                            data2.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
+                            dataRec.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
                         }
 
-                        return data2;
+                        return dataRec;
                     }
                 }
             }
@@ -50,7 +50,7 @@ namespace wackydatabase.GetData
                 WMRecipeCust.Dbgl("Item data not found!");
                 return null;
             }
-            Recipe recipe = ObjectDB.instance.GetRecipe(item);
+            Recipe recipe = tod.GetRecipe(item);
             if (!recipe)
             {
                 if (Chainloader.PluginInfos.ContainsKey("com.jotunn.jotunn"))
@@ -71,7 +71,7 @@ namespace wackydatabase.GetData
                 }
             }
 
-            var data = new RecipeData_json()
+            var data = new RecipeData()
             {
                 name = name,
                 amount = recipe.m_amount,
@@ -86,11 +86,24 @@ namespace wackydatabase.GetData
             return data;
         }
 
-        internal static PieceData_json GetPieceRecipeByName(string name, bool warn = true)
+        internal  RecipeData GetRecipeDataByNum(int count, ObjectDB tod)
+        {
+            var rep = tod.m_recipes[count];
+            var dataRec = new RecipeData()
+            {
+                name = rep.name,
+                amount = rep.m_amount,
+                craftingStation = rep.m_craftingStation?.m_name ?? "",
+                minStationLevel = rep.m_minStationLevel,
+            };
+            return dataRec;
+        }
+
+        internal PieceData GetPieceRecipeByName(string name, ObjectDB tod, bool warn = true)
         {
             Piece piece = null;
             WMRecipeCust.selectedPiecehammer = null; // makes sure doesn't use an old one. 
-            GameObject go = DataHelpers.GetPieces().Find(g => Utils.GetPrefabName(g) == name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
+            GameObject go = DataHelpers.GetPieces(tod).Find(g => Utils.GetPrefabName(g) == name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
             if (go == null)
             {
                 go = DataHelpers.GetModdedPieces(name); // known modded Hammer search
@@ -120,11 +133,11 @@ namespace wackydatabase.GetData
                 piecehammer = "Hammer"; // default
 
             // these are kind of reduntant. // But are helpful for existing configs
-            ItemDrop hammer = ObjectDB.instance.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
+            ItemDrop hammer = tod.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
             if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
                 piecehammer = "Hammer";
 
-            ItemDrop hoe = ObjectDB.instance.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
+            ItemDrop hoe = tod.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
             if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
                 piecehammer = "Hoe";
 
@@ -134,7 +147,7 @@ namespace wackydatabase.GetData
             wackyname = piece.m_name;
             string wackycatSring = piece.m_category.ToString();
 
-            var data = new PieceData_json()
+            var data = new PieceData()
             {
                 name = name,
                 amount = 1,
@@ -154,9 +167,42 @@ namespace wackydatabase.GetData
             return data;
         }
 
-        internal static WItemData_json GetItemDataByName(string name)
+        internal PieceData GetPieceRecipeByNum(int count, string hammer, ObjectDB tod, ItemDrop itemD = null)
         {
-            GameObject go = ObjectDB.instance.GetItemPrefab(name);
+            ItemDrop HamerItemdrop = null;
+            if (itemD == null)
+            {
+                HamerItemdrop = tod.GetItemPrefab(hammer).GetComponent<ItemDrop>();
+            }else
+            {
+                HamerItemdrop = itemD;
+            }
+
+            int PCount = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces.Count();
+
+            GameObject pieceSel = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces[count];
+            Piece actPiece = pieceSel.GetComponent<Piece>();
+
+            var data = new PieceData()
+            {
+                name = pieceSel.name,
+                disabled = pieceSel.activeSelf,
+                amount = 1,
+                craftingStation = actPiece.m_craftingStation?.m_name ?? "",
+                minStationLevel = 1,
+                piecehammer = hammer,
+                adminonly = false,
+                m_name = actPiece.m_name,
+                m_description = actPiece.m_description,
+                piecehammerCategory = actPiece.m_category.ToString(),
+            };
+
+            return data;
+        }
+
+        internal WItemData GetItemDataByName(string name, ObjectDB tod)
+        {
+            GameObject go = tod.GetItemPrefab(name);
             if (go == null)
             {
                 WMRecipeCust.Dbgl("GetItemDataByName data not found!");
@@ -245,9 +291,8 @@ namespace wackydatabase.GetData
                 data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
             }*/
 
-            WItemData_json jItemData = new WItemData_json
+            WItemData ItemData = new WItemData
             {
-
                 name = name,
                 m_armor = data.m_shared.m_armor,
                 clone = false,
@@ -262,12 +307,13 @@ namespace wackydatabase.GetData
                 m_backstabbonus = data.m_shared.m_backstabBonus,
                 m_equipDuration = data.m_shared.m_equipDuration,
                 m_foodHealth = data.m_shared.m_food,
-                m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
+                // m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
                 m_foodBurnTime = data.m_shared.m_foodBurnTime,
                 m_foodRegen = data.m_shared.m_foodRegen,
                 m_foodStamina = data.m_shared.m_foodStamina,
-                m_holdDurationMin = data.m_shared.m_holdDurationMin,
-                m_holdStaminaDrain = data.m_shared.m_holdStaminaDrain,
+                m_FoodEitr = data.m_shared.m_foodEitr,
+                m_holdDurationMin = data.m_shared.m_attack.m_drawDurationMin,
+                m_holdStaminaDrain = data.m_shared.m_attack.m_drawStaminaDrain,
                 m_maxDurability = data.m_shared.m_maxDurability,
                 m_maxQuality = data.m_shared.m_maxQuality,
                 m_maxStackSize = data.m_shared.m_maxStackSize,
@@ -286,17 +332,172 @@ namespace wackydatabase.GetData
                 m_teleportable = data.m_shared.m_teleportable,
                 m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
                 m_movementModifier = data.m_shared.m_movementModifier,
-                // m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+                m_EitrRegen = data.m_shared.m_eitrRegenModifier,
+                m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+                m_secAttackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
+                m_EitrCost = data.m_shared.m_attack.m_attackEitr,
+                m_secEitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
+                m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
+                m_secAttackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
                 m_knockback = data.m_shared.m_attackForce,
+
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 
             };
-            if (jItemData.m_foodHealth == 0f && jItemData.m_foodRegen == 0f && jItemData.m_foodStamina == 0f)
+            if (ItemData.m_foodHealth == 0f && ItemData.m_foodRegen == 0f && ItemData.m_foodStamina == 0f)
             {
-                jItemData.m_foodColor = null;
+                ItemData.m_foodColor = null;
             }
 
-            return jItemData;
+            return ItemData;
+
+        }
+
+        internal WItemData GetItemDataByCount(int count, ObjectDB tod)
+        {
+            var go = tod.m_items[count];
+
+            ItemDrop.ItemData data = go.GetComponent<ItemDrop>().m_itemData;
+            if (data == null)
+            {
+                WMRecipeCust.Dbgl("Item GetItemDataByName not found! - componets");
+                return null;
+            }
+            WDamages damages = null;
+            string damagestring = "";
+            // Dbgl("Item "+ name + " data.m_shared.m_damages.mslash" + data.m_shared.m_damages.m_slash);
+            if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
+            {
+                WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " damage on ");
+
+                damages = new WDamages // not used
+                {
+
+                    m_blunt = data.m_shared.m_damages.m_blunt,
+                    m_chop = data.m_shared.m_damages.m_chop,
+                    m_damage = data.m_shared.m_damages.m_damage,
+                    m_fire = data.m_shared.m_damages.m_fire,
+                    m_frost = data.m_shared.m_damages.m_frost,
+                    m_lightning = data.m_shared.m_damages.m_lightning,
+                    m_pickaxe = data.m_shared.m_damages.m_pickaxe,
+                    m_pierce = data.m_shared.m_damages.m_pierce,
+                    m_poison = data.m_shared.m_damages.m_poison,
+                    m_slash = data.m_shared.m_damages.m_slash,
+                    m_spirit = data.m_shared.m_damages.m_spirit
+                };
+                damagestring = $"m_blunt:{data.m_shared.m_damages.m_blunt},"
+               + $"m_chop:{data.m_shared.m_damages.m_chop},"
+               + $"m_damage:{data.m_shared.m_damages.m_damage},"
+               + $"m_fire:{data.m_shared.m_damages.m_fire},"
+               + $"m_frost:{data.m_shared.m_damages.m_frost},"
+               + $"m_lightning:{data.m_shared.m_damages.m_lightning},"
+               + $"m_pickaxe:{data.m_shared.m_damages.m_pickaxe},"
+               + $"m_pierce:{data.m_shared.m_damages.m_pierce},"
+               + $"m_poison:{data.m_shared.m_damages.m_poison},"
+               + $"m_slash:{data.m_shared.m_damages.m_slash},"
+               + $"m_spirit:{data.m_shared.m_damages.m_spirit},"
+
+               ;
+                damagestring = damagestring.Replace(",", ", ");
+            }
+            WDamages damagesPerLevel = null;
+            string damgelvlstring = "";
+            if (data.m_shared.m_damagesPerLevel.m_blunt > 0f || data.m_shared.m_damagesPerLevel.m_chop > 0f || data.m_shared.m_damagesPerLevel.m_damage > 0f || data.m_shared.m_damagesPerLevel.m_fire > 0f || data.m_shared.m_damagesPerLevel.m_frost > 0f || data.m_shared.m_damagesPerLevel.m_lightning > 0f || data.m_shared.m_damagesPerLevel.m_pickaxe > 0f || data.m_shared.m_damagesPerLevel.m_pierce > 0f || data.m_shared.m_damagesPerLevel.m_poison > 0f || data.m_shared.m_damagesPerLevel.m_slash > 0f || data.m_shared.m_damagesPerLevel.m_spirit > 0f)
+            {
+                damagesPerLevel = new WDamages // not used
+                {
+                    m_blunt = data.m_shared.m_damagesPerLevel.m_blunt,
+                    m_chop = data.m_shared.m_damagesPerLevel.m_chop,
+                    m_damage = data.m_shared.m_damagesPerLevel.m_damage,
+                    m_fire = data.m_shared.m_damagesPerLevel.m_fire,
+                    m_frost = data.m_shared.m_damagesPerLevel.m_frost,
+                    m_lightning = data.m_shared.m_damagesPerLevel.m_lightning,
+                    m_pickaxe = data.m_shared.m_damagesPerLevel.m_pickaxe,
+                    m_pierce = data.m_shared.m_damagesPerLevel.m_pierce,
+                    m_poison = data.m_shared.m_damagesPerLevel.m_poison,
+                    m_slash = data.m_shared.m_damagesPerLevel.m_slash,
+                    m_spirit = data.m_shared.m_damagesPerLevel.m_spirit
+                };
+                damgelvlstring = $"m_blunt:{data.m_shared.m_damagesPerLevel.m_blunt},"
+               + $"m_chop:{data.m_shared.m_damagesPerLevel.m_chop},"
+               + $"m_damage:{data.m_shared.m_damagesPerLevel.m_damage},"
+               + $"m_fire:{data.m_shared.m_damagesPerLevel.m_fire},"
+               + $"m_frost:{data.m_shared.m_damagesPerLevel.m_frost},"
+               + $"m_lightning:{data.m_shared.m_damagesPerLevel.m_lightning},"
+               + $"m_pickaxe:{data.m_shared.m_damagesPerLevel.m_pickaxe},"
+               + $"m_pierce:{data.m_shared.m_damagesPerLevel.m_pierce},"
+               + $"m_poison:{data.m_shared.m_damagesPerLevel.m_poison},"
+               + $"m_slash:{data.m_shared.m_damagesPerLevel.m_slash},"
+               + $"m_spirit:{data.m_shared.m_damagesPerLevel.m_spirit},"
+
+               ;
+                damgelvlstring = damgelvlstring.Replace(",", ", ");
+            }
+            /*
+            foreach (Piece.Requirement req in piece.m_resources) // maybe use in future
+            {
+                data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
+            }*/
+
+            WItemData ItemData = new WItemData
+            {
+                name = go.GetComponent<ItemDrop>().name,
+                m_armor = data.m_shared.m_armor,
+                clone = false,
+                m_armorPerLevel = data.m_shared.m_armorPerLevel,
+                m_blockPower = data.m_shared.m_blockPower,
+                m_blockPowerPerLevel = data.m_shared.m_blockPowerPerLevel,
+                m_deflectionForce = data.m_shared.m_deflectionForce,
+                m_deflectionForcePerLevel = data.m_shared.m_deflectionForcePerLevel,
+                m_description = data.m_shared.m_description,
+                m_durabilityDrain = data.m_shared.m_durabilityDrain,
+                m_durabilityPerLevel = data.m_shared.m_durabilityPerLevel,
+                m_backstabbonus = data.m_shared.m_backstabBonus,
+                m_equipDuration = data.m_shared.m_equipDuration,
+                m_foodHealth = data.m_shared.m_food,
+                // m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
+                m_foodBurnTime = data.m_shared.m_foodBurnTime,
+                m_foodRegen = data.m_shared.m_foodRegen,
+                m_foodStamina = data.m_shared.m_foodStamina,
+                m_FoodEitr = data.m_shared.m_foodEitr,
+                m_holdDurationMin = data.m_shared.m_attack.m_drawDurationMin,
+                m_holdStaminaDrain = data.m_shared.m_attack.m_drawStaminaDrain,
+                m_maxDurability = data.m_shared.m_maxDurability,
+                m_maxQuality = data.m_shared.m_maxQuality,
+                m_maxStackSize = data.m_shared.m_maxStackSize,
+                m_toolTier = data.m_shared.m_toolTier,
+                m_useDurability = data.m_shared.m_useDurability,
+                m_useDurabilityDrain = data.m_shared.m_useDurabilityDrain,
+                m_value = data.m_shared.m_value,
+                m_weight = data.m_shared.m_weight,
+                m_destroyBroken = data.m_shared.m_destroyBroken,
+                m_dodgeable = data.m_shared.m_dodgeable,
+                m_canBeReparied = data.m_shared.m_canBeReparied,
+                m_damages = damagestring,
+                m_damagesPerLevel = damgelvlstring,
+                m_name = data.m_shared.m_name,
+                m_questItem = data.m_shared.m_questItem,
+                m_teleportable = data.m_shared.m_teleportable,
+                m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
+                m_movementModifier = data.m_shared.m_movementModifier,
+                m_EitrRegen = data.m_shared.m_eitrRegenModifier,
+                m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+                m_secAttackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
+                m_EitrCost = data.m_shared.m_attack.m_attackEitr,
+                m_secEitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
+                m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
+                m_secAttackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
+                m_knockback = data.m_shared.m_attackForce,
+
+                damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
+
+            };
+            if (ItemData.m_foodHealth == 0f && ItemData.m_foodRegen == 0f && ItemData.m_foodStamina == 0f)
+            {
+                ItemData.m_foodColor = null;
+            }
+
+            return ItemData;
 
         }
 

@@ -19,6 +19,7 @@ using wackydatabase.Armor;
 namespace wackydatabase.PatchClasses
 {
 
+    /*
     [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
         static class UpdateEnvStatusEffects_Patch
         {
@@ -111,6 +112,8 @@ namespace wackydatabase.PatchClasses
             }
 
         }
+
+    */
 
 
         [HarmonyPatch(typeof(ItemDrop), "SlowUpdate")] //checks every once in a while

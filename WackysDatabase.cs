@@ -6,13 +6,7 @@
 // Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
 // CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
 // Thx Aedenthorn again
-/*
- * i wouldn't say there is a single bottleneck that you can remove and everything is fine.
-but lots of small stuff that can be improved.
-you iterate the entire object db for each item, just to find an item with a matching name.
-you instantiate every item.
-you call update item hashes for each item.
-so, it's mostly suffering, because you reload everything for each update. */
+
 
 using System.IO;
 using System.Reflection;
@@ -109,6 +103,7 @@ namespace wackydatabase
         internal static string assetPathVisuals;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
+        internal static string oldjsons = "OldJsons";
         internal static string jsonstring;
         internal static string ymlstring;
         internal static char StringSeparator = '@';
@@ -147,26 +142,27 @@ namespace wackydatabase
             assetPathRecipes = Path.Combine(assetPathconfig, "Recipes");
             assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
             assetPathVisuals = Path.Combine(assetPathconfig, "Visuals");
-            assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabaseOldJsons");
-            assetPathBulkYML = Path.Combine(assetPathconfig, "BulkYMLGet");
+            assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
+            assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
             // testme(); // function for testing things
 
             // ending files
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
 
-            startupserver.CheckForJsons(); // read jsons for server
+            var jsoncount = startupserver.CheckForJsons(); // read jsons for server
             if (jsonsFound)
             {
-                startupserver.BeginConvertingJsons();
+                WMRecipeCust.WLog.LogWarning("Jsons Found");
+                startupserver.BeginConvertingJsons(jsoncount);
             }
             readFiles.GetDataFromFiles(); // YML get
             AwakeHasRun = true;
             skillConfigData.Value = ymlstring; // Shouldn't matter - maybe...
 
-            readFiles.SetupWatcher(); // json watcher no json watcher now
+            readFiles.SetupWatcher(); 
 
-            skillConfigData.ValueChanged += CustomSyncEventDetected; // custom watcher for json file synced from server
+            skillConfigData.ValueChanged += CustomSyncEventDetected; // custom sync watcher for yml file synced from server
 
         }
         public static void Dbgl(string str = "", bool pref = true)
@@ -185,7 +181,7 @@ namespace wackydatabase
 
             Root = new GameObject("myroot");
             Root.SetActive(false);
-            DontDestroyOnLoad(Root);
+            DontDestroyOnLoad(Root); // clone magic
 
             // ^^ // starting files
             context = this;
@@ -194,7 +190,6 @@ namespace wackydatabase
             isDebug = config<bool>("General", "IsDebug", true, "Enable debug logs", false);
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
-            //isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
             WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
             ConfigSync.CurrentVersion = ModVersion;
             if (isDebugString.Value)
@@ -209,7 +204,7 @@ namespace wackydatabase
         private void OnDestroy()
         {
             Config.Save();
-            WLog.LogWarning("Calling the Destoryer of Worlds -End Game");
+            WLog.LogInfo("Calling the Destroyer of Worlds -End Game");
             //need to unload cloned objects
         }
 
@@ -275,12 +270,11 @@ namespace wackydatabase
         {
             yield return new WaitForSeconds(0.1f);
             // CurrentReload.
-            SetData.Reload josh = new SetData.Reload();
-            ReadFiles readnow = new ReadFiles();
-
+            SetData.Reload temp = new SetData.Reload();
+            //ReadFiles readnow = new ReadFiles();
             //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
 
-            josh.LoadAllRecipeData(true);
+            temp.LoadAllRecipeData(true);
             yield break;
         }
 
@@ -300,11 +294,12 @@ namespace wackydatabase
 
         internal static void CheckModFolder()
         {
-            if (Directory.Exists(assetPath) && !Directory.Exists(assetPathconfig))
+            /*
+            if (Directory.Exists(assetPath) && !Directory.Exists(assetPathconfig)) Too OLD NOW, you should have upgraded
             {
                 WLog.LogWarning("Creating Config Mod folder and Moving Old WackysDatafolder to configs");
                 try { Directory.Move(assetPath, assetPathconfig); } catch { WLog.LogWarning("Error caught,but should have moved wackyDatabase folder correctly though"); }
-            }
+            } */
             if (!Directory.Exists(assetPathconfig))
             {
                 Dbgl("Creating Config Mod folder");
@@ -312,6 +307,13 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathItems);
                 Directory.CreateDirectory(assetPathPieces);
                 Directory.CreateDirectory(assetPathRecipes);
+            }
+
+            if (!Directory.Exists(assetPathOldJsons))
+            {
+                Dbgl("Creating OldJsonFolder");
+                Directory.CreateDirectory(assetPathOldJsons);
+
             }
         }
 

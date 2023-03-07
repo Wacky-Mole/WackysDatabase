@@ -13,13 +13,17 @@ using BepInEx.Logging;
 using wackydatabase.Datas;
 using wackydatabase.Util;
 using wackydatabase.Armor;
+using System.Runtime.CompilerServices;
 
 namespace wackydatabase.SetData
 {
     public class SetData 
     {
         
-        internal static void SetRecipeData(RecipeData_json data, ObjectDB Instant)
+        public static Component[] renderfinder;
+        internal static Renderer[] renderfinder2;
+
+        internal static void SetRecipeData(RecipeData data, ObjectDB Instant)
         {
             bool skip = false;
             foreach (string citem in WMRecipeCust.ClonedR)
@@ -28,11 +32,13 @@ namespace wackydatabase.SetData
                 if (citem == data.name)
                     skip = true;
             }
+
             string tempname = data.name;
             if (data.clone) // both skip and
             {
                 data.name = data.clonePrefabName;
             }
+
             GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
                 go = Instant.GetItemPrefab(data.name);
@@ -46,10 +52,12 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"An actual Recipe_ {data.name} has been found!-- Only modification allowed");
                         if (data.disabled)
                         {
-                            WMRecipeCust.Dbgl($"Removing recipe for {data.name} from the game");
-                            Instant.m_recipes.Remove(recipes);
+                            WMRecipeCust.Dbgl($"Disabling recipe for {data.name} from the game");
+                            //Instant.m_recipes.Remove(recipes);
+                            recipes.m_enabled = false;
                             return;
                         }
+                        recipes.m_enabled = true;
                         recipes.m_amount = data.amount;
                         recipes.m_minStationLevel = data.minStationLevel;
                         recipes.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
@@ -78,6 +86,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl($"Item recipe data for {data.name} not found!");
                 return;
             } // it is a prefab and it is an item.
+
             if (data.clone && !skip)
             {
                 if (!data.disabled)
@@ -200,10 +209,12 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl("Setting Recipe for " + data.name);
                         if (data.disabled)
                         {
-                            WMRecipeCust.Dbgl($"Removing recipe for {data.name} from the game");
-                            Instant.m_recipes.RemoveAt(i);
+                            WMRecipeCust.Dbgl($"Disabling recipe for {data.name} from the game");
+                            Instant.m_recipes[i].m_enabled = false;
+                           // Instant.m_recipes.RemoveAt(i);
                             return;
                         }
+                        Instant.m_recipes[i].m_enabled = true;
                         Instant.m_recipes[i].m_amount = data.amount;
                         Instant.m_recipes[i].m_minStationLevel = data.minStationLevel;
                         Instant.m_recipes[i].m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
@@ -223,7 +234,7 @@ namespace wackydatabase.SetData
             }
         }
 
-        internal static void SetPieceRecipeData(PieceData_json data, ObjectDB Instant)
+        internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant)
         {
             bool skip = false;
             foreach (var citem in WMRecipeCust.ClonedP)
@@ -231,11 +242,13 @@ namespace wackydatabase.SetData
                 if (citem == data.name)
                     skip = true;
             }
+
             string tempname = data.name;
             if (data.clone && !skip)
             {
                 data.name = data.clonePrefabName;
             }
+
             Piece piece = null;
             GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
@@ -295,40 +308,6 @@ namespace wackydatabase.SetData
                 }
                 CraftingStation craft2 = DataHelpers.GetCraftingStation(data.craftingStation);
                 newItem.GetComponent<Piece>().m_craftingStation = craft2; // sets crafing item place
-                /*
-                if (!string.IsNullOrEmpty(data.cloneMaterial))
-                {
-                    Dbgl($"Material name searching for {data.cloneMaterial}");
-                    try
-                    {
-                        renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
-                        if (data.cloneMaterial.Contains(','))
-                        {
-                            string[] materialstr = data.cloneMaterial.Split(',');
-                            Material mat = originalMaterials[materialstr[0]];
-                            Material part = originalMaterials[materialstr[1]];
-
-                            foreach (Renderer renderitem in renderfinder)
-                            {
-                                if (renderitem.receiveShadows && materialstr[0] != "none")
-                                    renderitem.material = mat;
-                                else if (!renderitem.receiveShadows)
-                                    renderitem.material = part;
-                            }
-                        }
-                        else
-                        {
-                            Material mat = originalMaterials[data.cloneMaterial];
-                            foreach (Renderer renderitem in renderfinder)
-                            {
-                                if (renderitem.receiveShadows)
-                                    renderitem.material = mat;
-                            }
-                        }
-                    }
-                    catch { WLog.LogWarning("Material was not found or was not set correctly"); }
-                }
-                */ //Set  later
 
                 GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
                 skip = true;
@@ -363,6 +342,7 @@ namespace wackydatabase.SetData
                     }
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
                 }
+
                 data.name = tempname; // putting back name
                 go = DataHelpers.FindPieceObjectName(data.name); // this needs to call to newItem for modifcation otherwise it modifies orginial.
                 if (go == null)// just verifying
@@ -377,6 +357,8 @@ namespace wackydatabase.SetData
                 }
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
             } // end clone 1st pass
+
+
 
             if (!string.IsNullOrEmpty(data.cloneMaterial)) // allows changing of any piece
             {
@@ -441,8 +423,11 @@ namespace wackydatabase.SetData
                     }
                 }
                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
+
+                //SnapshotPiece(go); // piece snapshot doesn't work without instancing
+                //SnapshotItem(null, go.GetComponent<Piece>());
             }
-            CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation); // people might use this for more than just clones?
+            CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation);
             go.GetComponent<Piece>().m_craftingStation = craft;
 
             if (!skip)
@@ -530,6 +515,9 @@ namespace wackydatabase.SetData
 
             if (data.disabled)
             {
+                WMRecipeCust.Dbgl($"Disabling Piece {data.name}");
+                go.GetComponent<Piece>().m_enabled = false;
+                /*
 
                 WMRecipeCust.Dbgl($"Removing recipe for {data.name} from some PieceStation, you need to reload session to get this piece back- including admins");
                 GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
@@ -565,6 +553,10 @@ namespace wackydatabase.SetData
                                                                                                                  // if (data.adminonly && !keyExists)
                                                                                                                  //   AdminPiecesOnly.Add(go, piecehammer);
                 }
+                */
+            }else
+            {
+                go.GetComponent<Piece>().m_enabled = true;
             }
             WMRecipeCust.Dbgl("Setting Piece data for " + data.name);
             if (!string.IsNullOrEmpty(data.m_name))
@@ -611,10 +603,7 @@ namespace wackydatabase.SetData
         }
 
 
-        public static Component[] renderfinder;
-        internal static Renderer[] renderfinder2;
-
-        internal static void SetItemData(WItemData_json data, ObjectDB Instant)
+        internal static void SetItemData(WItemData data, ObjectDB Instant)
         {
             // Dbgl("Loaded SetItemData!");
             bool skip = false;
@@ -623,11 +612,14 @@ namespace wackydatabase.SetData
                 if (citem == data.name)
                     skip = true;
             }
+
             string tempname = data.name;
             if (data.clone && !skip)
             {
                 data.name = data.clonePrefabName;
             }
+
+
             GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
                 go = Instant.GetItemPrefab(data.name); // normal check
@@ -647,6 +639,8 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl($"Item cloned name is empty!");
                 return;
             }
+
+
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
                 if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
@@ -700,8 +694,6 @@ namespace wackydatabase.SetData
                                //NewItemComp.m_itemData.m_shared.m_icons[0].
                                */
 
-
-                        //ObjectDB.instance.UpdateItemHashes();
                         if (!string.IsNullOrEmpty(data.cloneMaterial))
                         {
                             WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial}");
@@ -737,14 +729,16 @@ namespace wackydatabase.SetData
 
                         PrimaryItemData = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
-                        try
+
+                        if (!string.IsNullOrEmpty(data.cloneMaterial))
                         {
-                            // ObjectDB.instance.UpdateItemHashes();
+                            try
+                            {
+                                //SnapshotItem(NewItemComp); // snapshot go
+                            }
+                            catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
                         }
-                        catch
-                        {
-                            WMRecipeCust.Dbgl($"Item {tempname} failed to update Hashes");
-                        }
+
                     }
                     WMRecipeCust.Dbgl($"Item being Set in SetItemData for {data.name} ");
 
@@ -773,10 +767,11 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_foodStamina = data.m_foodStamina;
                     PrimaryItemData.m_shared.m_foodRegen = data.m_foodRegen;
                     PrimaryItemData.m_shared.m_foodBurnTime = data.m_foodBurnTime;
-                    if (data.m_foodColor != null && data.m_foodColor != "" && data.m_foodColor.StartsWith("#"))
-                    {
-                        PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
-                    }
+                    PrimaryItemData.m_shared.m_foodEitr = data.m_FoodEitr;
+                    // if (data.m_foodColor != null && data.m_foodColor != "" && data.m_foodColor.StartsWith("#"))
+                    //{
+                    //  PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
+                    //}
                     PrimaryItemData.m_shared.m_armor = data.m_armor;
                     PrimaryItemData.m_shared.m_armorPerLevel = data.m_armorPerLevel;
                     PrimaryItemData.m_shared.m_blockPower = data.m_blockPower;
@@ -792,8 +787,8 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_durabilityDrain = data.m_durabilityDrain;
                     PrimaryItemData.m_shared.m_durabilityPerLevel = data.m_durabilityPerLevel;
                     PrimaryItemData.m_shared.m_equipDuration = data.m_equipDuration;
-                    PrimaryItemData.m_shared.m_holdDurationMin = data.m_holdDurationMin;
-                    PrimaryItemData.m_shared.m_holdStaminaDrain = data.m_holdStaminaDrain;
+                    //PrimaryItemData.m_shared.m_holdDurationMin = data.m_holdDurationMin;
+                    //PrimaryItemData.m_shared.m_holdStaminaDrain = data.m_holdStaminaDrain;
                     PrimaryItemData.m_shared.m_maxQuality = data.m_maxQuality;
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain;
@@ -802,8 +797,16 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_toolTier = data.m_toolTier;
                     PrimaryItemData.m_shared.m_value = data.m_value;
                     PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier;
-                    // PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
-                    //PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_attackStamina; // set for both
+                    PrimaryItemData.m_shared.m_eitrRegenModifier = data.m_EitrRegen;
+
+                    PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.m_attackHealthPercentage;
+                    PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
+                    PrimaryItemData.m_shared.m_attack.m_attackEitr = data.m_EitrCost;
+
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage = data.m_secAttackHealthPercentage;
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_secAttackStamina;
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.m_secEitrCost;
+
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
                     //PrimaryItemData.m_shared.m
 
@@ -869,8 +872,8 @@ namespace wackydatabase.SetData
                         string valu = "              <color=#edd221>Valuable</color>";
                         PrimaryItemData.m_shared.m_description = data.m_description + valu;
                     }
-                    return; // done, I don't need to continue?
-                } // Dbgl("Amost done with SetItemData!");
+                    return;
+                } 
 
 
             }
