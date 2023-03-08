@@ -35,6 +35,7 @@ using Object = UnityEngine.Object;
 using wackydatabase.Startup;
 using wackydatabase.Util;
 using wackydatabase.SetData;
+using wackydatabase.Read;
 
 
 namespace wackydatabase
@@ -103,10 +104,10 @@ namespace wackydatabase
         internal static string assetPathVisuals;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
-        internal static string oldjsons = "OldJsons";
+        internal static string assetPathIcons;
         internal static string jsonstring;
         internal static string ymlstring;
-        internal static char StringSeparator = '@';
+        internal static char StringSeparator = 'Ⰴ'; // handcuffs  The fifth letter of the Glagolitic alphabet.
 
         internal static bool Admin = true; // for single player, sets to false for multiplayer on connect
         public static List<string> pieceWithLvl = new List<string>();
@@ -125,8 +126,8 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalVFX;
 
         Startupserver startupserver = new Startupserver();
-        ReadFiles readFiles = new ReadFiles();
-        public SetData.Reload CurrentReload = new Reload();
+        public static ReadFiles readFiles = new ReadFiles();
+        public static Reload CurrentReload = new Reload();
 
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;
@@ -144,6 +145,7 @@ namespace wackydatabase
             assetPathVisuals = Path.Combine(assetPathconfig, "Visuals");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
+            assetPathIcons = Path.Combine(assetPathconfig, "Icons");
             // testme(); // function for testing things
 
             // ending files
@@ -164,6 +166,8 @@ namespace wackydatabase
 
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom sync watcher for yml file synced from server
 
+
+
         }
         public static void Dbgl(string str = "", bool pref = true)
         {
@@ -171,8 +175,6 @@ namespace wackydatabase
                 Debug.Log((pref ? ModName + " " : "") + str);
         }
 
-
-        
 
         private void StartupConfig()
         {
@@ -249,34 +251,7 @@ namespace wackydatabase
             public bool? Browsable = false;
         }
 
-        [HarmonyPatch(typeof(ZNetScene), "Awake")]
-        [HarmonyPriority(Priority.Last)]
-        class ZNetScene_Awake_Patch_WackysDatabase
-        {
-            static void Postfix()
-            {
-                if (!WMRecipeCust.modEnabled.Value)
-                    return;
-                context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
-                                                                               //LoadAllRecipeData(true);
 
-
-                //public Reload CurrentReload = new Reload();
-                // Reload.DelayedLoadRecipes();
-
-            }
-        }
-        public static IEnumerator DelayedLoadRecipes()
-        {
-            yield return new WaitForSeconds(0.1f);
-            // CurrentReload.
-            SetData.Reload temp = new SetData.Reload();
-            //ReadFiles readnow = new ReadFiles();
-            //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
-
-            temp.LoadAllRecipeData(true);
-            yield break;
-        }
 
         private void CustomSyncEventDetected()
         {
@@ -309,11 +284,10 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathRecipes);
             }
 
-            if (!Directory.Exists(assetPathOldJsons))
+            if (!Directory.Exists(assetPathIcons))
             {
-                Dbgl("Creating OldJsonFolder");
-                Directory.CreateDirectory(assetPathOldJsons);
-
+                Dbgl("Creating assetPathIcons");
+                Directory.CreateDirectory(assetPathIcons);
             }
         }
 

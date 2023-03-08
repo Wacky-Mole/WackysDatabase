@@ -205,6 +205,7 @@ namespace RainbowTrollArmor
             // Returns null if load fails
             Texture2D Tex2D;
             byte[] FileData;
+               // Tex2D.EncodeToPNG
 
             if (File.Exists(FilePath))
             {

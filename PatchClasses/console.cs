@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using System.IO;
 using System.Security.Cryptography;
-
-
 using wackydatabase.Datas;
 using wackydatabase.Util;
 using wackydatabase.GetData;
+using wackydatabase.Read;
 using YamlDotNet.Serialization;
 using YamlDotNet.Core;
 
@@ -94,10 +93,13 @@ namespace wackydatabase.PatchClasses
                          {
 
                              SetData.Reload josh = new SetData.Reload();
-                             //WMRecipeCust.CurrentReload = josh;
-                             // this needs to be fix
+                             WMRecipeCust.CurrentReload = josh;
 
-                             josh.LoadAllRecipeData(true);
+                             ReadFiles readnow = new ReadFiles(); 
+                             readnow.GetDataFromFiles();
+                             WMRecipeCust.readFiles = readnow;
+
+                            josh.LoadAllRecipeData(true);
 
                              
                              

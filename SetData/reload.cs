@@ -21,6 +21,7 @@ namespace wackydatabase.SetData
 {
     public class Reload 
     {
+
         public void SyncEventDetected()
         {
             WMRecipeCust.WLog.LogWarning($"DSync Detected - remove before release");
@@ -60,8 +61,8 @@ namespace wackydatabase.SetData
                 WMRecipeCust.ItemDatas.Clear();
                 WMRecipeCust.PieceDatas.Clear();
                 WMRecipeCust.armorDatas.Clear();
-                WMRecipeCust.pieceWithLvl.Clear(); // ready for new
-                ObjectDB Instant = ObjectDB.instance;
+                WMRecipeCust.pieceWithLvl.Clear(); 
+                WMRecipeCust.visualDatasYml.Clear();
 
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
@@ -75,14 +76,12 @@ namespace wackydatabase.SetData
                         if (word.Contains("m_weight")) //item
                         {
                             WMRecipeCust.itemDatasYml.Add(deserializer.Deserialize<WItemData>(word));
-                            //ArmorData_json data3 = JsonUtility.FromJson<ArmorData_json>(word);
-                            //WMRecipeCust.armorDatas.Add(data3);
                         }
                         else if (word.Contains("piecehammer")) // only piece
                         {
                             WMRecipeCust.recipeDatasYml.Add(deserializer.Deserialize<RecipeData>(word));
                         }
-                        else // has to be recipes
+                        else if (word.Contains("reqs"))// only recipes
                         {
                             WMRecipeCust.recipeDatasYml.Add(deserializer.Deserialize<RecipeData>(word));
                         }
@@ -124,7 +123,10 @@ namespace wackydatabase.SetData
                 else
                 {
                     WMRecipeCust.WLog.LogWarning($" Reloading - remove before final");
+                    WMRecipeCust.GetAllMaterials(); // remove
                     ObjectDB Instant = ObjectDB.instance;
+
+
                     // CLONE PASS FIRST - only for craftingStation
                     foreach (var data3 in WMRecipeCust.pieceDatasYml)
                     {

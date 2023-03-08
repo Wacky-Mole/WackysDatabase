@@ -14,6 +14,9 @@ using wackydatabase.Datas;
 using wackydatabase.Util;
 using wackydatabase.Armor;
 using System.Runtime.CompilerServices;
+using System.IO;
+using RainbowTrollArmor;
+using ItemManager;
 
 namespace wackydatabase.SetData
 {
@@ -730,16 +733,43 @@ namespace wackydatabase.SetData
                         PrimaryItemData = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
 
-                        if (!string.IsNullOrEmpty(data.cloneMaterial))
+                    }
+
+                    var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>();
+                    bool usecustom = false;
+                    if (!string.IsNullOrEmpty(data.customIcon))
+                    {
+                        var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.customIcon);
+                        var nullcheck = File.ReadAllBytes(pathI);
+                        if (nullcheck != null)
                         {
                             try
                             {
-                                //SnapshotItem(NewItemComp); // snapshot go
-                            }
-                            catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
-                        }
 
+                                var Spri = SpriteTools.LoadNewSprite(pathI);
+                                ItemDr.m_itemData.m_shared.m_icons[0] = Spri;
+                                usecustom = true;
+
+                            }
+                            catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                        }
+                        else
+                        {
+                            WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
+                        }
                     }
+
+
+                    if (!string.IsNullOrEmpty(data.cloneMaterial) && !usecustom)
+                    {
+
+                        try
+                        {
+                            Functions.SnapshotItem(ItemDr); // snapshot go
+                        }
+                        catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
+                    }
+
                     WMRecipeCust.Dbgl($"Item being Set in SetItemData for {data.name} ");
 
                     if (data.m_damages != null && data.m_damages != "")

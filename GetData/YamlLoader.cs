@@ -15,6 +15,7 @@ namespace wackydatabase.Datas {
             _deserializer = new DeserializerBuilder()
                 .WithTypeConverter(new ColorConverter())
                 .WithTypeConverter(new ValheimTimeConverter())
+                .IgnoreUnmatchedProperties() // future proofing
                 .Build();
             _stringBuilder = new StringBuilder();
         }
@@ -31,7 +32,37 @@ namespace wackydatabase.Datas {
                     _stringBuilder.Append(WMRecipeCust.StringSeparator);
                 }
 
-                var result = _deserializer.Deserialize<T>(yml);
+                /*
+                if (true) // exclusiveZero replacer
+                {
+                    string[] lines = temp.Replace("\r", "").Split('\n');
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        string line = lines[i];
+                        if (line.Contains("\": 0")) continue;
+                        output.AppendLine(line);
+                    }
+                    string _tmp = output.ToString().Replace("\r", "").Replace("\n", "").Replace(": ", ":").Replace("\t", "");
+                    output = new StringBuilder();
+                    for (int i = 0; i < _tmp.Length; i++)
+                    {
+                        char c_current = _tmp[i];
+                        char c_next = ' ';
+
+                        if (i + 1 < _tmp.Length)
+                        {
+                            c_next = _tmp[i + 1];
+                        }
+
+                        if (c_next == '}' || c_next == ']')
+                        {
+                            if (c_current == ',') continue;
+                        }
+
+                        output.Append(c_current);
+                    } */
+
+                    var result = _deserializer.Deserialize<T>(yml);
 
                 if (result != null)
                 {
@@ -52,5 +83,9 @@ namespace wackydatabase.Datas {
         {
             return _stringBuilder.ToString();
         }
+
+
+
+
     }
 }

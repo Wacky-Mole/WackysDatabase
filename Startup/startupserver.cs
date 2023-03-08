@@ -42,12 +42,18 @@ namespace wackydatabase.Startup
         }
         internal void BeginConvertingJsons(IEnumerable<string> wantedfiles)
         {
-                var serializer = new SerializerBuilder()
-                .Build();
+            var serializer = new SerializerBuilder()
+            .Build();
 
-                var deslizer = new DeserializerBuilder().Build();
+            var deslizer = new DeserializerBuilder().Build();
 
-                foreach (string file in wantedfiles)
+            if (!Directory.Exists(WMRecipeCust.assetPathOldJsons))
+            {
+                WMRecipeCust.Dbgl("Creating OldJsonFolder");
+                Directory.CreateDirectory(WMRecipeCust.assetPathOldJsons);
+            }
+
+            foreach (string file in wantedfiles)
                 {
 
                     if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes

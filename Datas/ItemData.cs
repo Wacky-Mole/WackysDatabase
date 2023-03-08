@@ -7,21 +7,23 @@ namespace wackydatabase.Datas
 	[Serializable]
 	public class WItemData
 	{
-        public string name;
+        public string name; // must have
 
         public string m_name;
 
         public string m_description;
 
-        public bool clone;
+        public bool? clone;
 
         public string clonePrefabName;
+
+        public string customIcon;
 
         //public string cloneEffects;
 
         public string cloneMaterial;
 
-        public float m_weight;
+        public float m_weight; // must have
 
         //public string m_skillType;
 

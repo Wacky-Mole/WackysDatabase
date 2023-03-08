@@ -15,7 +15,7 @@ using YamlDotNet.Serialization;
 using wackydatabase.GetData;
 using VisualsModifier;
 
-namespace wackydatabase.Startup
+namespace wackydatabase.Read
 {
     public class ReadFiles 
     {
@@ -70,6 +70,7 @@ namespace wackydatabase.Startup
             WMRecipeCust.PieceDatas.Clear();
             WMRecipeCust.armorDatas.Clear();
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
+            WMRecipeCust.visualDatasYml.Clear();
 
             WMRecipeCust.CheckModFolder();
 
@@ -78,6 +79,7 @@ namespace wackydatabase.Startup
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml, WMRecipeCust.isSetStringisDebug);
+
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?iece_*.yml", SearchOption.AllDirectories))
