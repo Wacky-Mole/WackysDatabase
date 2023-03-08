@@ -790,7 +790,7 @@ namespace wackydatabase.SetData
                     }
 
                     PrimaryItemData.m_shared.m_name = data.m_name;
-                    PrimaryItemData.m_shared.m_description = data.m_description;
+                    PrimaryItemData.m_shared.m_description = DataHelpers.ECheck(data.m_description) ? PrimaryItemData.m_shared.m_description : data.m_description;
                     PrimaryItemData.m_shared.m_weight = data.m_weight;
                     PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize;
                     PrimaryItemData.m_shared.m_food = data.m_foodHealth;

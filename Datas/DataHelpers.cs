@@ -185,28 +185,28 @@ namespace wackydatabase.Datas
             return go;
         }
 
-        public bool ECheck(string checker)
+        public static bool ECheck(string checker)
         {
            return String.IsNullOrEmpty(checker);
 
         }
-        public bool ECheck(int checker)
+        public static bool ECheck(int checker)
         {
             return checker == 0;
 
         }
 
-        public bool ECheck(float checker)
+        public static bool ECheck(float checker)
         {
             return checker == 0;
 
         }
-        public bool ECheck(List<string> strings)
+        public static bool ECheck(List<string> strings)
         {
             return strings.Count == 0;
         }
 
-        public bool ECheck(bool? whatis)
+        public static bool ECheck(bool? whatis)
         {
             return whatis == null;
         }
