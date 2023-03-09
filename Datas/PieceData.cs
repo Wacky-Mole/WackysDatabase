@@ -10,7 +10,7 @@ namespace wackydatabase.Datas
         public string name; //must have
         public string m_name;
         public string m_description;
-        public bool? clone;
+        public bool clone;
         public string clonePrefabName;
         public string customIcon;
         //public string cloneEffects;

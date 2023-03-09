@@ -617,7 +617,7 @@ namespace wackydatabase.SetData
             }
 
             string tempname = data.name;
-            if (data.clone && !skip)
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)
             {
                 data.name = data.clonePrefabName;
             }
@@ -637,7 +637,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl($"Item data in SetItemData for {data.name} not found!");
                 return;
             } // it is a prefab and it is an item.
-            if (string.IsNullOrEmpty(tempname) && data.clone)
+            if (string.IsNullOrEmpty(tempname) && !string.IsNullOrEmpty(data.clonePrefabName))
             {
                 WMRecipeCust.Dbgl($"Item cloned name is empty!");
                 return;
@@ -649,7 +649,7 @@ namespace wackydatabase.SetData
                 if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                 {
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
-                    if (data.clone && !skip) // object is a clone do clonethings
+                    if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
                     {
                         WMRecipeCust.Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
                         WMRecipeCust.ClonedI.Add(tempname);
@@ -659,7 +659,7 @@ namespace wackydatabase.SetData
 
                         NewItemComp.name = tempname; // added and seems to be the issue
                         newItem.name = tempname; // resets the orginal name- needs to be unquie
-                        NewItemComp.m_itemData.m_shared.m_name = data.m_name; // ingame name
+                        NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
                         var hash = newItem.name.GetStableHashCode();
                         ObjectDB.instance.m_items.Add(newItem);
 
@@ -737,7 +737,7 @@ namespace wackydatabase.SetData
 
                     var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>();
                     bool usecustom = false;
-                    if (!string.IsNullOrEmpty(data.customIcon))
+                    if (!DataHelpers.ECheck(data.customIcon))
                     {
                         var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.customIcon);
                         var nullcheck = File.ReadAllBytes(pathI);
@@ -760,7 +760,7 @@ namespace wackydatabase.SetData
                     }
 
 
-                    if (!string.IsNullOrEmpty(data.cloneMaterial) && !usecustom)
+                    if (!DataHelpers.ECheck(data.cloneMaterial) && !usecustom)
                     {
 
                         try
@@ -772,72 +772,73 @@ namespace wackydatabase.SetData
 
                     WMRecipeCust.Dbgl($"Item being Set in SetItemData for {data.name} ");
 
-                    if (data.m_damages != null && data.m_damages != "")
+                    if (data.Damage != null )
                     {
                         WMRecipeCust.Dbgl($"   {data.name} Item has damage values ");
 
-                        // Separate the CSV value of weapon damages (perhaps this should be loaded/mapped differently?)
-                        string[] entries = data.m_damages.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                        PrimaryItemData.m_shared.m_damages = WeaponDamage.ParseDamageTypes(entries);
+                        PrimaryItemData.m_shared.m_damages = WeaponDamage.ParseDamageTypes(data.Damage);
                     }
 
-                    if (data.m_damagesPerLevel != null && data.m_damagesPerLevel != "")
+                    if (data.Damage_Per_Level != null )
                     {
-                        string[] entries = data.m_damagesPerLevel.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                        PrimaryItemData.m_shared.m_damagesPerLevel = WeaponDamage.ParseDamageTypes(entries);
+                        PrimaryItemData.m_shared.m_damagesPerLevel = WeaponDamage.ParseDamageTypes(data.Damage);
                     }
 
-                    PrimaryItemData.m_shared.m_name = data.m_name;
-                    PrimaryItemData.m_shared.m_description = DataHelpers.ECheck(data.m_description) ? PrimaryItemData.m_shared.m_description : data.m_description;
-                    PrimaryItemData.m_shared.m_weight = data.m_weight;
-                    PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize;
-                    PrimaryItemData.m_shared.m_food = data.m_foodHealth;
-                    PrimaryItemData.m_shared.m_foodStamina = data.m_foodStamina;
-                    PrimaryItemData.m_shared.m_foodRegen = data.m_foodRegen;
-                    PrimaryItemData.m_shared.m_foodBurnTime = data.m_foodBurnTime;
-                    PrimaryItemData.m_shared.m_foodEitr = data.m_FoodEitr;
+                    PrimaryItemData.m_shared.m_name  = data.m_name;
+
+                    PrimaryItemData.m_shared.m_description = data.m_description ?? PrimaryItemData.m_shared.m_description;
+                    PrimaryItemData.m_shared.m_weight = data.m_weight ?? PrimaryItemData.m_shared.m_weight;
+                    PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize ?? PrimaryItemData.m_shared.m_maxStackSize;
+                    PrimaryItemData.m_shared.m_food = data.m_foodHealth ?? PrimaryItemData.m_shared.m_food;
+                    PrimaryItemData.m_shared.m_foodStamina = data.m_foodStamina ?? PrimaryItemData.m_shared.m_foodStamina;
+                    PrimaryItemData.m_shared.m_foodRegen = data.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
+                    PrimaryItemData.m_shared.m_foodBurnTime = data.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
+                    PrimaryItemData.m_shared.m_foodEitr = data.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
                     // if (data.m_foodColor != null && data.m_foodColor != "" && data.m_foodColor.StartsWith("#"))
                     //{
                     //  PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
                     //}
-                    PrimaryItemData.m_shared.m_armor = data.m_armor;
-                    PrimaryItemData.m_shared.m_armorPerLevel = data.m_armorPerLevel;
-                    PrimaryItemData.m_shared.m_blockPower = data.m_blockPower;
-                    PrimaryItemData.m_shared.m_blockPowerPerLevel = data.m_blockPowerPerLevel;
-                    PrimaryItemData.m_shared.m_canBeReparied = data.m_canBeReparied;
-                    PrimaryItemData.m_shared.m_timedBlockBonus = data.m_timedBlockBonus;
-                    PrimaryItemData.m_shared.m_deflectionForce = data.m_deflectionForce;
-                    PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.m_deflectionForcePerLevel;
-                    PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus;
-                    PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken;
-                    PrimaryItemData.m_shared.m_dodgeable = data.m_dodgeable;
-                    PrimaryItemData.m_shared.m_maxDurability = data.m_maxDurability;
-                    PrimaryItemData.m_shared.m_durabilityDrain = data.m_durabilityDrain;
-                    PrimaryItemData.m_shared.m_durabilityPerLevel = data.m_durabilityPerLevel;
-                    PrimaryItemData.m_shared.m_equipDuration = data.m_equipDuration;
+                    PrimaryItemData.m_shared.m_armor = data.m_armor ?? PrimaryItemData.m_shared.m_armor;
+                    PrimaryItemData.m_shared.m_armorPerLevel = data.m_armorPerLevel ?? PrimaryItemData.m_shared.m_armorPerLevel;
+                    PrimaryItemData.m_shared.m_blockPower = data.m_blockPower ?? PrimaryItemData.m_shared.m_blockPower;
+                    PrimaryItemData.m_shared.m_blockPowerPerLevel = data.m_blockPowerPerLevel ?? PrimaryItemData.m_shared.m_blockPowerPerLevel;
+                    PrimaryItemData.m_shared.m_canBeReparied = data.m_canBeReparied ?? PrimaryItemData.m_shared.m_canBeReparied;
+                    PrimaryItemData.m_shared.m_timedBlockBonus = data.m_timedBlockBonus ?? PrimaryItemData.m_shared.m_timedBlockBonus;
+                    PrimaryItemData.m_shared.m_deflectionForce = data.m_deflectionForce ?? PrimaryItemData.m_shared.m_deflectionForce;
+                    PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.m_deflectionForcePerLevel ?? PrimaryItemData.m_shared.m_deflectionForcePerLevel;
+                    PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus ?? PrimaryItemData.m_shared.m_backstabBonus;
+                    PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken ?? PrimaryItemData.m_shared.m_destroyBroken;
+                    PrimaryItemData.m_shared.m_dodgeable = data.m_dodgeable ?? PrimaryItemData.m_shared.m_dodgeable;
+                    PrimaryItemData.m_shared.m_maxDurability = data.m_maxDurability ?? PrimaryItemData.m_shared.m_maxDurability;
+                    PrimaryItemData.m_shared.m_durabilityDrain = data.m_durabilityDrain ?? PrimaryItemData.m_shared.m_durabilityDrain;
+                    PrimaryItemData.m_shared.m_durabilityPerLevel = data.m_durabilityPerLevel ?? PrimaryItemData.m_shared.m_durabilityPerLevel;
+                    PrimaryItemData.m_shared.m_equipDuration = data.m_equipDuration ?? PrimaryItemData.m_shared.m_equipDuration;
                     //PrimaryItemData.m_shared.m_holdDurationMin = data.m_holdDurationMin;
                     //PrimaryItemData.m_shared.m_holdStaminaDrain = data.m_holdStaminaDrain;
-                    PrimaryItemData.m_shared.m_maxQuality = data.m_maxQuality;
-                    PrimaryItemData.m_shared.m_useDurability = data.m_useDurability;
-                    PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain;
-                    PrimaryItemData.m_shared.m_questItem = data.m_questItem;
-                    PrimaryItemData.m_shared.m_teleportable = data.m_teleportable;
-                    PrimaryItemData.m_shared.m_toolTier = data.m_toolTier;
-                    PrimaryItemData.m_shared.m_value = data.m_value;
-                    PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier;
-                    PrimaryItemData.m_shared.m_eitrRegenModifier = data.m_EitrRegen;
+                    //PrimaryItemData.m_shared.m_maxQuality = DataHelpers.ECheck(data.m_maxQuality) ? PrimaryItemData.m_shared.m_maxQuality : data.m_maxQuality;
+                    WMRecipeCust.WLog.LogWarning($"use maxQuality is " + data.m_maxQuality);
 
-                    PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.m_attackHealthPercentage;
-                    PrimaryItemData.m_shared.m_attack.m_attackStamina = data.m_attackStamina;
-                    PrimaryItemData.m_shared.m_attack.m_attackEitr = data.m_EitrCost;
+                    //PrimaryItemData.m_shared.m_useDurability = DataHelpers.ECheck(data.m_useDurability) ? PrimaryItemData.m_shared.m_useDurability : data.m_useDurability;
+                    WMRecipeCust.WLog.LogWarning($"use Durabilty is " + data.m_useDurability);
 
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage = data.m_secAttackHealthPercentage;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.m_secAttackStamina;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.m_secEitrCost;
+                    PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain ?? PrimaryItemData.m_shared.m_useDurabilityDrain;
+                    PrimaryItemData.m_shared.m_questItem = data.m_questItem ?? PrimaryItemData.m_shared.m_questItem;
+                    PrimaryItemData.m_shared.m_teleportable = data.m_teleportable ?? PrimaryItemData.m_shared.m_teleportable;
+                    PrimaryItemData.m_shared.m_toolTier = data.m_toolTier ?? PrimaryItemData.m_shared.m_toolTier;
+                    PrimaryItemData.m_shared.m_value = data.m_value ?? PrimaryItemData.m_shared.m_value;
+                    PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier ?? PrimaryItemData.m_shared.m_movementModifier;
+                    PrimaryItemData.m_shared.m_eitrRegenModifier = data.m_EitrRegen ?? PrimaryItemData.m_shared.m_eitrRegenModifier;
 
-                    PrimaryItemData.m_shared.m_attackForce = data.m_knockback;
+
+                    PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.Primary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage;
+                    PrimaryItemData.m_shared.m_attack.m_attackStamina = data.Primary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_attack.m_attackStamina;
+                    PrimaryItemData.m_shared.m_attack.m_attackEitr = data.Primary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_attack.m_attackEitr;
+
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage = data.Secondary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage;
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.Secondary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina;
+                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.Secondary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr;
+
+                    PrimaryItemData.m_shared.m_attackForce = data.m_knockback ?? PrimaryItemData.m_shared.m_attackForce;
                     //PrimaryItemData.m_shared.m
 
                     // someone is going to complain that I am adding too many... I just know it.
@@ -890,12 +891,15 @@ namespace wackydatabase.SetData
                     }
                     */
 
-                    PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
-                    foreach (string modString in data.damageModifiers)
+                    if (!DataHelpers.ECheck(data.damageModifiers))
                     {
-                        string[] mod = modString.Split(':');
-                        int modType = Enum.TryParse<ArmorHelpers.NewDamageTypes>(mod[0], out ArmorHelpers.NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
-                        PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
+                        PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
+                        foreach (string modString in data.damageModifiers)
+                        {
+                            string[] mod = modString.Split(':');
+                            int modType = Enum.TryParse<ArmorHelpers.NewDamageTypes>(mod[0], out ArmorHelpers.NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
+                            PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
+                        }
                     }
                     if (PrimaryItemData.m_shared.m_value > 0)
                     {

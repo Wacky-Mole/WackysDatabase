@@ -105,9 +105,13 @@ namespace wackydatabase.Datas
         {
             WMRecipeCust.selectedPiecehammer = null;
             GameObject Searchingfor = null;
+            if (WMRecipeCust.MaybePieceStations == null || WMRecipeCust.MaybePieceStations.Count() == 0)
+                return null;
+
             foreach (PieceTable Station in WMRecipeCust.MaybePieceStations) // look for known modded hammers, Forget the indivual item, now just PieceTable
             {
-                Searchingfor = Station.m_pieces.Find(g => Utils.GetPrefabName(g) == name);
+                //WMRecipeCust.WLog.LogWarning("Station is " +Station);
+               Searchingfor = Station.m_pieces.Find(g => Utils.GetPrefabName(g) == name);
                 if (Searchingfor != null)
                 {
                     WMRecipeCust.selectedPiecehammer = Station;
@@ -206,7 +210,7 @@ namespace wackydatabase.Datas
             return strings.Count == 0;
         }
 
-        public static bool ECheck(bool? whatis)
+        public static bool ECheck(bool whatis)
         {
             return whatis == null;
         }

@@ -1,137 +1,129 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace wackydatabase.Datas
 {
 	[Serializable]
+    [CanBeNull]
 	public class WItemData
 	{
+        #nullable enable
         public string name; // must have
 
-        public string m_name;
+        public string? m_name;
 
-        public string m_description;
+        public string? m_description;
 
-        public bool? clone;
+        //public bool? clone;
 
-        public string clonePrefabName;
+        public string? clonePrefabName;
 
-        public string customIcon;
+        public string? customIcon;
 
         //public string cloneEffects;
 
-        public string cloneMaterial;
+        public string? cloneMaterial;
 
-        public float m_weight; // must have
+        public float? m_weight; // must have
 
         //public string m_skillType;
 
         //public string m_animationState;
 
-        public float m_attackStamina; // is set to both attacks
+        public AttackArm? Primary_Attack;
 
-        public float m_secAttackStamina;
+        public AttackArm? Secondary_Attack;
 
-        public float m_EitrCost;
+        public WDamages? Damage;
 
-        public float m_secEitrCost;
+        public WDamages? Damage_Per_Level;
 
-        public float m_attackHealthPercentage;
+        public int? m_maxStackSize;
 
-        public float m_secAttackHealthPercentage;
+        public float? m_foodHealth;
 
-        //public List<string> primaryAttack = new List<string>();
+        public float? m_foodStamina;
 
-        //public List<string> secondaryAttack = new List<string>();
+        public float? m_foodRegen;
 
-        public int m_maxStackSize;
+        public float? m_foodBurnTime;
 
-        public float m_foodHealth;
+        public string? m_foodColor;
 
-        public float m_foodStamina;
+        public float? m_FoodEitr;
 
-        public float m_foodRegen;
+        public float? m_armor;
 
-        public float m_foodBurnTime;
+        public float? m_armorPerLevel;
 
-        public string m_foodColor;
+        public float? m_movementModifier;
 
-        public float m_FoodEitr;
+        public float? m_EitrRegen;
 
-        public float m_armor;
+        public float? m_blockPower;
 
-        public float m_armorPerLevel;
+        public float? m_blockPowerPerLevel;
 
-        public float m_movementModifier;
+        public bool? m_canBeReparied;
 
-        public float m_EitrRegen;
+        public float? m_timedBlockBonus;
 
-        public float m_blockPower;
+        public float? m_deflectionForce;
 
-        public float m_blockPowerPerLevel;
+        public float? m_deflectionForcePerLevel;
 
-        public bool m_canBeReparied;
+        public float? m_backstabbonus;
 
-        //public WDamages m_damages;
+        public float? m_knockback;
 
-        // public WDamages m_damagesPerLevel;
+        public bool? m_destroyBroken;
 
-        public float m_timedBlockBonus;
+        public bool? m_dodgeable;
 
-        public float m_deflectionForce;
+        public float? m_maxDurability;
 
-        public float m_deflectionForcePerLevel;
+        public float? m_durabilityDrain;
 
-        public float m_backstabbonus;
+        public float? m_durabilityPerLevel;
 
-        public float m_knockback;
+        public float? m_equipDuration;
 
-        public bool m_destroyBroken;
+        public float? m_holdDurationMin;
 
-        public bool m_dodgeable;
-
-        public float m_maxDurability;
-
-        public float m_durabilityDrain;
-
-        public float m_durabilityPerLevel;
-
-        public float m_equipDuration;
-
-        public float m_holdDurationMin;
-
-        public float m_holdStaminaDrain;
+        public float? m_holdStaminaDrain;
 
         //public string m_holdAnimationState;
 
-        public int m_maxQuality;
+        public int? m_maxQuality;
 
-        public bool m_useDurability;
+        public bool? m_useDurability;
 
-        public float m_useDurabilityDrain;
+        public float? m_useDurabilityDrain;
 
-        public bool m_questItem;
+        public bool? m_questItem;
 
-        public bool m_teleportable;
+        public bool? m_teleportable;
 
-        public int m_toolTier;
+        public int? m_toolTier;
 
-        public int m_value;
+        public int? m_value;
 
-        public string m_damages; // not sure what I am doing with my life
+        public List<string>? damageModifiers = new List<string>();
 
-        public string m_damagesPerLevel;
+        #nullable disable
+    }
 
-        public List<string> damageModifiers = new List<string>();
 
+    [Serializable]
+    public class AttackArm
+        {
+			public float? m_attackStamina;
+            public float? m_attackHealthPercentage;
+            public float? m_eitrCost;
 
     }
-    public class Attack
-        {
-			public float m_attackStamina;
-
-		}
 
 
 	[Serializable]
@@ -149,33 +141,40 @@ namespace wackydatabase.Datas
 	[Serializable]
 	public class WDamages // can't get the inhertance in json to sterilize
 	{
-		public float m_blunt;
+		public float Blunt;
 
-		public float m_chop;
+		public float Chop;
 
-		public float m_damage;
+		public float Damage;
 
-		public float m_fire;
+		public float Fire;
 
-		public float m_frost;
+		public float Frost;
 
-		public float m_lightning;
+		public float Lightning;
 
-		public float m_pickaxe;
+		public float Pickaxe;
 
-		public float m_pierce;
+		public float Pierce;
 
-		public float m_poison;
+		public float Poison;
 
-		public float m_slash;
+		public float Slash;
 
-		public float m_spirit;
-	}
-
+		public float Spirit;
 
 
+    }
 
-	[Serializable]
+    public class DamageMod //HitData.DamageModifier
+    {
+
+    }
+
+
+
+
+    [Serializable]
 	public class WIngredients
 	{
 		public string id;

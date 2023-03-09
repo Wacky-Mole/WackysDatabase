@@ -169,14 +169,14 @@ namespace wackydatabase.GetData
                 WMRecipeCust.Dbgl("Item GetItemDataByName not found! - componets");
                 return null;
             }
-            WDamages damages = null;
+            WDamages_old damages = null;
             string damagestring = "";
             // Dbgl("Item "+ name + " data.m_shared.m_damages.mslash" + data.m_shared.m_damages.m_slash);
             if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
             {
                 WMRecipeCust.Dbgl("Item " + name + " damage on ");
 
-                damages = new WDamages // not used
+                damages = new WDamages_old // not used
                 {
 
                     m_blunt = data.m_shared.m_damages.m_blunt,
@@ -206,11 +206,11 @@ namespace wackydatabase.GetData
                ;
                 damagestring = damagestring.Replace(",", ", ");
             }
-            WDamages damagesPerLevel = null;
+            WDamages_old damagesPerLevel = null;
             string damgelvlstring = "";
             if (data.m_shared.m_damagesPerLevel.m_blunt > 0f || data.m_shared.m_damagesPerLevel.m_chop > 0f || data.m_shared.m_damagesPerLevel.m_damage > 0f || data.m_shared.m_damagesPerLevel.m_fire > 0f || data.m_shared.m_damagesPerLevel.m_frost > 0f || data.m_shared.m_damagesPerLevel.m_lightning > 0f || data.m_shared.m_damagesPerLevel.m_pickaxe > 0f || data.m_shared.m_damagesPerLevel.m_pierce > 0f || data.m_shared.m_damagesPerLevel.m_poison > 0f || data.m_shared.m_damagesPerLevel.m_slash > 0f || data.m_shared.m_damagesPerLevel.m_spirit > 0f)
             {
-                damagesPerLevel = new WDamages // not used
+                damagesPerLevel = new WDamages_old // not used
                 {
                     m_blunt = data.m_shared.m_damagesPerLevel.m_blunt,
                     m_chop = data.m_shared.m_damagesPerLevel.m_chop,

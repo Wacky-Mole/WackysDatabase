@@ -4,6 +4,7 @@ using UnityEngine;
 using wackydatabase.Datas;
 using BepInEx.Bootstrap;
 using System.Reflection;
+using static ItemSets;
 
 namespace wackydatabase.GetData
 {
@@ -99,6 +100,10 @@ namespace wackydatabase.GetData
             return dataRec;
         }
 
+
+
+
+
         internal PieceData GetPieceRecipeByName(string name, ObjectDB tod, bool warn = true)
         {
             Piece piece = null;
@@ -141,6 +146,11 @@ namespace wackydatabase.GetData
             if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
                 piecehammer = "Hoe";
 
+
+            WMRecipeCust.WLog.LogWarning("Hammer selector needs helkp! in getdata GetPieceRecipeByName");
+            return GetPiece(hammer, piecehammer, go, tod);
+            
+
             string wackyname = "";
             string wackydesc = "";
             wackydesc = piece.m_description;
@@ -178,27 +188,49 @@ namespace wackydatabase.GetData
                 HamerItemdrop = itemD;
             }
 
+
             int PCount = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces.Count();
 
             GameObject pieceSel = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces[count];
             Piece actPiece = pieceSel.GetComponent<Piece>();
 
+            return GetPiece(HamerItemdrop, hammer, pieceSel, tod);
+
+        }
+
+        private PieceData GetPiece (ItemDrop HammerID,string Hammername, GameObject PieceID, ObjectDB tod)
+        {
+
+            Piece piece = PieceID.GetComponent<Piece>();
+            string wackydesc = piece.m_description;
+            string wackyname = piece.m_name;
+            string wackycatSring = piece.m_category.ToString();
+
             var data = new PieceData()
             {
-                name = pieceSel.name,
-                disabled = pieceSel.activeSelf,
+                name = PieceID.name,
                 amount = 1,
-                craftingStation = actPiece.m_craftingStation?.m_name ?? "",
+                craftingStation = piece.m_craftingStation?.m_name ?? "",
                 minStationLevel = 1,
-                piecehammer = hammer,
+                piecehammer = Hammername,
                 adminonly = false,
-                m_name = actPiece.m_name,
-                m_description = actPiece.m_description,
-                piecehammerCategory = actPiece.m_category.ToString(),
+                m_name = wackyname,
+                m_description = wackydesc,
+                piecehammerCategory = wackycatSring,
             };
+            foreach (Piece.Requirement req in piece.m_resources)
+            {
+                data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
+            }
 
             return data;
+
+
         }
+
+
+
+
 
         internal WItemData GetItemDataByName(string name, ObjectDB tod)
         {
@@ -215,148 +247,19 @@ namespace wackydatabase.GetData
                 WMRecipeCust.Dbgl("Item GetItemDataByName not found! - componets");
                 return null;
             }
-            WDamages damages = null;
-            string damagestring = "";
-            // Dbgl("Item "+ name + " data.m_shared.m_damages.mslash" + data.m_shared.m_damages.m_slash);
-            if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
-            {
-                WMRecipeCust.Dbgl("Item " + name + " damage on ");
 
-                damages = new WDamages // not used
-                {
-
-                    m_blunt = data.m_shared.m_damages.m_blunt,
-                    m_chop = data.m_shared.m_damages.m_chop,
-                    m_damage = data.m_shared.m_damages.m_damage,
-                    m_fire = data.m_shared.m_damages.m_fire,
-                    m_frost = data.m_shared.m_damages.m_frost,
-                    m_lightning = data.m_shared.m_damages.m_lightning,
-                    m_pickaxe = data.m_shared.m_damages.m_pickaxe,
-                    m_pierce = data.m_shared.m_damages.m_pierce,
-                    m_poison = data.m_shared.m_damages.m_poison,
-                    m_slash = data.m_shared.m_damages.m_slash,
-                    m_spirit = data.m_shared.m_damages.m_spirit
-                };
-                damagestring = $"m_blunt:{data.m_shared.m_damages.m_blunt},"
-               + $"m_chop:{data.m_shared.m_damages.m_chop},"
-               + $"m_damage:{data.m_shared.m_damages.m_damage},"
-               + $"m_fire:{data.m_shared.m_damages.m_fire},"
-               + $"m_frost:{data.m_shared.m_damages.m_frost},"
-               + $"m_lightning:{data.m_shared.m_damages.m_lightning},"
-               + $"m_pickaxe:{data.m_shared.m_damages.m_pickaxe},"
-               + $"m_pierce:{data.m_shared.m_damages.m_pierce},"
-               + $"m_poison:{data.m_shared.m_damages.m_poison},"
-               + $"m_slash:{data.m_shared.m_damages.m_slash},"
-               + $"m_spirit:{data.m_shared.m_damages.m_spirit},"
-
-               ;
-                damagestring = damagestring.Replace(",", ", ");
-            }
-            WDamages damagesPerLevel = null;
-            string damgelvlstring = "";
-            if (data.m_shared.m_damagesPerLevel.m_blunt > 0f || data.m_shared.m_damagesPerLevel.m_chop > 0f || data.m_shared.m_damagesPerLevel.m_damage > 0f || data.m_shared.m_damagesPerLevel.m_fire > 0f || data.m_shared.m_damagesPerLevel.m_frost > 0f || data.m_shared.m_damagesPerLevel.m_lightning > 0f || data.m_shared.m_damagesPerLevel.m_pickaxe > 0f || data.m_shared.m_damagesPerLevel.m_pierce > 0f || data.m_shared.m_damagesPerLevel.m_poison > 0f || data.m_shared.m_damagesPerLevel.m_slash > 0f || data.m_shared.m_damagesPerLevel.m_spirit > 0f)
-            {
-                damagesPerLevel = new WDamages // not used
-                {
-                    m_blunt = data.m_shared.m_damagesPerLevel.m_blunt,
-                    m_chop = data.m_shared.m_damagesPerLevel.m_chop,
-                    m_damage = data.m_shared.m_damagesPerLevel.m_damage,
-                    m_fire = data.m_shared.m_damagesPerLevel.m_fire,
-                    m_frost = data.m_shared.m_damagesPerLevel.m_frost,
-                    m_lightning = data.m_shared.m_damagesPerLevel.m_lightning,
-                    m_pickaxe = data.m_shared.m_damagesPerLevel.m_pickaxe,
-                    m_pierce = data.m_shared.m_damagesPerLevel.m_pierce,
-                    m_poison = data.m_shared.m_damagesPerLevel.m_poison,
-                    m_slash = data.m_shared.m_damagesPerLevel.m_slash,
-                    m_spirit = data.m_shared.m_damagesPerLevel.m_spirit
-                };
-                damgelvlstring = $"m_blunt:{data.m_shared.m_damagesPerLevel.m_blunt},"
-               + $"m_chop:{data.m_shared.m_damagesPerLevel.m_chop},"
-               + $"m_damage:{data.m_shared.m_damagesPerLevel.m_damage},"
-               + $"m_fire:{data.m_shared.m_damagesPerLevel.m_fire},"
-               + $"m_frost:{data.m_shared.m_damagesPerLevel.m_frost},"
-               + $"m_lightning:{data.m_shared.m_damagesPerLevel.m_lightning},"
-               + $"m_pickaxe:{data.m_shared.m_damagesPerLevel.m_pickaxe},"
-               + $"m_pierce:{data.m_shared.m_damagesPerLevel.m_pierce},"
-               + $"m_poison:{data.m_shared.m_damagesPerLevel.m_poison},"
-               + $"m_slash:{data.m_shared.m_damagesPerLevel.m_slash},"
-               + $"m_spirit:{data.m_shared.m_damagesPerLevel.m_spirit},"
-
-               ;
-                damgelvlstring = damgelvlstring.Replace(",", ", ");
-            }
-            /*
-            foreach (Piece.Requirement req in piece.m_resources) // maybe use in future
-            {
-                data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
-            }*/
-
-            WItemData ItemData = new WItemData
-            {
-                name = name,
-                m_armor = data.m_shared.m_armor,
-                clone = false,
-                m_armorPerLevel = data.m_shared.m_armorPerLevel,
-                m_blockPower = data.m_shared.m_blockPower,
-                m_blockPowerPerLevel = data.m_shared.m_blockPowerPerLevel,
-                m_deflectionForce = data.m_shared.m_deflectionForce,
-                m_deflectionForcePerLevel = data.m_shared.m_deflectionForcePerLevel,
-                m_description = data.m_shared.m_description,
-                m_durabilityDrain = data.m_shared.m_durabilityDrain,
-                m_durabilityPerLevel = data.m_shared.m_durabilityPerLevel,
-                m_backstabbonus = data.m_shared.m_backstabBonus,
-                m_equipDuration = data.m_shared.m_equipDuration,
-                m_foodHealth = data.m_shared.m_food,
-                // m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
-                m_foodBurnTime = data.m_shared.m_foodBurnTime,
-                m_foodRegen = data.m_shared.m_foodRegen,
-                m_foodStamina = data.m_shared.m_foodStamina,
-                m_FoodEitr = data.m_shared.m_foodEitr,
-                m_holdDurationMin = data.m_shared.m_attack.m_drawDurationMin,
-                m_holdStaminaDrain = data.m_shared.m_attack.m_drawStaminaDrain,
-                m_maxDurability = data.m_shared.m_maxDurability,
-                m_maxQuality = data.m_shared.m_maxQuality,
-                m_maxStackSize = data.m_shared.m_maxStackSize,
-                m_toolTier = data.m_shared.m_toolTier,
-                m_useDurability = data.m_shared.m_useDurability,
-                m_useDurabilityDrain = data.m_shared.m_useDurabilityDrain,
-                m_value = data.m_shared.m_value,
-                m_weight = data.m_shared.m_weight,
-                m_destroyBroken = data.m_shared.m_destroyBroken,
-                m_dodgeable = data.m_shared.m_dodgeable,
-                m_canBeReparied = data.m_shared.m_canBeReparied,
-                m_damages = damagestring,
-                m_damagesPerLevel = damgelvlstring,
-                m_name = data.m_shared.m_name,
-                m_questItem = data.m_shared.m_questItem,
-                m_teleportable = data.m_shared.m_teleportable,
-                m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
-                m_movementModifier = data.m_shared.m_movementModifier,
-                m_EitrRegen = data.m_shared.m_eitrRegenModifier,
-                m_attackStamina = data.m_shared.m_attack.m_attackStamina,
-                m_secAttackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
-                m_EitrCost = data.m_shared.m_attack.m_attackEitr,
-                m_secEitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
-                m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
-                m_secAttackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
-                m_knockback = data.m_shared.m_attackForce,
-
-                damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
-
-            };
-            if (ItemData.m_foodHealth == 0f && ItemData.m_foodRegen == 0f && ItemData.m_foodStamina == 0f)
-            {
-                ItemData.m_foodColor = null;
-            }
-
-            return ItemData;
-
+            return GetItem(go, tod);
+            
         }
 
         internal WItemData GetItemDataByCount(int count, ObjectDB tod)
         {
             var go = tod.m_items[count];
+            return GetItem(go, tod);
 
+        }
+
+        private WItemData GetItem(GameObject go, ObjectDB tod) { 
             ItemDrop.ItemData data = go.GetComponent<ItemDrop>().m_itemData;
             if (data == null)
             {
@@ -364,86 +267,67 @@ namespace wackydatabase.GetData
                 return null;
             }
             WDamages damages = null;
-            string damagestring = "";
-            // Dbgl("Item "+ name + " data.m_shared.m_damages.mslash" + data.m_shared.m_damages.m_slash);
             if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
             {
                 WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " damage on ");
 
-                damages = new WDamages // not used
+                damages = new WDamages 
                 {
 
-                    m_blunt = data.m_shared.m_damages.m_blunt,
-                    m_chop = data.m_shared.m_damages.m_chop,
-                    m_damage = data.m_shared.m_damages.m_damage,
-                    m_fire = data.m_shared.m_damages.m_fire,
-                    m_frost = data.m_shared.m_damages.m_frost,
-                    m_lightning = data.m_shared.m_damages.m_lightning,
-                    m_pickaxe = data.m_shared.m_damages.m_pickaxe,
-                    m_pierce = data.m_shared.m_damages.m_pierce,
-                    m_poison = data.m_shared.m_damages.m_poison,
-                    m_slash = data.m_shared.m_damages.m_slash,
-                    m_spirit = data.m_shared.m_damages.m_spirit
+                    Blunt = data.m_shared.m_damages.m_blunt,
+                    Chop = data.m_shared.m_damages.m_chop,
+                    Damage = data.m_shared.m_damages.m_damage,
+                    Fire = data.m_shared.m_damages.m_fire,
+                    Frost = data.m_shared.m_damages.m_frost,
+                    Lightning = data.m_shared.m_damages.m_lightning,
+                    Pickaxe = data.m_shared.m_damages.m_pickaxe,
+                    Pierce = data.m_shared.m_damages.m_pierce,
+                    Poison = data.m_shared.m_damages.m_poison,
+                    Slash = data.m_shared.m_damages.m_slash,
+                    Spirit = data.m_shared.m_damages.m_spirit
                 };
-                damagestring = $"m_blunt:{data.m_shared.m_damages.m_blunt},"
-               + $"m_chop:{data.m_shared.m_damages.m_chop},"
-               + $"m_damage:{data.m_shared.m_damages.m_damage},"
-               + $"m_fire:{data.m_shared.m_damages.m_fire},"
-               + $"m_frost:{data.m_shared.m_damages.m_frost},"
-               + $"m_lightning:{data.m_shared.m_damages.m_lightning},"
-               + $"m_pickaxe:{data.m_shared.m_damages.m_pickaxe},"
-               + $"m_pierce:{data.m_shared.m_damages.m_pierce},"
-               + $"m_poison:{data.m_shared.m_damages.m_poison},"
-               + $"m_slash:{data.m_shared.m_damages.m_slash},"
-               + $"m_spirit:{data.m_shared.m_damages.m_spirit},"
-
-               ;
-                damagestring = damagestring.Replace(",", ", ");
             }
             WDamages damagesPerLevel = null;
-            string damgelvlstring = "";
             if (data.m_shared.m_damagesPerLevel.m_blunt > 0f || data.m_shared.m_damagesPerLevel.m_chop > 0f || data.m_shared.m_damagesPerLevel.m_damage > 0f || data.m_shared.m_damagesPerLevel.m_fire > 0f || data.m_shared.m_damagesPerLevel.m_frost > 0f || data.m_shared.m_damagesPerLevel.m_lightning > 0f || data.m_shared.m_damagesPerLevel.m_pickaxe > 0f || data.m_shared.m_damagesPerLevel.m_pierce > 0f || data.m_shared.m_damagesPerLevel.m_poison > 0f || data.m_shared.m_damagesPerLevel.m_slash > 0f || data.m_shared.m_damagesPerLevel.m_spirit > 0f)
             {
-                damagesPerLevel = new WDamages // not used
+                damagesPerLevel = new WDamages
                 {
-                    m_blunt = data.m_shared.m_damagesPerLevel.m_blunt,
-                    m_chop = data.m_shared.m_damagesPerLevel.m_chop,
-                    m_damage = data.m_shared.m_damagesPerLevel.m_damage,
-                    m_fire = data.m_shared.m_damagesPerLevel.m_fire,
-                    m_frost = data.m_shared.m_damagesPerLevel.m_frost,
-                    m_lightning = data.m_shared.m_damagesPerLevel.m_lightning,
-                    m_pickaxe = data.m_shared.m_damagesPerLevel.m_pickaxe,
-                    m_pierce = data.m_shared.m_damagesPerLevel.m_pierce,
-                    m_poison = data.m_shared.m_damagesPerLevel.m_poison,
-                    m_slash = data.m_shared.m_damagesPerLevel.m_slash,
-                    m_spirit = data.m_shared.m_damagesPerLevel.m_spirit
+                    Blunt = data.m_shared.m_damagesPerLevel.m_blunt,
+                    Chop = data.m_shared.m_damagesPerLevel.m_chop,
+                    Damage = data.m_shared.m_damagesPerLevel.m_damage,
+                    Fire = data.m_shared.m_damagesPerLevel.m_fire,
+                    Frost = data.m_shared.m_damagesPerLevel.m_frost,
+                    Lightning = data.m_shared.m_damagesPerLevel.m_lightning,
+                    Pickaxe = data.m_shared.m_damagesPerLevel.m_pickaxe,
+                    Pierce = data.m_shared.m_damagesPerLevel.m_pierce,
+                    Poison = data.m_shared.m_damagesPerLevel.m_poison,
+                    Slash = data.m_shared.m_damagesPerLevel.m_slash,
+                    Spirit = data.m_shared.m_damagesPerLevel.m_spirit
                 };
-                damgelvlstring = $"m_blunt:{data.m_shared.m_damagesPerLevel.m_blunt},"
-               + $"m_chop:{data.m_shared.m_damagesPerLevel.m_chop},"
-               + $"m_damage:{data.m_shared.m_damagesPerLevel.m_damage},"
-               + $"m_fire:{data.m_shared.m_damagesPerLevel.m_fire},"
-               + $"m_frost:{data.m_shared.m_damagesPerLevel.m_frost},"
-               + $"m_lightning:{data.m_shared.m_damagesPerLevel.m_lightning},"
-               + $"m_pickaxe:{data.m_shared.m_damagesPerLevel.m_pickaxe},"
-               + $"m_pierce:{data.m_shared.m_damagesPerLevel.m_pierce},"
-               + $"m_poison:{data.m_shared.m_damagesPerLevel.m_poison},"
-               + $"m_slash:{data.m_shared.m_damagesPerLevel.m_slash},"
-               + $"m_spirit:{data.m_shared.m_damagesPerLevel.m_spirit},"
 
-               ;
-                damgelvlstring = damgelvlstring.Replace(",", ", ");
             }
-            /*
-            foreach (Piece.Requirement req in piece.m_resources) // maybe use in future
+
+            AttackArm Primary_Attack = new AttackArm
             {
-                data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
-            }*/
+                m_eitrCost = data.m_shared.m_attack.m_attackEitr,
+                m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
+                m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+            };
+
+            AttackArm Secondary_Attack = new AttackArm
+            {
+                m_eitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
+                m_attackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
+                m_attackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
+            };
+
 
             WItemData ItemData = new WItemData
             {
                 name = go.GetComponent<ItemDrop>().name,
                 m_armor = data.m_shared.m_armor,
-                clone = false,
+                //clone = false,
+                clonePrefabName = "",
                 m_armorPerLevel = data.m_shared.m_armorPerLevel,
                 m_blockPower = data.m_shared.m_blockPower,
                 m_blockPowerPerLevel = data.m_shared.m_blockPowerPerLevel,
@@ -473,21 +357,17 @@ namespace wackydatabase.GetData
                 m_destroyBroken = data.m_shared.m_destroyBroken,
                 m_dodgeable = data.m_shared.m_dodgeable,
                 m_canBeReparied = data.m_shared.m_canBeReparied,
-                m_damages = damagestring,
-                m_damagesPerLevel = damgelvlstring,
                 m_name = data.m_shared.m_name,
                 m_questItem = data.m_shared.m_questItem,
                 m_teleportable = data.m_shared.m_teleportable,
                 m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
                 m_movementModifier = data.m_shared.m_movementModifier,
                 m_EitrRegen = data.m_shared.m_eitrRegenModifier,
-                m_attackStamina = data.m_shared.m_attack.m_attackStamina,
-                m_secAttackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
-                m_EitrCost = data.m_shared.m_attack.m_attackEitr,
-                m_secEitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
-                m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
-                m_secAttackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
                 m_knockback = data.m_shared.m_attackForce,
+                Primary_Attack = Primary_Attack,
+                Secondary_Attack = Secondary_Attack,
+                Damage = damages,
+                Damage_Per_Level = damagesPerLevel,
 
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 

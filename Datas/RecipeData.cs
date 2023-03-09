@@ -8,7 +8,7 @@ namespace wackydatabase.Datas
     public class RecipeData
     {
         public string name; //must have
-        public bool? clone;
+        public bool clone;
         public string clonePrefabName;
         //public string cloneColor;
         public string craftingStation;

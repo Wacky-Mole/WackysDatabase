@@ -63,7 +63,7 @@ namespace wackydatabase.Read
                 WMRecipeCust.GetAllMaterials();
                 DataHelpers.GetPieceStations();
                 DataHelpers.GetPiecesatStart();
-                //WMRecipeCust.Firstrun = false;
+                WMRecipeCust.Firstrun = false;
             }
             WMRecipeCust.recipeDatas.Clear();
             WMRecipeCust.ItemDatas.Clear();

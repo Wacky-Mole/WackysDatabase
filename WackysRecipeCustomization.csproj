@@ -111,8 +111,9 @@
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
-    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
-      <HintPath>packages\YamlDotNet.11.2.1\lib\net45\YamlDotNet.dll</HintPath>
+    <Reference Include="YamlDotNet, Version=13.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\EpicMMOSystem\Libs\YamlDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

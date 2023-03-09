@@ -232,7 +232,7 @@ namespace wackydatabase.PatchClasses
                         var serializer = new SerializerBuilder()
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + recipData.name + ".yml"), serializer.Serialize(recipData));
-                        args.Context?.AddString($"saved item data to Item_{file}.json");
+                        args.Context?.AddString($"saved item data to Item_{file}.yml");
 
                     });
             Terminal.ConsoleCommand WackyPieceSave =
@@ -248,7 +248,7 @@ namespace wackydatabase.PatchClasses
                         var serializer = new SerializerBuilder()
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + recipData.name + ".yml"), serializer.Serialize(recipData));
-                        args.Context?.AddString($"saved data to Piece_{file}.json");
+                        args.Context?.AddString($"saved data to Piece_{file}.yml");
 
                     });
             Terminal.ConsoleCommand WackyRecipeSave =
@@ -264,7 +264,7 @@ namespace wackydatabase.PatchClasses
                         var serializer = new SerializerBuilder()
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipData.name + ".yml"), serializer.Serialize(recipData));
-                        args.Context?.AddString($"saved data to Recipe_{file}.json");
+                        args.Context?.AddString($"saved data to Recipe_{file}.yml");
 
                     });
 
@@ -354,7 +354,6 @@ namespace wackydatabase.PatchClasses
                                 if (clone == null)
                                     return;
                                 clone.name = newname;
-                                clone.clone = true;
                                 clone.clonePrefabName = prefab;
                                 clone.m_name = newname;
 
@@ -411,7 +410,6 @@ namespace wackydatabase.PatchClasses
                             if (itemclone == null)
                                 return;
                             itemclone.name = newname;
-                            itemclone.clone = true;
                             itemclone.clonePrefabName = prefab;
                             itemclone.m_name = newname;
                             File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + itemclone.name + ".yml"), serializer.Serialize(itemclone));
