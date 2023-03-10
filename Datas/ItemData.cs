@@ -26,11 +26,11 @@ namespace wackydatabase.Datas
 
         public string? cloneMaterial;
 
+        public float? sizeMultiplier;
+
         public float? m_weight; // must have
 
-        //public string m_skillType;
-
-        //public string m_animationState;
+        public float? scale_weight_by_quality;
 
         public AttackArm? Primary_Attack;
 
@@ -40,53 +40,47 @@ namespace wackydatabase.Datas
 
         public WDamages? Damage_Per_Level;
 
+        public ArmorData? Armor;
+
+        public FoodData? FoodStats;
+
+        public StatMods? Moddifiers;
+
+        public SE_Equip? SE_Equip;
+
+        public SE_SET_Equip? SE_SET_Equip;
+
+        public ShieldData? ShieldStats;
+
         public int? m_maxStackSize;
 
-        public float? m_foodHealth;
-
-        public float? m_foodStamina;
-
-        public float? m_foodRegen;
-
-        public float? m_foodBurnTime;
-
-        public string? m_foodColor;
-
-        public float? m_FoodEitr;
-
-        public float? m_armor;
-
-        public float? m_armorPerLevel;
-
-        public float? m_movementModifier;
-
-        public float? m_EitrRegen;
-
-        public float? m_blockPower;
-
-        public float? m_blockPowerPerLevel;
-
         public bool? m_canBeReparied;
-
-        public float? m_timedBlockBonus;
-
-        public float? m_deflectionForce;
-
-        public float? m_deflectionForcePerLevel;
-
-        public float? m_backstabbonus;
-
-        public float? m_knockback;
 
         public bool? m_destroyBroken;
 
         public bool? m_dodgeable;
 
+        public bool? m_questItem;
+
+        public bool? m_teleportable;
+
+        public bool? m_useDurability;
+
+        public float? m_backstabbonus;
+
+        public float? m_knockback;
+
+
+
         public float? m_maxDurability;
+
+        public float? m_durabilityPerLevel;
+
+        public float? m_useDurabilityDrain;
 
         public float? m_durabilityDrain;
 
-        public float? m_durabilityPerLevel;
+        
 
         public float? m_equipDuration;
 
@@ -94,23 +88,22 @@ namespace wackydatabase.Datas
 
         public float? m_holdStaminaDrain;
 
-        //public string m_holdAnimationState;
+        public string? m_holdAnimationState;
 
-        public int? m_maxQuality;
 
-        public bool? m_useDurability;
 
-        public float? m_useDurabilityDrain;
+        public Skills.SkillType? m_skillType; // 
 
-        public bool? m_questItem;
+        public ItemDrop.ItemData.AnimationState? m_animationState; //
 
-        public bool? m_teleportable;
+        
 
         public int? m_toolTier;
 
+        public int? m_maxQuality;
+
         public int? m_value;
 
-        public List<string>? damageModifiers = new List<string>();
 
         #nullable disable
     }
@@ -119,23 +112,132 @@ namespace wackydatabase.Datas
     [Serializable]
     public class AttackArm
         {
-			public float? m_attackStamina;
-            public float? m_attackHealthPercentage;
-            public float? m_eitrCost;
+        public Attack.AttackType? AttackType;
+        public string? Attack_Animation;
+        public int? Attack_Random_Animation;
+        public int? Chain_Attacks;
+        public bool? Hit_Terrain;
+
+		public float? m_attackStamina;
+        public float? m_eitrCost;
+        public float? AttackHealthCost;
+        public float? m_attackHealthPercentage;
+
+        public float? SpeedFactor;
+        public float? DmgMultiplier;
+        public float? ForceMultiplier;
+        public float? StaggerMultiplier;
+        public float? RecoilMultiplier;
+
+        public float? AttackRange;
+        public float? AttackHeight;
+        public GameObject? Spawn_On_Trigger;
+
+        public bool? Requires_Reload;
+        public string? Reload_Animation;
+        public float? ReloadTime;
+        public float? Reload_Stamina_Drain;
+
+        public bool? Bow_Draw;
+        public float? Bow_Duration_Min;
+        public float? Bow_Stamina_Drain;
+        public string? Bow_Animation_State;
+
+        public float? Attack_Angle;
+        public float? Attack_Ray_Width;
+        public bool? Lower_Dmg_Per_Hit;
+        public bool? Hit_Through_Walls;
+        public bool? Multi_Hit;
+        public bool? Pickaxe_Special;
+        public float? Last_Chain_Dmg_Multiplier;
+
+        public GameObject? Attack_Projectile;
+        public float? Projectile_Vel;
+        public float? Projectile_Accuraccy;
+        public int? Projectiles;
+    }
+
+    [Serializable]
+    public class FoodData
+    {
+        public float? m_foodHealth;
+        public float? m_foodStamina;
+        public float? m_foodRegen;
+        public float? m_foodBurnTime;
+        //public string? m_foodColor;
+        public float? m_FoodEitr;
+    }
+    [Serializable]
+    public class StatMods
+    {
+        public float? m_movementModifier;
+        public float? m_EitrRegen;
 
     }
 
+    [Serializable]
+    public class SE_Equip
+    {
+        public Effects Effects;
+    }
 
-	[Serializable]
+    [Serializable]
+    public class SE_SET_Equip
+    {
+        public string SetName;
+        public int Size;
+        public Effects Effects; 
+
+    }
+    [Serializable]
+    public class Effects
+    {
+        public string? Name;
+        public string? Category;
+        public string? CustomIcon;
+        public bool? FlashIcon;
+        public bool? CooldownIcon;
+        public string? Tooltip;
+        public string? Attributes;
+        public string? StartMessageLoc;
+        public string? StartMessage;
+        public string? StopMessageLoc;
+        public string? StopMessage;
+        public string? RepeatMessageLoc;
+        public string? RepeatMessage;
+        public int? RepeatInterval;
+        public int? TimeToLive;
+        public EffectList? StartEffect;
+        public EffectList? StopEffect;
+
+        public int? Cooldown;
+        public string? ActivationAnimation;
+
+        public SE_Shield? SE_Shield;
+
+    }
+    [Serializable]
+    public class ShieldData
+    {
+        public float? m_blockPower;
+        public float? m_blockPowerPerLevel;
+        public float? m_timedBlockBonus;
+        public float? m_deflectionForce;
+        public float? m_deflectionForcePerLevel;
+    }
+
+
+
+    [Serializable]
 	public class ArmorData { 
 	
-		public string name;
+		//public string? name;
 
-		public float armor;
-		public float armorPerLevel;
-		public float movementModifier;
+		public float? armor;
+		public float? armorPerLevel;
+		//public float movementModifier;
 
-		public List<string> damageModifiers = new List<string>();
+		public List<string>? damageModifiers = new List<string>();
 	}
 
 	[Serializable]
@@ -165,12 +267,6 @@ namespace wackydatabase.Datas
 
 
     }
-
-    public class DamageMod //HitData.DamageModifier
-    {
-
-    }
-
 
 
 

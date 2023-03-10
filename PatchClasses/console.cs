@@ -20,6 +20,43 @@ namespace wackydatabase.PatchClasses
     [HarmonyPatch(typeof(Terminal), nameof(Terminal.InitTerminal))]
     public static class Console_Patch
     {
+
+        /*
+         * 
+         * 		new ConsoleCommand("spawn", "[amount] [level] [p/e/i] - spawn something. (End word with a star (*) to create each object containing that word.) Add a 'p' after to try to pick up the spawned items, adding 'e' will try to use/equip, 'i' will only spawn and pickup if you don't have one in your inventory.", delegate(ConsoleEventArgs args)
+		{
+			if (args.Length <= 1 || !ZNetScene.instance)
+			{
+				return false;
+			}
+			string text4 = args[1];
+			int count = args.TryParameterInt(2);
+			int level2 = args.TryParameterInt(3);
+			bool pickup = args.HasArgumentAnywhere("p", 2);
+			bool use = args.HasArgumentAnywhere("e", 2);
+			bool onlyIfMissing = args.HasArgumentAnywhere("i", 2);
+			DateTime now = DateTime.Now;
+			if (text4.Length >= 2 && text4[text4.Length - 1] == '*')
+			{
+				text4 = text4.Substring(0, text4.Length - 1).ToLower();
+				foreach (string prefabName in ZNetScene.instance.GetPrefabNames())
+				{
+					string text5 = prefabName.ToLower();
+					if (text5.Contains(text4) && (text4.Contains("fx") || !text5.Contains("fx")))
+					{
+						spawn(prefabName);
+					}
+				}
+			}
+			else
+			{
+				spawn(text4);
+			}
+			ZLog.Log("Spawn time :" + (DateTime.Now - now).TotalMilliseconds + " ms");
+			Gogan.LogEvent("Cheat", "Spawn", text4, count);
+			return true;
+			void spawn(string name)
+        */
         private static void Postfix()
         {
             WMRecipeCust.WLog.LogDebug("Patching Updated Console Commands");
@@ -84,7 +121,7 @@ namespace wackydatabase.PatchClasses
                          args.Context?.AddString("Configs reloaded");
                      });
             */
-            Terminal.ConsoleCommand WackyReload =
+        Terminal.ConsoleCommand WackyReload =
                  new("wackydb_reload", "reload the whole config files",
                      args =>
                      {
@@ -220,7 +257,7 @@ namespace wackydatabase.PatchClasses
 
             Terminal.ConsoleCommand WackyitemSave =
                 new("wackydb_save_item", "Save an Item ",
-                    args =>
+                    args => 
                     {
                         string file = args[1];
                         GetDataYML ItemCheck = new GetDataYML();
@@ -234,7 +271,7 @@ namespace wackydatabase.PatchClasses
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved item data to Item_{file}.yml");
 
-                    });
+                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
             Terminal.ConsoleCommand WackyPieceSave =
                 new("wackydb_save_piece", "Save a piece ",
                     args =>

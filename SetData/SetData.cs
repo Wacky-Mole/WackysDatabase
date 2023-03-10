@@ -789,23 +789,25 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_description = data.m_description ?? PrimaryItemData.m_shared.m_description;
                     PrimaryItemData.m_shared.m_weight = data.m_weight ?? PrimaryItemData.m_shared.m_weight;
                     PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize ?? PrimaryItemData.m_shared.m_maxStackSize;
-                    PrimaryItemData.m_shared.m_food = data.m_foodHealth ?? PrimaryItemData.m_shared.m_food;
-                    PrimaryItemData.m_shared.m_foodStamina = data.m_foodStamina ?? PrimaryItemData.m_shared.m_foodStamina;
-                    PrimaryItemData.m_shared.m_foodRegen = data.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
-                    PrimaryItemData.m_shared.m_foodBurnTime = data.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
-                    PrimaryItemData.m_shared.m_foodEitr = data.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
+
+
+                    PrimaryItemData.m_shared.m_food = data.FoodStats.m_foodHealth ?? PrimaryItemData.m_shared.m_food;
+                    PrimaryItemData.m_shared.m_foodStamina = data.FoodStats.m_foodStamina ?? PrimaryItemData.m_shared.m_foodStamina;
+                    PrimaryItemData.m_shared.m_foodRegen = data.FoodStats.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
+                    PrimaryItemData.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
+                    PrimaryItemData.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
                     // if (data.m_foodColor != null && data.m_foodColor != "" && data.m_foodColor.StartsWith("#"))
                     //{
                     //  PrimaryItemData.m_shared.m_foodColor = ColorUtil.GetColorFromHex(data.m_foodColor);
                     //}
-                    PrimaryItemData.m_shared.m_armor = data.m_armor ?? PrimaryItemData.m_shared.m_armor;
-                    PrimaryItemData.m_shared.m_armorPerLevel = data.m_armorPerLevel ?? PrimaryItemData.m_shared.m_armorPerLevel;
-                    PrimaryItemData.m_shared.m_blockPower = data.m_blockPower ?? PrimaryItemData.m_shared.m_blockPower;
-                    PrimaryItemData.m_shared.m_blockPowerPerLevel = data.m_blockPowerPerLevel ?? PrimaryItemData.m_shared.m_blockPowerPerLevel;
+                    PrimaryItemData.m_shared.m_armor = data.Armor.armor ?? PrimaryItemData.m_shared.m_armor;
+                    PrimaryItemData.m_shared.m_armorPerLevel = data.Armor.armorPerLevel ?? PrimaryItemData.m_shared.m_armorPerLevel;
+                    PrimaryItemData.m_shared.m_blockPower = data.ShieldStats.m_blockPower ?? PrimaryItemData.m_shared.m_blockPower;
+                    PrimaryItemData.m_shared.m_blockPowerPerLevel = data.ShieldStats.m_blockPowerPerLevel ?? PrimaryItemData.m_shared.m_blockPowerPerLevel;
                     PrimaryItemData.m_shared.m_canBeReparied = data.m_canBeReparied ?? PrimaryItemData.m_shared.m_canBeReparied;
-                    PrimaryItemData.m_shared.m_timedBlockBonus = data.m_timedBlockBonus ?? PrimaryItemData.m_shared.m_timedBlockBonus;
-                    PrimaryItemData.m_shared.m_deflectionForce = data.m_deflectionForce ?? PrimaryItemData.m_shared.m_deflectionForce;
-                    PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.m_deflectionForcePerLevel ?? PrimaryItemData.m_shared.m_deflectionForcePerLevel;
+                    PrimaryItemData.m_shared.m_timedBlockBonus = data.ShieldStats.m_timedBlockBonus ?? PrimaryItemData.m_shared.m_timedBlockBonus;
+                    PrimaryItemData.m_shared.m_deflectionForce = data.ShieldStats.m_deflectionForce ?? PrimaryItemData.m_shared.m_deflectionForce;
+                    PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.ShieldStats.m_deflectionForcePerLevel ?? PrimaryItemData.m_shared.m_deflectionForcePerLevel;
                     PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus ?? PrimaryItemData.m_shared.m_backstabBonus;
                     PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken ?? PrimaryItemData.m_shared.m_destroyBroken;
                     PrimaryItemData.m_shared.m_dodgeable = data.m_dodgeable ?? PrimaryItemData.m_shared.m_dodgeable;
@@ -826,8 +828,8 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_teleportable = data.m_teleportable ?? PrimaryItemData.m_shared.m_teleportable;
                     PrimaryItemData.m_shared.m_toolTier = data.m_toolTier ?? PrimaryItemData.m_shared.m_toolTier;
                     PrimaryItemData.m_shared.m_value = data.m_value ?? PrimaryItemData.m_shared.m_value;
-                    PrimaryItemData.m_shared.m_movementModifier = data.m_movementModifier ?? PrimaryItemData.m_shared.m_movementModifier;
-                    PrimaryItemData.m_shared.m_eitrRegenModifier = data.m_EitrRegen ?? PrimaryItemData.m_shared.m_eitrRegenModifier;
+                    PrimaryItemData.m_shared.m_movementModifier = data.Moddifiers.m_movementModifier ?? PrimaryItemData.m_shared.m_movementModifier;
+                    PrimaryItemData.m_shared.m_eitrRegenModifier = data.Moddifiers.m_EitrRegen ?? PrimaryItemData.m_shared.m_eitrRegenModifier;
 
 
                     PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.Primary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage;
@@ -891,10 +893,10 @@ namespace wackydatabase.SetData
                     }
                     */
 
-                    if (!DataHelpers.ECheck(data.damageModifiers))
+                    if (!DataHelpers.ECheck(data.Armor.damageModifiers))
                     {
                         PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
-                        foreach (string modString in data.damageModifiers)
+                        foreach (string modString in data.Armor.damageModifiers)
                         {
                             string[] mod = modString.Split(':');
                             int modType = Enum.TryParse<ArmorHelpers.NewDamageTypes>(mod[0], out ArmorHelpers.NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
