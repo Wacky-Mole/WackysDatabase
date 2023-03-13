@@ -71,6 +71,7 @@ namespace wackydatabase.Read
             WMRecipeCust.armorDatas.Clear();
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
             WMRecipeCust.visualDatasYml.Clear();
+            WMRecipeCust.effectDataYml.Clear();
 
             WMRecipeCust.CheckModFolder();
 
@@ -95,6 +96,11 @@ namespace wackydatabase.Read
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?isual_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<VisualData>(file, WMRecipeCust.visualDatasYml, WMRecipeCust.isSetStringisDebug);
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "SE_*.yml", SearchOption.AllDirectories))
+            {
+                yaml.Load<StatusEffect>(file, WMRecipeCust.effectDataYml, WMRecipeCust.isSetStringisDebug);
             }
 
             WMRecipeCust.ymlstring = yaml.ToString();

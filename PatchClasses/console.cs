@@ -14,9 +14,29 @@ using wackydatabase.GetData;
 using wackydatabase.Read;
 using YamlDotNet.Serialization;
 using YamlDotNet.Core;
+using System.Threading;
+using YamlDotNet.RepresentationModel;
+using YamlDotNet.Serialization.EventEmitters;
 
 namespace wackydatabase.PatchClasses
 {
+
+    public class QuoteSurroundingEventEmitter : ChainedEventEmitter
+    {
+        private int _itemIndex;
+
+        public QuoteSurroundingEventEmitter(IEventEmitter nextEmitter) : base(nextEmitter) { }
+
+        public override void Emit(ScalarEventInfo eventInfo, IEmitter emitter)
+        {
+            if (eventInfo.Source.StaticType == typeof(object) && _itemIndex++ % 2 == 1)
+            {
+                eventInfo.Style = ScalarStyle.SingleQuoted;
+            }
+            base.Emit(eventInfo, emitter);
+        }
+    }
+
     [HarmonyPatch(typeof(Terminal), nameof(Terminal.InitTerminal))]
     public static class Console_Patch
     {
@@ -121,143 +141,143 @@ namespace wackydatabase.PatchClasses
                          args.Context?.AddString("Configs reloaded");
                      });
             */
-        Terminal.ConsoleCommand WackyReload =
-                 new("wackydb_reload", "reload the whole config files",
-                     args =>
-                     {
-                         // GetRecipeDataFromFiles(); called in loadallrecipes
-                         if (ObjectDB.instance && wackydatabase.WMRecipeCust.issettoSinglePlayer)
+            Terminal.ConsoleCommand WackyReload =
+                     new("wackydb_reload", "reload the whole config files",
+                         args =>
                          {
-
-                             SetData.Reload josh = new SetData.Reload();
-                             WMRecipeCust.CurrentReload = josh;
-
-                             ReadFiles readnow = new ReadFiles(); 
-                             readnow.GetDataFromFiles();
-                             WMRecipeCust.readFiles = readnow;
-
-                            josh.LoadAllRecipeData(true);
-
-                             
-                             
-                             args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
-                             wackydatabase.WMRecipeCust.Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
-                         }
-                         else
-                         {
-                             args.Context?.AddString($"WackyDatabase did NOT reload recipes/items/pieces from files"); // maybe?
-                             wackydatabase.WMRecipeCust.Dbgl("WackyDatabase did NOT reload recipes/items/pieces from files");
-                         }
-
-                     });
-/*
-            Terminal.ConsoleCommand WackyDump =
-                 new("wackydb_dump", "dump the item or recipe into the logs",
-                     args =>
-                     {
-                         if (args.Length - 1 < 2)
-                         {
-                             args.Context?.AddString("Not enough arguments");
-
-                         }
-                         else
-                         {
-                             string recipe = args[1];
-                             string comtype = args[2];
-                             if (recipe == "item" || recipe == "Item")
+                             // GetRecipeDataFromFiles(); called in loadallrecipes
+                             if (ObjectDB.instance && wackydatabase.WMRecipeCust.issettoSinglePlayer)
                              {
-                                 WItemData_json recipeData = GetData.GetData.GetItemDataByName(comtype);
-                                 if (recipeData == null)
-                                     return;
-                                 WMRecipeCust.Dbgl(JsonUtility.ToJson(recipeData));
 
-                             }
-                             else if (recipe == "piece" || recipe == "Piece")
-                             {
-                                 PieceData_json data = GetData.GetData.GetPieceRecipeByName(comtype);
-                                 if (data == null)
-                                     return;
-                                 WMRecipeCust.Dbgl(JsonUtility.ToJson(data));
+                                 SetData.Reload josh = new SetData.Reload();
+                                 WMRecipeCust.CurrentReload = josh;
+
+                                 ReadFiles readnow = new ReadFiles();
+                                 readnow.GetDataFromFiles();
+                                 WMRecipeCust.readFiles = readnow;
+
+                                 josh.LoadAllRecipeData(true);
+
+
+
+                                 args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
+                                 wackydatabase.WMRecipeCust.Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
                              }
                              else
                              {
-                                 RecipeData_json recipeData = GetData.GetData.GetRecipeDataByName(comtype);
-                                 if (recipeData == null)
-                                     return;
-                                 WMRecipeCust.Dbgl(JsonUtility.ToJson(recipeData));
+                                 args.Context?.AddString($"WackyDatabase did NOT reload recipes/items/pieces from files"); // maybe?
+                                 wackydatabase.WMRecipeCust.Dbgl("WackyDatabase did NOT reload recipes/items/pieces from files");
                              }
-                             args.Context?.AddString($"WackyDatabase dumped {comtype}");
-                         }
-                     });
-            
-            Terminal.ConsoleCommand WackyDumpAll =
-                 new("wackydb_dump_all", "dump all",
-                     args =>
-                     {
-                         string TheStringMaster = "";
-                         string temp = "";
-                         if (WMRecipeCust.issettoSinglePlayer)
-                         {
-                             foreach (var data in wackydatabase.WMRecipeCust.ItemDatas)
-                             {
-                                 if (data != null)
-                                 {
-                                     WItemData_json output1 = GetData.GetData.GetItemDataByName(data.name);
-                                     if (output1 == null)
-                                         continue;
-                                     output1.clone = data.clone;
-                                     output1.cloneMaterial = data?.cloneMaterial;
-                                     output1.clonePrefabName = data?.clonePrefabName;
-                                     temp = JsonUtility.ToJson(output1);
-                                     TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
-                                     WMRecipeCust.Dbgl(temp);
-                                 }
-                             }
-                             foreach (var data2 in WMRecipeCust.PieceDatas)
-                             {
-                                 if (data2 != null)
-                                 {
-                                     PieceData_json output2 = GetData.GetData.GetPieceRecipeByName(data2.name, false);
-                                     if (output2 == null)
-                                         continue;
-                                     output2.clone = data2.clone;
-                                     output2.cloneMaterial = data2.cloneMaterial;
-                                     output2.clonePrefabName = data2?.clonePrefabName;
-                                     output2.piecehammer = data2.piecehammer;
-                                     temp = JsonUtility.ToJson(output2);
-                                     TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
-                                     WMRecipeCust.Dbgl(temp);
-                                 }
-                             }
-                             foreach (var data3 in WMRecipeCust.recipeDatas)
-                             {
-                                 if (data3 != null)
-                                 {
-                                     RecipeData_json output3 = GetData.GetData.GetRecipeDataByName(data3.name);
-                                     if (output3 == null)
-                                         continue;
-                                     output3.clone = data3.clone;
-                                     //output3.cloneColor = data3.cloneColor;
-                                     output3.clonePrefabName = data3.clonePrefabName;
-                                     temp = JsonUtility.ToJson(output3);
-                                     TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
-                                     WMRecipeCust.Dbgl(temp);
-                                 }
-                             }
-                             File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "DumpAll.txt"), TheStringMaster);
-                             args.Context?.AddString($"WackyDatabase dumped all, created file DumpAll.txt");
-                         }
-                         else
-                         {
-                             args.Context?.AddString($"In Multiplayer, so no all dump");
-                         }
 
-                     });
-            */
+                         });
+            /*
+                        Terminal.ConsoleCommand WackyDump =
+                             new("wackydb_dump", "dump the item or recipe into the logs",
+                                 args =>
+                                 {
+                                     if (args.Length - 1 < 2)
+                                     {
+                                         args.Context?.AddString("Not enough arguments");
+
+                                     }
+                                     else
+                                     {
+                                         string recipe = args[1];
+                                         string comtype = args[2];
+                                         if (recipe == "item" || recipe == "Item")
+                                         {
+                                             WItemData_json recipeData = GetData.GetData.GetItemDataByName(comtype);
+                                             if (recipeData == null)
+                                                 return;
+                                             WMRecipeCust.Dbgl(JsonUtility.ToJson(recipeData));
+
+                                         }
+                                         else if (recipe == "piece" || recipe == "Piece")
+                                         {
+                                             PieceData_json data = GetData.GetData.GetPieceRecipeByName(comtype);
+                                             if (data == null)
+                                                 return;
+                                             WMRecipeCust.Dbgl(JsonUtility.ToJson(data));
+                                         }
+                                         else
+                                         {
+                                             RecipeData_json recipeData = GetData.GetData.GetRecipeDataByName(comtype);
+                                             if (recipeData == null)
+                                                 return;
+                                             WMRecipeCust.Dbgl(JsonUtility.ToJson(recipeData));
+                                         }
+                                         args.Context?.AddString($"WackyDatabase dumped {comtype}");
+                                     }
+                                 });
+
+                        Terminal.ConsoleCommand WackyDumpAll =
+                             new("wackydb_dump_all", "dump all",
+                                 args =>
+                                 {
+                                     string TheStringMaster = "";
+                                     string temp = "";
+                                     if (WMRecipeCust.issettoSinglePlayer)
+                                     {
+                                         foreach (var data in wackydatabase.WMRecipeCust.ItemDatas)
+                                         {
+                                             if (data != null)
+                                             {
+                                                 WItemData_json output1 = GetData.GetData.GetItemDataByName(data.name);
+                                                 if (output1 == null)
+                                                     continue;
+                                                 output1.clone = data.clone;
+                                                 output1.cloneMaterial = data?.cloneMaterial;
+                                                 output1.clonePrefabName = data?.clonePrefabName;
+                                                 temp = JsonUtility.ToJson(output1);
+                                                 TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
+                                                 WMRecipeCust.Dbgl(temp);
+                                             }
+                                         }
+                                         foreach (var data2 in WMRecipeCust.PieceDatas)
+                                         {
+                                             if (data2 != null)
+                                             {
+                                                 PieceData_json output2 = GetData.GetData.GetPieceRecipeByName(data2.name, false);
+                                                 if (output2 == null)
+                                                     continue;
+                                                 output2.clone = data2.clone;
+                                                 output2.cloneMaterial = data2.cloneMaterial;
+                                                 output2.clonePrefabName = data2?.clonePrefabName;
+                                                 output2.piecehammer = data2.piecehammer;
+                                                 temp = JsonUtility.ToJson(output2);
+                                                 TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
+                                                 WMRecipeCust.Dbgl(temp);
+                                             }
+                                         }
+                                         foreach (var data3 in WMRecipeCust.recipeDatas)
+                                         {
+                                             if (data3 != null)
+                                             {
+                                                 RecipeData_json output3 = GetData.GetData.GetRecipeDataByName(data3.name);
+                                                 if (output3 == null)
+                                                     continue;
+                                                 output3.clone = data3.clone;
+                                                 //output3.cloneColor = data3.cloneColor;
+                                                 output3.clonePrefabName = data3.clonePrefabName;
+                                                 temp = JsonUtility.ToJson(output3);
+                                                 TheStringMaster = TheStringMaster + temp + System.Environment.NewLine;
+                                                 WMRecipeCust.Dbgl(temp);
+                                             }
+                                         }
+                                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "DumpAll.txt"), TheStringMaster);
+                                         args.Context?.AddString($"WackyDatabase dumped all, created file DumpAll.txt");
+                                     }
+                                     else
+                                     {
+                                         args.Context?.AddString($"In Multiplayer, so no all dump");
+                                     }
+
+                                 });
+                        */
 
             Terminal.ConsoleCommand WackyitemSave =
                 new("wackydb_save_item", "Save an Item ",
-                    args => 
+                    args =>
                     {
                         string file = args[1];
                         GetDataYML ItemCheck = new GetDataYML();
@@ -287,7 +307,7 @@ namespace wackydatabase.PatchClasses
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved data to Piece_{file}.yml");
 
-                    });
+                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
             Terminal.ConsoleCommand WackyRecipeSave =
                 new("wackydb_save_recipe", "Save a recipe ",
                     args =>
@@ -303,7 +323,7 @@ namespace wackydatabase.PatchClasses
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved data to Recipe_{file}.yml");
 
-                    });
+                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
             Terminal.ConsoleCommand WackyMaterials =
                 new("wackydb_material", "Create txt file of materials",
@@ -324,6 +344,74 @@ namespace wackydatabase.PatchClasses
                         WMRecipeCust.CheckModFolder();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "vfx.txt"), theString2);
                         args.Context?.AddString($"saved data to VFX.txt");
+
+                    });
+
+            Terminal.ConsoleCommand WackySE =
+                new("wackydb_se_all", "Get all SE effects in game and create your own",
+                    args =>
+                    {
+                        var tod = ObjectDB.instance;
+                        StatusEffect temp = tod.GetStatusEffect("Cold");
+                        GetDataYML SEcheck = new GetDataYML();
+                        int count = 0;
+
+                        var serializer = new SerializerBuilder()
+                                        .Build();
+                       // var deserialized = new DeserializerBuilder()
+                          //      .Build();
+
+                        while (temp != null)
+                        {
+                            temp = null;
+                            temp = SEcheck.GetStatusEByNum(count, tod);
+                            if (temp == null)
+                                break;
+                            var part1 = serializer.Serialize(temp);
+                            // deserialize yml into dictionary
+                            /*
+                            var deserialized = new DeserializerBuilder()
+                            .Build()
+                            .Deserialize<Dictionary<string, string>>(part1);
+                            deserialized.Remove("m_icon");
+
+                            var finalYml = new SerializerBuilder()
+                            .WithEventEmitter(nextEmitter => new QuoteSurroundingEventEmitter(nextEmitter))
+                            .Build()
+                            .Serialize(deserialized);
+                            */
+
+
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" +temp.name+".yml"), part1);
+                            count++;
+                        }
+                        args.Context?.AddString($"saved all Status Effects to folder Effects");
+
+                    });
+
+            Terminal.ConsoleCommand WackySEOne =
+                new("wackydb_se", "Get one SE effect by name",
+                    args =>
+                    {
+
+                        string name = args[1];
+                        var tod = ObjectDB.instance;
+                        GetDataYML SEcheck = new GetDataYML();
+
+                        var serializer = new SerializerBuilder()
+                                        .Build();
+
+
+                       var temp = SEcheck.GetStatusEByName(name, tod);
+                        if (temp == null)
+                        {
+                            args.Context?.AddString($"No SE effect by that name");
+                            return;
+                        }                      
+
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" + temp.name + ".yml"), serializer.Serialize(temp));
+                                                    
+                        args.Context?.AddString($"saved SE effect {name} to SE_{name}.yml in Effects folder");
 
                     });
 
@@ -509,8 +597,8 @@ namespace wackydatabase.PatchClasses
                        }
 
                    }
-
-               });
+                    
+               }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: true, allowInDevBuild: false );
 
 
 

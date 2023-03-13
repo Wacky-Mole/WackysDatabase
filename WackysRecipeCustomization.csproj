@@ -122,6 +122,7 @@
     <Compile Include="Datas\ItemData.cs" />
     <Compile Include="Datas\PieceData.cs" />
     <Compile Include="Datas\RecipeData.cs" />
+    <Compile Include="Datas\StatusData.cs" />
     <Compile Include="Datas\TextureData.cs" />
     <Compile Include="Datas\ValheimTime.cs" />
     <Compile Include="GetData\GetDataYML.cs" />

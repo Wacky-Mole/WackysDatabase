@@ -7,7 +7,7 @@ namespace wackydatabase.Datas
 {
 	[Serializable]
     [CanBeNull]
-	public class WItemData
+	public class WItemData 
 	{
         #nullable enable
         public string name; // must have
@@ -64,40 +64,29 @@ namespace wackydatabase.Datas
 
         public bool? m_teleportable;
 
-        public bool? m_useDurability;
-
         public float? m_backstabbonus;
 
         public float? m_knockback;
 
 
-
-        public float? m_maxDurability;
-
-        public float? m_durabilityPerLevel;
+        public bool? m_useDurability;
 
         public float? m_useDurabilityDrain;
 
         public float? m_durabilityDrain;
 
-        
+        public float? m_maxDurability;
+
+        public float? m_durabilityPerLevel;
 
         public float? m_equipDuration;
 
-        public float? m_holdDurationMin;
 
-        public float? m_holdStaminaDrain;
+        public Skills.SkillType? m_skillType; 
 
-        public string? m_holdAnimationState;
-
-
-
-        public Skills.SkillType? m_skillType; // 
-
-        public ItemDrop.ItemData.AnimationState? m_animationState; //
+        public ItemDrop.ItemData.AnimationState? m_animationState; 
 
         
-
         public int? m_toolTier;
 
         public int? m_maxQuality;
@@ -110,7 +99,7 @@ namespace wackydatabase.Datas
 
 
     [Serializable]
-    public class AttackArm
+    public class AttackArm  //:Attack
         {
         public Attack.AttackType? AttackType;
         public string? Attack_Animation;
@@ -178,44 +167,19 @@ namespace wackydatabase.Datas
     [Serializable]
     public class SE_Equip
     {
-        public Effects Effects;
+        public string? EffectName;
     }
 
     [Serializable]
     public class SE_SET_Equip
     {
-        public string SetName;
-        public int Size;
-        public Effects Effects; 
+        public string? SetName;
+        public int? Size;
+        public string? EffectName; 
 
     }
-    [Serializable]
-    public class Effects
-    {
-        public string? Name;
-        public string? Category;
-        public string? CustomIcon;
-        public bool? FlashIcon;
-        public bool? CooldownIcon;
-        public string? Tooltip;
-        public string? Attributes;
-        public string? StartMessageLoc;
-        public string? StartMessage;
-        public string? StopMessageLoc;
-        public string? StopMessage;
-        public string? RepeatMessageLoc;
-        public string? RepeatMessage;
-        public int? RepeatInterval;
-        public int? TimeToLive;
-        public EffectList? StartEffect;
-        public EffectList? StopEffect;
 
-        public int? Cooldown;
-        public string? ActivationAnimation;
-
-        public SE_Shield? SE_Shield;
-
-    }
+    
     [Serializable]
     public class ShieldData
     {

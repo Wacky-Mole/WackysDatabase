@@ -177,6 +177,83 @@ namespace wackydatabase.GetData
             return data;
         }
 
+        internal StatusEffect GetStatusEByName(string name, ObjectDB tod)
+        {
+           return GetStatusData(tod.GetStatusEffect(name));
+        }
+        internal StatusEffect GetStatusEByNum(int num, ObjectDB tod)
+        {
+            var count = tod.m_StatusEffects.Count();
+            if (num == count)
+            {
+                return null;
+            }
+            return GetStatusData(tod.m_StatusEffects[num]);
+        }
+        private StatusEffect GetStatusData(StatusEffect effect)
+        {
+
+            //effect.m_icon = effect.m_icon.name;
+            //effect.
+            /*
+            StatusData statusData = (statusData)effect
+            {
+
+
+                Name = effect.name,
+                m_Name = effect.m_name,
+                Category = effect.m_category,
+                CustomIcon = effect.m_icon.name,
+                FlashIcon = effect.m_flashIcon,
+                CooldownIcon = effect.m_cooldownIcon,
+                Tooltip = effect.m_tooltip,
+                Attributes = effect.m_attributes,
+                StartMessageLoc = effect.m_startMessageType,
+                StartMessage = effect.m_startMessage,
+                StopMessageLoc = effect.m_stopMessageType,
+                StopMessage = effect.m_stopMessage,
+                RepeatMessageLoc = effect.m_repeatMessageType,
+                RepeatMessage = effect.m_repeatMessage,
+                RepeatInterval = effect.m_repeatInterval,
+                TimeToLive = effect.m_ttl,
+                StartEffect = effect.m_startEffects,
+                StopEffect = effect.m_stopEffects,
+                Cooldown = effect.m_cooldown,
+                ActivationAnimation = effect.m_activationAnimation,
+                
+
+             }; 
+
+            effect = statusData;
+            
+            var data = ScriptableObject.CreateInstance<StatusEffect>();
+
+            data.Name = effect.name;
+            data.m_Name = effect.m_name;
+            data.Category = effect.m_category;
+            data.CustomIcon = effect.m_icon.name;
+            data.FlashIcon = effect.m_flashIcon;
+            data.CooldownIcon = effect.m_cooldownIcon;
+            data.Tooltip = effect.m_tooltip;
+            data.Attributes = effect.m_attributes;
+            data.StartMessageLoc = effect.m_startMessageType;
+            data.StartMessage = effect.m_startMessage;
+            data.StopMessageLoc = effect.m_stopMessageType;
+            data.StopMessage = effect.m_stopMessage;
+            data.RepeatMessageLoc = effect.m_repeatMessageType;
+            data.RepeatMessage = effect.m_repeatMessage;
+            data.RepeatInterval = effect.m_repeatInterval;
+            data.TimeToLive = effect.m_ttl;
+            data.StartEffect = effect.m_startEffects;
+            data.StopEffect = effect.m_stopEffects;
+            data.Cooldown = effect.m_cooldown;
+            data.ActivationAnimation = effect.m_activationAnimation;
+           */
+
+            return effect;
+
+        }
+
         internal PieceData GetPieceRecipeByNum(int count, string hammer, ObjectDB tod, ItemDrop itemD = null)
         {
             ItemDrop HamerItemdrop = null;
@@ -229,9 +306,6 @@ namespace wackydatabase.GetData
         }
 
 
-
-
-
         internal WItemData GetItemDataByName(string name, ObjectDB tod)
         {
             GameObject go = tod.GetItemPrefab(name);
@@ -266,11 +340,12 @@ namespace wackydatabase.GetData
                 WMRecipeCust.Dbgl("Item GetItemDataByName not found! - componets");
                 return null;
             }
+            bool hasdmg = false;
             WDamages damages = null;
             if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
             {
                 WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " damage on ");
-
+                hasdmg = true;
                 damages = new WDamages
                 {
 
@@ -307,127 +382,8 @@ namespace wackydatabase.GetData
 
             }
 
-            AttackArm Primary_Attack = new AttackArm
-            {
-             AttackType = data.m_shared.m_attack.m_attackType,
-             Attack_Animation = data.m_shared.m_attack.m_attackAnimation,
-             Attack_Random_Animation = data.m_shared.m_attack.m_attackRandomAnimations,
-             Chain_Attacks = data.m_shared.m_attack.m_attackChainLevels,
-             Hit_Terrain = data.m_shared.m_attack.m_hitTerrain,
-
-             m_attackStamina = data.m_shared.m_attack.m_attackStamina,
-             m_eitrCost = data.m_shared.m_attack.m_attackEitr,
-             AttackHealthCost = data.m_shared.m_attack.m_attackHealth,
-             m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
-
-             SpeedFactor = data.m_shared.m_attack.m_speedFactor,
-             DmgMultiplier = data.m_shared.m_attack.m_damageMultiplier,
-             ForceMultiplier = data.m_shared.m_attack.m_forceMultiplier,
-             StaggerMultiplier = data.m_shared.m_attack.m_staggerMultiplier,
-             RecoilMultiplier = data.m_shared.m_attack.m_recoilPushback,
-
-             AttackRange = data.m_shared.m_attack.m_attackRange,
-             AttackHeight = data.m_shared.m_attack.m_attackHeight,
-             Spawn_On_Trigger = data.m_shared.m_attack.m_spawnOnTrigger,
-
-             Requires_Reload = data.m_shared.m_attack.m_requiresReload,
-             Reload_Animation = data.m_shared.m_attack.m_reloadAnimation,
-             ReloadTime = data.m_shared.m_attack.m_reloadTime,
-             Reload_Stamina_Drain = data.m_shared.m_attack.m_reloadStaminaDrain,
-
-             Bow_Draw = data.m_shared.m_attack.m_bowDraw,
-             Bow_Duration_Min = data.m_shared.m_attack.m_drawDurationMin,
-             Bow_Stamina_Drain = data.m_shared.m_attack.m_drawStaminaDrain,
-             Bow_Animation_State = data.m_shared.m_attack.m_drawAnimationState,
-
-             Attack_Angle = data.m_shared.m_attack.m_attackAngle,
-             Attack_Ray_Width = data.m_shared.m_attack.m_attackRayWidth,
-             Lower_Dmg_Per_Hit = data.m_shared.m_attack.m_lowerDamagePerHit,
-             Hit_Through_Walls = data.m_shared.m_attack.m_hitThroughWalls,
-             Multi_Hit = data.m_shared.m_attack.m_multiHit,
-             Pickaxe_Special = data.m_shared.m_attack.m_pickaxeSpecial,
-             Last_Chain_Dmg_Multiplier = data.m_shared.m_attack.m_lastChainDamageMultiplier,
-
-             Attack_Projectile = data.m_shared.m_attack.m_attackProjectile,
-             Projectile_Vel = data.m_shared.m_attack.m_projectileVel,
-             Projectile_Accuraccy = data.m_shared.m_attack.m_projectileAccuracy,
-             Projectiles = data.m_shared.m_attack.m_projectiles,
-    };
-
-            AttackArm Secondary_Attack = new AttackArm
-            {
-                AttackType = data.m_shared.m_secondaryAttack.m_attackType,
-                Attack_Animation = data.m_shared.m_secondaryAttack.m_attackAnimation,
-                Attack_Random_Animation = data.m_shared.m_secondaryAttack.m_attackRandomAnimations,
-                Chain_Attacks = data.m_shared.m_secondaryAttack.m_attackChainLevels,
-                Hit_Terrain = data.m_shared.m_secondaryAttack.m_hitTerrain,
-
-                m_attackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
-                m_eitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
-                AttackHealthCost = data.m_shared.m_secondaryAttack.m_attackHealth,
-                m_attackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
-
-                SpeedFactor = data.m_shared.m_secondaryAttack.m_speedFactor,
-                DmgMultiplier = data.m_shared.m_secondaryAttack.m_damageMultiplier,
-                ForceMultiplier = data.m_shared.m_secondaryAttack.m_forceMultiplier,
-                StaggerMultiplier = data.m_shared.m_secondaryAttack.m_staggerMultiplier,
-                RecoilMultiplier = data.m_shared.m_secondaryAttack.m_recoilPushback,
-
-                AttackRange = data.m_shared.m_secondaryAttack.m_attackRange,
-                AttackHeight = data.m_shared.m_secondaryAttack.m_attackHeight,
-                Spawn_On_Trigger = data.m_shared.m_secondaryAttack.m_spawnOnTrigger,
-
-                Requires_Reload = data.m_shared.m_secondaryAttack.m_requiresReload,
-                Reload_Animation = data.m_shared.m_secondaryAttack.m_reloadAnimation,
-                ReloadTime = data.m_shared.m_secondaryAttack.m_reloadTime,
-                Reload_Stamina_Drain = data.m_shared.m_secondaryAttack.m_reloadStaminaDrain,
-
-                Bow_Draw = data.m_shared.m_secondaryAttack.m_bowDraw,
-                Bow_Duration_Min = data.m_shared.m_secondaryAttack.m_drawDurationMin,
-                Bow_Stamina_Drain = data.m_shared.m_secondaryAttack.m_drawStaminaDrain,
-                Bow_Animation_State = data.m_shared.m_secondaryAttack.m_drawAnimationState,
-
-                Attack_Angle = data.m_shared.m_secondaryAttack.m_attackAngle,
-                Attack_Ray_Width = data.m_shared.m_secondaryAttack.m_attackRayWidth,
-                Lower_Dmg_Per_Hit = data.m_shared.m_secondaryAttack.m_lowerDamagePerHit,
-                Hit_Through_Walls = data.m_shared.m_secondaryAttack.m_hitThroughWalls,
-                Multi_Hit = data.m_shared.m_secondaryAttack.m_multiHit,
-                Pickaxe_Special = data.m_shared.m_secondaryAttack.m_pickaxeSpecial,
-                Last_Chain_Dmg_Multiplier = data.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier,
-
-                Attack_Projectile = data.m_shared.m_secondaryAttack.m_attackProjectile,
-                Projectile_Vel = data.m_shared.m_secondaryAttack.m_projectileVel,
-                Projectile_Accuraccy = data.m_shared.m_secondaryAttack.m_projectileAccuracy,
-                Projectiles = data.m_shared.m_secondaryAttack.m_projectiles,
-            };
-
-            ArmorData Armor = new ArmorData
-            {
-                armor = data.m_shared.m_armor,
-                armorPerLevel = data.m_shared.m_armorPerLevel,
-                damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
-
-            };
-            FoodData FoodStats = new FoodData
-            {
-                m_foodHealth = data.m_shared.m_food,
-                // m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
-                m_foodBurnTime = data.m_shared.m_foodBurnTime,
-                m_foodRegen = data.m_shared.m_foodRegen,
-                m_foodStamina = data.m_shared.m_foodStamina,
-                m_FoodEitr = data.m_shared.m_foodEitr,
-            };
-
-            ShieldData ShieldData = new ShieldData
-            {
-                m_blockPower = data.m_shared.m_blockPower,
-                m_blockPowerPerLevel = data.m_shared.m_blockPowerPerLevel,
-                m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
-                m_deflectionForce = data.m_shared.m_deflectionForce,
-                m_deflectionForcePerLevel = data.m_shared.m_deflectionForcePerLevel,
-            };
-
-
+            
+           
             StatMods StatModdifers = new StatMods
             {
                 m_movementModifier = data.m_shared.m_movementModifier,
@@ -435,6 +391,8 @@ namespace wackydatabase.GetData
             };
 
 
+
+            WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " Main ");
             WItemData ItemData = new WItemData
             {
                 name = go.GetComponent<ItemDrop>().name,
@@ -447,8 +405,6 @@ namespace wackydatabase.GetData
                 m_durabilityPerLevel = data.m_shared.m_durabilityPerLevel,
                 m_backstabbonus = data.m_shared.m_backstabBonus,
                 m_equipDuration = data.m_shared.m_equipDuration,
-                m_holdDurationMin = data.m_shared.m_attack.m_drawDurationMin,
-                m_holdStaminaDrain = data.m_shared.m_attack.m_drawStaminaDrain,
                 m_maxDurability = data.m_shared.m_maxDurability,
                 m_maxQuality = data.m_shared.m_maxQuality,
                 m_maxStackSize = data.m_shared.m_maxStackSize,
@@ -468,21 +424,173 @@ namespace wackydatabase.GetData
                 m_knockback = data.m_shared.m_attackForce,
                 m_skillType = data.m_shared.m_skillType,
                 m_animationState = data.m_shared.m_animationState,
-                Primary_Attack = Primary_Attack,
-                Secondary_Attack = Secondary_Attack,
                 Damage = damages,
                 Damage_Per_Level = damagesPerLevel,
-                FoodStats = FoodStats,
-                ShieldStats = ShieldData,
                 Moddifiers = StatModdifers,
 
             //damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 
         };
-            if (ItemData.FoodStats.m_foodHealth == 0f && ItemData.FoodStats.m_foodRegen == 0f && ItemData.FoodStats.m_foodStamina == 0f)
+            if (data.m_shared.m_equipStatusEffect != null)
             {
-               // ItemData.FoodStats.m_foodColor = null;
+                WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " SEs ");
+                SE_Equip SE_Equip2 = new Datas.SE_Equip
+                {
+                    EffectName = data.m_shared.m_equipStatusEffect.name,
+                };
+                ItemData.SE_Equip = SE_Equip2; // actual adding
             }
+            if (data.m_shared.m_setStatusEffect != null)
+            {
+                WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " SEset ");
+                SE_SET_Equip SE_SET_Equip2 = new Datas.SE_SET_Equip
+                {
+                    SetName = data.m_shared.m_setName ?? "",
+                    Size = data.m_shared.m_setSize,
+                    EffectName = data.m_shared.m_setStatusEffect.name ?? "",
+                };
+                ItemData.SE_SET_Equip = SE_SET_Equip2;
+            }
+
+            if (hasdmg)
+            {
+                WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " attack ");
+                AttackArm Primary_Attack = new AttackArm
+                {
+
+                    AttackType = data.m_shared.m_attack.m_attackType,
+                    Attack_Animation = data.m_shared.m_attack.m_attackAnimation,
+                    Attack_Random_Animation = data.m_shared.m_attack.m_attackRandomAnimations,
+                    Chain_Attacks = data.m_shared.m_attack.m_attackChainLevels,
+                    Hit_Terrain = data.m_shared.m_attack.m_hitTerrain,
+
+                    m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+                    m_eitrCost = data.m_shared.m_attack.m_attackEitr,
+                    AttackHealthCost = data.m_shared.m_attack.m_attackHealth,
+                    m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
+
+                    SpeedFactor = data.m_shared.m_attack.m_speedFactor,
+                    DmgMultiplier = data.m_shared.m_attack.m_damageMultiplier,
+                    ForceMultiplier = data.m_shared.m_attack.m_forceMultiplier,
+                    StaggerMultiplier = data.m_shared.m_attack.m_staggerMultiplier,
+                    RecoilMultiplier = data.m_shared.m_attack.m_recoilPushback,
+
+                    AttackRange = data.m_shared.m_attack.m_attackRange,
+                    AttackHeight = data.m_shared.m_attack.m_attackHeight,
+                    Spawn_On_Trigger = data.m_shared.m_attack.m_spawnOnTrigger,
+
+                    Requires_Reload = data.m_shared.m_attack.m_requiresReload,
+                    Reload_Animation = data.m_shared.m_attack.m_reloadAnimation,
+                    ReloadTime = data.m_shared.m_attack.m_reloadTime,
+                    Reload_Stamina_Drain = data.m_shared.m_attack.m_reloadStaminaDrain,
+
+                    Bow_Draw = data.m_shared.m_attack.m_bowDraw,
+                    Bow_Duration_Min = data.m_shared.m_attack.m_drawDurationMin,
+                    Bow_Stamina_Drain = data.m_shared.m_attack.m_drawStaminaDrain,
+                    Bow_Animation_State = data.m_shared.m_attack.m_drawAnimationState,
+
+                    Attack_Angle = data.m_shared.m_attack.m_attackAngle,
+                    Attack_Ray_Width = data.m_shared.m_attack.m_attackRayWidth,
+                    Lower_Dmg_Per_Hit = data.m_shared.m_attack.m_lowerDamagePerHit,
+                    Hit_Through_Walls = data.m_shared.m_attack.m_hitThroughWalls,
+                    Multi_Hit = data.m_shared.m_attack.m_multiHit,
+                    Pickaxe_Special = data.m_shared.m_attack.m_pickaxeSpecial,
+                    Last_Chain_Dmg_Multiplier = data.m_shared.m_attack.m_lastChainDamageMultiplier,
+
+                    Attack_Projectile = data.m_shared.m_attack.m_attackProjectile,
+                    Projectile_Vel = data.m_shared.m_attack.m_projectileVel,
+                    Projectile_Accuraccy = data.m_shared.m_attack.m_projectileAccuracy,
+                    Projectiles = data.m_shared.m_attack.m_projectiles,
+                };
+
+                AttackArm Secondary_Attack = new AttackArm
+                {
+                    AttackType = data.m_shared.m_secondaryAttack.m_attackType,
+                    Attack_Animation = data.m_shared.m_secondaryAttack.m_attackAnimation,
+                    Attack_Random_Animation = data.m_shared.m_secondaryAttack.m_attackRandomAnimations,
+                    Chain_Attacks = data.m_shared.m_secondaryAttack.m_attackChainLevels,
+                    Hit_Terrain = data.m_shared.m_secondaryAttack.m_hitTerrain,
+
+                    m_attackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
+                    m_eitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
+                    AttackHealthCost = data.m_shared.m_secondaryAttack.m_attackHealth,
+                    m_attackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
+
+                    SpeedFactor = data.m_shared.m_secondaryAttack.m_speedFactor,
+                    DmgMultiplier = data.m_shared.m_secondaryAttack.m_damageMultiplier,
+                    ForceMultiplier = data.m_shared.m_secondaryAttack.m_forceMultiplier,
+                    StaggerMultiplier = data.m_shared.m_secondaryAttack.m_staggerMultiplier,
+                    RecoilMultiplier = data.m_shared.m_secondaryAttack.m_recoilPushback,
+
+                    AttackRange = data.m_shared.m_secondaryAttack.m_attackRange,
+                    AttackHeight = data.m_shared.m_secondaryAttack.m_attackHeight,
+                    Spawn_On_Trigger = data.m_shared.m_secondaryAttack.m_spawnOnTrigger,
+
+                    Requires_Reload = data.m_shared.m_secondaryAttack.m_requiresReload,
+                    Reload_Animation = data.m_shared.m_secondaryAttack.m_reloadAnimation,
+                    ReloadTime = data.m_shared.m_secondaryAttack.m_reloadTime,
+                    Reload_Stamina_Drain = data.m_shared.m_secondaryAttack.m_reloadStaminaDrain,
+
+                    Bow_Draw = data.m_shared.m_secondaryAttack.m_bowDraw,
+                    Bow_Duration_Min = data.m_shared.m_secondaryAttack.m_drawDurationMin,
+                    Bow_Stamina_Drain = data.m_shared.m_secondaryAttack.m_drawStaminaDrain,
+                    Bow_Animation_State = data.m_shared.m_secondaryAttack.m_drawAnimationState,
+
+                    Attack_Angle = data.m_shared.m_secondaryAttack.m_attackAngle,
+                    Attack_Ray_Width = data.m_shared.m_secondaryAttack.m_attackRayWidth,
+                    Lower_Dmg_Per_Hit = data.m_shared.m_secondaryAttack.m_lowerDamagePerHit,
+                    Hit_Through_Walls = data.m_shared.m_secondaryAttack.m_hitThroughWalls,
+                    Multi_Hit = data.m_shared.m_secondaryAttack.m_multiHit,
+                    Pickaxe_Special = data.m_shared.m_secondaryAttack.m_pickaxeSpecial,
+                    Last_Chain_Dmg_Multiplier = data.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier,
+
+                    Attack_Projectile = data.m_shared.m_secondaryAttack.m_attackProjectile,
+                    Projectile_Vel = data.m_shared.m_secondaryAttack.m_projectileVel,
+                    Projectile_Accuraccy = data.m_shared.m_secondaryAttack.m_projectileAccuracy,
+                    Projectiles = data.m_shared.m_secondaryAttack.m_projectiles,
+                };
+                ItemData.Primary_Attack = Primary_Attack;
+                ItemData.Secondary_Attack = Secondary_Attack;
+
+            }
+            if (data.m_shared.m_armor != 0)
+            {
+                WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " armor ");
+                ArmorData Armor = new ArmorData
+                {
+                    armor = data.m_shared.m_armor,
+                    armorPerLevel = data.m_shared.m_armorPerLevel,
+                    damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
+
+                };
+                ItemData.Armor = Armor;
+            }
+            if (data.m_shared.m_food != 0)
+            {
+                WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " food ");
+                FoodData FoodStats = new FoodData
+                {
+                    m_foodHealth = data.m_shared.m_food,
+                    // m_foodColor = ColorUtil.GetHexFromColor(data.m_shared.m_foodColor),
+                    m_foodBurnTime = data.m_shared.m_foodBurnTime,
+                    m_foodRegen = data.m_shared.m_foodRegen,
+                    m_foodStamina = data.m_shared.m_foodStamina,
+                    m_FoodEitr = data.m_shared.m_foodEitr,
+                };
+                ItemData.FoodStats = FoodStats;
+            }
+
+
+            //WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " shield "); Maybe everything deflects a bit
+            ShieldData ShieldData = new ShieldData
+            {
+                m_blockPower = data.m_shared.m_blockPower,
+                m_blockPowerPerLevel = data.m_shared.m_blockPowerPerLevel,
+                m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
+                m_deflectionForce = data.m_shared.m_deflectionForce,
+                m_deflectionForcePerLevel = data.m_shared.m_deflectionForcePerLevel,
+            };
+
 
             return ItemData;
 

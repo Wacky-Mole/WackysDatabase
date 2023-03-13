@@ -91,6 +91,7 @@ namespace wackydatabase
         public static List<PieceData> pieceDatasYml = new List<PieceData>();
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
         public static List<VisualData> visualDatasYml = new List<VisualData>();
+        public static List<StatusEffect> effectDataYml = new List<StatusEffect>();
 
         public static List<string> ClonedI = new List<string>();
         public static List<string> ClonedP = new List<string>();
@@ -105,6 +106,7 @@ namespace wackydatabase
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
         internal static string assetPathIcons;
+        internal static string assetPathEffects;
         internal static string jsonstring;
         internal static string ymlstring;
         internal static char StringSeparator = 'Ⰴ'; // handcuffs  The fifth letter of the Glagolitic alphabet.
@@ -143,6 +145,7 @@ namespace wackydatabase
             assetPathRecipes = Path.Combine(assetPathconfig, "Recipes");
             assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
             assetPathVisuals = Path.Combine(assetPathconfig, "Visuals");
+            assetPathEffects = Path.Combine(assetPathconfig, "Effects");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
             assetPathIcons = Path.Combine(assetPathconfig, "Icons");
@@ -286,8 +289,13 @@ namespace wackydatabase
 
             if (!Directory.Exists(assetPathIcons))
             {
-                Dbgl("Creating assetPathIcons");
+                Dbgl("Creating Icons Folder");
                 Directory.CreateDirectory(assetPathIcons);
+            }
+            if (!Directory.Exists(assetPathEffects))
+            {
+                Dbgl("Creating Effects folder");
+                Directory.CreateDirectory(assetPathEffects);
             }
         }
 
