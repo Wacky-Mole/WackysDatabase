@@ -5,6 +5,7 @@ using wackydatabase.Datas;
 using BepInEx.Bootstrap;
 using System.Reflection;
 using static ItemSets;
+using System.Collections.Generic;
 
 namespace wackydatabase.GetData
 {
@@ -286,22 +287,123 @@ namespace wackydatabase.GetData
         {
 
             Piece piece = PieceID.GetComponent<Piece>();
-            string wackydesc = piece.m_description;
-            string wackyname = piece.m_name;
-            string wackycatSring = piece.m_category.ToString();
-
+            WMRecipeCust.WLog.LogWarning("Piece sTart");
             var data = new PieceData()
             {
-                name = PieceID.name,
+                name = PieceID.name, // required
+                piecehammer = Hammername, // required
                 amount = 1,
                 craftingStation = piece.m_craftingStation?.m_name ?? "",
                 minStationLevel = 1,
-                piecehammer = Hammername,
                 adminonly = false,
-                m_name = wackyname,
-                m_description = wackydesc,
-                piecehammerCategory = wackycatSring,
+                m_name = piece.m_name,
+                m_description = piece.m_description,
+                piecehammerCategory = piece.m_category.ToString(),
+                sizeMultiplier = 1,
+                customIcon = null,
+                clonePrefabName = null,
+                material = null,
+                damagedMaterial = null,
+                disabled = !piece.enabled,
+                //cloneEffects
+
+                groundPiece = piece.m_groundPiece,
+                ground = piece.m_groundOnly,
+                waterPiece = piece.m_waterPiece,
+                noInWater = piece.m_noInWater,
+                notOnFloor = piece.m_notOnFloor,
+                onlyinTeleportArea = piece.m_onlyInTeleportArea,
+                allowedInDungeons = piece.m_allowedInDungeons,
+                canBeRemoved = piece.m_canBeRemoved,
+
             };
+
+            WMRecipeCust.WLog.LogWarning("Piece Comfort");
+            if (piece.m_comfort != 0)
+            {
+                ComfortData comfort = new ComfortData
+                {
+                    confort = piece.m_comfort,
+                    confortGroup = piece.m_comfortGroup,
+                    comfortObject = piece.m_comfortObject,
+                };
+                data.comfort = comfort;
+             }
+
+            if (PieceID.GetComponent<WearNTear> != null)
+            {
+                var wear = PieceID.GetComponent<WearNTear>();
+                WMRecipeCust.WLog.LogWarning("Piece Wear");
+                WearNTearData wearNTearData = new WearNTearData
+                {
+
+                 health = wear.m_health,
+                 damageModifiers = wear.m_damages,
+                 noRoofWear = wear.m_noRoofWear,
+                 noSupportWear = wear.m_noSupportWear,
+                 supports = wear.m_supports,
+                 triggerPrivateArea = wear.m_triggerPrivateArea,
+                 };
+
+                data.wearNTearData = wearNTearData;
+            }
+
+            if (PieceID.GetComponent<CraftingStation> != null)
+            {
+                var station = PieceID.GetComponent<CraftingStation>();
+                CraftingStationData craftingStationData = new CraftingStationData
+                {
+                    cStationName = station.name,
+                 cStationCustionIcon = null,
+                 discoveryRange = station.m_discoverRange,
+                 buildRange = station.m_rangeBuild,
+                 craftRequiresRoof = station.m_craftRequireRoof,
+                 craftRequiresFire = station.m_craftRequireFire,
+                 showBasicRecipes = station.m_showBasicRecipies,
+                 useDistance = station.m_useDistance,
+                 useAnimation = station.m_useAnimation,
+                 };
+                data.craftingStationData = craftingStationData;
+            }
+
+            if (PieceID.GetComponent<StationExtension> != null)
+            {
+                var ex = PieceID.GetComponent<StationExtension>();
+                CSExtension cSExtension = new CSExtension
+                {
+                     stationExtensionCraftingStation = ex.m_craftingStation,
+                     maxStationDistance = ex.m_maxStationDistance,
+                     continousConnection = ex.m_continousConnection,
+                     stack = ex.m_stack,
+                 };
+                 data.cSExtension = cSExtension;
+            }
+
+            if (PieceID.GetComponent<Smelter> != null)
+            {
+                var smelt = PieceID.GetComponent<Smelter>();
+                SmelterData smelterData = new SmelterData
+                {
+                     smelterName = smelt.name,
+                     addOreTooltip = smelt.m_addOreTooltip,
+                     emptyOreTooltip = smelt.m_emptyOreTooltip,
+                     addFuelSwitch = smelt.m_addOreSwitch,
+                     addOreSwitch = smelt.m_addOreSwitch,
+                     emptyOreSwitch = smelt.m_emptyOreSwitch,
+                     fuelItem = smelt.m_fuelItem,
+                     maxOre = smelt.m_maxOre,
+                     maxFuel = smelt.m_maxFuel,
+                     fuelPerProduct = smelt.m_fuelPerProduct,
+                     secPerProduct = smelt.m_secPerProduct,
+                     spawnStack = smelt.m_spawnStack,
+                     requiresRoof = smelt.m_requiresRoof,
+                     addOreAnimationLength = smelt.m_addOreAnimationDuration,
+                     smelterConversion = smelt.m_conversion,
+                };
+                data.smelterData = smelterData;
+            }
+
+    
             foreach (Piece.Requirement req in piece.m_resources)
             {
                 data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");

@@ -139,7 +139,7 @@ namespace wackydatabase.SetData
                     // CLONE PASS FIRST - only for craftingStation
                     foreach (var data3 in WMRecipeCust.pieceDatasYml)
                     {
-                        if (data3 != null && data3.clone)
+                        if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName))
                         {
                             try
                             {

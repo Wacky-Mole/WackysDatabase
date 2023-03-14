@@ -230,7 +230,6 @@ namespace wackydatabase.Datas
 
 		public float Spirit;
 
-
     }
 
 

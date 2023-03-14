@@ -498,7 +498,6 @@ namespace wackydatabase.PatchClasses
                                 if (clone == null)
                                     return;
                                 clone.name = newname;
-                                clone.clone = true;
                                 clone.clonePrefabName = prefab;
 
 

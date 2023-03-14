@@ -279,7 +279,7 @@ namespace wackydatabase.SetData
             }
 
             string tempname = data.name;
-            if (data.clone && !skip)
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)
             {
                 data.name = data.clonePrefabName;
             }
@@ -307,7 +307,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl("Piece data not found!");
                 return;
             }
-            if (data.clone && !skip) // object is a clone do clonethings
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
             {
                 WMRecipeCust.Dbgl($"Item CLONE DATA in SetPiece for {tempname} ");
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
@@ -395,15 +395,15 @@ namespace wackydatabase.SetData
 
 
 
-            if (!string.IsNullOrEmpty(data.cloneMaterial)) // allows changing of any piece
+            if (!string.IsNullOrEmpty(data.material) || !string.IsNullOrEmpty(data.damagedMaterial)) // allows changing of any piece
             {
-                WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial} for piece {data.name}"); // need to take in account worn at %50
+                WMRecipeCust.Dbgl($"Material name searching for {data.material} for piece {data.name}"); // need to take in account worn at %50
                 try
                 {
 
                     renderfinder = go.GetComponentsInChildren<Renderer>();
                     renderfinder2 = go.GetComponentsInChildren<Renderer>(true); // include inactives
-                    if (data.cloneMaterial.Contains("same_mat") || data.cloneMaterial.Contains("no_wear"))
+                    if (data.material.Contains("same_mat") || data.material.Contains("no_wear"))
                     {
                         WMRecipeCust.Dbgl($"No Wear set for {data.name}");
                         Material samematerial = null;
@@ -423,9 +423,9 @@ namespace wackydatabase.SetData
                     }
                     else
                     {
-                        if (data.cloneMaterial.Contains(','))
+                        if (data.material.Contains(','))
                         {
-                            string[] materialstr = data.cloneMaterial.Split(',');
+                            string[] materialstr = data.material.Split(',');
                             Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
                             Material part = WMRecipeCust.originalMaterials[materialstr[1]];
 
@@ -445,7 +445,7 @@ namespace wackydatabase.SetData
                         else
                         {
 
-                            Material mat = WMRecipeCust.originalMaterials[data.cloneMaterial];
+                            Material mat = WMRecipeCust.originalMaterials[data.material];
                             foreach (Renderer renderitem in renderfinder2)
                             {
                                 if (renderitem.receiveShadows)
@@ -522,7 +522,7 @@ namespace wackydatabase.SetData
                     }
                 }
             } //end Cat
-            if (data.adminonly)
+            if (data.adminonly ?? false)
             {
                 if (WMRecipeCust.Admin)
                 {
@@ -548,7 +548,7 @@ namespace wackydatabase.SetData
                 }
             }
 
-            if (data.disabled)
+            if (data.disabled ?? false)
             {
                 WMRecipeCust.Dbgl($"Disabling Piece {data.name}");
                 go.GetComponent<Piece>().m_enabled = false;
@@ -602,7 +602,7 @@ namespace wackydatabase.SetData
             CraftingStation currentStation = DataHelpers.GetCraftingStation(data.craftingStation);
             CraftingStation checkifStation = null;
             bool CStationAdded = false;
-            if (data.clone)
+            if (!string.IsNullOrEmpty(data.clonePrefabName))
             {
                 string tempnam = null;
                 tempnam = go.GetComponent<CraftingStation>()?.m_name;
@@ -613,7 +613,7 @@ namespace wackydatabase.SetData
                         CStationAdded = WMRecipeCust.NewCraftingStations.Contains(checkifStation);
                 }
             }
-            if (data.clone && checkifStation != null && !CStationAdded)
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && checkifStation != null && !CStationAdded)
             {
                 //go.GetComponent<Piece>().m_craftingStation = ""; dont change crafting station hopefully it is empty already
                 go.GetComponent<CraftingStation>().name = data.name;
