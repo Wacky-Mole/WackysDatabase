@@ -823,7 +823,7 @@ namespace wackydatabase.SetData
                     if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
                     {
                         Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
-                        go.transform.localScale = NewScale;
+                        go.transform.GetChild(0).localScale = NewScale;
                     }
                     if (data.Primary_Attack != null)
                     {

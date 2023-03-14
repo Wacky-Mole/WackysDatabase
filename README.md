@@ -14,7 +14,7 @@ Version 2.0
 7) maybe set effects. - 40% working
 8) load slowly, so no lag on reload
 9) maybe sfx?
-10) cloned pieces show up on mainscreen, will need some sort of cache
+10) cloned items show up on mainscreen, will need some sort of cache
 
 
 
