@@ -997,10 +997,10 @@ namespace wackydatabase.SetData
                     
 
 
-                    if (!DataHelpers.ECheck(data.Armor.damageModifiers))
+                    if (!DataHelpers.ECheck(data.damageModifiers))
                     {
                         PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
-                        foreach (string modString in data.Armor.damageModifiers)
+                        foreach (string modString in data.damageModifiers)
                         {
                             string[] mod = modString.Split(':');
                             int modType = Enum.TryParse<ArmorHelpers.NewDamageTypes>(mod[0], out ArmorHelpers.NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);

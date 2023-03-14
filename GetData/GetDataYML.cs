@@ -434,10 +434,11 @@ namespace wackydatabase.GetData
                 Damage = damages,
                 Damage_Per_Level = damagesPerLevel,
                 Moddifiers = StatModdifers,
+                damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 
-            //damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
+                //damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 
-        };
+            };
             if (data.m_shared.m_equipStatusEffect != null)
             {
                 WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " SEs ");
@@ -567,7 +568,7 @@ namespace wackydatabase.GetData
                 {
                     armor = data.m_shared.m_armor,
                     armorPerLevel = data.m_shared.m_armorPerLevel,
-                    damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
+                    
 
                 };
                 ItemData.Armor = Armor;

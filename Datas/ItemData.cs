@@ -93,8 +93,10 @@ namespace wackydatabase.Datas
 
         public int? m_value;
 
+        public List<string>? damageModifiers = new List<string>();
 
-        #nullable disable
+
+#nullable disable
     }
 
 
@@ -201,7 +203,6 @@ namespace wackydatabase.Datas
 		public float? armorPerLevel;
 		//public float movementModifier;
 
-		public List<string>? damageModifiers = new List<string>();
 	}
 
 	[Serializable]
