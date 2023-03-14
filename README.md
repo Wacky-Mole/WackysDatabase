@@ -11,7 +11,7 @@ Version 2.0
 4) modular on yml files. 
 5) support color and material changes on armor now. - Rexabit Done
 6) maybe vfx changes
-7) maybe set effects.
+7) maybe set effects. - 40% working
 8) load slowly, so no lag on reload
 
 

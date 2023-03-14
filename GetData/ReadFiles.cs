@@ -14,6 +14,7 @@ using System.IO;
 using YamlDotNet.Serialization;
 using wackydatabase.GetData;
 using VisualsModifier;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace wackydatabase.Read
 {
@@ -76,11 +77,11 @@ namespace wackydatabase.Read
             WMRecipeCust.CheckModFolder();
 
             YamlLoader yaml = new YamlLoader();
+            //ScriptableObject.CreateInstance<StatusEffect>();
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml, WMRecipeCust.isSetStringisDebug);
-
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?iece_*.yml", SearchOption.AllDirectories))
@@ -100,12 +101,12 @@ namespace wackydatabase.Read
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "SE_*.yml", SearchOption.AllDirectories))
             {
-                yaml.Load<StatusEffect>(file, WMRecipeCust.effectDataYml, WMRecipeCust.isSetStringisDebug);
+                yaml.Load<StatusData>(file, WMRecipeCust.effectDataYml, WMRecipeCust.isSetStringisDebug);
             }
 
-            WMRecipeCust.ymlstring = yaml.ToString();
+            WMRecipeCust.ymlstring = yaml.ToString();//(WMRecipeCust.itemDatasYml.ToString() + WMRecipeCust.pieceDatasYml.ToString() + WMRecipeCust.recipeDatasYml + WMRecipeCust.visualDatasYml + WMRecipeCust.effectDataYml).ToString();
 
-            WMRecipeCust.WLog.LogDebug("Loaded YML files");
+            WMRecipeCust.Dbgl("Loaded YML files");
             if (WMRecipeCust.isSetStringisDebug)
                 WMRecipeCust.Dbgl(WMRecipeCust.ymlstring);
         }

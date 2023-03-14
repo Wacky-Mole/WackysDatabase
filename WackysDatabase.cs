@@ -91,7 +91,7 @@ namespace wackydatabase
         public static List<PieceData> pieceDatasYml = new List<PieceData>();
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
         public static List<VisualData> visualDatasYml = new List<VisualData>();
-        public static List<StatusEffect> effectDataYml = new List<StatusEffect>();
+        public static List<StatusData> effectDataYml = new List<StatusData>();
 
         public static List<string> ClonedI = new List<string>();
         public static List<string> ClonedP = new List<string>();

@@ -11,7 +11,7 @@ namespace wackydatabase.Datas
     
 	[Serializable]
     [CanBeNull]
-    public class StatusData:StatusEffect
+    public class StatusData
     {
         public string? Name;
         public string? m_Name;

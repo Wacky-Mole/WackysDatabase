@@ -20,7 +20,7 @@ namespace wackydatabase.Datas {
             _stringBuilder = new StringBuilder();
         }
 
-        public bool Load<T>(string file, List<T> items, bool concat = false)
+        public bool Load<T>(string file, List<T> items, bool concat = false) // need to rewrite this a bit
         {
             try
             {

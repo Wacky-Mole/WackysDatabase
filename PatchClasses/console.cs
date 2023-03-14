@@ -149,12 +149,12 @@ namespace wackydatabase.PatchClasses
                              if (ObjectDB.instance && wackydatabase.WMRecipeCust.issettoSinglePlayer)
                              {
 
-                                 SetData.Reload josh = new SetData.Reload();
-                                 WMRecipeCust.CurrentReload = josh;
-
                                  ReadFiles readnow = new ReadFiles();
                                  readnow.GetDataFromFiles();
                                  WMRecipeCust.readFiles = readnow;
+
+                                 SetData.Reload josh = new SetData.Reload();
+                                 WMRecipeCust.CurrentReload = josh;
 
                                  josh.LoadAllRecipeData(true);
 
@@ -352,7 +352,7 @@ namespace wackydatabase.PatchClasses
                     args =>
                     {
                         var tod = ObjectDB.instance;
-                        StatusEffect temp = tod.GetStatusEffect("Cold");
+                        var max = tod.m_StatusEffects.Count();
                         GetDataYML SEcheck = new GetDataYML();
                         int count = 0;
 
@@ -361,12 +361,12 @@ namespace wackydatabase.PatchClasses
                        // var deserialized = new DeserializerBuilder()
                           //      .Build();
 
-                        while (temp != null)
+                        while (count != max)
                         {
-                            temp = null;
-                            temp = SEcheck.GetStatusEByNum(count, tod);
+                           var temp = SEcheck.GetStatusEByNum(count, tod);
+                            count++;
                             if (temp == null)
-                                break;
+                                continue;
                             var part1 = serializer.Serialize(temp);
                             // deserialize yml into dictionary
                             /*
@@ -382,8 +382,8 @@ namespace wackydatabase.PatchClasses
                             */
 
 
-                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" +temp.name+".yml"), part1);
-                            count++;
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" +temp.Name+".yml"), part1);
+                            
                         }
                         args.Context?.AddString($"saved all Status Effects to folder Effects");
 
@@ -409,7 +409,7 @@ namespace wackydatabase.PatchClasses
                             return;
                         }                      
 
-                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" + temp.name + ".yml"), serializer.Serialize(temp));
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" + temp.Name + ".yml"), serializer.Serialize(temp));
                                                     
                         args.Context?.AddString($"saved SE effect {name} to SE_{name}.yml in Effects folder");
 

@@ -177,52 +177,59 @@ namespace wackydatabase.GetData
             return data;
         }
 
-        internal StatusEffect GetStatusEByName(string name, ObjectDB tod)
+        internal StatusData GetStatusEByName(string name, ObjectDB tod)
         {
            return GetStatusData(tod.GetStatusEffect(name));
         }
-        internal StatusEffect GetStatusEByNum(int num, ObjectDB tod)
+        internal StatusData GetStatusEByNum(int num, ObjectDB tod)
         {
             var count = tod.m_StatusEffects.Count();
             if (num == count)
             {
                 return null;
             }
-            return GetStatusData(tod.m_StatusEffects[num]);
+            StatusData John = null;
+             try { John = GetStatusData(tod.m_StatusEffects[num]); } catch
+            {
+                WMRecipeCust.WLog.LogWarning("Something went wrong with a Status Effect ");
+            }
+            return John;
         }
-        private StatusEffect GetStatusData(StatusEffect effect)
+        private StatusData GetStatusData(StatusEffect effect)
         {
 
             //effect.m_icon = effect.m_icon.name;
             //effect.
-            /*
-            StatusData statusData = (statusData)effect
+
+            
+            StatusData statusData =  new StatusData
             {
 
 
-                Name = effect.name,
-                m_Name = effect.m_name,
-                Category = effect.m_category,
-                CustomIcon = effect.m_icon.name,
+                Name = effect.name ?? "",
+                m_Name = effect.m_name ?? "",
+                Category = effect.m_category ?? "",
+                CustomIcon = effect.m_icon.name ?? "",
                 FlashIcon = effect.m_flashIcon,
                 CooldownIcon = effect.m_cooldownIcon,
-                Tooltip = effect.m_tooltip,
+                Tooltip = effect.m_tooltip ?? "",
                 Attributes = effect.m_attributes,
                 StartMessageLoc = effect.m_startMessageType,
-                StartMessage = effect.m_startMessage,
-                StopMessageLoc = effect.m_stopMessageType,
-                StopMessage = effect.m_stopMessage,
+                StartMessage = effect.m_startMessage ?? "",
+                StopMessageLoc = effect.m_stopMessageType, 
+                StopMessage = effect.m_stopMessage ?? "",
                 RepeatMessageLoc = effect.m_repeatMessageType,
-                RepeatMessage = effect.m_repeatMessage,
+                RepeatMessage = effect.m_repeatMessage ?? "",
                 RepeatInterval = effect.m_repeatInterval,
-                TimeToLive = effect.m_ttl,
+                TimeToLive = effect.m_ttl ,
                 StartEffect = effect.m_startEffects,
                 StopEffect = effect.m_stopEffects,
                 Cooldown = effect.m_cooldown,
-                ActivationAnimation = effect.m_activationAnimation,
-                
+                ActivationAnimation = effect.m_activationAnimation ?? "",
 
-             }; 
+
+            }; 
+            /*
 
             effect = statusData;
             
@@ -250,7 +257,7 @@ namespace wackydatabase.GetData
             data.ActivationAnimation = effect.m_activationAnimation;
            */
 
-            return effect;
+            return statusData;
 
         }
 

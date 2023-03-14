@@ -126,6 +126,15 @@ namespace wackydatabase.SetData
                     WMRecipeCust.GetAllMaterials(); // remove
                     ObjectDB Instant = ObjectDB.instance;
 
+                    // effects first
+                    foreach (var data in WMRecipeCust.effectDataYml) // recipes last
+                    {
+                        try
+                        {
+                            SetData.SetStatusData(data, Instant);// has issues
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
+                    }
 
                     // CLONE PASS FIRST - only for craftingStation
                     foreach (var data3 in WMRecipeCust.pieceDatasYml)

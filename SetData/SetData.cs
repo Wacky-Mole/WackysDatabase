@@ -28,6 +28,36 @@ namespace wackydatabase.SetData
         public static Component[] renderfinder;
         internal static Renderer[] renderfinder2;
 
+        internal static void SetStatusData (StatusData data, ObjectDB Instant)
+        {
+
+            var name = data.Name;
+            var go = Instant.GetStatusEffect(name);
+            go.m_name = data.m_Name ?? go.m_name;
+            go.m_category = data.Category ?? go.m_category;
+            if (data.CustomIcon != null)
+            {
+
+            }
+            go.m_flashIcon = data.FlashIcon ?? go.m_flashIcon;
+            go.m_cooldownIcon = data.CooldownIcon ?? go.m_cooldownIcon;
+            go.m_tooltip = data.Tooltip ?? go.m_tooltip;
+            go.m_attributes = data.Attributes ?? go.m_attributes;
+            go.m_startMessageType = data.StartMessageLoc ?? go.m_startMessageType;
+            go.m_startMessage = data.StartMessage ?? go.m_startMessage;
+            go.m_stopMessageType = data.StopMessageLoc ?? go.m_stopMessageType;
+            go.m_stopMessage = data.StopMessage ?? go.m_stopMessage;
+            go.m_repeatMessageType = data.RepeatMessageLoc ?? go.m_repeatMessageType;
+            go.m_repeatMessage = data.RepeatMessage ?? go.m_repeatMessage;
+            go.m_ttl = data.TimeToLive ?? go.m_ttl;
+            //go.m_startEffects = data.StartEffect ?? go.m_startEffects;
+            //go.m_stopEffects = data.StopEffect ?? go.m_stopEffects;
+            go.m_cooldown = data.Cooldown ?? go.m_cooldown;
+            go.m_activationAnimation = data.ActivationAnimation ?? go.m_activationAnimation;
+            
+
+        }
+
         internal static void SetRecipeData(RecipeData data, ObjectDB Instant)
         {
             bool skip = false;
@@ -795,119 +825,146 @@ namespace wackydatabase.SetData
                         Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
                         go.transform.localScale = NewScale;
                     }
-                    PrimaryItemData.m_shared.m_attack.m_attackType = data.Primary_Attack.AttackType ?? PrimaryItemData.m_shared.m_attack.m_attackType;
-                    PrimaryItemData.m_shared.m_attack.m_attackAnimation = data.Primary_Attack.Attack_Animation ?? PrimaryItemData.m_shared.m_attack.m_attackAnimation;
-                    PrimaryItemData.m_shared.m_attack.m_attackRandomAnimations = data.Primary_Attack.Attack_Random_Animation ?? PrimaryItemData.m_shared.m_attack.m_attackRandomAnimations;
-                    PrimaryItemData.m_shared.m_attack.m_attackChainLevels = data.Primary_Attack.Chain_Attacks ?? PrimaryItemData.m_shared.m_attack.m_attackChainLevels;
-                    PrimaryItemData.m_shared.m_attack.m_hitTerrain = data.Primary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_attack.m_hitTerrain;
+                    if (data.Primary_Attack != null)
+                    {
+                        WMRecipeCust.Dbgl($"   {data.name} Item attacks ");
+                        PrimaryItemData.m_shared.m_attack.m_attackType = data.Primary_Attack.AttackType ?? PrimaryItemData.m_shared.m_attack.m_attackType;
+                        PrimaryItemData.m_shared.m_attack.m_attackAnimation = data.Primary_Attack.Attack_Animation ?? PrimaryItemData.m_shared.m_attack.m_attackAnimation;
+                        PrimaryItemData.m_shared.m_attack.m_attackRandomAnimations = data.Primary_Attack.Attack_Random_Animation ?? PrimaryItemData.m_shared.m_attack.m_attackRandomAnimations;
+                        PrimaryItemData.m_shared.m_attack.m_attackChainLevels = data.Primary_Attack.Chain_Attacks ?? PrimaryItemData.m_shared.m_attack.m_attackChainLevels;
+                        PrimaryItemData.m_shared.m_attack.m_hitTerrain = data.Primary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_attack.m_hitTerrain;
 
-                    PrimaryItemData.m_shared.m_attack.m_attackStamina = data.Primary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_attack.m_attackStamina;
-                    PrimaryItemData.m_shared.m_attack.m_attackEitr = data.Primary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_attack.m_attackEitr;
-                    PrimaryItemData.m_shared.m_attack.m_attackHealth = data.Primary_Attack.AttackHealthCost ?? PrimaryItemData.m_shared.m_attack.m_attackHealth;
-                    PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.Primary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage;
+                        PrimaryItemData.m_shared.m_attack.m_attackStamina = data.Primary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_attack.m_attackStamina;
+                        PrimaryItemData.m_shared.m_attack.m_attackEitr = data.Primary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_attack.m_attackEitr;
+                        PrimaryItemData.m_shared.m_attack.m_attackHealth = data.Primary_Attack.AttackHealthCost ?? PrimaryItemData.m_shared.m_attack.m_attackHealth;
+                        PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.Primary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage;
 
-                    PrimaryItemData.m_shared.m_attack.m_speedFactor = data.Primary_Attack.SpeedFactor ?? PrimaryItemData.m_shared.m_attack.m_speedFactor;
-                    PrimaryItemData.m_shared.m_attack.m_damageMultiplier = data.Primary_Attack.DmgMultiplier ?? PrimaryItemData.m_shared.m_attack.m_damageMultiplier;
-                    PrimaryItemData.m_shared.m_attack.m_forceMultiplier = data.Primary_Attack.ForceMultiplier ?? PrimaryItemData.m_shared.m_attack.m_forceMultiplier;
-                    PrimaryItemData.m_shared.m_attack.m_staggerMultiplier = data.Primary_Attack.StaggerMultiplier ?? PrimaryItemData.m_shared.m_attack.m_staggerMultiplier;
-                    PrimaryItemData.m_shared.m_attack.m_recoilPushback = data.Primary_Attack.RecoilMultiplier ?? PrimaryItemData.m_shared.m_attack.m_recoilPushback;
+                        PrimaryItemData.m_shared.m_attack.m_speedFactor = data.Primary_Attack.SpeedFactor ?? PrimaryItemData.m_shared.m_attack.m_speedFactor;
+                        PrimaryItemData.m_shared.m_attack.m_damageMultiplier = data.Primary_Attack.DmgMultiplier ?? PrimaryItemData.m_shared.m_attack.m_damageMultiplier;
+                        PrimaryItemData.m_shared.m_attack.m_forceMultiplier = data.Primary_Attack.ForceMultiplier ?? PrimaryItemData.m_shared.m_attack.m_forceMultiplier;
+                        PrimaryItemData.m_shared.m_attack.m_staggerMultiplier = data.Primary_Attack.StaggerMultiplier ?? PrimaryItemData.m_shared.m_attack.m_staggerMultiplier;
+                        PrimaryItemData.m_shared.m_attack.m_recoilPushback = data.Primary_Attack.RecoilMultiplier ?? PrimaryItemData.m_shared.m_attack.m_recoilPushback;
 
-                    PrimaryItemData.m_shared.m_attack.m_attackRange = data.Primary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_attack.m_attackRange;
-                    PrimaryItemData.m_shared.m_attack.m_attackHeight = data.Primary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_attack.m_attackHeight;
-                    PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = data.Primary_Attack.Spawn_On_Trigger ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
+                        PrimaryItemData.m_shared.m_attack.m_attackRange = data.Primary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_attack.m_attackRange;
+                        PrimaryItemData.m_shared.m_attack.m_attackHeight = data.Primary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_attack.m_attackHeight;
+                        PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = data.Primary_Attack.Spawn_On_Trigger ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
 
-                    PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
-                    PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
-                    PrimaryItemData.m_shared.m_attack.m_reloadTime = data.Primary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_attack.m_reloadTime;
-                    PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain = data.Primary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain;
+                        PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
+                        PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
+                        PrimaryItemData.m_shared.m_attack.m_reloadTime = data.Primary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_attack.m_reloadTime;
+                        PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain = data.Primary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain;
 
-                    PrimaryItemData.m_shared.m_attack.m_bowDraw = data.Primary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_attack.m_bowDraw;
-                    PrimaryItemData.m_shared.m_attack.m_drawDurationMin = data.Primary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_attack.m_drawDurationMin;
-                    PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain = data.Primary_Attack.Bow_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain;
-                    PrimaryItemData.m_shared.m_attack.m_drawAnimationState = data.Primary_Attack.Bow_Animation_State ?? PrimaryItemData.m_shared.m_attack.m_drawAnimationState;
+                        PrimaryItemData.m_shared.m_attack.m_bowDraw = data.Primary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_attack.m_bowDraw;
+                        PrimaryItemData.m_shared.m_attack.m_drawDurationMin = data.Primary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_attack.m_drawDurationMin;
+                        PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain = data.Primary_Attack.Bow_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain;
+                        PrimaryItemData.m_shared.m_attack.m_drawAnimationState = data.Primary_Attack.Bow_Animation_State ?? PrimaryItemData.m_shared.m_attack.m_drawAnimationState;
 
-                    PrimaryItemData.m_shared.m_attack.m_attackAngle = data.Primary_Attack.Attack_Angle ?? PrimaryItemData.m_shared.m_attack.m_attackAngle;
-                    PrimaryItemData.m_shared.m_attack.m_attackRayWidth = data.Primary_Attack.Attack_Ray_Width ?? PrimaryItemData.m_shared.m_attack.m_attackRayWidth;
-                    PrimaryItemData.m_shared.m_attack.m_lowerDamagePerHit = data.Primary_Attack.Lower_Dmg_Per_Hit ?? PrimaryItemData.m_shared.m_attack.m_lowerDamagePerHit;
-                    PrimaryItemData.m_shared.m_attack.m_hitThroughWalls = data.Primary_Attack.Hit_Through_Walls ?? PrimaryItemData.m_shared.m_attack.m_hitThroughWalls;
-                    PrimaryItemData.m_shared.m_attack.m_multiHit = data.Primary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_attack.m_multiHit;
-                    PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial = data.Primary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial;
-                    PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
+                        PrimaryItemData.m_shared.m_attack.m_attackAngle = data.Primary_Attack.Attack_Angle ?? PrimaryItemData.m_shared.m_attack.m_attackAngle;
+                        PrimaryItemData.m_shared.m_attack.m_attackRayWidth = data.Primary_Attack.Attack_Ray_Width ?? PrimaryItemData.m_shared.m_attack.m_attackRayWidth;
+                        PrimaryItemData.m_shared.m_attack.m_lowerDamagePerHit = data.Primary_Attack.Lower_Dmg_Per_Hit ?? PrimaryItemData.m_shared.m_attack.m_lowerDamagePerHit;
+                        PrimaryItemData.m_shared.m_attack.m_hitThroughWalls = data.Primary_Attack.Hit_Through_Walls ?? PrimaryItemData.m_shared.m_attack.m_hitThroughWalls;
+                        PrimaryItemData.m_shared.m_attack.m_multiHit = data.Primary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_attack.m_multiHit;
+                        PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial = data.Primary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial;
+                        PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
 
-                    PrimaryItemData.m_shared.m_attack.m_attackProjectile = data.Primary_Attack.Attack_Projectile ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
-                    PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
-                    PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
-                    PrimaryItemData.m_shared.m_attack.m_projectiles = data.Primary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_attack.m_projectiles;
+                        PrimaryItemData.m_shared.m_attack.m_attackProjectile = data.Primary_Attack.Attack_Projectile ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
+                        PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
+                        PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
+                        PrimaryItemData.m_shared.m_attack.m_projectiles = data.Primary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_attack.m_projectiles;
 
-                    // secondary
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackType = data.Secondary_Attack.AttackType ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackType;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation = data.Secondary_Attack.Attack_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations = data.Secondary_Attack.Attack_Random_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackChainLevels = data.Secondary_Attack.Chain_Attacks ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackChainLevels;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain = data.Secondary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain;
+                        // secondary
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackType = data.Secondary_Attack.AttackType ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackType;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation = data.Secondary_Attack.Attack_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations = data.Secondary_Attack.Attack_Random_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackChainLevels = data.Secondary_Attack.Chain_Attacks ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackChainLevels;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain = data.Secondary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain;
 
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.Secondary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.Secondary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealth = data.Secondary_Attack.AttackHealthCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealth;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage = data.Secondary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.Secondary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.Secondary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealth = data.Secondary_Attack.AttackHealthCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealth;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage = data.Secondary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage;
 
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_speedFactor = data.Secondary_Attack.SpeedFactor ?? PrimaryItemData.m_shared.m_secondaryAttack.m_speedFactor;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplier = data.Secondary_Attack.DmgMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplier;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_forceMultiplier = data.Secondary_Attack.ForceMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_forceMultiplier;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_staggerMultiplier = data.Secondary_Attack.StaggerMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_staggerMultiplier;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_recoilPushback = data.Secondary_Attack.RecoilMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_recoilPushback;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_speedFactor = data.Secondary_Attack.SpeedFactor ?? PrimaryItemData.m_shared.m_secondaryAttack.m_speedFactor;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplier = data.Secondary_Attack.DmgMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplier;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_forceMultiplier = data.Secondary_Attack.ForceMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_forceMultiplier;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_staggerMultiplier = data.Secondary_Attack.StaggerMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_staggerMultiplier;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_recoilPushback = data.Secondary_Attack.RecoilMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_recoilPushback;
 
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange = data.Secondary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight = data.Secondary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = data.Secondary_Attack.Spawn_On_Trigger ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange = data.Secondary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight = data.Secondary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = data.Secondary_Attack.Spawn_On_Trigger ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
 
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime = data.Secondary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain = data.Secondary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime = data.Secondary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain = data.Secondary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain;
 
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw = data.Secondary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_drawDurationMin = data.Secondary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawDurationMin;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_drawStaminaDrain = data.Secondary_Attack.Bow_Stamina_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawStaminaDrain;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_drawAnimationState = data.Secondary_Attack.Bow_Animation_State ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawAnimationState;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw = data.Secondary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_drawDurationMin = data.Secondary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawDurationMin;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_drawStaminaDrain = data.Secondary_Attack.Bow_Stamina_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawStaminaDrain;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_drawAnimationState = data.Secondary_Attack.Bow_Animation_State ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawAnimationState;
 
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackAngle = data.Secondary_Attack.Attack_Angle ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAngle;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackRayWidth = data.Secondary_Attack.Attack_Ray_Width ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRayWidth;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_lowerDamagePerHit = data.Secondary_Attack.Lower_Dmg_Per_Hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lowerDamagePerHit;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_hitThroughWalls = data.Secondary_Attack.Hit_Through_Walls ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitThroughWalls;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit = data.Secondary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial = data.Secondary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackAngle = data.Secondary_Attack.Attack_Angle ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAngle;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackRayWidth = data.Secondary_Attack.Attack_Ray_Width ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRayWidth;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_lowerDamagePerHit = data.Secondary_Attack.Lower_Dmg_Per_Hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lowerDamagePerHit;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_hitThroughWalls = data.Secondary_Attack.Hit_Through_Walls ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitThroughWalls;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit = data.Secondary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial = data.Secondary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
 
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = data.Secondary_Attack.Attack_Projectile ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel = data.Secondary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
-                    PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles = data.Secondary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = data.Secondary_Attack.Attack_Projectile ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel = data.Secondary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles = data.Secondary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles;
+                    }
+
+                    if (data.Armor != null)
+                    {
+                        WMRecipeCust.Dbgl($"   {data.name} Item armor ");
+                        PrimaryItemData.m_shared.m_armor = data.Armor.armor ?? PrimaryItemData.m_shared.m_armor;
+                        PrimaryItemData.m_shared.m_armorPerLevel = data.Armor.armorPerLevel ?? PrimaryItemData.m_shared.m_armorPerLevel;
+
+                    }
+                    if (data.FoodStats != null)
+                    {
+                        WMRecipeCust.Dbgl($"   {data.name} Item food ");
+                        PrimaryItemData.m_shared.m_food = data.FoodStats.m_foodHealth ?? PrimaryItemData.m_shared.m_food;
+                        PrimaryItemData.m_shared.m_foodStamina = data.FoodStats.m_foodStamina ?? PrimaryItemData.m_shared.m_foodStamina;
+                        PrimaryItemData.m_shared.m_foodRegen = data.FoodStats.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
+                        PrimaryItemData.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
+                        PrimaryItemData.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
+                    }
+                    if (data.Moddifiers != null)
+                    {
+                        WMRecipeCust.Dbgl($"   {data.name} Item movement ");
+                        PrimaryItemData.m_shared.m_movementModifier = data.Moddifiers.m_movementModifier ?? PrimaryItemData.m_shared.m_movementModifier;
+                        PrimaryItemData.m_shared.m_eitrRegenModifier = data.Moddifiers.m_EitrRegen ?? PrimaryItemData.m_shared.m_eitrRegenModifier;
+
+                    }
+                    if (data.SE_Equip != null)
+                    {
+                        WMRecipeCust.Dbgl($"   {data.name} Item equip effects ");
+                        PrimaryItemData.m_shared.m_equipStatusEffect = Instant.GetStatusEffect(data.SE_Equip.EffectName) ?? PrimaryItemData.m_shared.m_equipStatusEffect;
+                    }
+                    if (data.SE_SET_Equip != null)
+                    {
+                        WMRecipeCust.Dbgl($"   {data.name} Item seteffects ");
+                        PrimaryItemData.m_shared.m_setName = data.SE_SET_Equip.SetName ?? PrimaryItemData.m_shared.m_setName;
+                        PrimaryItemData.m_shared.m_setSize = data.SE_SET_Equip.Size ?? PrimaryItemData.m_shared.m_setSize;
+                        PrimaryItemData.m_shared.m_setStatusEffect = Instant.GetStatusEffect(data.SE_SET_Equip.EffectName) ?? PrimaryItemData.m_shared.m_setStatusEffect;
+                    }
+
+                    if (data.ShieldStats != null)
+                    {
+                        WMRecipeCust.Dbgl($"   {data.name} Item block ");
+                        PrimaryItemData.m_shared.m_blockPower = data.ShieldStats.m_blockPower ?? PrimaryItemData.m_shared.m_blockPower;
+                        PrimaryItemData.m_shared.m_blockPowerPerLevel = data.ShieldStats.m_blockPowerPerLevel ?? PrimaryItemData.m_shared.m_blockPowerPerLevel;
+                        PrimaryItemData.m_shared.m_timedBlockBonus = data.ShieldStats.m_timedBlockBonus ?? PrimaryItemData.m_shared.m_timedBlockBonus;
+                        PrimaryItemData.m_shared.m_deflectionForce = data.ShieldStats.m_deflectionForce ?? PrimaryItemData.m_shared.m_deflectionForce;
+                        PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.ShieldStats.m_deflectionForcePerLevel ?? PrimaryItemData.m_shared.m_deflectionForcePerLevel;
+                    }
 
 
-                    PrimaryItemData.m_shared.m_armor = data.Armor.armor ?? PrimaryItemData.m_shared.m_armor;
-                    PrimaryItemData.m_shared.m_armorPerLevel = data.Armor.armorPerLevel ?? PrimaryItemData.m_shared.m_armorPerLevel;
-
-                    PrimaryItemData.m_shared.m_food = data.FoodStats.m_foodHealth ?? PrimaryItemData.m_shared.m_food;
-                    PrimaryItemData.m_shared.m_foodStamina = data.FoodStats.m_foodStamina ?? PrimaryItemData.m_shared.m_foodStamina;
-                    PrimaryItemData.m_shared.m_foodRegen = data.FoodStats.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
-                    PrimaryItemData.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
-                    PrimaryItemData.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
-
-                    PrimaryItemData.m_shared.m_movementModifier = data.Moddifiers.m_movementModifier ?? PrimaryItemData.m_shared.m_movementModifier;
-                    PrimaryItemData.m_shared.m_eitrRegenModifier = data.Moddifiers.m_EitrRegen ?? PrimaryItemData.m_shared.m_eitrRegenModifier;
-
-                    PrimaryItemData.m_shared.m_equipStatusEffect = Instant.GetStatusEffect(data.SE_Equip.EffectName) ?? PrimaryItemData.m_shared.m_equipStatusEffect;
-                    PrimaryItemData.m_shared.m_setName = data.SE_SET_Equip.SetName ?? PrimaryItemData.m_shared.m_setName;
-                    PrimaryItemData.m_shared.m_setSize = data.SE_SET_Equip.Size ?? PrimaryItemData.m_shared.m_setSize;
-                    PrimaryItemData.m_shared.m_setStatusEffect = Instant.GetStatusEffect(data.SE_SET_Equip.EffectName) ?? PrimaryItemData.m_shared.m_setStatusEffect;
-
-                    PrimaryItemData.m_shared.m_blockPower = data.ShieldStats.m_blockPower ?? PrimaryItemData.m_shared.m_blockPower;
-                    PrimaryItemData.m_shared.m_blockPowerPerLevel = data.ShieldStats.m_blockPowerPerLevel ?? PrimaryItemData.m_shared.m_blockPowerPerLevel;
-                    PrimaryItemData.m_shared.m_timedBlockBonus = data.ShieldStats.m_timedBlockBonus ?? PrimaryItemData.m_shared.m_timedBlockBonus;
-                    PrimaryItemData.m_shared.m_deflectionForce = data.ShieldStats.m_deflectionForce ?? PrimaryItemData.m_shared.m_deflectionForce;
-                    PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.ShieldStats.m_deflectionForcePerLevel ?? PrimaryItemData.m_shared.m_deflectionForcePerLevel;
-                    
                     PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize ?? PrimaryItemData.m_shared.m_maxStackSize;
                     PrimaryItemData.m_shared.m_canBeReparied = data.m_canBeReparied ?? PrimaryItemData.m_shared.m_canBeReparied;
                     PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken ?? PrimaryItemData.m_shared.m_destroyBroken;
