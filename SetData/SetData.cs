@@ -615,7 +615,7 @@ namespace wackydatabase.SetData
             if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
             {
                 Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
-                go.transform.GetChild(0).localScale = NewScale;
+                go.transform.localScale = NewScale;
             }
             bool usecustom = false;
             if (!DataHelpers.ECheck(data.customIcon))
