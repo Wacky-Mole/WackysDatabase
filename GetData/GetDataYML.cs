@@ -287,7 +287,7 @@ namespace wackydatabase.GetData
         {
 
             Piece piece = PieceID.GetComponent<Piece>();
-            WMRecipeCust.WLog.LogWarning("Piece sTart");
+            WMRecipeCust.WLog.LogWarning("Piece start");
             var data = new PieceData()
             {
                 name = PieceID.name, // required
@@ -317,10 +317,11 @@ namespace wackydatabase.GetData
                 canBeRemoved = piece.m_canBeRemoved,
 
             };
-
-            WMRecipeCust.WLog.LogWarning("Piece Comfort");
+            
+           
             if (piece.m_comfort != 0)
             {
+                WMRecipeCust.WLog.LogWarning("Piece Comfort");
                 ComfortData comfort = new ComfortData
                 {
                     confort = piece.m_comfort,
@@ -330,9 +331,9 @@ namespace wackydatabase.GetData
                 data.comfort = comfort;
              }
 
-            if (PieceID.GetComponent<WearNTear> != null)
+            if (PieceID.TryGetComponent<WearNTear>(out var wear))
             {
-                var wear = PieceID.GetComponent<WearNTear>();
+               // var wear = PieceID.GetComponent<WearNTear>();
                 WMRecipeCust.WLog.LogWarning("Piece Wear");
                 WearNTearData wearNTearData = new WearNTearData
                 {
@@ -348,9 +349,10 @@ namespace wackydatabase.GetData
                 data.wearNTearData = wearNTearData;
             }
 
-            if (PieceID.GetComponent<CraftingStation> != null)
+            if (PieceID.TryGetComponent<CraftingStation>(out var station))
             {
-                var station = PieceID.GetComponent<CraftingStation>();
+                WMRecipeCust.WLog.LogWarning("Piece CraftingStation");
+                //var station = PieceID.GetComponent<CraftingStation>();
                 CraftingStationData craftingStationData = new CraftingStationData
                 {
                     cStationName = station.name,
@@ -366,31 +368,52 @@ namespace wackydatabase.GetData
                 data.craftingStationData = craftingStationData;
             }
 
-            if (PieceID.GetComponent<StationExtension> != null)
+            if (PieceID.TryGetComponent<StationExtension>(out var ex))
             {
-                var ex = PieceID.GetComponent<StationExtension>();
-                CSExtension cSExtension = new CSExtension
+                WMRecipeCust.WLog.LogWarning("Piece StationExtension");
+                //var ex = PieceID.GetComponent<StationExtension>();
+                CSExtensionData cSExtension = new CSExtensionData
                 {
                      stationExtensionCraftingStation = ex.m_craftingStation,
                      maxStationDistance = ex.m_maxStationDistance,
                      continousConnection = ex.m_continousConnection,
                      stack = ex.m_stack,
                  };
-                 data.cSExtension = cSExtension;
+                 data.cSExtensionData = cSExtension;
             }
 
-            if (PieceID.GetComponent<Smelter> != null)
+
+            if (PieceID.TryGetComponent<Smelter>(out var smelt))
             {
-                var smelt = PieceID.GetComponent<Smelter>();
+                WMRecipeCust.WLog.LogWarning("Piece Smelter");
+                // var smelt = PieceID.GetComponent<Smelter>();
+
+                fuelItemData fuelItemData = new fuelItemData
+                {
+                    name = smelt.m_fuelItem.name,
+                   // ItemNameShared = smelt.m_fuelItem.m_itemData.m_shared.m_name,
+                };
+
+                List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
+                foreach (var Item in smelt.m_conversion)
+                {
+                    SmelterConversionList smell = new SmelterConversionList();
+                    smell.FromName = Item.m_from.name;
+                    smell.ToName = Item.m_to.name;
+                    smelterConversionList.Add(smell);
+                }
+
+
                 SmelterData smelterData = new SmelterData
                 {
                      smelterName = smelt.name,
                      addOreTooltip = smelt.m_addOreTooltip,
                      emptyOreTooltip = smelt.m_emptyOreTooltip,
-                     addFuelSwitch = smelt.m_addOreSwitch,
-                     addOreSwitch = smelt.m_addOreSwitch,
-                     emptyOreSwitch = smelt.m_emptyOreSwitch,
-                     fuelItem = smelt.m_fuelItem,
+                     //addFuelSwitch = smelt.m_addWoodSwitch,
+                    // addOreSwitch = smelt.m_addOreSwitch,
+                     //emptyOreSwitch = smelt.m_emptyOreSwitch,
+                     //fuelItem = smelt.m_fuelItem,
+                     fuelItem = fuelItemData,
                      maxOre = smelt.m_maxOre,
                      maxFuel = smelt.m_maxFuel,
                      fuelPerProduct = smelt.m_fuelPerProduct,
@@ -398,7 +421,7 @@ namespace wackydatabase.GetData
                      spawnStack = smelt.m_spawnStack,
                      requiresRoof = smelt.m_requiresRoof,
                      addOreAnimationLength = smelt.m_addOreAnimationDuration,
-                     smelterConversion = smelt.m_conversion,
+                     smelterConversion = smelterConversionList,
                 };
                 data.smelterData = smelterData;
             }

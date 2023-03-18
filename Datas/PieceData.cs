@@ -24,8 +24,7 @@ namespace wackydatabase.Datas
         public int? amount;
         public bool? disabled;
         public bool? adminonly;
-        public List<string>? reqs = new List<string>();
-
+        
         public ComfortData? comfort;
 
         //Placement
@@ -43,11 +42,11 @@ namespace wackydatabase.Datas
 
         public CraftingStationData? craftingStationData;
 
-        public CSExtension? cSExtension;
+        public CSExtensionData? cSExtensionData;
 
         public SmelterData? smelterData;
 
-
+        public List<string>? reqs = new List<string>();
 
     }
     public class ComfortData
@@ -85,7 +84,7 @@ namespace wackydatabase.Datas
         public int? useAnimation;
 
     }
-    public class CSExtension
+    public class CSExtensionData
     {
         //Station Extension
         public CraftingStation? stationExtensionCraftingStation;
@@ -103,11 +102,12 @@ namespace wackydatabase.Datas
         public string? addOreTooltip;
         public string? emptyOreTooltip;
 
-        public Switch? addFuelSwitch;
-        public Switch? addOreSwitch;
-        public Switch? emptyOreSwitch;
+       // public Switch? addFuelSwitch;
+       // public Switch? addOreSwitch;
+       // public Switch? emptyOreSwitch;
 
-        public ItemDrop? fuelItem;
+        public fuelItemData? fuelItem;
+
         public int? maxOre;
         public int? maxFuel;
         public int? fuelPerProduct;
@@ -115,8 +115,23 @@ namespace wackydatabase.Datas
         public bool? spawnStack;
         public bool? requiresRoof;
         public float? addOreAnimationLength;
-        public List<Smelter.ItemConversion>? smelterConversion;
+
+        public List<SmelterConversionList>? smelterConversion;
     }
 
+    public class fuelItemData
+    {
+        public string? name;
+        //public string? ItemNameShared;
+    }
+
+    public class SmelterConversionList
+    {
+        public string? FromName;
+        //public string? FromSharedName;
+        public string? ToName;
+       // public string? ToSharedName;
+
+    }
 
 }

@@ -552,43 +552,6 @@ namespace wackydatabase.SetData
             {
                 WMRecipeCust.Dbgl($"Disabling Piece {data.name}");
                 go.GetComponent<Piece>().m_enabled = false;
-                /*
-
-                WMRecipeCust.Dbgl($"Removing recipe for {data.name} from some PieceStation, you need to reload session to get this piece back- including admins");
-                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
-                bool keyExists = false;
-                try
-                {
-                    // keyExists = AdminPiecesOnly.ContainsKey(go); // make sure it only gets set once
-                }
-                catch { keyExists = false; } // bad wacky
-                                             // Dbgl($"Check 0");
-                if (piecehammer == null)
-                {
-                    if (WMRecipeCust.selectedPiecehammer == null)
-                    {
-                        //Dbgl($"Check 1");
-                        piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
-                        piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
-                        //if (data.adminonly && !keyExists) 
-                        //  AdminPiecesOnly.Add(go, piecehammer);
-                    }
-                    else
-                    {
-                        //Dbgl($"Check 2");
-                        WMRecipeCust.selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
-                        GameObject temp2 = WMRecipeCust.selectedPiecehammer.gameObject;
-                        //if (data.adminonly && !keyExists)
-                        //AdminPiecesOnly.Add(go, temp2);
-                    }
-                }
-                else
-                {
-                    piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
-                                                                                                                 // if (data.adminonly && !keyExists)
-                                                                                                                 //   AdminPiecesOnly.Add(go, piecehammer);
-                }
-                */
             }else
             {
                 go.GetComponent<Piece>().m_enabled = true;
@@ -627,14 +590,170 @@ namespace wackydatabase.SetData
             {
                 WMRecipeCust.pieceWithLvl.Add(go.name + "." + data.minStationLevel);
             }
-            List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-            foreach (string req in data.reqs)
-            {
-                string[] parts = req.Split(':');
-                reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
-            }
-            go.GetComponent<Piece>().m_resources = reqs.ToArray();
 
+            if (data.reqs != null)
+            {
+                List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+                foreach (string req in data.reqs)
+                {
+                    string[] parts = req.Split(':');
+                    reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                }
+                go.GetComponent<Piece>().m_resources = reqs.ToArray();
+            }
+            var pi = go.GetComponent<Piece>();
+
+            //name = PieceID.name, // required
+            // piecehammer = Hammername, // required
+            //amount = 1,
+            //craftingStation = piece.m_craftingStation?.m_name ?? "",
+            //minStationLevel = 1,
+            //adminonly = false,
+            pi.m_name = data.name ?? pi.m_name;
+            pi.m_description = data.m_description ?? pi.m_description;
+            // piecehammerCategory = piece.m_category.ToString(),
+            if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
+            {
+                Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
+                go.transform.GetChild(0).localScale = NewScale;
+            }
+            bool usecustom = false;
+            if (!DataHelpers.ECheck(data.customIcon))
+            {
+                var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.customIcon);
+                var nullcheck = File.ReadAllBytes(pathI);
+                if (nullcheck != null)
+                {
+                    try
+                    {
+
+                        var Spri = SpriteTools.LoadNewSprite(pathI);
+                        pi.m_icon = Spri;
+                        usecustom = true;
+
+                    }
+                    catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                }
+                else
+                {
+                    WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
+                }
+            }
+            //clonePrefabName = null,
+            // material = null,
+            // damagedMaterial = null,
+            //disabled = !piece.enabled,
+            //cloneEffects
+            pi.m_groundPiece = data.groundPiece ?? pi.m_groundPiece;
+            pi.m_groundOnly = data.ground ?? pi.m_groundOnly;
+            pi.m_waterPiece = data.waterPiece ?? pi.m_waterPiece;
+            pi.m_noInWater = data.noInWater ?? pi.m_noInWater;
+            pi.m_notOnFloor = data.notOnFloor ?? pi.m_notOnFloor;
+            pi.m_onlyInTeleportArea = data.onlyinTeleportArea ?? pi.m_onlyInTeleportArea; 
+            pi.m_allowedInDungeons = data.allowedInDungeons ?? pi.m_allowedInDungeons;
+            pi.m_canBeRemoved = data.canBeRemoved ?? pi.m_canBeRemoved;
+
+            if (data.comfort != null)
+            {
+                pi.m_comfort = data.comfort.confort ?? pi.m_comfort;
+                pi.m_comfortGroup = data.comfort.confortGroup ?? pi.m_comfortGroup;
+                pi.m_comfortObject = data.comfort.comfortObject ?? pi.m_comfortObject;
+            }
+
+            if (data.wearNTearData != null)
+            {
+                go.TryGetComponent<WearNTear>(out var wear);
+                wear.m_health = data.wearNTearData.health ?? wear.m_health;
+                if (!string.IsNullOrEmpty(data.wearNTearData.damageModifiers.ToString()))
+                {
+                    wear.m_damages = data.wearNTearData.damageModifiers;
+                }
+
+                wear.m_noRoofWear = data.wearNTearData.noRoofWear ?? wear.m_noRoofWear;
+                wear.m_noSupportWear = data.wearNTearData.noSupportWear ?? wear.m_noSupportWear;
+                wear.m_supports = data.wearNTearData.supports ?? wear.m_supports;
+                wear.m_triggerPrivateArea = data.wearNTearData.triggerPrivateArea ?? wear.m_triggerPrivateArea; 
+             }
+
+
+            if (data.craftingStationData != null)
+            {
+                go.TryGetComponent<CraftingStation>(out var station);
+
+                station.m_name = data.craftingStationData.cStationName ?? station.m_name;
+                // station.m_icon = data.customIcon ?? station.m_icon;
+                station.m_discoverRange = data.craftingStationData.discoveryRange ?? station.m_discoverRange;
+                station.m_rangeBuild = data.craftingStationData.buildRange ?? station.m_rangeBuild;
+                station.m_craftRequireRoof = data.craftingStationData.craftRequiresRoof ?? station.m_craftRequireRoof;
+                station.m_craftRequireFire = data.craftingStationData.craftRequiresFire ?? station.m_craftRequireFire;
+                station.m_showBasicRecipies = data.craftingStationData.showBasicRecipes ?? station.m_showBasicRecipies;
+                station.m_useDistance = data.craftingStationData.useDistance ?? station.m_useDistance;
+                station.m_useAnimation = data.craftingStationData.useAnimation ?? station.m_useAnimation;
+
+
+            }
+            if (data.cSExtensionData != null)
+            {
+                go.TryGetComponent<StationExtension>(out var ex);
+
+                ex.m_craftingStation = data.cSExtensionData.stationExtensionCraftingStation ?? ex.m_craftingStation;
+                ex.m_maxStationDistance = data.cSExtensionData.maxStationDistance ?? ex.m_maxStationDistance;
+                ex.m_continousConnection = data.cSExtensionData.continousConnection ?? ex.m_continousConnection;
+                ex.m_stack = data.cSExtensionData.stack ?? ex.m_stack;
+
+            }
+
+            if (data.smelterData != null)
+            {
+                go.TryGetComponent<Smelter>(out var smelt);
+                smelt.name = data.smelterData.smelterName ?? smelt.name;
+                smelt.m_addOreTooltip = data.smelterData.addOreTooltip ?? smelt.m_addOreTooltip;
+                smelt.m_emptyOreTooltip = data.smelterData.emptyOreTooltip ?? smelt.m_emptyOreTooltip;
+                // smelt.m_addOreSwitch = data.smelterData.addOreSwitch ?? smelt.m_addOreSwitch;
+                //smelt.m_addWoodSwitch = data.smelterData.addFuelSwitch ?? smelt.m_addWoodSwitch;
+                // smelt.m_emptyOreSwitch = data.smelterData.emptyOreSwitch  ?? smelt?.m_emptyOreSwitch;
+
+                if (data.smelterData.fuelItem.name != null)
+                {
+                    smelt.m_fuelItem.name = data.smelterData.fuelItem.name;
+                    smelt.m_fuelItem.m_itemData = Instant.GetItemPrefab(data.smelterData.fuelItem.name).GetComponent<ItemDrop.ItemData>();
+                }
+
+                smelt.m_maxOre = data.smelterData.maxOre ?? smelt.m_maxOre;
+                smelt.m_maxFuel = data.smelterData.maxFuel ?? smelt.m_maxFuel;
+                smelt.m_fuelPerProduct = data.smelterData.fuelPerProduct ?? smelt.m_fuelPerProduct;
+                smelt.m_secPerProduct = data.smelterData.secPerProduct ?? smelt.m_secPerProduct;
+                smelt.m_spawnStack = data.smelterData.spawnStack?? smelt.m_spawnStack;
+                smelt.m_requiresRoof = data.smelterData.requiresRoof ?? smelt.m_requiresRoof;
+                smelt.m_addOreAnimationDuration = data.smelterData.addOreAnimationLength ?? smelt.m_addOreAnimationDuration;
+
+                if (data.smelterData.smelterConversion != null)
+                {
+                    smelt.m_conversion.Clear();
+                    
+                    foreach (var list in data.smelterData.smelterConversion)
+                    {
+                        Smelter.ItemConversion paul = new Smelter.ItemConversion();
+
+                        if (list != null)
+                        {
+                            if (list.FromName != null)
+                            {
+                                paul.m_from.name =list.FromName;
+                                paul.m_from.m_itemData = Instant.GetItemPrefab(list.FromName).GetComponent<ItemDrop.ItemData>();
+                            }
+
+
+                            if (list.ToName != null)
+                            {
+                                paul.m_to.name = list.ToName;
+                                paul.m_to.m_itemData = Instant.GetItemPrefab(list.ToName).GetComponent<ItemDrop.ItemData>();
+                            }
+                        }
+                        smelt.m_conversion.Add(paul);
+                    }
+                }
+            }
         }
 
 
@@ -675,7 +794,7 @@ namespace wackydatabase.SetData
                 return;
             }
 
-
+            
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
                 if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
@@ -976,7 +1095,7 @@ namespace wackydatabase.SetData
 
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability ?? PrimaryItemData.m_shared.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain ?? PrimaryItemData.m_shared.m_useDurabilityDrain;
-                    WMRecipeCust.WLog.LogWarning($"use Durabilty is " + data.m_useDurability); // test temp
+                   // WMRecipeCust.WLog.LogWarning($"use Durabilty is " + data.m_useDurability); // test temp
                     PrimaryItemData.m_shared.m_durabilityDrain = data.m_durabilityDrain ?? PrimaryItemData.m_shared.m_durabilityDrain;
                     PrimaryItemData.m_shared.m_maxDurability = data.m_maxDurability ?? PrimaryItemData.m_shared.m_maxDurability;
                     PrimaryItemData.m_shared.m_durabilityPerLevel = data.m_durabilityPerLevel ?? PrimaryItemData.m_shared.m_durabilityPerLevel;
