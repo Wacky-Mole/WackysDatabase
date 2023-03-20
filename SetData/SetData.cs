@@ -596,8 +596,10 @@ namespace wackydatabase.SetData
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
                 foreach (string req in data.reqs)
                 {
+                    WMRecipeCust.Dbgl(req);
                     string[] parts = req.Split(':');
                     reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                    WMRecipeCust.Dbgl(reqs.Last().ToString() ) ;
                 }
                 go.GetComponent<Piece>().m_resources = reqs.ToArray();
             }
@@ -609,7 +611,7 @@ namespace wackydatabase.SetData
             //craftingStation = piece.m_craftingStation?.m_name ?? "",
             //minStationLevel = 1,
             //adminonly = false,
-            pi.m_name = data.name ?? pi.m_name;
+            pi.m_name = data.m_name ?? pi.m_name;
             pi.m_description = data.m_description ?? pi.m_description;
             // piecehammerCategory = piece.m_category.ToString(),
             if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
@@ -680,7 +682,7 @@ namespace wackydatabase.SetData
             {
                 go.TryGetComponent<CraftingStation>(out var station);
 
-                station.m_name = data.craftingStationData.cStationName ?? station.m_name;
+                //station.name = data.craftingStationData.cStationName ?? station.m_name;
                 // station.m_icon = data.customIcon ?? station.m_icon;
                 station.m_discoverRange = data.craftingStationData.discoveryRange ?? station.m_discoverRange;
                 station.m_rangeBuild = data.craftingStationData.buildRange ?? station.m_rangeBuild;
@@ -696,7 +698,8 @@ namespace wackydatabase.SetData
             {
                 go.TryGetComponent<StationExtension>(out var ex);
 
-                ex.m_craftingStation = data.cSExtensionData.stationExtensionCraftingStation ?? ex.m_craftingStation;
+                //ex.m_craftingStation.name = data.cSExtensionData.MainCraftingStationName ?? ex.m_craftingStation.name;
+                ex.m_craftingStation = Instant.GetItemPrefab(data.cSExtensionData.MainCraftingStationName).GetComponent<CraftingStation>() ?? ex.m_craftingStation;
                 ex.m_maxStationDistance = data.cSExtensionData.maxStationDistance ?? ex.m_maxStationDistance;
                 ex.m_continousConnection = data.cSExtensionData.continousConnection ?? ex.m_continousConnection;
                 ex.m_stack = data.cSExtensionData.stack ?? ex.m_stack;
@@ -729,11 +732,12 @@ namespace wackydatabase.SetData
 
                 if (data.smelterData.smelterConversion != null)
                 {
-                    smelt.m_conversion.Clear();
-                    
+                    //smelt.m_conversion.Clear();
+                    var num = 0;
+                    var count = smelt.m_conversion.Count() - 1;
                     foreach (var list in data.smelterData.smelterConversion)
                     {
-                        Smelter.ItemConversion paul = new Smelter.ItemConversion();
+                        Smelter.ItemConversion paul = smelt.m_conversion[0]; // has to have 1 set before 
 
                         if (list != null)
                         {
@@ -750,7 +754,17 @@ namespace wackydatabase.SetData
                                 paul.m_to.m_itemData = Instant.GetItemPrefab(list.ToName).GetComponent<ItemDrop.ItemData>();
                             }
                         }
-                        smelt.m_conversion.Add(paul);
+
+                        if (num > count)
+                        {
+                            smelt.m_conversion.Add(paul);
+                        }
+                        else
+                        {
+                            smelt.m_conversion[num] = paul;
+                        }
+                            
+                        num++;
                     }
                 }
             }

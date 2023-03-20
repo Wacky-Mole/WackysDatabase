@@ -73,7 +73,7 @@ namespace wackydatabase.Datas
     public class CraftingStationData {
 
         //CraftingStation
-        public string? cStationName;
+        //public string? cStationName;
         public string? cStationCustionIcon;
         public float? discoveryRange;
         public float? buildRange;
@@ -87,7 +87,7 @@ namespace wackydatabase.Datas
     public class CSExtensionData
     {
         //Station Extension
-        public CraftingStation? stationExtensionCraftingStation;
+        public string? MainCraftingStationName;
         public float? maxStationDistance;
         public bool? continousConnection;
         public bool? stack;
@@ -122,15 +122,12 @@ namespace wackydatabase.Datas
     public class fuelItemData
     {
         public string? name;
-        //public string? ItemNameShared;
     }
 
     public class SmelterConversionList
     {
         public string? FromName;
-        //public string? FromSharedName;
         public string? ToName;
-       // public string? ToSharedName;
 
     }
 

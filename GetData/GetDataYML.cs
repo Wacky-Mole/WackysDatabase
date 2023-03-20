@@ -6,6 +6,8 @@ using BepInEx.Bootstrap;
 using System.Reflection;
 using static ItemSets;
 using System.Collections.Generic;
+using System;
+using wackydatabase.Util;
 
 namespace wackydatabase.GetData
 {
@@ -178,32 +180,50 @@ namespace wackydatabase.GetData
             return data;
         }
 
+
         internal StatusData GetStatusEByName(string name, ObjectDB tod)
         {
-           return GetStatusData(tod.GetStatusEffect(name));
+            // WMRecipeCust.NoNotTheseSEs
+            SEdata stats = new SEdata() ;//= (SEdata)ScriptableObject.CreateInstance<SE_Stats>();
+            var eff= tod.GetStatusEffect(name);
+            //stats = Ob.Cast<SEdata>(eff);
+
+
+            return GetStatusData(tod.GetStatusEffect(name), stats);
         }
         internal StatusData GetStatusEByNum(int num, ObjectDB tod)
         {
+
+            // SE_Stats stats = new SE_Stats();
+
             var count = tod.m_StatusEffects.Count();
             if (num == count)
             {
                 return null;
             }
             StatusData John = null;
-             try { John = GetStatusData(tod.m_StatusEffects[num]); } catch
+             try {
+                SEdata stats2;
+                var eff2 = tod.m_StatusEffects[num];
+                stats2 = eff2;
+                //stats2 = Ob.Cast<SEdata>(eff2);
+                //stats2 = eff2 as SEdata;
+
+                John = GetStatusData(tod.m_StatusEffects[num], stats2); 
+            } catch
             {
-                WMRecipeCust.WLog.LogWarning("Something went wrong with a Status Effect ");
+                WMRecipeCust.WLog.LogWarning($"Something went wrong with a Status Effect {tod.m_StatusEffects[num].name}");
             }
             return John;
         }
-        private StatusData GetStatusData(StatusEffect effect)
+        private StatusData GetStatusData(StatusEffect effect, SEdata stats)
         {
 
             //effect.m_icon = effect.m_icon.name;
             //effect.
 
-            
-            StatusData statusData =  new StatusData
+
+            StatusData statusData = new StatusData
             {
 
 
@@ -217,16 +237,17 @@ namespace wackydatabase.GetData
                 Attributes = effect.m_attributes,
                 StartMessageLoc = effect.m_startMessageType,
                 StartMessage = effect.m_startMessage ?? "",
-                StopMessageLoc = effect.m_stopMessageType, 
+                StopMessageLoc = effect.m_stopMessageType,
                 StopMessage = effect.m_stopMessage ?? "",
                 RepeatMessageLoc = effect.m_repeatMessageType,
                 RepeatMessage = effect.m_repeatMessage ?? "",
                 RepeatInterval = effect.m_repeatInterval,
-                TimeToLive = effect.m_ttl ,
+                TimeToLive = effect.m_ttl,
                 StartEffect = effect.m_startEffects,
                 StopEffect = effect.m_stopEffects,
                 Cooldown = effect.m_cooldown,
                 ActivationAnimation = effect.m_activationAnimation ?? "",
+                SeData = stats,
 
 
             }; 
@@ -355,7 +376,7 @@ namespace wackydatabase.GetData
                 //var station = PieceID.GetComponent<CraftingStation>();
                 CraftingStationData craftingStationData = new CraftingStationData
                 {
-                    cStationName = station.name,
+                    //cStationName = station.name,
                  cStationCustionIcon = null,
                  discoveryRange = station.m_discoverRange,
                  buildRange = station.m_rangeBuild,
@@ -374,7 +395,7 @@ namespace wackydatabase.GetData
                 //var ex = PieceID.GetComponent<StationExtension>();
                 CSExtensionData cSExtension = new CSExtensionData
                 {
-                     stationExtensionCraftingStation = ex.m_craftingStation,
+                     MainCraftingStationName = ex.m_craftingStation.name,
                      maxStationDistance = ex.m_maxStationDistance,
                      continousConnection = ex.m_continousConnection,
                      stack = ex.m_stack,

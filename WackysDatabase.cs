@@ -130,6 +130,7 @@ namespace wackydatabase
         Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
+        public static List<string> NoNotTheseSEs= new List<string>() { };
 
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;
