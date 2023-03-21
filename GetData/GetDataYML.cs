@@ -205,6 +205,13 @@ namespace wackydatabase.GetData
              try {
                 SEdata stats2;
                 var eff2 = tod.m_StatusEffects[num];
+                FieldInfo fld = typeof(StatusEffect).GetField("m_tickInterval");
+                var pete = fld.GetValue(eff2);
+                fld.SetValue(eff2, pete); // interesting
+
+
+                ///var eff4 = tod.Instantiate(eff2);
+               // var eff3 = I
                 stats2 = eff2;
                 //stats2 = Ob.Cast<SEdata>(eff2);
                 //stats2 = eff2 as SEdata;

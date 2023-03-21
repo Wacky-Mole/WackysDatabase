@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +41,8 @@ namespace wackydatabase.Datas
         public float? Cooldown;
         public string? ActivationAnimation;
         public SEdata? SeData;
+        public FieldInfo? fld = typeof(StatusEffect).GetField("m_tickInterval");
+        public float? m_tickInterval;
 
     }
 
