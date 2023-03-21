@@ -130,7 +130,7 @@ namespace wackydatabase
         Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
-        public static List<string> NoNotTheseSEs= new List<string>() { };
+        public static List<string> NoNotTheseSEs= new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
 
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;

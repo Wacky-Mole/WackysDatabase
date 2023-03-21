@@ -23,6 +23,7 @@ namespace wackydatabase.Datas
         public string? Name;
         public string? m_Name;
         public string? Category;
+        public string? IconName;
         public string? CustomIcon;
         public bool? FlashIcon;
         public bool? CooldownIcon;
@@ -36,13 +37,12 @@ namespace wackydatabase.Datas
         public string? RepeatMessage;
         public float? RepeatInterval;
         public float? TimeToLive;
-        public EffectList? StartEffect;
-        public EffectList? StopEffect;
+        public List<string>? StartEffect;
+        public List<string>? StopEffect;
         public float? Cooldown;
         public string? ActivationAnimation;
         public SEdata? SeData;
-        public FieldInfo? fld = typeof(StatusEffect).GetField("m_tickInterval");
-        public float? m_tickInterval;
+        //public FieldInfo? fld = typeof(StatusEffect).GetField("m_tickInterval").GetValue;
 
     }
 
@@ -61,7 +61,7 @@ namespace wackydatabase.Datas
 
         public float? m_healthOverTimeDuration;
 
-        public float? m_healthOverTimeInterval = 5f;
+        public float? m_healthOverTimeInterval;
 
         //[Header("Stamina")]
         public float? m_staminaOverTime;
@@ -80,11 +80,11 @@ namespace wackydatabase.Datas
         public float? m_eitrOverTimeDuration;
 
         //[Header("Regen modifiers")]
-        public float? m_healthRegenMultiplier = 1f;
+        public float? m_healthRegenMultiplier;
 
-        public float? m_staminaRegenMultiplier = 1f;
+        public float? m_staminaRegenMultiplier;
 
-        public float? m_eitrRegenMultiplier = 1f;
+        public float? m_eitrRegenMultiplier ;
 
        // [Header("Modify raise skill")]
         public Skills.SkillType? m_raiseSkill;
@@ -106,7 +106,7 @@ namespace wackydatabase.Datas
         //[Header("Attack")]
         public Skills.SkillType? m_modifyAttackSkill;
 
-        public float? m_damageModifier = 1f;
+        public float? m_damageModifier;
 
         //[Header("Sneak")]
         public float? m_noiseModifier;

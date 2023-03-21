@@ -184,12 +184,12 @@ namespace wackydatabase.GetData
         internal StatusData GetStatusEByName(string name, ObjectDB tod)
         {
             // WMRecipeCust.NoNotTheseSEs
-            SEdata stats = new SEdata() ;//= (SEdata)ScriptableObject.CreateInstance<SE_Stats>();
-            var eff= tod.GetStatusEffect(name);
+           // SEdata stats = new SEdata() ;//= (SEdata)ScriptableObject.CreateInstance<SE_Stats>();
+            //var eff= tod.GetStatusEffect(name);
             //stats = Ob.Cast<SEdata>(eff);
 
 
-            return GetStatusData(tod.GetStatusEffect(name), stats);
+            return GetStatusData(tod.GetStatusEffect(name));
         }
         internal StatusData GetStatusEByNum(int num, ObjectDB tod)
         {
@@ -201,43 +201,93 @@ namespace wackydatabase.GetData
             {
                 return null;
             }
+            var nam = tod.m_StatusEffects[num].name;
+            foreach (var list in WMRecipeCust.NoNotTheseSEs)
+            {
+                if (nam == list)
+                    return null;
+            }
             StatusData John = null;
-             try {
-                SEdata stats2;
-                var eff2 = tod.m_StatusEffects[num];
-                FieldInfo fld = typeof(StatusEffect).GetField("m_tickInterval");
-                var pete = fld.GetValue(eff2);
-                fld.SetValue(eff2, pete); // interesting
+            try {
 
 
-                ///var eff4 = tod.Instantiate(eff2);
-               // var eff3 = I
-                stats2 = eff2;
-                //stats2 = Ob.Cast<SEdata>(eff2);
-                //stats2 = eff2 as SEdata;
-
-                John = GetStatusData(tod.m_StatusEffects[num], stats2); 
+                John = GetStatusData(tod.m_StatusEffects[num]); 
             } catch
             {
                 WMRecipeCust.WLog.LogWarning($"Something went wrong with a Status Effect {tod.m_StatusEffects[num].name}");
             }
             return John;
         }
-        private StatusData GetStatusData(StatusEffect effect, SEdata stats)
+
+
+
+        private StatusData GetStatusData(StatusEffect effect)
         {
 
             //effect.m_icon = effect.m_icon.name;
-            //effect.
+            var f2 = effect.GetType();
+            WMRecipeCust.WLog.LogInfo("             StatusEffect " + effect.name);
 
+            SEdata stats = new SEdata
+            {
+                //m_tickInterval = f2.GetField("m_tickInterval", BindingFlags.Instance | BindingFlags.Public)?.GetValue(effect)
+                m_tickInterval = Functions.getCast<float>(f2, "m_tickInterval", effect),
+                m_healthPerTickMinHealthPercentage = Functions.getCast<float>(f2, "m_healthPerTickMinHealthPercentage", effect),
+                m_healthPerTick = Functions.getCast<float>(f2, "m_healthPerTick", effect),
+                m_healthOverTime = Functions.getCast<float>(f2, "m_healthOverTime", effect),
+                m_healthOverTimeDuration = Functions.getCast<float>(f2, "m_healthOverTimeDuration", effect),
+                m_healthOverTimeInterval = Functions.getCast<float>(f2, "m_healthOverTimeInterval", effect),
+                m_staminaOverTime = Functions.getCast<float>(f2, "m_staminaOverTime", effect),
+                m_staminaOverTimeDuration = Functions.getCast<float>(f2, "m_staminaOverTimeDuration", effect),
+                m_staminaDrainPerSec = Functions.getCast<float>(f2, "m_staminaDrainPerSec", effect),
+                m_runStaminaDrainModifier = Functions.getCast<float>(f2, "m_runStaminaDrainModifier", effect),
+                m_jumpStaminaUseModifier = Functions.getCast<float>(f2, "m_jumpStaminaUseModifier", effect),
+                m_eitrOverTime = Functions.getCast<float>(f2, "m_eitrOverTime", effect),
+                m_eitrOverTimeDuration = Functions.getCast<float>(f2, "m_eitrOverTimeDuration", effect),
+                m_healthRegenMultiplier = Functions.getCast<float>(f2, "m_healthRegenMultiplier", effect),
+                m_staminaRegenMultiplier = Functions.getCast<float>(f2, "m_staminaRegenMultiplier", effect),
+                m_eitrRegenMultiplier = Functions.getCast<float>(f2, "m_eitrRegenMultiplier", effect),
+                m_raiseSkill = Functions.getCast<Skills.SkillType>(f2, "m_raiseSkill", effect),
+                m_raiseSkillModifier = Functions.getCast<float>(f2, "m_raiseSkillModifier", effect),
+                m_skillLevel = Functions.getCast<Skills.SkillType>(f2, "m_skillLevel", effect),
+                m_skillLevelModifier = Functions.getCast<float>(f2, "m_skillLevelModifier", effect),
+                m_skillLevel2 = Functions.getCast<Skills.SkillType>(f2, "m_skillLevel2", effect),
+                m_skillLevelModifier2 = Functions.getCast<float>(f2, "m_skillLevelModifier2", effect),
+                m_mods = Functions.getCast<HitData.DamageModPair>(f2, "m_mods", effect),
+                m_modifyAttackSkill = Functions.getCast<Skills.SkillType>(f2, "m_modifyAttackSkill", effect),
+                m_damageModifier = Functions.getCast<float>(f2, "m_damageModifier",effect),
+                m_noiseModifier = Functions.getCast<float>(f2, "m_noiseModifier", effect),
+                m_stealthModifier = Functions.getCast<float>(f2, "m_stealthModifier", effect),
+                m_addMaxCarryWeight = Functions.getCast<float>(f2, "m_addMaxCarryWeight", effect),
+                m_speedModifier = Functions.getCast<float>(f2, "m_speedModifier", effect),
+                m_maxMaxFallSpeed = Functions.getCast<float>(f2, "m_maxMaxFallSpeed", effect),
+                m_fallDamageModifier = Functions.getCast<float>(f2, "m_fallDamageModifier", effect),
+                m_tickTimer = Functions.getCast<float>(f2, "m_tickTimer", effect),
+                m_healthOverTimeTimer = Functions.getCast<float>(f2, "m_healthOverTimeTimer", effect),
+                m_healthOverTimeTicks =Functions.getCast<float>(f2, "m_healthOverTimeTicks", effect),
+                m_healthOverTimeTickHP = Functions.getCast<float>(f2, "m_healthOverTimeTickHP", effect),
+
+            };
+
+            List<string> StartEeffect = new List<string>();
+            foreach (var som in effect.m_startEffects.m_effectPrefabs)
+            {
+                StartEeffect.Add(som.m_prefab.name);
+            }
+            List<string> StopEeffect = new List<string>();
+            foreach (var som in effect.m_stopEffects.m_effectPrefabs)
+            {
+                StopEeffect.Add(som.m_prefab.name);
+            }
 
             StatusData statusData = new StatusData
             {
 
-
                 Name = effect.name ?? "",
                 m_Name = effect.m_name ?? "",
-                Category = effect.m_category ?? "",
-                CustomIcon = effect.m_icon.name ?? "",
+                Category = effect.m_category ?? null,
+                IconName = effect.m_icon.name ?? "",
+                //CustomIcon = effect.m_icon.name ?? "",
                 FlashIcon = effect.m_flashIcon,
                 CooldownIcon = effect.m_cooldownIcon,
                 Tooltip = effect.m_tooltip ?? "",
@@ -250,41 +300,14 @@ namespace wackydatabase.GetData
                 RepeatMessage = effect.m_repeatMessage ?? "",
                 RepeatInterval = effect.m_repeatInterval,
                 TimeToLive = effect.m_ttl,
-                StartEffect = effect.m_startEffects,
-                StopEffect = effect.m_stopEffects,
+                StartEffect = StartEeffect,
+                StopEffect = StopEeffect,
                 Cooldown = effect.m_cooldown,
                 ActivationAnimation = effect.m_activationAnimation ?? "",
                 SeData = stats,
-
-
             }; 
-            /*
 
-            effect = statusData;
-            
-            var data = ScriptableObject.CreateInstance<StatusEffect>();
 
-            data.Name = effect.name;
-            data.m_Name = effect.m_name;
-            data.Category = effect.m_category;
-            data.CustomIcon = effect.m_icon.name;
-            data.FlashIcon = effect.m_flashIcon;
-            data.CooldownIcon = effect.m_cooldownIcon;
-            data.Tooltip = effect.m_tooltip;
-            data.Attributes = effect.m_attributes;
-            data.StartMessageLoc = effect.m_startMessageType;
-            data.StartMessage = effect.m_startMessage;
-            data.StopMessageLoc = effect.m_stopMessageType;
-            data.StopMessage = effect.m_stopMessage;
-            data.RepeatMessageLoc = effect.m_repeatMessageType;
-            data.RepeatMessage = effect.m_repeatMessage;
-            data.RepeatInterval = effect.m_repeatInterval;
-            data.TimeToLive = effect.m_ttl;
-            data.StartEffect = effect.m_startEffects;
-            data.StopEffect = effect.m_stopEffects;
-            data.Cooldown = effect.m_cooldown;
-            data.ActivationAnimation = effect.m_activationAnimation;
-           */
 
             return statusData;
 

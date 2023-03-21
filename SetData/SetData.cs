@@ -54,6 +54,11 @@ namespace wackydatabase.SetData
             //go.m_stopEffects = data.StopEffect ?? go.m_stopEffects;
             go.m_cooldown = data.Cooldown ?? go.m_cooldown;
             go.m_activationAnimation = data.ActivationAnimation ?? go.m_activationAnimation;
+
+            Type type = go.GetType();
+
+            Functions.setValue(type,go, "m_addMaxCarryWeight", data.SeData.m_addMaxCarryWeight);
+
             
 
         }

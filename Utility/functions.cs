@@ -58,6 +58,90 @@ namespace wackydatabase.Util
     }
     public class Functions 
     {
+
+        internal static FieldInfo CompField(Type ClassTyp, string fieldname)
+        {
+            FieldInfo hello = ClassTyp.GetField(fieldname, BindingFlags.Instance | BindingFlags.Public);
+            if (hello == null)
+            {
+                return null;
+            }
+            return hello;
+        }
+
+        internal static dynamic getCast<T>(Type ClassTyp, string fieldname, StatusEffect effect)
+        {
+
+            var hello = CompField(ClassTyp, fieldname);
+
+            if (hello == null)
+                return null;
+
+            if (typeof(T) == typeof(int))
+            {
+                return (int)hello.GetValue(effect);
+            }
+            else if (typeof(T) == typeof(string))
+            {
+                return (string)hello.GetValue(effect);
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                return (double)hello.GetValue(effect);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                return (float)hello.GetValue(effect);
+            }
+            else if (typeof(T) == typeof(Skills.SkillType))
+            {
+                return (Skills.SkillType)hello.GetValue(effect);
+            }
+            else if (typeof(T) == typeof(List<HitData.DamageModPair>))
+            {
+                return (List<HitData.DamageModPair>)hello.GetValue(effect);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        internal static void setValue(Type type,object go, string name, float? value=null, int? value2 = null, string? value3 = null, List<HitData.DamageModPair>? value4 =null, Skills.SkillType? value5 = null)
+        {
+            var field = Functions.CompField(type, name);
+            if (field == null)
+                return;
+
+            if (value != null)
+            {
+                field.SetValue(go, value);
+                return;
+            }
+
+            if (value2 != null)
+            {
+                field.SetValue(go, value2);
+                return;
+            }        
+
+            if (value3 != null)
+            {
+                field.SetValue(go, value3);
+                return;
+            }          
+
+            if (value4 != null)
+            {
+                field.SetValue(go, value4);
+                return;
+            }
+                
+            if (value5 != null)
+                field.SetValue(go, value5);
+
+        }
+
+
         internal static string ComputeSha256Hash(string rawData)
         {
             // Create a SHA256   
