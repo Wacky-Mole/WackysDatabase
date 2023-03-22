@@ -35,9 +35,23 @@ namespace wackydatabase.SetData
             var go = Instant.GetStatusEffect(name);
             go.m_name = data.m_Name ?? go.m_name;
             go.m_category = data.Category ?? go.m_category;
-            if (data.CustomIcon != null)
+            if (!DataHelpers.ECheck(data.CustomIcon))
             {
-
+                var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.CustomIcon);
+                var nullcheck = File.ReadAllBytes(pathI);
+                if (nullcheck != null)
+                {
+                    try
+                    {
+                        var Spri = SpriteTools.LoadNewSprite(pathI);
+                        go.m_icon = Spri;
+                    }
+                    catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                }
+                else
+                {
+                    WMRecipeCust.WLog.LogInfo($"No Img with the name {data.CustomIcon} in Icon Folder - ");
+                }
             }
             go.m_flashIcon = data.FlashIcon ?? go.m_flashIcon;
             go.m_cooldownIcon = data.CooldownIcon ?? go.m_cooldownIcon;
@@ -57,7 +71,36 @@ namespace wackydatabase.SetData
 
             Type type = go.GetType();
 
-            Functions.setValue(type,go, "m_addMaxCarryWeight", data.SeData.m_addMaxCarryWeight);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_healthPerTickMinHealthPercentage", data.SeData.m_healthPerTickMinHealthPercentage);
+            Functions.setValue(type, go, "m_healthPerTick", data.SeData.m_healthPerTick);
+
+            Functions.setValue(type, go, "m_healthOverTime", data.SeData.m_healthOverTime);
+            Functions.setValue(type, go, "m_healthOverTimeDuration", data.SeData.m_healthOverTimeDuration);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+
+
+            //Functions.setValue(type,go, "m_addMaxCarryWeight", data.SeData.m_addMaxCarryWeight);
 
             
 

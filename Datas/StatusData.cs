@@ -11,11 +11,6 @@ using UnityEngine;
 namespace wackydatabase.Datas
 {
 
-
-
-
-
-
     [Serializable]
     [CanBeNull]
     public class StatusData 
