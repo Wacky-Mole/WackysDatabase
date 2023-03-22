@@ -64,10 +64,24 @@ namespace wackydatabase.SetData
             go.m_repeatMessageType = data.RepeatMessageLoc ?? go.m_repeatMessageType;
             go.m_repeatMessage = data.RepeatMessage ?? go.m_repeatMessage;
             go.m_ttl = data.TimeToLive ?? go.m_ttl;
+            if (data.StartEffect  != null)
+            {
+                var count = 0;
+                foreach ( var Seff in data.StartEffect)
+                {
+                    //EffectList.EffectData
+                       // Instant.GetPrefabHash
+                    //go.m_startEffects.m_effectPrefabs[count] = go. data.StartEffect[count];
+                        count++;
+                }
+                //go.m_startEffects.m_effectPrefabs.c
+            }
+
             //go.m_startEffects = data.StartEffect ?? go.m_startEffects;
             //go.m_stopEffects = data.StopEffect ?? go.m_stopEffects;
             go.m_cooldown = data.Cooldown ?? go.m_cooldown;
             go.m_activationAnimation = data.ActivationAnimation ?? go.m_activationAnimation;
+
 
             Type type = go.GetType();
 
@@ -77,33 +91,46 @@ namespace wackydatabase.SetData
 
             Functions.setValue(type, go, "m_healthOverTime", data.SeData.m_healthOverTime);
             Functions.setValue(type, go, "m_healthOverTimeDuration", data.SeData.m_healthOverTimeDuration);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
-            Functions.setValue(type, go, "m_tickInterval", data.SeData.m_tickInterval);
+            Functions.setValue(type, go, "m_healthOverTimeInterval", data.SeData.m_healthOverTimeInterval);
 
+            Functions.setValue(type, go, "m_staminaOverTime", data.SeData.m_staminaOverTime);
+            Functions.setValue(type, go, "m_staminaOverTimeDuration", data.SeData.m_staminaOverTimeDuration);
+            Functions.setValue(type, go, "m_staminaDrainPerSec", data.SeData.m_staminaDrainPerSec);
+            Functions.setValue(type, go, "m_runStaminaDrainModifier", data.SeData.m_runStaminaDrainModifier);
+            Functions.setValue(type, go, "m_jumpStaminaUseModifier", data.SeData.m_jumpStaminaUseModifier);
 
-            //Functions.setValue(type,go, "m_addMaxCarryWeight", data.SeData.m_addMaxCarryWeight);
+            Functions.setValue(type, go, "m_eitrOverTime", data.SeData.m_eitrOverTime);
+            Functions.setValue(type, go, "m_eitrOverTimeDuration", data.SeData.m_eitrOverTimeDuration);
+            Functions.setValue(type, go, "m_healthRegenMultiplier", data.SeData.m_healthRegenMultiplier);
+            Functions.setValue(type, go, "m_staminaRegenMultiplier", data.SeData.m_staminaRegenMultiplier);
+            Functions.setValue(type, go, "m_eitrRegenMultiplier", data.SeData.m_eitrRegenMultiplier);
 
-            
+            Functions.setValue(type, go, "m_raiseSkill", null,null, null, null,data.SeData.m_raiseSkill);
+            Functions.setValue(type, go, "m_raiseSkillModifier", data.SeData.m_raiseSkillModifier);
 
+            Functions.setValue(type, go, "m_skillLevel",null, null, null, null, data.SeData.m_skillLevel);
+            Functions.setValue(type, go, "m_skillLevelModifier", data.SeData.m_skillLevelModifier);
+            Functions.setValue(type, go, "m_skillLevel2", null, null, null, null,data.SeData.m_skillLevel2);
+            Functions.setValue(type, go, "m_skillLevelModifier2", data.SeData.m_skillLevelModifier2);
+
+            Functions.setValue(type, go, "m_mods", null, null, null,data.SeData.m_mods);
+
+            Functions.setValue(type, go, "m_modifyAttackSkill", null, null, null, null, data.SeData.m_modifyAttackSkill);
+            Functions.setValue(type, go, "m_damageModifier", data.SeData.m_damageModifier);
+
+            Functions.setValue(type, go, "m_noiseModifier", data.SeData.m_noiseModifier);
+            Functions.setValue(type, go, "m_stealthModifier", data.SeData.m_stealthModifier);
+
+            Functions.setValue(type, go, "m_addMaxCarryWeight", data.SeData.m_addMaxCarryWeight);
+
+            Functions.setValue(type, go, "m_speedModifier", data.SeData.m_speedModifier);
+
+            Functions.setValue(type, go, "m_maxMaxFallSpeed", data.SeData.m_maxMaxFallSpeed);
+            Functions.setValue(type, go, "m_fallDamageModifier", data.SeData.m_fallDamageModifier);
+            Functions.setValue(type, go, "m_tickTimer", data.SeData.m_tickTimer);
+            Functions.setValue(type, go, "m_healthOverTimeTimer", data.SeData.m_healthOverTimeTimer);
+            Functions.setValue(type, go, "m_healthOverTimeTicks", data.SeData.m_healthOverTimeTicks);
+            Functions.setValue(type, go, "m_healthOverTimeTickHP", data.SeData.m_healthOverTimeTickHP);
         }
 
         internal static void SetRecipeData(RecipeData data, ObjectDB Instant)
