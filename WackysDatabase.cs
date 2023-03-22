@@ -126,6 +126,7 @@ namespace wackydatabase
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
         public static Dictionary<string, Material> originalMaterials;
         public static Dictionary<string, GameObject> originalVFX;
+        public static Dictionary<string, int> RecipeMaxStationLvl;
 
         Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();

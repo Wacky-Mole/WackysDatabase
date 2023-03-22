@@ -144,15 +144,24 @@ namespace wackydatabase.SetData
             }
 
             string tempname = data.name;
-            if (data.clone) // both skip and
+            if (!string.IsNullOrEmpty(data.clonePrefabName)) // both skip and
             {
-                data.name = data.clonePrefabName;
+                if (data.clonePrefabName == "NO")
+                {
+                    data.clonePrefabName = null;
+                }
+                else
+                {
+                    data.name = data.clonePrefabName;
+                }
             }
 
             GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
                 go = Instant.GetItemPrefab(data.name);
 
+
+            Recipe ActualR = null;
             if (go == null)
             {
                 foreach (Recipe recipes in Instant.m_recipes)
@@ -160,85 +169,130 @@ namespace wackydatabase.SetData
                     if (!(recipes.m_item == null) && recipes.name == data.name)
                     {
                         WMRecipeCust.Dbgl($"An actual Recipe_ {data.name} has been found!-- Only modification allowed");
-                        if (data.disabled)
-                        {
-                            WMRecipeCust.Dbgl($"Disabling recipe for {data.name} from the game");
-                            //Instant.m_recipes.Remove(recipes);
-                            recipes.m_enabled = false;
-                            return;
-                        }
-                        recipes.m_enabled = true;
-                        recipes.m_amount = data.amount;
-                        recipes.m_minStationLevel = data.minStationLevel;
-                        recipes.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
-                        List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-                        // Dbgl("Made it to RecipeData!");
-                        foreach (string req in data.reqs)
-                        {
-                            string[] parts = req.Split(':');
-                            reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
-                        }
-                        //Dbgl("Amost done with RecipeData!");
-                        recipes.m_resources = reqs.ToArray();
-                        return;
-
+                        ActualR = recipes;
+                        break;
                     }
                 }
             }
-            if (go == null)
+
+
+            if (go == null && ActualR == null)
             {
                 WMRecipeCust.Dbgl("maybe null " + data.name + " Should not get here");
                 return;
             }
 
-            if (go.GetComponent<ItemDrop>() == null)
+            if (go.GetComponent<ItemDrop>() == null && ActualR == null)
             {
                 WMRecipeCust.Dbgl($"Item recipe data for {data.name} not found!");
                 return;
             } // it is a prefab and it is an item.
 
-            if (data.clone && !skip)
+
+            if (!data.disabled ?? true)
             {
-                if (!data.disabled)
+                Recipe RecipeR = null;
+                if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)// only first time clone
                 {
+
                     WMRecipeCust.Dbgl("Setting Cloned Recipe for " + tempname);
-                    Recipe clonerecipe = ScriptableObject.CreateInstance<Recipe>();
+                    RecipeR = ScriptableObject.CreateInstance<Recipe>();
                     WMRecipeCust.ClonedR.Add(tempname);
-
-                    clonerecipe.m_item = go.GetComponent<ItemDrop>();
-                    clonerecipe.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
-                    clonerecipe.m_repairStation = DataHelpers.GetCraftingStation(data.craftingStation);
-                    clonerecipe.m_minStationLevel = data.minStationLevel;
-                    clonerecipe.m_amount = data.amount;
-                    clonerecipe.name = tempname; //maybe
-                                                 // clonerecipe.name = $"<color =#4f34eb>{tempname}</color>";
-                    List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-
-                    // Dbgl("Made it to RecipeData!");
-                    foreach (string req in data.reqs)
+                }
+                else if (skip)
+                {
+                    WMRecipeCust.Dbgl("ReSetting Cloned Recipe for " + tempname);
+                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                     {
-                        if (!string.IsNullOrEmpty(req))
+                        if (Instant.m_recipes[i].name == tempname)
                         {
-                            string[] array = req.Split(':'); // safer vewrsion
-                            string itemname = array[0];
-                            if (Instant.GetItemPrefab(itemname))
-                            {
-                                int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
-                                int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
-                                bool recover = array.Length != 4 || bool.Parse(array[3]);
-                                Piece.Requirement item = new Piece.Requirement
-                                {
-                                    m_amount = amount,
-                                    m_recover = recover,
-                                    m_resItem = ObjectDB.instance.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
-                                    m_amountPerLevel = amountPerLevel
-                                };
-                                reqs.Add(item);
-                            }
+                            RecipeR = Instant.m_recipes[i];
+                            RecipeR.m_enabled = true;
+                            break;
                         }
-                    }// foreach
-                    int index = 0;
-                    clonerecipe.m_resources = reqs.ToArray();
+                    }
+                } else if (ActualR != null)
+                {
+                    RecipeR = ActualR;
+                    RecipeR.m_enabled=true;
+
+                }
+                else // in game recipe 
+                {
+                    WMRecipeCust.Dbgl("Setting Recipe for " + tempname);
+                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
+                    {
+                        if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                        {
+                            RecipeR = Instant.m_recipes[i];
+                            RecipeR.m_enabled = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (RecipeR == null)
+                {
+                    WMRecipeCust.Dbgl("Recipe failed inside of " + tempname);
+                    return;
+                }
+
+
+                RecipeR.m_item = go.GetComponent<ItemDrop>();
+
+                if (data.craftingStation != null) 
+                { // null is don't set, '' is only by hand
+                    RecipeR.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
+                }
+                if (data.repairStation != null)
+                {
+                    RecipeR.m_repairStation = DataHelpers.GetCraftingStation(data.repairStation);
+                }              
+                RecipeR.m_minStationLevel = data.minStationLevel ?? RecipeR.m_minStationLevel;
+                RecipeR.m_amount = data.amount ?? RecipeR.m_amount;
+                RecipeR.name = tempname;
+                if (data.maxStationLevelCap != null)
+                {
+                    if (WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeR.name))
+                    {
+                        WMRecipeCust.RecipeMaxStationLvl.Add(RecipeR.name, data.maxStationLevelCap ?? -1); // -1 no cap
+                    }
+                }
+                
+                List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+                
+
+
+                foreach (string req in data.reqs) 
+                {
+                    if (!string.IsNullOrEmpty(req))
+                    {
+                        string[] array = req.Split(':'); // safer vewrsion
+                        string itemname = array[0];
+                        if (Instant.GetItemPrefab(itemname))
+                        {
+                            int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
+                            int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+                            bool recover = array.Length != 4 || bool.Parse(array[3].ToLower());
+                            Piece.Requirement item = new Piece.Requirement
+                            {
+                                m_amount = amount,
+                                m_recover = recover,
+                                m_resItem = ObjectDB.instance.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
+                                m_amountPerLevel = amountPerLevel
+                            };
+                            reqs.Add(item);
+                        }
+                    }
+                }// foreach
+
+
+
+                int index = 0;
+                RecipeR.m_resources = reqs.ToArray();
+
+                if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // only first time clone
+                {
                     for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                     {
                         if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
@@ -247,69 +301,53 @@ namespace wackydatabase.SetData
                             break;
                         }
                     }
-                    Instant.m_recipes.Insert(index, clonerecipe);
-                    //Dbgl($"Recipe clone check {citem} against {data.name}");
-
-                    return;
-                }
-                else
-                {
-                    WMRecipeCust.Dbgl("Cloned Recipe is disabled for " + data.clonePrefabName + " Will not unload if already loaded");
-                    return;
+                    Instant.m_recipes.Insert(index, RecipeR);
                 }
 
+                return;
             }
-            else if (skip) // if a previous clone
+            else // disabled
             {
-                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
+                if (skip) // has been set before
                 {
-                    if (Instant.m_recipes[i].name == tempname)
+                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                     {
-
-                        WMRecipeCust.Dbgl("ReSetting Cloned Recipe for " + tempname);
-                        Recipe clonerecipe = ObjectDB.instance.m_recipes[i];
-                        clonerecipe.m_item = go.GetComponent<ItemDrop>();
-                        clonerecipe.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
-                        clonerecipe.m_repairStation = DataHelpers.GetCraftingStation(data.craftingStation);
-                        if (clonerecipe.m_craftingStation == null)
-                            WMRecipeCust.Dbgl("clone craftingStation set to null");
-                        clonerecipe.m_minStationLevel = data.minStationLevel;
-                        clonerecipe.m_amount = data.amount;
-                        clonerecipe.name = tempname; //maybe
-                                                     //clonerecipe.m_enabled = true;
-
-                        List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-
-                        // Dbgl("Made it to RecipeData!");  
-                        foreach (string req in data.reqs)
+                        if (Instant.m_recipes[i].name == tempname)
                         {
-                            if (!string.IsNullOrEmpty(req))
-                            {
-                                string[] array = req.Split(':'); // safer vewrsion
-                                string itemname = array[0];
-                                if (Instant.GetItemPrefab(itemname))
-                                {
-                                    int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
-                                    int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
-                                    bool recover = array.Length != 4 || bool.Parse(array[3]);
-                                    Piece.Requirement item = new Piece.Requirement
-                                    {
-                                        m_amount = amount,
-                                        m_recover = recover,
-                                        m_resItem = ObjectDB.instance.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
-                                        m_amountPerLevel = amountPerLevel
-                                    };
-                                    reqs.Add(item);
-                                }
-                            }
-                        }// foreach
-                        clonerecipe.m_resources = reqs.ToArray();
-                        return;
+                            Recipe clonerecipe = ObjectDB.instance.m_recipes[i];
+                            clonerecipe.m_enabled = false;
+                            WMRecipeCust.Dbgl("Cloned Recipe that was enabled before is disabled for " + tempname);
+                            break;
+                        }
                     }
-                }
 
-            }
-            else // ingame item
+                }
+                else if (!skip && !string.IsNullOrEmpty(data.clonePrefabName))
+                { // never added so need to disable
+                    WMRecipeCust.Dbgl("Cloned Recipe is disabled for " + tempname);
+                } 
+                else if (ActualR != null)
+                {
+                    ActualR.m_enabled = false;
+                    WMRecipeCust.Dbgl("Actual Recipe is disabled for " + ActualR.name);
+                }
+                else // normal in game
+                {
+                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
+                    {
+                        if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                        {
+                            Instant.m_recipes[i].m_enabled = false;
+                            WMRecipeCust.Dbgl("Recipe is disabled for " + tempname);
+
+
+                        }
+                    }
+                }                                 
+            }// end else
+
+            /*
+            else // ingame item that is not a clone
             {
                 for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                 {
@@ -330,18 +368,16 @@ namespace wackydatabase.SetData
                         Instant.m_recipes[i].m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
                         //ObjectDB.instance.m_recipes[i].m_repairStation = GetCraftingStation(data.craftingStation); dont mess with maybe? if null repairable by all?
                         List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-                        // Dbgl("Made it to RecipeData!");
                         foreach (string req in data.reqs)
                         {
                             string[] parts = req.Split(':');
                             reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
                         }
-                        //Dbgl("Amost done with RecipeData!");
                         Instant.m_recipes[i].m_resources = reqs.ToArray();
                         return;
                     } // end normal
                 } // checking recipes
-            }
+            } */
         }
 
         internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant)

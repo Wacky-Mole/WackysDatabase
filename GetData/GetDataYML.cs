@@ -25,19 +25,7 @@ namespace wackydatabase.GetData
                     if (!(recipes.m_item == null) && recipes.name == name)
                     {
                         WMRecipeCust.Dbgl($"An actual Recipe_ {name} has been found!-- Only Modification - No Cloning");
-                        var dataRec = new RecipeData()
-                        {
-                            name = name,
-                            amount = recipes.m_amount,
-                            craftingStation = recipes.m_craftingStation?.m_name ?? "",
-                            minStationLevel = recipes.m_minStationLevel,
-                        };
-                        foreach (Piece.Requirement req in recipes.m_resources)
-                        {
-                            dataRec.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
-                        }
-
-                        return dataRec;
+                        return GetRecip(recipes, tod, false);
                     }
                 }
             }
@@ -75,31 +63,42 @@ namespace wackydatabase.GetData
                 }
             }
 
-            var data = new RecipeData()
-            {
-                name = name,
-                amount = recipe.m_amount,
-                craftingStation = recipe.m_craftingStation?.m_name ?? "",
-                minStationLevel = recipe.m_minStationLevel,
-            };
-            foreach (Piece.Requirement req in recipe.m_resources)
-            {
-                data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
-            }
-
-            return data;
+            return GetRecip(recipe, tod);
         }
 
         internal  RecipeData GetRecipeDataByNum(int count, ObjectDB tod)
         {
             var rep = tod.m_recipes[count];
-            var dataRec = new RecipeData()
+            return GetRecip(rep, tod);
+
+        }
+
+        private RecipeData GetRecip(Recipe data, ObjectDB tod, bool AllowClone = true)
+        {
+            List<string> reqs2 = new List<string>();
+            foreach (Piece.Requirement req in data.m_resources)
             {
-                name = rep.name,
-                amount = rep.m_amount,
-                craftingStation = rep.m_craftingStation?.m_name ?? "",
-                minStationLevel = rep.m_minStationLevel,
+                reqs2.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
+            }
+            string cloneyesorno = null;
+            if (AllowClone)
+                cloneyesorno = "NO";
+
+            RecipeData dataRec = new RecipeData()
+            {
+                name = data.name,
+                amount = data.m_amount,
+                clonePrefabName =cloneyesorno,
+                craftingStation = data.m_craftingStation?.m_name ?? "",
+                repairStation = data.m_repairStation?.m_name ?? null, // maybe
+                minStationLevel = data.m_minStationLevel,
+                maxStationLevelCap = -1,
+                disabled = data.m_enabled,
+                reqs = reqs2,
+
             };
+
+
             return dataRec;
         }
 

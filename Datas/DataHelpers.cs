@@ -16,9 +16,9 @@ namespace wackydatabase.Datas
     public class DataHelpers 
     {
 
-        public static CraftingStation GetCraftingStation(string name)
+        public static CraftingStation GetCraftingStation(string name) // null is don't set, '' is only by hand
         {
-            if (name == "" || name == null)
+            if (name == "" || name == null )
                 return null;
 
             //Dbgl("Looking for crafting station " + name);

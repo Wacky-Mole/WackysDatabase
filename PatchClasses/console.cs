@@ -1,21 +1,14 @@
-﻿using System;
+﻿using HarmonyLib;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using HarmonyLib;
-using UnityEngine;
-using System.Threading.Tasks;
-using UnityEngine.SceneManagement;
 using System.IO;
-using System.Security.Cryptography;
+using System.Linq;
+using UnityEngine.SceneManagement;
 using wackydatabase.Datas;
-using wackydatabase.Util;
 using wackydatabase.GetData;
 using wackydatabase.Read;
-using YamlDotNet.Serialization;
+using wackydatabase.Util;
 using YamlDotNet.Core;
-using System.Threading;
-using YamlDotNet.RepresentationModel;
+using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.EventEmitters;
 
 namespace wackydatabase.PatchClasses
@@ -452,7 +445,6 @@ namespace wackydatabase.PatchClasses
                                     if (clone == null)
                                         return;
                                     clone.name = newname;
-                                    clone.clone = true;
                                     clone.clonePrefabName = prefab;
                                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
                                     file = "Recipe" + clone.name;
@@ -464,7 +456,6 @@ namespace wackydatabase.PatchClasses
                                     if (clone == null)
                                         return;
                                     clone.name = newname;
-                                    clone.clone = true;
                                     clone.clonePrefabName = prefab; // cloned item
                                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
                                     file = "Cloned Item " + clone.name + " Clone Recipe from " + prefabitem;
@@ -542,7 +533,6 @@ namespace wackydatabase.PatchClasses
                             if (clone == null)
                                 return;
                             clone.name = "R" + newname;
-                            clone.clone = true;
                             clone.clonePrefabName = itemclone.name; // cloned item
                             File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
 
