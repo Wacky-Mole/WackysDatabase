@@ -69,6 +69,9 @@ namespace wackydatabase.Read
             WMRecipeCust.recipeDatas.Clear();
             WMRecipeCust.ItemDatas.Clear();
             WMRecipeCust.PieceDatas.Clear();
+            WMRecipeCust.recipeDatasYml.Clear();
+            WMRecipeCust.itemDatasYml.Clear();
+            WMRecipeCust.pieceDatasYml.Clear();
             WMRecipeCust.armorDatas.Clear();
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
             WMRecipeCust.visualDatasYml.Clear();

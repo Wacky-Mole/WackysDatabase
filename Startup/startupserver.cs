@@ -102,8 +102,8 @@ namespace wackydatabase.Startup
                             var output = deslizer.Deserialize<RecipeData>(File.ReadAllText(file));
                             var yaml = serializer.Serialize(output);
 
-                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe" + output.name + ".yml"), yaml);
-                        File.Move(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Recipe" + output.name + ".json"));
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + output.name + ".yml"), yaml);
+                        File.Move(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Recipe_" + output.name + ".json"));
 
                         //File.WriteAllText(Path.Combine(WMRecipeCust.assetPathOldJsons, "Recipe_" + output.name + ".json"), file);
                         //  File.Delete(file);

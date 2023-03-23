@@ -135,7 +135,7 @@ namespace wackydatabase.SetData
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
                     }
-
+                    WMRecipeCust.WLog.LogInfo($" Set Effects Loaded");
                     // CLONE PASS FIRST - only for craftingStation
                     foreach (var data3 in WMRecipeCust.pieceDatasYml)
                     {

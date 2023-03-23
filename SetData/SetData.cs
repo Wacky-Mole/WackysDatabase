@@ -28,6 +28,8 @@ namespace wackydatabase.SetData
         public static Component[] renderfinder;
         internal static Renderer[] renderfinder2;
 
+
+        #region Effects
         internal static void SetStatusData (StatusData data, ObjectDB Instant)
         {
 
@@ -133,6 +135,16 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_healthOverTimeTickHP", data.SeData.m_healthOverTimeTickHP);
         }
 
+
+
+        #endregion
+
+
+
+
+
+
+        #region Recipe
         internal static void SetRecipeData(RecipeData data, ObjectDB Instant)
         {
             bool skip = false;
@@ -168,13 +180,12 @@ namespace wackydatabase.SetData
                 {
                     if (!(recipes.m_item == null) && recipes.name == data.name)
                     {
-                        WMRecipeCust.Dbgl($"An actual Recipe_ {data.name} has been found!-- Only modification allowed");
+                        //WMRecipeCust.Dbgl($"An actual {data.name} has been found!-- Only modification allowed");
                         ActualR = recipes;
                         break;
                     }
                 }
             }
-
 
             if (go == null && ActualR == null)
             {
@@ -182,16 +193,20 @@ namespace wackydatabase.SetData
                 return;
             }
 
-            if (go.GetComponent<ItemDrop>() == null && ActualR == null)
+            if (go != null)
             {
-                WMRecipeCust.Dbgl($"Item recipe data for {data.name} not found!");
-                return;
-            } // it is a prefab and it is an item.
+                if (go.GetComponent<ItemDrop>() == null)
+                {
+                    WMRecipeCust.Dbgl($"Item recipe data for {data.name} not found!");
+                    return;
+                } // it is a prefab and it is an item.
+            }
 
 
             if (!data.disabled ?? true)
             {
                 Recipe RecipeR = null;
+
                 if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)// only first time clone
                 {
 
@@ -211,11 +226,11 @@ namespace wackydatabase.SetData
                             break;
                         }
                     }
-                } else if (ActualR != null)
+                }else if (ActualR != null)
                 {
+                    WMRecipeCust.Dbgl($"An actual Recipe for {data.name}");
                     RecipeR = ActualR;
-                    RecipeR.m_enabled=true;
-
+                    RecipeR.m_enabled = true;
                 }
                 else // in game recipe 
                 {
@@ -237,8 +252,8 @@ namespace wackydatabase.SetData
                     return;
                 }
 
-
-                RecipeR.m_item = go.GetComponent<ItemDrop>();
+                if(ActualR == null)
+                    RecipeR.m_item = go.GetComponent<ItemDrop>();
 
                 if (data.craftingStation != null) 
                 { // null is don't set, '' is only by hand
@@ -379,6 +394,23 @@ namespace wackydatabase.SetData
                 } // checking recipes
             } */
         }
+
+
+
+
+        #endregion
+
+
+
+
+
+
+
+
+
+        #region Piece
+
+
 
         internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant)
         {
@@ -707,10 +739,10 @@ namespace wackydatabase.SetData
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
                 foreach (string req in data.reqs)
                 {
-                    WMRecipeCust.Dbgl(req);
+                   // WMRecipeCust.Dbgl(req);
                     string[] parts = req.Split(':');
-                    reqs.Add(new Piece.Requirement() { m_resItem = ObjectDB.instance.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
-                    WMRecipeCust.Dbgl(reqs.Last().ToString() ) ;
+                    reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                   // WMRecipeCust.Dbgl(reqs.Last().ToString() ) ;
                 }
                 go.GetComponent<Piece>().m_resources = reqs.ToArray();
             }
@@ -810,16 +842,17 @@ namespace wackydatabase.SetData
                 go.TryGetComponent<StationExtension>(out var ex);
 
                 //ex.m_craftingStation.name = data.cSExtensionData.MainCraftingStationName ?? ex.m_craftingStation.name;
-                ex.m_craftingStation = Instant.GetItemPrefab(data.cSExtensionData.MainCraftingStationName).GetComponent<CraftingStation>() ?? ex.m_craftingStation;
+                ex.m_craftingStation = DataHelpers.GetCraftingStation(data.cSExtensionData.MainCraftingStationName) ?? ex.m_craftingStation;
                 ex.m_maxStationDistance = data.cSExtensionData.maxStationDistance ?? ex.m_maxStationDistance;
                 ex.m_continousConnection = data.cSExtensionData.continousConnection ?? ex.m_continousConnection;
                 ex.m_stack = data.cSExtensionData.stack ?? ex.m_stack;
 
             }
 
-            if (data.smelterData != null)
+            Type type = go.GetType();
+            if (data.smelterData != null && go.TryGetComponent<Smelter>(out var smelt))
             {
-                go.TryGetComponent<Smelter>(out var smelt);
+                WMRecipeCust.WLog.LogInfo("       Setting Smelt");
                 smelt.name = data.smelterData.smelterName ?? smelt.name;
                 smelt.m_addOreTooltip = data.smelterData.addOreTooltip ?? smelt.m_addOreTooltip;
                 smelt.m_emptyOreTooltip = data.smelterData.emptyOreTooltip ?? smelt.m_emptyOreTooltip;
@@ -827,10 +860,9 @@ namespace wackydatabase.SetData
                 //smelt.m_addWoodSwitch = data.smelterData.addFuelSwitch ?? smelt.m_addWoodSwitch;
                 // smelt.m_emptyOreSwitch = data.smelterData.emptyOreSwitch  ?? smelt?.m_emptyOreSwitch;
 
-                if (data.smelterData.fuelItem.name != null)
+                if (data.smelterData.fuelItem != null)
                 {
-                    smelt.m_fuelItem.name = data.smelterData.fuelItem.name;
-                    smelt.m_fuelItem.m_itemData = Instant.GetItemPrefab(data.smelterData.fuelItem.name).GetComponent<ItemDrop.ItemData>();
+                   smelt.m_fuelItem = Instant.GetItemPrefab(data.smelterData.fuelItem.name).GetComponent<ItemDrop>();
                 }
 
                 smelt.m_maxOre = data.smelterData.maxOre ?? smelt.m_maxOre;
@@ -841,47 +873,44 @@ namespace wackydatabase.SetData
                 smelt.m_requiresRoof = data.smelterData.requiresRoof ?? smelt.m_requiresRoof;
                 smelt.m_addOreAnimationDuration = data.smelterData.addOreAnimationLength ?? smelt.m_addOreAnimationDuration;
 
+   
                 if (data.smelterData.smelterConversion != null)
                 {
-                    //smelt.m_conversion.Clear();
-                    var num = 0;
-                    var count = smelt.m_conversion.Count() - 1;
+                    smelt.m_conversion.Clear();
                     foreach (var list in data.smelterData.smelterConversion)
                     {
-                        Smelter.ItemConversion paul = smelt.m_conversion[0]; // has to have 1 set before 
+                        Smelter.ItemConversion paul = new Smelter.ItemConversion();
 
+                         //smelt.m_conversion[0].; // has to have 1 set before 
                         if (list != null)
                         {
                             if (list.FromName != null)
                             {
-                                paul.m_from.name =list.FromName;
-                                paul.m_from.m_itemData = Instant.GetItemPrefab(list.FromName).GetComponent<ItemDrop.ItemData>();
+                                //paul.m_from.name =list.FromName;
+                                paul.m_from = Instant.GetItemPrefab(list.FromName).GetComponent<ItemDrop>();
                             }
-
 
                             if (list.ToName != null)
                             {
-                                paul.m_to.name = list.ToName;
-                                paul.m_to.m_itemData = Instant.GetItemPrefab(list.ToName).GetComponent<ItemDrop.ItemData>();
+                                //paul.m_to.name = list.ToName;
+                                paul.m_to = Instant.GetItemPrefab(list.ToName).GetComponent<ItemDrop>();
                             }
                         }
-
-                        if (num > count)
-                        {
-                            smelt.m_conversion.Add(paul);
-                        }
-                        else
-                        {
-                            smelt.m_conversion[num] = paul;
-                        }
-                            
-                        num++;
+                        smelt.m_conversion.Add(paul);
                     }
                 }
             }
         }
 
 
+        #endregion
+
+
+
+
+
+
+        #region Items
         internal static void SetItemData(WItemData data, ObjectDB Instant)
         {
             // Dbgl("Loaded SetItemData!");
@@ -1060,7 +1089,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_damagesPerLevel = WeaponDamage.ParseDamageTypes(data.Damage);
                     }
 
-                    PrimaryItemData.m_shared.m_name  = data.m_name;
+                    PrimaryItemData.m_shared.m_name = data.m_name ?? PrimaryItemData.m_shared.m_name;
                     PrimaryItemData.m_shared.m_description = data.m_description ?? PrimaryItemData.m_shared.m_description;
                     PrimaryItemData.m_shared.m_weight = data.m_weight ?? PrimaryItemData.m_shared.m_weight;
                     PrimaryItemData.m_shared.m_scaleWeightByQuality = data.scale_weight_by_quality ?? PrimaryItemData.m_shared.m_scaleWeightByQuality;
@@ -1264,4 +1293,5 @@ namespace wackydatabase.SetData
 
         }
     }
+    #endregion
 }

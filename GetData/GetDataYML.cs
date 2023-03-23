@@ -81,8 +81,13 @@ namespace wackydatabase.GetData
                 reqs2.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
             }
             string cloneyesorno = null;
-            if (AllowClone)
+            var temp = data.name;
+            data.name = data.m_item.name; 
+            if (!AllowClone)
+            {
                 cloneyesorno = "NO";
+                data.name = temp;
+            }
 
             RecipeData dataRec = new RecipeData()
             {
@@ -92,8 +97,8 @@ namespace wackydatabase.GetData
                 craftingStation = data.m_craftingStation?.m_name ?? "",
                 repairStation = data.m_repairStation?.m_name ?? null, // maybe
                 minStationLevel = data.m_minStationLevel,
-                maxStationLevelCap = -1,
-                disabled = data.m_enabled,
+                maxStationLevelCap = null,
+                disabled = !data.m_enabled,
                 reqs = reqs2,
 
             };

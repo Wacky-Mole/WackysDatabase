@@ -219,6 +219,17 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+	<!--  <PropertyGroup>
+    <PostBuildEvent>
+      if $(ConfigurationName) == Release (
+      powershell Compress-Archive -Path '$(ProjectDir)Package\*' -DestinationPath '$(SolutionDir)PublishOutput\$(ProjectName).zip' -Force)
+      if $(ConfigurationName) == Debug del "$(TargetPath).mdb"
+      if $(ConfigurationName) == Debug $(SolutionDir)pdb2mdb.exe "$(TargetPath)"
+      xcopy "$(TargetDir)" "$(GameDir)\Bepinex\plugins\$(ProjectName)\" /q /s /y /i
+      xcopy "$(ProjectDir)README.md" "$(ProjectDir)Package\" /q /y /i
+    </PostBuildEvent>
+  </PropertyGroup>-->
+
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">

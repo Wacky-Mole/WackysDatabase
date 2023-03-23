@@ -24,14 +24,14 @@ namespace wackydatabase.PatchClasses
 
 
     [HarmonyPatch(typeof(Player), "PlacePiece")]
-     static class Player_MessageforPortal_Patch 
+    static class Player_MessageforPortal_Patch
     {
         private static Vector3 tempvalue;
 
         [HarmonyPrefix]
         private static bool Prefix(ref Player __instance, ref Piece piece)
 
-        { 
+        {
             if (piece == null) return true;
             foreach (var item in wackydatabase.WMRecipeCust.pieceWithLvl)
             {
@@ -68,5 +68,31 @@ namespace wackydatabase.PatchClasses
 
     }
 
+    [HarmonyPatch(typeof(Recipe), "GetRequiredStationLevel")]
+    static class RecipeStationPatch
+    {
+        private static void Postfix(ref int __result, CraftingStation ___m_craftingStation,  ItemDrop ___m_item)
+        {
+            /*
+            if (___recipe == null )
+                return;
+            if (___recipe.name == null)
+                return;
+
+            string name = ___recipe.name;
+            if (WMRecipeCust.RecipeMaxStationLvl.ContainsKey(name))
+            {
+                int level = WMRecipeCust.RecipeMaxStationLvl[name];
+                if (level == -1 || level == 0)
+                {
+                    return;
+                }else
+                {
+                    __result = Mathf.Min(__result, level);
+                }
+            }
+            */
+        }
+    }
 
 }
