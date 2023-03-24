@@ -340,6 +340,17 @@ namespace wackydatabase.PatchClasses
 
                     });
 
+                        Terminal.ConsoleCommand Wackysfx =
+                new("wackydb_sfx", "Create txt file of SFX",
+                    args =>
+                    {
+                        string theString2 = Functions.GetAllVFXFile();
+                        WMRecipeCust.CheckModFolder();
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "vfx.txt"), theString2);
+                        args.Context?.AddString($"saved data to VFX.txt");
+
+                    });
+
             Terminal.ConsoleCommand WackySE =
                 new("wackydb_se_all", "Get all SE effects in game and create your own",
                     args =>
@@ -381,6 +392,118 @@ namespace wackydatabase.PatchClasses
                         args.Context?.AddString($"saved all Status Effects to folder Effects");
 
                     });
+                    Terminal.ConsoleCommand WackyAllItems =
+                    new("wackydb_items_all", "Get all Items in game",
+                        args =>
+                        {
+                            if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
+                            {
+                                WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
+                                Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                            }
+                            var tod = ObjectDB.instance;
+                            var max = tod.m_items.Count();
+                            GetDataYML ItemCheck = new GetDataYML();
+                            int count = 0;
+
+                            var serializer = new SerializerBuilder()
+                                            .Build();
+                            // var deserialized = new DeserializerBuilder()
+                            //      .Build();
+
+                            while (count != max)
+                            {
+                                var temp = ItemCheck.GetItemDataByCount(count, tod);
+                                count++;
+                                if (temp == null)
+                                    continue;
+                                var part1 = serializer.Serialize(temp);
+
+
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Item_" + temp.name + ".yml"), part1);
+
+                            }
+                            args.Context?.AddString($"saved all Items in WackyBulk");
+
+                        });
+
+                        Terminal.ConsoleCommand WackyAllRecipes =
+                            new("wackydb_recipes_all", "Get all Recipes in game",
+                            args =>
+                            {
+                            if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
+                            {
+                                WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
+                                Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                            }
+                            var tod = ObjectDB.instance;
+                            var max = tod.m_recipes.Count();
+                            GetDataYML RecipeCheck = new GetDataYML();
+                            int count = 0;
+
+                            var serializer = new SerializerBuilder()
+                                            .Build();
+                            // var deserialized = new DeserializerBuilder()
+                            //      .Build();
+
+                            while (count != max)
+                            {
+                                var temp = RecipeCheck.GetRecipeDataByNum(count, tod);
+                                count++;
+                                if (temp == null)
+                                    continue;
+                                var part1 = serializer.Serialize(temp);
+
+
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Recipe_" + temp.name + ".yml"), part1);
+
+                            }
+                            args.Context?.AddString($"saved all Recipes in WackyBulk");
+
+                        });
+
+                        Terminal.ConsoleCommand WackyAllPieces =
+                            new("wackydb_pieces_all", "Get all Pieces in game by hammer",
+                            args =>
+                            {
+                                if (args.Length == 0)
+                                {
+                                    args.Context?.AddString("<color=lime>Enter a piece hammer</color> default hammer is Hammer");
+
+                                }
+                                string hammer = args[1];
+
+                                if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
+                                {
+                                    WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
+                                    Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                                }
+                                var tod = ObjectDB.instance;
+                                var max = tod.m_recipes.Count();
+                                GetDataYML PieceCheck = new GetDataYML();
+                                int count = 0;
+
+                                var serializer = new SerializerBuilder()
+                                                            .Build();
+                                // var deserialized = new DeserializerBuilder()
+                                //      .Build();
+
+                                while (count != max)
+                                {
+                                    var temp = PieceCheck.GetPieceRecipeByNum(count, hammer, tod);
+                                    count++;
+                                    if (temp == null)
+                                        continue;
+                                    var part1 = serializer.Serialize(temp);
+
+
+                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Piece_" + temp.name + ".yml"), part1);
+
+                                }
+                                args.Context?.AddString($"saved all Pieces from hammer {hammer} in WackyBulk");
+
+                            });
+
 
             Terminal.ConsoleCommand WackySEOne =
                 new("wackydb_se", "Get one SE effect by name",

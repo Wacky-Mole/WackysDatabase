@@ -319,17 +319,6 @@ namespace wackydatabase.GetData
 
         internal PieceData GetPieceRecipeByNum(int count, string hammer, ObjectDB tod, ItemDrop itemD = null)
         {
-            ItemDrop HamerItemdrop = null;
-            if (itemD == null)
-            {
-                HamerItemdrop = tod.GetItemPrefab(hammer).GetComponent<ItemDrop>();
-            }else
-            {
-                HamerItemdrop = itemD;
-            }
-
-
-            int PCount = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces.Count();
 
             GameObject pieceSel = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces[count];
             Piece actPiece = pieceSel.GetComponent<Piece>();
@@ -342,7 +331,8 @@ namespace wackydatabase.GetData
         {
 
             Piece piece = PieceID.GetComponent<Piece>();
-            WMRecipeCust.WLog.LogWarning("Piece start");
+            WMRecipeCust.WLog.LogInfo($"Piece {PieceID.name} in {Hammername}");
+            //WMRecipeCust.WLog.LogWarning("Piece start");
             var data = new PieceData()
             {
                 name = PieceID.name, // required
@@ -376,7 +366,7 @@ namespace wackydatabase.GetData
            
             if (piece.m_comfort != 0)
             {
-                WMRecipeCust.WLog.LogWarning("Piece Comfort");
+                //WMRecipeCust.WLog.LogWarning("Piece Comfort");
                 ComfortData comfort = new ComfortData
                 {
                     confort = piece.m_comfort,
@@ -389,7 +379,7 @@ namespace wackydatabase.GetData
             if (PieceID.TryGetComponent<WearNTear>(out var wear))
             {
                // var wear = PieceID.GetComponent<WearNTear>();
-                WMRecipeCust.WLog.LogWarning("Piece Wear");
+                //WMRecipeCust.WLog.LogWarning("Piece Wear");
                 WearNTearData wearNTearData = new WearNTearData
                 {
 
@@ -406,7 +396,7 @@ namespace wackydatabase.GetData
 
             if (PieceID.TryGetComponent<CraftingStation>(out var station))
             {
-                WMRecipeCust.WLog.LogWarning("Piece CraftingStation");
+                //WMRecipeCust.WLog.LogWarning("Piece CraftingStation");
                 //var station = PieceID.GetComponent<CraftingStation>();
                 CraftingStationData craftingStationData = new CraftingStationData
                 {
@@ -425,7 +415,7 @@ namespace wackydatabase.GetData
 
             if (PieceID.TryGetComponent<StationExtension>(out var ex))
             {
-                WMRecipeCust.WLog.LogWarning("Piece StationExtension");
+               // WMRecipeCust.WLog.LogWarning("Piece StationExtension");
                 //var ex = PieceID.GetComponent<StationExtension>();
                 CSExtensionData cSExtension = new CSExtensionData
                 {
@@ -440,7 +430,7 @@ namespace wackydatabase.GetData
 
             if (PieceID.TryGetComponent<Smelter>(out var smelt))
             {
-                WMRecipeCust.WLog.LogWarning("Piece Smelter");
+               // WMRecipeCust.WLog.LogWarning("Piece Smelter");
                 // var smelt = PieceID.GetComponent<Smelter>();
 
                 fuelItemData fuelItemData = new fuelItemData
