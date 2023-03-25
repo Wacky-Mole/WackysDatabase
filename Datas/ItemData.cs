@@ -95,6 +95,8 @@ namespace wackydatabase.Datas
 
         public List<string>? damageModifiers = new List<string>();
 
+        public GEffects? GEffects;
+
 
 #nullable disable
     }
@@ -146,9 +148,35 @@ namespace wackydatabase.Datas
         public float? Projectile_Vel;
         public float? Projectile_Accuraccy;
         public int? Projectiles;
+
+        public AEffects? AEffects;
+
     }
 
+
     [Serializable]
+    public class AEffects
+    {
+        public string[]? Hit_Effects;
+        //public string? Hit_Terrain_Effects;
+        //public string? Start_Effect;
+       // public string? Hold_Start_Effects;
+        //public string? Trigger_Effect;
+        //public string? Trail_Effect;
+        //public string? Burst_Effect;
+    }
+
+    public class GEffects
+    {
+        public string[]? Hit_Effects;
+       // public string? Hit_Terrain_Effects;
+        //public string? Start_Effect;
+       // public string? Hold_Start_Effects;
+        //public string? Trigger_Effect;
+        //public string? Trail_Effect;
+
+    }
+        [Serializable]
     public class FoodData
     {
         public float? m_foodHealth;

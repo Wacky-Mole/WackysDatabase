@@ -484,10 +484,13 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"Added prefab {name}");
                     }
                 }
-                CraftingStation craft2 = DataHelpers.GetCraftingStation(data.craftingStation);
-                newItem.GetComponent<Piece>().m_craftingStation = craft2; // sets crafing item place
+                if (data.craftingStation != null)
+                {
+                    CraftingStation craft2 = DataHelpers.GetCraftingStation(data.craftingStation);
+                    newItem.GetComponent<Piece>().m_craftingStation = craft2; // sets crafing item place
+                }
 
-                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
+                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer); // must be set
                 skip = true;
                 if (piecehammer == null)
                 {
@@ -605,8 +608,11 @@ namespace wackydatabase.SetData
                 //SnapshotPiece(go); // piece snapshot doesn't work without instancing
                 //SnapshotItem(null, go.GetComponent<Piece>());
             }
-            CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation);
-            go.GetComponent<Piece>().m_craftingStation = craft;
+            if (data.craftingStation != null)
+            {
+                CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation);
+                go.GetComponent<Piece>().m_craftingStation = craft;
+            }
 
             if (!skip)
             { // Cats // if just added cloned doesn't need to be category changed.
@@ -700,39 +706,34 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_enabled = true;
             }
             WMRecipeCust.Dbgl("Setting Piece data for " + data.name);
+
             if (!string.IsNullOrEmpty(data.m_name))
             {
                 go.GetComponent<Piece>().m_name = data.m_name;
-                go.GetComponent<Piece>().m_description = data.m_description;
+                go.GetComponent<Piece>().m_description = data.m_description ?? go.GetComponent<Piece>().m_description;
             }
-            CraftingStation currentStation = DataHelpers.GetCraftingStation(data.craftingStation);
-            CraftingStation checkifStation = null;
+
             bool CStationAdded = false;
-            if (!string.IsNullOrEmpty(data.clonePrefabName))
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && go.TryGetComponent<CraftingStation>(out var station3))
             {
-                string tempnam = null;
-                tempnam = go.GetComponent<CraftingStation>()?.m_name;
-                if (tempnam != null)
-                {
-                    checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
-                    if (checkifStation != null)
-                        CStationAdded = WMRecipeCust.NewCraftingStations.Contains(checkifStation);
-                }
+                CStationAdded = WMRecipeCust.NewCraftingStations.Contains(station3);       
             }
-            if (!string.IsNullOrEmpty(data.clonePrefabName) && checkifStation != null && !CStationAdded)
+
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && go.TryGetComponent<CraftingStation>(out var station2) && !CStationAdded)
             {
                 //go.GetComponent<Piece>().m_craftingStation = ""; dont change crafting station hopefully it is empty already
-                go.GetComponent<CraftingStation>().name = data.name;
-                go.GetComponent<CraftingStation>().m_name = data.m_name;
+                go.GetComponent<CraftingStation>().name = data.name; // must be set
+                go.GetComponent<CraftingStation>().m_name = data.m_name ?? go.GetComponent<CraftingStation>().m_name;
                 WMRecipeCust.NewCraftingStations.Add(go.GetComponent<CraftingStation>()); // keeping track of them is hard
 
                 WMRecipeCust.Dbgl($"  new CraftingStation named {data.name} ");
             }
-            go.GetComponent<Piece>().m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
+
             if (data.minStationLevel > 1)
             {
                 WMRecipeCust.pieceWithLvl.Add(go.name + "." + data.minStationLevel);
             }
+
 
             if (data.reqs != null)
             {
@@ -748,6 +749,7 @@ namespace wackydatabase.SetData
             }
             var pi = go.GetComponent<Piece>();
 
+            // commented out sections should already be set above. 
             //name = PieceID.name, // required
             // piecehammer = Hammername, // required
             //amount = 1,
@@ -826,7 +828,6 @@ namespace wackydatabase.SetData
                 go.TryGetComponent<CraftingStation>(out var station);
 
                 //station.name = data.craftingStationData.cStationName ?? station.m_name;
-                // station.m_icon = data.customIcon ?? station.m_icon;
                 station.m_discoverRange = data.craftingStationData.discoveryRange ?? station.m_discoverRange;
                 station.m_rangeBuild = data.craftingStationData.buildRange ?? station.m_rangeBuild;
                 station.m_craftRequireRoof = data.craftingStationData.craftRequiresRoof ?? station.m_craftRequireRoof;

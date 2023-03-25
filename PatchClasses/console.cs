@@ -328,6 +328,7 @@ namespace wackydatabase.PatchClasses
                         WMRecipeCust.CheckModFolder();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "Materials.txt"), theString);
                         args.Context?.AddString($"saved data to Materials.txt");
+                        WMRecipeCust.WLog.LogInfo($"saved data to Materials.txt");
 
                     });
 
@@ -339,19 +340,34 @@ namespace wackydatabase.PatchClasses
                         WMRecipeCust.CheckModFolder();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "vfx.txt"), theString2);
                         args.Context?.AddString($"saved data to VFX.txt");
+                        WMRecipeCust.WLog.LogInfo($"saved data to VFX.txt");
 
                     });
 
-                        Terminal.ConsoleCommand Wackysfx =
+             Terminal.ConsoleCommand Wackysfx =
                 new("wackydb_sfx", "Create txt file of SFX",
                     args =>
                     {
-                        string theString2 = Functions.GetAllVFXFile();
+                        string theString3 = Functions.GetAllSFXFile();
                         WMRecipeCust.CheckModFolder();
-                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "vfx.txt"), theString2);
-                        args.Context?.AddString($"saved data to VFX.txt");
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "sfx.txt"), theString3);
+                        args.Context?.AddString($"saved data to sfx.txt");
+                        WMRecipeCust.WLog.LogInfo($"saved data to sfx.txt");
 
                     });
+
+
+            Terminal.ConsoleCommand Wackyfx =
+               new("wackydb_fx", "Create txt file of FX - iffy",
+                   args =>
+                   {
+                       string theString4 = Functions.GetAllFXFile();
+                       WMRecipeCust.CheckModFolder();
+                       File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "FX.txt"), theString4);
+                       args.Context?.AddString($"saved data to FX.txt");
+                       WMRecipeCust.WLog.LogInfo($"saved data to FX.txt");
+
+                   });
 
             Terminal.ConsoleCommand WackySE =
                 new("wackydb_se_all", "Get all SE effects in game and create your own",

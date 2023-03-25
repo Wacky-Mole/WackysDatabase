@@ -528,6 +528,17 @@ namespace wackydatabase.GetData
 
         }
 
+        private string[] CheckEffectsArray(EffectList.EffectData[] tosh)
+        {
+            string[] temp = null;
+            if (tosh.Count() > 0 && tosh != null)
+            {
+                return tosh.Select(p => p.m_prefab.name).ToArray();
+            }
+            return temp;
+
+        }
+
         private WItemData GetItem(GameObject go, ObjectDB tod) {
             ItemDrop.ItemData data = go.GetComponent<ItemDrop>().m_itemData;
             if (data == null)
@@ -585,7 +596,29 @@ namespace wackydatabase.GetData
                 m_EitrRegen = data.m_shared.m_eitrRegenModifier,
             };
 
+            string[] Primary_hit_effects = null;
+            string[] Sec_hit_effects = null;
+            string[] General_hit_effects = null;
 
+
+
+            Primary_hit_effects = CheckEffectsArray(data.m_shared.m_attack?.m_hitEffect?.m_effectPrefabs);
+            General_hit_effects = CheckEffectsArray(data.m_shared.m_hitEffect?.m_effectPrefabs);
+            Sec_hit_effects = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_hitEffect?.m_effectPrefabs);
+
+            GEffects gEffects = new GEffects()
+            {
+                Hit_Effects = General_hit_effects ?? null,
+            };
+            AEffects aEffects = new AEffects()
+            {
+                Hit_Effects = Primary_hit_effects ?? null,
+            };
+
+            AEffects sEffects = new AEffects()
+            {
+                Hit_Effects = Sec_hit_effects ?? null,
+            };
 
             WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " Main ");
             WItemData ItemData = new WItemData
@@ -623,6 +656,7 @@ namespace wackydatabase.GetData
                 Damage_Per_Level = damagesPerLevel,
                 Moddifiers = StatModdifers,
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
+                GEffects = gEffects,
 
                 //damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 
@@ -697,6 +731,8 @@ namespace wackydatabase.GetData
                     Projectile_Vel = data.m_shared.m_attack.m_projectileVel,
                     Projectile_Accuraccy = data.m_shared.m_attack.m_projectileAccuracy,
                     Projectiles = data.m_shared.m_attack.m_projectiles,
+
+                    AEffects = aEffects,
                 };
 
                 AttackArm Secondary_Attack = new AttackArm
@@ -744,6 +780,8 @@ namespace wackydatabase.GetData
                     Projectile_Vel = data.m_shared.m_secondaryAttack.m_projectileVel,
                     Projectile_Accuraccy = data.m_shared.m_secondaryAttack.m_projectileAccuracy,
                     Projectiles = data.m_shared.m_secondaryAttack.m_projectiles,
+
+                    AEffects = sEffects,
                 };
                 ItemData.Primary_Attack = Primary_Attack;
                 ItemData.Secondary_Attack = Secondary_Attack;

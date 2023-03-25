@@ -10,10 +10,9 @@ Version 2.0
 3a- Custom Icons through png/jpeg - only on client side for now - Done
 4) modular on yml files. - Done
 5) support color and material changes on armor now. - Rexabit Done can be incorporated or separate 
-6) maybe vfx changes - going for it
-7) maybe set effects. - Done 
+6) VFX, SFX, FX - GET IT ALL - Done
+7) Set Effects. - Done 
 8) load slowly, so no lag on reload
-9) maybe sfx? - going for it
 10) cloned items show up on mainscreen, will need some sort of cache
 11) Add a ton more config options for everything - Done
 12) Catch up with wackydb 1.0 commits

@@ -200,6 +200,42 @@ namespace wackydatabase.Util
             return TheString;
         }
 
+        public static string GetAllSFXFile()
+        {
+
+            string TheString = "";
+
+            GameObject[] array4 = Resources.FindObjectsOfTypeAll<GameObject>();
+            WMRecipeCust.originalSFX = new Dictionary<string, GameObject>();
+            foreach (GameObject val2 in array4)
+            {
+                if (val2.name.Contains("sfx"))
+                {
+                    Dbgl($"SFX {val2.name}");
+                    TheString = TheString + val2.name + System.Environment.NewLine;
+                }
+            }
+            return TheString;
+        }
+
+        public static string GetAllFXFile()
+        {
+
+            string TheString = "";
+
+            GameObject[] array4 = Resources.FindObjectsOfTypeAll<GameObject>();
+            WMRecipeCust.originalFX = new Dictionary<string, GameObject>();
+            foreach (GameObject val2 in array4)
+            {
+                if (val2.name.StartsWith("fx_"))
+                {
+                    Dbgl($"FX {val2.name}");
+                    TheString = TheString + val2.name + System.Environment.NewLine;
+                }
+            }
+            return TheString;
+        }
+
         public static void Dbgl(string str = "", bool pref = true)
         {
             if (WMRecipeCust.isDebug.Value)
