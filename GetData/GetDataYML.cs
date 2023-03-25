@@ -69,7 +69,19 @@ namespace wackydatabase.GetData
         internal  RecipeData GetRecipeDataByNum(int count, ObjectDB tod)
         {
             var rep = tod.m_recipes[count];
-            return GetRecip(rep, tod);
+            WMRecipeCust.Dbgl($"Recipe {rep.name} Item saving");
+            
+            try
+            {
+                if (rep.name.Contains("Recipe_"))
+                {
+                    return GetRecip(rep, tod, false);
+                }
+
+                return GetRecip(rep, tod);
+            }
+            catch { WMRecipeCust.Dbgl($"      Saving Actual Recipe Instead"); }
+            return GetRecip(rep, tod, false);
 
         }
 
@@ -82,11 +94,15 @@ namespace wackydatabase.GetData
             }
             string cloneyesorno = null;
             var temp = data.name;
-            data.name = data.m_item.name; 
+             
+
             if (!AllowClone)
             {
                 cloneyesorno = "NO";
                 data.name = temp;
+            }else
+            {
+                data.name = data.m_item.name;
             }
 
             RecipeData dataRec = new RecipeData()
@@ -109,80 +125,6 @@ namespace wackydatabase.GetData
 
 
 
-
-
-        internal PieceData GetPieceRecipeByName(string name, ObjectDB tod, bool warn = true)
-        {
-            Piece piece = null;
-            WMRecipeCust.selectedPiecehammer = null; // makes sure doesn't use an old one. 
-            GameObject go = DataHelpers.GetPieces(tod).Find(g => Utils.GetPrefabName(g) == name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
-            if (go == null)
-            {
-                go = DataHelpers.GetModdedPieces(name); // known modded Hammer search
-                if (go == null)
-                {
-                    go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
-                    if (go == null) // 3th layer
-                    {
-                        WMRecipeCust.Dbgl($"Piece {name} not found! 3 layer search");
-                        return null;
-                    }
-                }
-                else // 2nd layer
-                    WMRecipeCust.Dbgl($"Piece {name} from known hammer {WMRecipeCust.selectedPiecehammer}");
-            }
-            piece = go.GetComponent<Piece>();
-            if (piece == null) // final check
-            {
-                WMRecipeCust.Dbgl("Piece data not found!");
-                return null;
-            }
-            string piecehammer = null;
-            if (WMRecipeCust.selectedPiecehammer != null)
-                piecehammer = WMRecipeCust.selectedPiecehammer.name;
-
-            if (piecehammer == null)
-                piecehammer = "Hammer"; // default
-
-            // these are kind of reduntant. // But are helpful for existing configs
-            ItemDrop hammer = tod.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
-            if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
-                piecehammer = "Hammer";
-
-            ItemDrop hoe = tod.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
-            if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
-                piecehammer = "Hoe";
-
-
-            WMRecipeCust.WLog.LogWarning("Hammer selector needs helkp! in getdata GetPieceRecipeByName");
-            return GetPiece(hammer, piecehammer, go, tod);
-            
-
-            string wackyname = "";
-            string wackydesc = "";
-            wackydesc = piece.m_description;
-            wackyname = piece.m_name;
-            string wackycatSring = piece.m_category.ToString();
-
-            var data = new PieceData()
-            {
-                name = name,
-                amount = 1,
-                craftingStation = piece.m_craftingStation?.m_name ?? "",
-                minStationLevel = 1,
-                piecehammer = piecehammer,
-                adminonly = false,
-                m_name = wackyname,
-                m_description = wackydesc,
-                piecehammerCategory = wackycatSring,
-            };
-            foreach (Piece.Requirement req in piece.m_resources)
-            {
-                data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
-            }
-
-            return data;
-        }
 
 
         internal StatusData GetStatusEByName(string name, ObjectDB tod)
@@ -317,17 +259,68 @@ namespace wackydatabase.GetData
 
         }
 
-        internal PieceData GetPieceRecipeByNum(int count, string hammer, ObjectDB tod, ItemDrop itemD = null)
+
+        internal PieceData GetPieceRecipeByName(string name, ObjectDB tod, bool warn = true)
         {
+            Piece piece = null;
+            WMRecipeCust.selectedPiecehammer = null; // makes sure doesn't use an old one. 
+            GameObject go = DataHelpers.GetPieces(tod).Find(g => Utils.GetPrefabName(g) == name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
+            if (go == null)
+            {
+                go = DataHelpers.GetModdedPieces(name); // known modded Hammer search
+                if (go == null)
+                {
+                    go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
+                    if (go == null) // 3th layer
+                    {
+                        WMRecipeCust.Dbgl($"Piece {name} not found! 3 layer search");
+                        return null;
+                    }
+                }
+                else // 2nd layer
+                    WMRecipeCust.Dbgl($"Piece {name} from known hammer {WMRecipeCust.selectedPiecehammer}");
+            }
+            piece = go.GetComponent<Piece>();
+            if (piece == null) // final check
+            {
+                WMRecipeCust.Dbgl("Piece data not found!");
+                return null;
+            }
+            string piecehammer = null;
+            if (WMRecipeCust.selectedPiecehammer != null)
+                piecehammer = WMRecipeCust.selectedPiecehammer.name;
 
-            GameObject pieceSel = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces[count];
-            Piece actPiece = pieceSel.GetComponent<Piece>();
+            if (piecehammer == null)
+                piecehammer = "Hammer"; // default
 
-            return GetPiece(HamerItemdrop, hammer, pieceSel, tod);
+            // these are kind of reduntant. // But are helpful for existing configs
+            ItemDrop hammer = tod.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
+            if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                piecehammer = "Hammer";
+
+            ItemDrop hoe = tod.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
+            if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                piecehammer = "Hoe";
+
+
+            WMRecipeCust.WLog.LogWarning("Hammer selector needs helkp! in getdata GetPieceRecipeByName");
+            return GetPiece(hammer, piecehammer, go, tod);
 
         }
 
-        private PieceData GetPiece (ItemDrop HammerID,string Hammername, GameObject PieceID, ObjectDB tod)
+        internal PieceData GetPieceRecipeByNum(int count, string hammername, ItemDrop HamerItemdrop, ObjectDB tod, ItemDrop itemD = null)
+        {
+            GameObject pieceSel = null;
+
+            pieceSel = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces[count];
+                //Piece actPiece = pieceSel.GetComponent<Piece>();
+
+
+            return GetPiece(HamerItemdrop, hammername, pieceSel, tod);
+
+        }
+
+        internal PieceData GetPiece (ItemDrop HammerID,string Hammername, GameObject PieceID, ObjectDB tod)
         {
 
             Piece piece = PieceID.GetComponent<Piece>();
@@ -430,45 +423,70 @@ namespace wackydatabase.GetData
 
             if (PieceID.TryGetComponent<Smelter>(out var smelt))
             {
-               // WMRecipeCust.WLog.LogWarning("Piece Smelter");
+                // WMRecipeCust.WLog.LogWarning("Piece Smelter");
                 // var smelt = PieceID.GetComponent<Smelter>();
-
-                fuelItemData fuelItemData = new fuelItemData
+                if (smelt.name == "charcoal_kiln" || smelt.name == "windmill" || smelt.name == "piece_spinningwheel")
                 {
-                    name = smelt.m_fuelItem.name,
-                   // ItemNameShared = smelt.m_fuelItem.m_itemData.m_shared.m_name,
-                };
 
-                List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
-                foreach (var Item in smelt.m_conversion)
-                {
-                    SmelterConversionList smell = new SmelterConversionList();
-                    smell.FromName = Item.m_from.name;
-                    smell.ToName = Item.m_to.name;
-                    smelterConversionList.Add(smell);
+                    List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
+                    foreach (var Item in smelt.m_conversion)
+                    {
+                        SmelterConversionList smell = new SmelterConversionList();
+                        smell.FromName = Item.m_from.name;
+                        smell.ToName = Item.m_to.name;
+                        smelterConversionList.Add(smell);
+                    }
+
+                    SmelterData smelterData2 = new SmelterData
+                    {
+                        smelterName = smelt.name,
+                        smelterConversion = smelterConversionList,
+                        emptyOreTooltip = smelt.m_emptyOreTooltip,
+                        addOreTooltip = smelt.m_addOreTooltip,
+                        maxOre = smelt.m_maxOre,
+                        secPerProduct = smelt.m_secPerProduct,
+                    };
+                    data.smelterData = smelterData2;
                 }
-
-
-                SmelterData smelterData = new SmelterData
+                else
                 {
-                     smelterName = smelt.name,
-                     addOreTooltip = smelt.m_addOreTooltip,
-                     emptyOreTooltip = smelt.m_emptyOreTooltip,
-                     //addFuelSwitch = smelt.m_addWoodSwitch,
-                    // addOreSwitch = smelt.m_addOreSwitch,
-                     //emptyOreSwitch = smelt.m_emptyOreSwitch,
-                     //fuelItem = smelt.m_fuelItem,
-                     fuelItem = fuelItemData,
-                     maxOre = smelt.m_maxOre,
-                     maxFuel = smelt.m_maxFuel,
-                     fuelPerProduct = smelt.m_fuelPerProduct,
-                     secPerProduct = smelt.m_secPerProduct,
-                     spawnStack = smelt.m_spawnStack,
-                     requiresRoof = smelt.m_requiresRoof,
-                     addOreAnimationLength = smelt.m_addOreAnimationDuration,
-                     smelterConversion = smelterConversionList,
-                };
-                data.smelterData = smelterData;
+                    fuelItemData fuelItemData = new fuelItemData
+                    {
+                        name = smelt.m_fuelItem.name,
+                        // ItemNameShared = smelt.m_fuelItem.m_itemData.m_shared.m_name,
+                    };
+
+                    List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
+                    foreach (var Item in smelt.m_conversion)
+                    {
+                        SmelterConversionList smell = new SmelterConversionList();
+                        smell.FromName = Item.m_from.name;
+                        smell.ToName = Item.m_to.name;
+                        smelterConversionList.Add(smell);
+                    }
+
+
+                    SmelterData smelterData = new SmelterData
+                    {
+                        smelterName = smelt.name,
+                        addOreTooltip = smelt.m_addOreTooltip,
+                        emptyOreTooltip = smelt.m_emptyOreTooltip,
+                        //addFuelSwitch = smelt.m_addWoodSwitch,
+                        // addOreSwitch = smelt.m_addOreSwitch,
+                        //emptyOreSwitch = smelt.m_emptyOreSwitch,
+                        //fuelItem = smelt.m_fuelItem,
+                        fuelItem = fuelItemData,
+                        maxOre = smelt.m_maxOre,
+                        maxFuel = smelt.m_maxFuel,
+                        fuelPerProduct = smelt.m_fuelPerProduct,
+                        secPerProduct = smelt.m_secPerProduct,
+                        spawnStack = smelt.m_spawnStack,
+                        requiresRoof = smelt.m_requiresRoof,
+                        addOreAnimationLength = smelt.m_addOreAnimationDuration,
+                        smelterConversion = smelterConversionList,
+                    };
+                    data.smelterData = smelterData;
+                }
             }
 
     

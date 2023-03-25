@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using ItemManager;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -390,10 +392,11 @@ namespace wackydatabase.PatchClasses
                             
                         }
                         args.Context?.AddString($"saved all Status Effects to folder Effects");
+                        WMRecipeCust.WLog.LogInfo($"saved all Status Effects to folder Effects");
 
                     });
                     Terminal.ConsoleCommand WackyAllItems =
-                    new("wackydb_items_all", "Get all Items in game",
+                    new("wackydb_all_items", "Get all Items in game",
                         args =>
                         {
                             if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
@@ -424,11 +427,12 @@ namespace wackydatabase.PatchClasses
 
                             }
                             args.Context?.AddString($"saved all Items in WackyBulk");
+                            WMRecipeCust.WLog.LogInfo($"saved all Items in WackyBulk");
 
                         });
 
-                        Terminal.ConsoleCommand WackyAllRecipes =
-                            new("wackydb_recipes_all", "Get all Recipes in game",
+                        Terminal.ConsoleCommand WackyAllRecipe =
+                            new("wackydb_all_recipes", "Get all Recipes in game",
                             args =>
                             {
                             if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
@@ -438,7 +442,8 @@ namespace wackydatabase.PatchClasses
                             }
                             var tod = ObjectDB.instance;
                             var max = tod.m_recipes.Count();
-                            GetDataYML RecipeCheck = new GetDataYML();
+                           // WMRecipeCust.WLog.LogWarning($"max is {max} with {tod.m_recipes[0].name}being first");
+                                GetDataYML RecipeCheck = new GetDataYML();
                             int count = 0;
 
                             var serializer = new SerializerBuilder()
@@ -458,49 +463,115 @@ namespace wackydatabase.PatchClasses
                                 File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Recipe_" + temp.name + ".yml"), part1);
 
                             }
+
                             args.Context?.AddString($"saved all Recipes in WackyBulk");
+                            WMRecipeCust.WLog.LogInfo("saved all Recipes in WackyBulk");
 
                         });
 
-                        Terminal.ConsoleCommand WackyAllPieces =
-                            new("wackydb_pieces_all", "Get all Pieces in game by hammer",
+                        Terminal.ConsoleCommand WackyAllPiece =
+                            new("wackydb_all_pieces", "Get all Pieces in game by hammer and optionally by category",
                             args =>
                             {
-                                if (args.Length == 0)
+                                if (args.Length-1 <1)
                                 {
                                     args.Context?.AddString("<color=lime>Enter a piece hammer</color> default hammer is Hammer");
 
                                 }
-                                string hammer = args[1];
-
-                                if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
+                                else
                                 {
-                                    WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
-                                    Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                                    string cat = null;
+                                    string hammer = args[1];
+                                    if (args.Length-1 ==2)
+                                         cat = args[2];
+
+                                    if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
+                                    {
+                                        WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
+                                        Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                                    }
+                                    var tod = ObjectDB.instance;
+                                    ItemDrop HamerItemdrop = null;
+                                    ItemDrop itemD = null;
+
+                                    try
+                                    {
+                                        HamerItemdrop = tod.GetItemPrefab(hammer).GetComponent<ItemDrop>();
+                                    }
+                                    catch { WMRecipeCust.WLog.LogWarning($"{hammer} not found"); return; }
+
+
+                                    int max = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces.Count();
+                                    WMRecipeCust.WLog.LogWarning($"Count is {max} for m__pieces");
+
+                                    if (cat != null)
+                                    {
+                                        List<Piece> PieceList = null;
+                                        try
+                                        {
+                                            Piece.PieceCategory james = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), cat);
+                                            WMRecipeCust.WLog.LogWarning($"Piece Hammer CAt");
+                                            max = HamerItemdrop.m_itemData.m_shared.m_buildPieces.GetAvailablePiecesInCategory(james);
+                                            HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_selectedCategory = james;
+                                            PieceList = HamerItemdrop.m_itemData.m_shared.m_buildPieces.GetPiecesInSelectedCategory();
+                                        }
+                                        catch { WMRecipeCust.WLog.LogWarning($"{cat} category was not parsed correclty"); cat = null; }
+
+                                        if (PieceList != null)
+                                        {
+                                            GetDataYML PieceCheck = new GetDataYML();
+                                            var serializer = new SerializerBuilder()
+                                                                    .Build();
+                                            foreach (var pie in PieceList)
+                                            {
+
+                                                var temp = PieceCheck.GetPiece(HamerItemdrop, hammer, pie.gameObject, tod);
+
+                                                if (temp == null)
+                                                    continue;
+
+                                                var part1 = serializer.Serialize(temp);
+                                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Piece_" + temp.name + ".yml"), part1);
+                                            }
+
+
+                                            args.Context?.AddString($"saved all Pieces from hammer {hammer} with category {cat} in WackyBulk");
+                                            WMRecipeCust.WLog.LogInfo($"saved all Pieces from hammer {hammer} with category {cat} in WackyBulk");
+                                        }
+                                        else
+                                        {
+                                            args.Context?.AddString($"Failure for category saving of pieces {hammer} in WackyBulk");
+                                            WMRecipeCust.WLog.LogWarning($"Failure for category saving of pieces {hammer} in WackyBulk");
+                                        }
+                                    }
+                                    else
+                                    {
+
+
+                                        GetDataYML PieceCheck = new GetDataYML();
+                                        int count = 0;
+
+                                        var serializer = new SerializerBuilder()
+                                                                    .Build();
+                                        // var deserialized = new DeserializerBuilder()
+                                        //      .Build();
+
+                                        while (count != max)
+                                        {
+                                            var temp = PieceCheck.GetPieceRecipeByNum(count, hammer, HamerItemdrop, tod, null);
+                                            count++;
+                                            if (temp == null)
+                                                continue;
+                                            var part1 = serializer.Serialize(temp);
+
+
+                                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Piece_" + temp.name + ".yml"), part1);
+
+                                        }
+                                        args.Context?.AddString($"saved all Pieces from hammer {hammer} in WackyBulk");
+                                        WMRecipeCust.WLog.LogInfo($"saved all Pieces from hammer {hammer} in WackyBulk");
+                                    }// end else
                                 }
-                                var tod = ObjectDB.instance;
-                                var max = tod.m_recipes.Count();
-                                GetDataYML PieceCheck = new GetDataYML();
-                                int count = 0;
-
-                                var serializer = new SerializerBuilder()
-                                                            .Build();
-                                // var deserialized = new DeserializerBuilder()
-                                //      .Build();
-
-                                while (count != max)
-                                {
-                                    var temp = PieceCheck.GetPieceRecipeByNum(count, hammer, tod);
-                                    count++;
-                                    if (temp == null)
-                                        continue;
-                                    var part1 = serializer.Serialize(temp);
-
-
-                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Piece_" + temp.name + ".yml"), part1);
-
-                                }
-                                args.Context?.AddString($"saved all Pieces from hammer {hammer} in WackyBulk");
 
                             });
 
@@ -528,6 +599,8 @@ namespace wackydatabase.PatchClasses
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" + temp.Name + ".yml"), serializer.Serialize(temp));
                                                     
                         args.Context?.AddString($"saved SE effect {name} to SE_{name}.yml in Effects folder");
+                        WMRecipeCust.WLog.LogInfo($"saved SE effect {name} to SE_{name}.yml in Effects folder");
+
 
                     });
 
