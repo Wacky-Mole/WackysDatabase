@@ -23,7 +23,9 @@ Fixing Converter would mean users has to load into game the way, jsons are loadi
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
-The short summary is OpenDatabase + ServerSync + Recipecustomization + Armor Customization + PieceLvlRequirements + some other small fields + item/piece/recipe cloning + material changing for cloned items/pieces + name changing for items/pieces(translating)
+The short summary Wackydatabase or Wackydb allows you do almost anything with items/pieces/recipes without coding. </br>
+From cloning to color changes, set effects and so much more <br />
+Even something as simple as language translating <br/>
 
 
 Features:
@@ -113,7 +115,7 @@ wackydb_material - saves a Materials.txt file in wackysDatabase for the differen
 
 </details>
 
-<details><summary>Item components</summary>
+<details><summary> Item components</summary>
 
 
 
@@ -167,7 +169,7 @@ The rest you can probably figure out.
 
 </details>
 
-<details><summary>Piece components</summary>
+<details><summary> Piece components</summary>
 
 <img src="https://wackymole.com/hosts/red%20walls.png" width="450"/>
 
@@ -189,7 +191,7 @@ cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Imag
 
 </details>
 
-<details><summary>Recipe  Components</summary>
+<details><summary> Recipe  Components</summary>
 
 
 <img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
@@ -210,7 +212,7 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 
 
-<details><summary> ## Pre 2.0 ChangeLog</summary>
+<details><summary> Pre 2.0 ChangeLog</summary>
 
         Version 1.2.5
             Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates.
