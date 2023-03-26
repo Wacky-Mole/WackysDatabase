@@ -49,15 +49,15 @@ Features:
 
 <details><summary> Installation</summary>
 
-    Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins )
+Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins )
 
-    Now run Valheim and join a world. After that go to Valheim/BepInEx/config/. There should be a folder called wackysDatabase, inside of that folder are currently three folders /Items/  /Recipes/ and /Pieces/. Old wackyDatabase was in plugins, this should automatically be moved.
+Now run Valheim and join a world. After that go to Valheim/BepInEx/config/. There should be a folder called wackysDatabase, inside of that folder are currently three folders /Items/  /Recipes/ and /Pieces/. Old wackyDatabase was in plugins, this should automatically be moved.
 
-    Put the mod on the Server to force Server Sync. The Jsons files only have to be on the Server. No need to share the Jsons. 
+Put the mod on the Server to force Server Sync. The Jsons files only have to be on the Server. No need to share the Jsons. 
 
-    For Multiplayer, the mod has been locked down to prevent easy cheating, but I recommend https://valheim.thunderstore.io/package/Azumatt/AzuAntiCheat/ and https://valheim.thunderstore.io/package/Smoothbrain/ServerCharacters/ as well.
+For Multiplayer, the mod has been locked down to prevent easy cheating, but I recommend https://valheim.thunderstore.io/package/Azumatt/AzuAntiCheat/ and https://valheim.thunderstore.io/package/Smoothbrain/ServerCharacters/ as well.
 
-    ## Warning 1.2.5 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.
+## Warning 1.2.5 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.
 </details> 
 
 ## Configuration file BepInEx/config/WackyMole.WackysDatabase.cfg
