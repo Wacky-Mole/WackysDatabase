@@ -57,8 +57,10 @@ Put the mod on the Server to force Server Sync. The Jsons files only have to be 
 
 For Multiplayer, the mod has been locked down to prevent easy cheating, but I recommend https://valheim.thunderstore.io/package/Azumatt/AzuAntiCheat/ and https://valheim.thunderstore.io/package/Smoothbrain/ServerCharacters/ as well.
 
-## Warning 1.2.5 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.
+
 </details> 
+
+<details><summary> Configuration cfg</summary>
 
 ## Configuration file BepInEx/config/WackyMole.WackysDatabase.cfg
 
@@ -74,8 +76,10 @@ StringisDebug = false  // debugs your strings.. extra logs
 
 IsAutoReload = false // auto reloads instead of wackydb_reload
 
+</details>
 
-## Console Commands
+<details><summary> Console Commands</summary>
+
 
 - You will need to reference https://valheim-modding.github.io/Jotunn/data/objects/item-list.html for Prefab names. Thank you JVL team
 - While in game press F5 to open the game console then type help for more informations. To enable console for valheim - launch options add "-console"
@@ -107,16 +111,10 @@ wackydb_vfx - future use
 
 wackydb_material - saves a Materials.txt file in wackysDatabase for the different types of materials you can use for cloned items/pieces.
 
+</details>
 
-## General Options:
--Don't use the '@' symbol. I use it to break strings apart. It will break everything.
+<details><summary> Item components</summary>
 
-```sh
-name: is GameObject name must be unique
-m_name: is the in game name - can be used for translating
-clone: whether an object is a clone or not - true/false
-clonePrefabName: if it is a clone, the object needs to reference the original prefab.
-```
 
 
 ## Item Options:
@@ -165,10 +163,12 @@ m_timedBlockBonus is the Parry bonus
 
 m_attackStamina set both Primary and Secondary attacks. Will expand upon in future.
 
-The rest you can probably figure out. 
+The rest you can probably figure out.
 
+</details>
 
-## Piece Options:
+<details><summary> ##Piece components</summary>
+
 <img src="https://wackymole.com/hosts/red%20walls.png" width="450"/>
 
 
@@ -187,8 +187,10 @@ cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Imag
 - Otherwise "material1", one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
 - Should work for any piece at full health, some pieces change textures and models at 3/4 and 1/2 health, this won't stop them from changing. Maybe in future.
 
+</details>
 
-## Recipe Options: 
+<details><summary> ## Recipe  components</summary>
+
 
 <img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
 
@@ -204,8 +206,18 @@ Arrows x50 will be put above Arrow x20
 
 reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
+</details>
 
-## Changelog
+<details><summary> ## 2.xx ChangeLog</summary>
+
+| Version | Changes                                                                                                                                                                                                                                                                                                                                |
+|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.0.0 | - Release 2.0 <br/>
+
+
+</details>
+
+<details><summary> ## Pre 2.0 ChangeLog</summary>
 
         Version 1.2.5
             Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates.
@@ -240,7 +252,9 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
             Mod Release
 
 
+</details>
 
+<details><summary> Last notes</summary>
 
 ## Last notes:
 
@@ -257,6 +271,10 @@ Bugs/Incompatible  Mods:
 
 (Note!: If you want json files to have default values, close the game and delete the wackysDatabase folder).
 
+</details>
+
+
+<details><summary>Full Features</summary>
 
 Planned features
 - [x] Able to modify item data.
@@ -268,6 +286,9 @@ Planned features
 - [ ] Able to modify effects - Probably won't happen without someone elses help. wackydb_vfx - generates vfx text file, but there are other effect objects. 
 Wackymole
 
+</details>
+
+<details><summary>Credits</summary>
 
 Credits:
 A Lot of the credit goes to  aedenthorn  and all of his Many Mods! https://github.com/aedenthorn/ValheimMods
@@ -277,3 +298,4 @@ A Lot of the credit goes to  aedenthorn  and all of his Many Mods! https://githu
 Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
 Thank you to Azumatt and Aedenthorn and the JVL team. 
+</details>
