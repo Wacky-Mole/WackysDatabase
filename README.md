@@ -24,8 +24,7 @@ Fixing Converter would mean users has to load into game the way, jsons are loadi
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
 The short summary Wackydatabase or Wackydb allows you do almost anything with items/pieces/recipes without coding. </br>
-From cloning to color changes, set effects and so much more <br />
-Even something as simple as language translating <br/>
+From cloning to color changes, set effects and even something as simple as language translating, as well as so much more <br />
 
 
 Features:
@@ -39,7 +38,7 @@ Features:
 
 <details><summary> General Knowledge </summary>
 
-    There are three (3) Objects that WackyDB touches. Items, Recipes, Pieces. 
+    There are three (4) Objects that WackyDB touches. Items, Recipes, Pieces, Item Effects
 
     Items are things in your inventory, you can pickup and maybe equip. 
 
@@ -47,15 +46,18 @@ Features:
 
     Pieces are what you use in your hammer and hoe to construct or plant. piecehammers
 
+    Item Effects - Can be set Effects or Indiviudal effects
+
 </details> 
 
 <details><summary> Installation</summary>
 
 Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins )
 
-Now run Valheim and join a world. After that go to Valheim/BepInEx/config/. There should be a folder called wackysDatabase, inside of that folder are currently three folders /Items/  /Recipes/ and /Pieces/. Old wackyDatabase was in plugins, this should automatically be moved.
+Now run Valheim and join a world. After that go to Valheim/BepInEx/config/. There should be a folder called wackysDatabase,</br>
+inside of that folder are currently three folders /Items/  /Recipes/ and /Pieces/
 
-Put the mod on the Server to force Server Sync. The Jsons files only have to be on the Server. No need to share the Jsons. 
+Put the mod on the Server to force Server Sync. The YML files only have to be on the Server. No need to share the YML. 
 
 For Multiplayer, the mod has been locked down to prevent easy cheating, but I recommend https://valheim.thunderstore.io/package/Azumatt/AzuAntiCheat/ and https://valheim.thunderstore.io/package/Smoothbrain/ServerCharacters/ as well.
 
@@ -115,6 +117,13 @@ wackydb_material - saves a Materials.txt file in wackysDatabase for the differen
 
 </details>
 
+<details><summary> YML Knowledge</summary>
+
+
+
+
+</details>
+
 <details><summary> Item components</summary>
 
 
@@ -145,7 +154,7 @@ Valid damage types include:
 
 Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
 
-    ##Water
+ 
     Normal - no change
     Resistant - increases Wet status countdown speed by 100%
     Weak - decreases Wet status countdown speed by 1/3
@@ -191,7 +200,7 @@ cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Imag
 
 </details>
 
-<details><summary> Recipe  Components</summary>
+<details><summary> Recipe Components</summary>
 
 
 <img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
@@ -210,6 +219,11 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 </details>
 
+<details><summary> Item Effect Components</summary>
+
+
+
+</details>
 
 
 <details><summary> Pre 2.0 ChangeLog</summary>
