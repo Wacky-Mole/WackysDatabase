@@ -113,7 +113,7 @@ wackydb_material - saves a Materials.txt file in wackysDatabase for the differen
 
 </details>
 
-<details><summary> Item components</summary>
+<details><summary>Item components</summary>
 
 
 
@@ -167,7 +167,7 @@ The rest you can probably figure out.
 
 </details>
 
-<details><summary> ##Piece components</summary>
+<details><summary>Piece components</summary>
 
 <img src="https://wackymole.com/hosts/red%20walls.png" width="450"/>
 
@@ -189,7 +189,7 @@ cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Imag
 
 </details>
 
-<details><summary> ## Recipe  components</summary>
+<details><summary>Recipe  Components</summary>
 
 
 <img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
@@ -208,7 +208,7 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 </details>
 
-<details><summary> ## 2.xx ChangeLog</summary>
+<details><summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
 
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
