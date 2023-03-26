@@ -144,10 +144,11 @@ namespace wackydatabase.Datas
             // PiecesinGame = Resources.FindObjectsOfTypeAll<Piece>();  don't call this bad bad idea for ram
         }
 
-        public static GameObject CheckforSpecialObjects(string name) // should handle all times of special cases, manual entry
+        internal static GameObject CheckforSpecialObjects(string name) // should handle all times of special cases, manual entry
         {
             GameObject go = null;
             string ZnetName = null;
+            int hash = 0;
             switch (name)
             {
                 case "stone_floor":
@@ -171,6 +172,10 @@ namespace wackydatabase.Datas
                 case "AxeIron":
                     ZnetName = "AxeIron";
                     break;
+                case "TrophyDraugr":
+                    ZnetName = "TrophyDraugr";
+                    hash = 255610059; // it is still being overwritten
+                    break;
 
                 default:
                     go = null;
@@ -180,7 +185,16 @@ namespace wackydatabase.Datas
             {
                 try
                 {
+
                     go = ZNetScene.instance.GetPrefab(ZnetName); // damn why didn't I discover this sooner// that is sooo brutal. 
+                    if (hash != 0)
+                    {
+                        go = ZNetScene.instance.GetPrefab(hash);
+
+                        if (go != null)
+                            WMRecipeCust.WLog.LogInfo($"Found Special Object with Hash {go.name} but TrophyDraugr is actually being set for TrophyDraugrFem - known issue");
+                    }
+
                 }
                 catch { }
 

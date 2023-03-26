@@ -492,7 +492,7 @@ namespace wackydatabase.GetData
     
             foreach (Piece.Requirement req in piece.m_resources)
             {
-                data.reqs.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
+                data.build.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
             }
 
             return data;

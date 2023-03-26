@@ -12,10 +12,10 @@ Version 2.0
 5) support color and material changes on armor now. - Rexabit Done can be incorporated or separate 
 6) VFX, SFX, FX - GET IT ALL - Done
 7) Set Effects. - Done 
-8) load slowly, so no lag on reload
+8) load slowly, so no lag on reload - Skipping for now, but totally possible with all Items/pieces/recipes it takes 3.37 seconds to reload + .5 seconds with strings
 10) cloned items show up on mainscreen, will need some sort of cache
 11) Add a ton more config options for everything - Done
-12) Catch up with wackydb 1.0 commits
+12) Catch up with wackydb 1.0 commits - Done
 13) Fix Converter?
 14) Mobs?
 

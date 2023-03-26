@@ -135,6 +135,7 @@
     <Compile Include="PatchClasses\basicpatches.cs" />
     <Compile Include="PatchClasses\console.cs" />
     <Compile Include="PatchClasses\status.cs" />
+    <Compile Include="Utility\ServerSync.cs" />
     <Compile Include="SetData\Reload.cs" />
     <Compile Include="SetData\SetData.cs" />
     <Compile Include="SetData\WeaponDamage.cs" />
@@ -148,7 +149,6 @@
     <Compile Include="Datas\DatasOld\PieceData_json.cs" />
     <Compile Include="Datas\DatasOld\RecipeData_json.cs" />
     <Compile Include="Utility\functions.cs" />
-    <Compile Include="Utility\ServerSync.cs" />
     <Compile Include="Utility\SpriteTools.cs" />
     <Compile Include="Visuals\Manipulators\IRendererEffect.cs" />
     <Compile Include="Visuals\Manipulators\MaterialManipulator.cs" />
@@ -219,7 +219,7 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-	<!--  <PropertyGroup>
+  <!--  <PropertyGroup>
     <PostBuildEvent>
       if $(ConfigurationName) == Release (
       powershell Compress-Archive -Path '$(ProjectDir)Package\*' -DestinationPath '$(SolutionDir)PublishOutput\$(ProjectName).zip' -Force)
@@ -229,7 +229,6 @@
       xcopy "$(ProjectDir)README.md" "$(ProjectDir)Package\" /q /y /i
     </PostBuildEvent>
   </PropertyGroup>-->
-
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">

@@ -23,6 +23,7 @@ namespace wackydatabase.Read
         public void SetupWatcher()
         {
             WMRecipeCust.CheckModFolder();
+
             FileSystemWatcher watcher = new(WMRecipeCust.assetPathconfig); // jsons in config
             watcher.Changed += ReadYMLValues;
             watcher.Created += ReadYMLValues;
@@ -30,6 +31,8 @@ namespace wackydatabase.Read
             watcher.IncludeSubdirectories = true;
             watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher.EnableRaisingEvents = true;
+
+            
         }
 
         private void ReadYMLValues(object sender, FileSystemEventArgs e)
@@ -37,9 +40,9 @@ namespace wackydatabase.Read
             if (!File.Exists(WMRecipeCust.ConfigFileFullPath)) return;
             try
             {
-                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() || ZNet.instance.IsServer() && WMRecipeCust.isSettoAutoReload)
+                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() && WMRecipeCust.enableYMLWatcher.Value || ZNet.instance.IsServer() && WMRecipeCust.isSettoAutoReload && WMRecipeCust.enableYMLWatcher.Value)
                 {  // should only load for the server now
-                    WMRecipeCust.Dbgl("YML files have changed. Computer is some type of Server and Autoreload is on");
+                    WMRecipeCust.Dbgl("YML files have changed. Server or Singleplayer and Autoreload is on");
                     GetDataFromFiles(); // load stuff in mem
                     WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; //Sync Event // Single player forces client to reload as well. 
                 }
@@ -53,6 +56,16 @@ namespace wackydatabase.Read
                 {
                     WMRecipeCust.WLog.LogDebug("Not checking YML Files because either in Main Screen or ....");
                 }
+            }
+        }
+        public void GetCacheClonesOnly()
+        {
+            WMRecipeCust.cacheDataYML.Clear();
+            YamlLoader cache = new YamlLoader(); // cache Only
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathCache, "*.zz", SearchOption.AllDirectories))
+            {
+                cache.Load<WItemData>(file, WMRecipeCust.cacheDataYML);
             }
         }
         public void GetDataFromFiles()
@@ -76,42 +89,53 @@ namespace wackydatabase.Read
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
             WMRecipeCust.visualDatasYml.Clear();
             WMRecipeCust.effectDataYml.Clear();
+            WMRecipeCust.ymlstring = ""; //clear
 
             WMRecipeCust.CheckModFolder();
 
             YamlLoader yaml = new YamlLoader();
-            //ScriptableObject.CreateInstance<StatusEffect>();
+         
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
             {
-                yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml, WMRecipeCust.isSetStringisDebug);
+                yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml);
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?iece_*.yml", SearchOption.AllDirectories))
             {
-                yaml.Load<PieceData>(file, WMRecipeCust.pieceDatasYml, WMRecipeCust.isSetStringisDebug);
+                yaml.Load<PieceData>(file, WMRecipeCust.pieceDatasYml);
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ecipe_*.yml", SearchOption.AllDirectories))
             {
-                yaml.Load<RecipeData>(file, WMRecipeCust.recipeDatasYml, WMRecipeCust.isSetStringisDebug);
+                yaml.Load<RecipeData>(file, WMRecipeCust.recipeDatasYml);
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?isual_*.yml", SearchOption.AllDirectories))
             {
-                yaml.Load<VisualData>(file, WMRecipeCust.visualDatasYml, WMRecipeCust.isSetStringisDebug);
+                yaml.Load<VisualData>(file, WMRecipeCust.visualDatasYml);
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "SE_*.yml", SearchOption.AllDirectories))
             {
-                yaml.Load<StatusData>(file, WMRecipeCust.effectDataYml, WMRecipeCust.isSetStringisDebug);
+                yaml.Load<StatusData>(file, WMRecipeCust.effectDataYml);
             }
 
             WMRecipeCust.ymlstring = yaml.ToString();//(WMRecipeCust.itemDatasYml.ToString() + WMRecipeCust.pieceDatasYml.ToString() + WMRecipeCust.recipeDatasYml + WMRecipeCust.visualDatasYml + WMRecipeCust.effectDataYml).ToString();
 
-            WMRecipeCust.Dbgl("Loaded YML files");
-            if (WMRecipeCust.isSetStringisDebug)
-                WMRecipeCust.Dbgl(WMRecipeCust.ymlstring);
+
+            YamlLoader cache = new YamlLoader(); // cache Only
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathCache, "*.zz", SearchOption.AllDirectories))
+            {
+                cache.Load<WItemData>(file, WMRecipeCust.cacheDataYML);
+            }
+
+            WMRecipeCust.WLog.LogDebug("Loaded YML files in ReadFiles");
+            if (WMRecipeCust.isDebugString.Value)
+            {
+                WMRecipeCust.WLog.LogInfo(WMRecipeCust.ymlstring);
+            }
         }
     }
 }

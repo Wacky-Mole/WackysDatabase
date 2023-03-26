@@ -66,12 +66,14 @@ namespace wackydatabase
         public static ConfigEntry<float> globalArmorDurabilityLossMult;
         public static ConfigEntry<float> globalArmorMovementModMult;
         public static ConfigEntry<string> waterModifierName;
+        public static ConfigEntry<bool> ServerDedLoad;
+        public static ConfigEntry<bool> extraSecurity;
+        public static ConfigEntry<bool> enableYMLWatcher;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
 
         internal static bool issettoSinglePlayer = false;
         internal static bool isSettoAutoReload = false;
-        internal static bool isSetStringisDebug = false;
         internal static bool recieveServerInfo = false;
         internal static bool isDedServer = false;
         internal static bool NoMoreLoading = false; // for shutdown from Server
@@ -92,6 +94,7 @@ namespace wackydatabase
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
         public static List<VisualData> visualDatasYml = new List<VisualData>();
         public static List<StatusData> effectDataYml = new List<StatusData>();
+        public static List<WItemData> cacheDataYML = new List<WItemData>();// cacheonly
 
         public static List<string> ClonedI = new List<string>();
         public static List<string> ClonedP = new List<string>();
@@ -107,6 +110,7 @@ namespace wackydatabase
         internal static string assetPathBulkYML;
         internal static string assetPathIcons;
         internal static string assetPathEffects;
+        internal static string assetPathCache;
         internal static string jsonstring;
         internal static string ymlstring;
         internal static char StringSeparator = 'Ⰴ'; // handcuffs  The fifth letter of the Glagolitic alphabet.
@@ -137,6 +141,9 @@ namespace wackydatabase
 
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;
+        public static bool ForceLogout = false;
+        internal static bool LobbyRegistered = false;
+        internal static bool HasLobbied = false;
 
 
 
@@ -153,6 +160,7 @@ namespace wackydatabase
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
             assetPathIcons = Path.Combine(assetPathconfig, "Icons");
+            assetPathCache = Path.Combine(assetPathconfig, "Cache");
             // testme(); // function for testing things
 
             // ending files
@@ -169,7 +177,8 @@ namespace wackydatabase
             AwakeHasRun = true;
             skillConfigData.Value = ymlstring; // Shouldn't matter - maybe...
 
-            readFiles.SetupWatcher(); 
+            readFiles.SetupWatcher();
+
 
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom sync watcher for yml file synced from server
 
@@ -200,12 +209,14 @@ namespace wackydatabase
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
             WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
+            ServerDedLoad = config<bool>("General", "DedServer load Memory", false, "Dedicated Servers will load wackydb files as a client would, this is usually not needed");
+            extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
+            enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
+
             ConfigSync.CurrentVersion = ModVersion;
-            if (isDebugString.Value)
-                isSetStringisDebug = true;
 
             WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
-            if (isautoreload.Value)
+            if (isautoreload.Value) // only sets at start
                 isSettoAutoReload = true;
             else isSettoAutoReload = false;
 
@@ -298,8 +309,13 @@ namespace wackydatabase
             }
             if (!Directory.Exists(assetPathEffects))
             {
-                Dbgl("Creating Effects folder");
+                Dbgl("Creating Effects folder"); 
                 Directory.CreateDirectory(assetPathEffects);
+            }
+            if (!Directory.Exists(assetPathCache))
+            {
+                Dbgl("Creating Cache folder"); 
+                Directory.CreateDirectory(assetPathCache);
             }
         }
 
@@ -307,8 +323,7 @@ namespace wackydatabase
         {
             Material[] array = Resources.FindObjectsOfTypeAll<Material>();
             originalMaterials = new Dictionary<string, Material>();
-            Material[] array2 = array;
-            foreach (Material val in array2)
+            foreach (Material val in array)
             {
                 // Dbgl($"Material {val.name}" );
                 originalMaterials[val.name] = val;

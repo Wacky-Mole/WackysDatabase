@@ -63,6 +63,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.armorDatas.Clear();
                 WMRecipeCust.pieceWithLvl.Clear(); 
                 WMRecipeCust.visualDatasYml.Clear();
+                WMRecipeCust.cacheDataYML.Clear();
 
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
@@ -105,7 +106,19 @@ namespace wackydatabase.SetData
             }
         }
 
-
+        public void LoadClonedItems()
+        {
+            ObjectDB Instant = ObjectDB.instance;
+            foreach (var data in WMRecipeCust.cacheDataYML) // recipes last
+            {
+                try
+                {
+                    SetData.SetClonedItemsData(data, Instant);// has issues
+                }
+                catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
+            }
+            Instant.UpdateItemHashes();
+        }
         public void LoadAllRecipeData(bool reload)
         {
             if (reload)
@@ -113,7 +126,7 @@ namespace wackydatabase.SetData
                 ZNet Net = new ZNet();
                 Startup.Startup.IsLocalInstance(Net);
             }
-            if (reload && (WMRecipeCust.issettoSinglePlayer || WMRecipeCust.recieveServerInfo)) // single player only or recievedServerInfo
+            if (reload && (WMRecipeCust.issettoSinglePlayer || WMRecipeCust.recieveServerInfo || WMRecipeCust.LobbyRegistered)) // single player only or recievedServerInfo
             {
                 if (WMRecipeCust.recieveServerInfo && WMRecipeCust.issettoSinglePlayer)
                 {
@@ -124,6 +137,9 @@ namespace wackydatabase.SetData
                 {
                     WMRecipeCust.WLog.LogWarning($" Reloading - remove before final");
                     WMRecipeCust.GetAllMaterials(); // remove
+
+                    if (!WMRecipeCust.ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
+                        return;
                     ObjectDB Instant = ObjectDB.instance;
 
                     // effects first
@@ -135,6 +151,7 @@ namespace wackydatabase.SetData
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
                     }
+
                     WMRecipeCust.WLog.LogInfo($" Set Effects Loaded");
                     // CLONE PASS FIRST - only for craftingStation
                     foreach (var data3 in WMRecipeCust.pieceDatasYml)
@@ -188,6 +205,25 @@ namespace wackydatabase.SetData
                         catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
                     }
                     
+
+                    //string currentplayer = Player.m_localPlayer.name;// save item cache
+                    WMRecipeCust.Dbgl($"Building Cache for Player ");
+                    var serializer = new SerializerBuilder()
+                                .Build();
+                    var rand = new System.Random();
+                    foreach (var data in WMRecipeCust.itemDatasYml) 
+                    {
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(data.clonePrefabName))
+                            {
+                                var hash = data.GetHashCode(); // rand.Next(501032334)
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache,  "_" + hash + ".zz"), serializer.Serialize(data));
+                            }
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning($"Item Cache save for {data.name} failed"); }
+                    }
+
                     // Ignore visual data here for now, this is all JSON related
 
                     WMRecipeCust.Dbgl($" You did reload LOCAL Files");
@@ -198,7 +234,7 @@ namespace wackydatabase.SetData
                 }
                 catch
                 {
-                    WMRecipeCust.Dbgl($"failed to update Hashes- probably due to too many calls");
+                    WMRecipeCust.Dbgl($"failed to update Hashes- probably error in files");
                 }
             }
             else

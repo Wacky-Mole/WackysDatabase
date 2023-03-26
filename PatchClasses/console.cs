@@ -78,7 +78,8 @@ namespace wackydatabase.PatchClasses
 
             if (!WMRecipeCust.modEnabled.Value)
                 return;
-            if (SceneManager.GetActiveScene().name != "main") return; // can't do anything from main
+            //if (SceneManager.GetActiveScene().name != "main") return; // can't do anything from main 
+#warning renable
 
 
             Terminal.ConsoleCommand WackyShowcommands =
@@ -152,7 +153,6 @@ namespace wackydatabase.PatchClasses
                                  WMRecipeCust.CurrentReload = josh;
 
                                  josh.LoadAllRecipeData(true);
-
 
 
                                  args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");

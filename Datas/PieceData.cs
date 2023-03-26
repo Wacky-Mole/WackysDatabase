@@ -46,7 +46,7 @@ namespace wackydatabase.Datas
 
         public SmelterData? smelterData;
 
-        public List<string>? reqs = new List<string>();
+        public List<string>? build = new List<string>();
 
     }
     public class ComfortData

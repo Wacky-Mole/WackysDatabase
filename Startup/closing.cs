@@ -23,8 +23,10 @@ namespace wackydatabase.Startup
         {
             private static bool Prefix()
             {
-                wackydatabase.WMRecipeCust.WLog.LogWarning("Logoff? So reset - character will look empty if using clone gear");
-                if (wackydatabase.WMRecipeCust.issettoSinglePlayer)
+                //WMRecipeCust.WLog.LogWarning("Logoff? So reset - character will look empty if using clone gear"); No More
+                WMRecipeCust.Dbgl("logoff");
+                WMRecipeCust.LobbyRegistered = false;
+                if (WMRecipeCust.issettoSinglePlayer)
                 {
                     Closing.DestroyClones();
 
@@ -33,7 +35,7 @@ namespace wackydatabase.Startup
                 {
                     Closing.DestroyClones();
                 }
-                wackydatabase.WMRecipeCust.NoMoreLoading = true;
+                WMRecipeCust.NoMoreLoading = true;
                 return true;
             }
         }
@@ -43,8 +45,8 @@ namespace wackydatabase.Startup
         {
             private static void Postfix()
             { // The Server send once last config sync before destory, but after Shutdown which messes stuff up. 
-                wackydatabase.WMRecipeCust.recieveServerInfo = false;
-                wackydatabase.WMRecipeCust.NoMoreLoading = false;
+                WMRecipeCust.recieveServerInfo = false;
+                WMRecipeCust.NoMoreLoading = false;
             }
         }
 
@@ -71,7 +73,7 @@ namespace wackydatabase.Startup
                 }
                 catch { WMRecipeCust.Dbgl($"Error Disabling recipe {citem}"); }
             }
-
+            
             foreach (var citem in WMRecipeCust.ClonedI)
             {
                 try
@@ -87,7 +89,7 @@ namespace wackydatabase.Startup
                 }
                 catch { WMRecipeCust.Dbgl($"Error Destorying item {citem}"); }
 
-            }
+            } 
             foreach (var citem in WMRecipeCust.ClonedP)
             {
                 piecehammer = null;
@@ -119,7 +121,7 @@ namespace wackydatabase.Startup
             WMRecipeCust.ClonedP.Clear();
             ObjectDB.instance.UpdateItemHashes();
 
-            WMRecipeCust.Dbgl("All cloned Objects destoryed");
+            WMRecipeCust.Dbgl("All cloned Objects Destroyed");
         }
     }
 }

@@ -735,10 +735,10 @@ namespace wackydatabase.SetData
             }
 
 
-            if (data.reqs != null)
+            if (data.build != null)
             {
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-                foreach (string req in data.reqs)
+                foreach (string req in data.build)
                 {
                    // WMRecipeCust.Dbgl(req);
                     string[] parts = req.Split(':');
@@ -908,13 +908,174 @@ namespace wackydatabase.SetData
 
 
 
-
-
-
         #region Items
-        internal static void SetItemData(WItemData data, ObjectDB Instant)
+
+        internal static void SetClonedItemsData(WItemData data, ObjectDB Instant)
+        {
+
+            bool skip = false;
+            foreach (var citem in WMRecipeCust.ClonedI)
+            {
+                if (citem == data.name)
+                    skip = true;
+            }
+            if (!skip)
+            {
+
+
+                string tempname = data.name;
+                if (!string.IsNullOrEmpty(data.clonePrefabName))
+                {
+                    data.name = data.clonePrefabName;
+                }
+                else
+                {
+                    return;
+                }
+
+                GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
+                if (go == null)
+                    go = Instant.GetItemPrefab(data.name); // normal check
+
+                if (go == null)
+                {
+                    WMRecipeCust.Dbgl(" item in SetItemData null " + data.name);
+                    return;
+                }
+                if (go.GetComponent<ItemDrop>() == null)
+                {
+                    WMRecipeCust.Dbgl($"Item data in SetItemData for {data.name} not found!");
+                    return;
+                } // it is a prefab and it is an item.
+                if (string.IsNullOrEmpty(tempname) && !string.IsNullOrEmpty(data.clonePrefabName))
+                {
+                    WMRecipeCust.Dbgl($"Item cloned name is empty!");
+                    return;
+                }
+
+                WMRecipeCust.ClonedI.Add(tempname); // so can delete later
+                for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
+                {
+                    if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                    {
+                        ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
+                        if (!string.IsNullOrEmpty(data.clonePrefabName)) // object is a clone do clonethings
+                        {
+                            WMRecipeCust.Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
+                            WMRecipeCust.ClonedI.Add(tempname);
+                            Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
+                            GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
+                            ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
+
+                            NewItemComp.name = tempname; // added and seems to be the issue
+                            newItem.name = tempname; // resets the orginal name- needs to be unquie
+                            NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
+                            var hash = newItem.name.GetStableHashCode();
+                            ObjectDB.instance.m_items.Add(newItem);
+
+                            /*
+                            ZNetScene znet = ZNetScene.instance;
+                            if (znet)
+                            {
+                                string name = newItem.name;
+                                if (znet.m_namedPrefabs.ContainsKey(hash))
+                                    WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
+                                else
+                                {
+                                    if (newItem.GetComponent<ZNetView>() != null)
+                                        znet.m_prefabs.Add(newItem);
+                                    else
+                                        znet.m_nonNetViewPrefabs.Add(newItem);
+
+                                    znet.m_namedPrefabs.Add(hash, newItem);
+                                    WMRecipeCust.Dbgl($"Added prefab {name}");
+                                }
+                            } */
+
+                            if (!string.IsNullOrEmpty(data.cloneMaterial))
+                            {
+                                WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial}");
+                                try
+                                {
+                                    renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
+                                    if (data.cloneMaterial.Contains(','))
+                                    {
+                                        string[] materialstr = data.cloneMaterial.Split(',');
+                                        Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
+                                        Material part = WMRecipeCust.originalMaterials[materialstr[1]];
+
+                                        foreach (Renderer renderitem in renderfinder)
+                                        {
+                                            if (renderitem.receiveShadows && materialstr[0] != "none")
+                                                renderitem.material = mat;
+                                            else if (!renderitem.receiveShadows)
+                                                renderitem.material = part;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Material mat = WMRecipeCust.originalMaterials[data.cloneMaterial];
+                                        foreach (Renderer renderitem in renderfinder)
+                                        {
+                                            if (renderitem.receiveShadows)
+                                                renderitem.material = mat;
+                                        }
+                                    }
+                                }
+                                catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
+                            }
+                            go = Instant.GetItemPrefab(tempname);
+                            PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
+                            data.name = tempname; // putting back name
+
+                        }
+                        /*
+                        var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>();
+                        bool usecustom = false;
+                        if (!DataHelpers.ECheck(data.customIcon))
+                        {
+                            var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.customIcon);
+                            var nullcheck = File.ReadAllBytes(pathI);
+                            if (nullcheck != null)
+                            {
+                                try
+                                {
+
+                                    var Spri = SpriteTools.LoadNewSprite(pathI);
+                                    ItemDr.m_itemData.m_shared.m_icons[0] = Spri;
+                                    usecustom = true;
+
+                                }
+                                catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                            }
+                            else
+                            {
+                                WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
+                            }
+                        }
+
+
+                        if (!DataHelpers.ECheck(data.cloneMaterial) && !usecustom)
+                        {
+
+                            try
+                            {
+                                Functions.SnapshotItem(ItemDr); // snapshot go
+                            }
+                            catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
+                        }*/
+
+                    }
+                }
+            }//  skip
+        }
+
+
+        
+        internal static void SetItemData(WItemData data, ObjectDB Instant, bool CloneOnly = false)
         {
             // Dbgl("Loaded SetItemData!");
+
             bool skip = false;
             foreach (var citem in WMRecipeCust.ClonedI)
             {
