@@ -24,29 +24,30 @@ Fixing Converter would mean users has to load into game the way, jsons are loadi
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
 The short summary Wackydatabase or Wackydb allows you do almost anything with items/pieces/recipes without coding. </br>
-From cloning to color changes, set effects and even something as simple as language translating, as well as so much more <br />
+From cloning to color changes, set effects and even something as simple as language translating, as well as so much more. <br />
 
 
 Features:
 - WackysDatabase is a mod for Valheim it requires BepInEx for Valheim.
-- With this mod you are able to control all items/recipes/pieces via JSON files.
+- With this mod you are able to control all items/recipes/pieces/effects via YML files.
 - WackysDatabase also allows you to make clone/mock of these objects as well. 
 - This mod is one of the last to load in the game. 
-- As such it can touch almost all normal and modded objects which is the primary goal for this mod, but cloned objects may not behave well with some mods. 
-- You can not load into singleplayer and then load into Multiplayer. - No easy cheating
+- As such it can touch almost all normal and modded objects.
+
+- You can create new items with this mod and make them exclusive. 
 
 
 <details><summary> General Knowledge </summary>
 
     There are three (4) Objects that WackyDB touches. Items, Recipes, Pieces, Item Effects
 
-    Items are things in your inventory, you can pickup and maybe equip. 
+    Items are things in your inventory, you can pickup and maybe equip them. 
 
     Recipes are used to construct items, CraftingStations can be workbench, forge, or hand crafted (craftingStation": "")
 
-    Pieces are what you use in your hammer and hoe to construct or plant. piecehammers
+    Pieces are what you use in your hammer and hoe to construct or plant. (Piecehammers)
 
-    Item Effects - Can be set Effects or Indiviudal effects
+    Item Effects - Can be set Effects or Indiviudal effects - IE burning or frost, or an armor set effect
 
 </details> 
 
@@ -80,6 +81,14 @@ StringisDebug = false  // debugs your strings.. extra logs
 
 IsAutoReload = false // auto reloads instead of wackydb_reload
 
+NexusModID = 1825 // doesn't do much
+
+DedServer load Memory = false // Dedicated Server will load objects into the game like a client would.
+
+ExtraSecurity on Servers = true // - You cannot load into singleplayer and then load into Multiplayer. -.0.0.1 Error
+
+FileWatcher for YMLs = true // wackydb_reloads on any changes to the wackydatabase folder on the server
+
 </details>
 
 <details><summary> Console Commands</summary>
@@ -88,17 +97,25 @@ IsAutoReload = false // auto reloads instead of wackydb_reload
 - You will need to reference https://valheim-modding.github.io/Jotunn/data/objects/item-list.html for Prefab names. Thank you JVL team
 - While in game press F5 to open the game console then type help for more informations. To enable console for valheim - launch options add "-console"
 
-wackydb_reload  - Primary way to reload all the Json files in wackysDatabase folder
+wackydb_reload  - Primary way to reload all the YML files in wackysDatabase folder.  </br> Can now be done remotely by an admin client
 
-wackydb_dump [item/recipe/piece] [ItemName] - dump individual preloaded object to log
+wackydb_save_recipe [ItemName] - saves a Recipe YML in wackysDatabase Recipe Folder
 
-wackydb_dump_all  - writes a dump log file for all previously loaded info. May or may not work with clones. (doesn't work on multiplayer)
+wackydb_save_piece [ItemName] - saves a Piece YML in wackysDatabase Piece Folder
 
-wackydb_save_recipe [ItemName] - saves a Recipe Json in wackysDatabase Recipe Folder
+wackydb_save_item [ItemName] - saves a Item YML in wackysDatabase Item Folder
 
-wackydb_save_piece [ItemName] - saves a Piece for easy editing in Json (piecehammer only works for clones)
+wackydb_all_items - saves all items in game into wackyDatabase-BulkYML
 
-wackydb_save_item [ItemName] - saves a Item Json in wackysDatabase Item Folder
+wackydb_all_recipes - saves all recipes in game in wackyDatabase-BulkYML
+
+wackydb_all_pieces [Hammer] [Optionally: Category] - Use 'Hammer' for default, should work with other modded hammers. </br>
+You can optionally set what category to only get like 'Misc' </br>
+- wackydb_all_pieces Hammer Misc
+
+wackydb_se_all - Gets almost all SE_Effects in game, will get modded Effects (be careful)\ Will save all into the Effects folder
+
+wackydb_se [effectname] - get a singular effect will save in effect folder.
 
 wackydb_help -- commands
 
@@ -106,14 +123,20 @@ wackydb_clone  [recipe/item/piece] [Prefab to clone] [Unique name for the clone]
 
 - For Example: wackydb_clone item SwordIron WackySword
 
-There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
-For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
+<details><summary>optional 4th parameter</summary>
+--There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
+--For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
+</details>
 
 wackydb_clone_recipeitem [Prefab to clone] [clone name](clones item and recipe at same time)( Recipe name will be Rname) - instead of cloning an item and then recipe, do both at once. Saves you the trouble of manually editing recipe name and prefab.
 
-wackydb_vfx - future use
+wackydb_vfx - saves a vfx.txt file with all vfx effects of base game
 
-wackydb_material - saves a Materials.txt file in wackysDatabase for the different types of materials you can use for cloned items/pieces.
+wackydb_sfx - saves a sfx.txt file with all sfx effects of base game
+
+wackydb_fx - saves a FX.txt file with all FX effects of base game
+
+wackydb_material - saves a Materials.txt file in wackysDatabase for the different types of materials in the base game.
 
 </details>
 
@@ -226,8 +249,39 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 </details>
 
 
-<details><summary> Pre 2.0 ChangeLog</summary>
-
+<details><summary> 1.xx ChangeLog</summary>
+        
+        Version 1.4.2
+            Had to disable Piece snapshot because of hovering pieces stacking up on each other, hopefully someone fixes it someday.
+            You might have to destroy the existing pieces at (0,0) with infinity hammer quite a lot depending on reloads and players joining.    
+        Version 1.4.1
+            Some items don't like snapshot icons - Added extra checks and only items with material changes get new icons
+        Version 1.4.0
+            Added DedServer load Memory config to allow people to see if loading Wackydb on DedServer helps or hinders. 
+            extraSecurity - Allows people who don't want the extra cheat protection to disable it and not get 0.0.1 Error
+            Big News! Added auto Icon Generation to cloned Items, and all Pieces with custom material(pieces angles are a little wonky or wacky if you will) - Thx Blaxx for code
+        Version 1.3.6
+            Added m_attackHealthPercentage and m_secAttackHealthPercentage- Warning any Items that uses this Must be recreated. s
+            Otherwise default will go to 0. These items include the staffs that use a percentage of player health to power. 
+        Version 1.3.5
+            I have decided to add more parameters to Json file, so please do not use older version of Wackydb after upgrading. Wackydb 2.0 is not coming soon
+            Existing Jsons are fine to use, you can regenerate them to get new values. 
+            Added m_EitrCost, m_secEitrCost - These are attack costs for primary and secondary weapon attacks, no Eitr, no swing. 
+            m_FoodEitr - Food Eitr amount, m_EitrRegen- Modifier to Eitr Regen - Very powerful on clothes, weapons, added more warnings. 
+            Seperated out m_attackStamina and secondary m_attackStamina
+        Version 1.3.2
+            Mistlands Update: Removed extra Wet effect/restance since Mistlands adds its own. 
+            Removed FoodColor, as it was removed from game and didn't really do anything.
+        Version 1.3.0
+            Hopefully fixed Co-Op hosting bug again..
+        Version 1.2.9
+            Updated ServerSync for 211.11
+        Version 1.2.8
+            Hopefully fixed issue with Co-op hosting. Added 0.0.1 Custom message back. 
+        Version 1.2.7
+            Updated ServerSync for crossplay - Custom Message for Ver 0.0.1 is not displayed. No Singleplayer before multiplayer without restart.
+            Known issue of TrophyDraugr is not able to be set (targets TrophyDraugrFem) use Fem or clone TrophyDraugr. 
+            Destroyer is spelled with "troy", also now a loginfo instead of warning
         Version 1.2.5
             Moved wackysDatabase to Config instead of Plugins folder to stop r2mod from deleting folder on updates.
             Warning 1.2.4 and Lower will delete wackysDatabase folder in Plugins on Update, please backup.
@@ -275,10 +329,8 @@ This mod should load last. It needs to so it can touch all other mods.
 
 Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. 
 
-Bugs/Incompatible  Mods: 
-- Friendlies Reloaded - https://valheim.thunderstore.io/package/Horem/Friendlies_Reloaded/ -  Will break WackyDB ( investigating)
 
-(Note!: If you want json files to have default values, close the game and delete the wackysDatabase folder).
+(Note!: If you want the game to have default values, close the game and delete the wackysDatabase folder).
 
 </details>
 
@@ -292,7 +344,11 @@ Planned features
 - [x] Able to modify materials on clones
 - [x] Custom items/pieces
 - [x] Custom recipes
-- [ ] Able to modify effects - Probably won't happen without someone elses help. wackydb_vfx - generates vfx text file, but there are other effect objects. 
+- [x] Able to modify Set effects 
+- [x] Cloned Items show up on MainScreen
+- [x] Adjust attack values of items
+- [x] Able to add or remove conversions on smelter pieces
+- [x] Able to change the size of anything
 Wackymole
 
 </details>
@@ -309,11 +365,11 @@ Wackymole
 <details><summary>Credits</summary>
 
 Credits:
-A Lot of the credit goes to  aedenthorn  and all of his Many Mods! https://github.com/aedenthorn/ValheimMods
- Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate
- Thanks to the Odin Discord server, for being active and good for the valheim community.
- Do whatever you want with this mod. // except sale it as per Aedenthorn Permissions https://www.nexusmods.com/valheim/mods/1245
-Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
-CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
-Thank you to Azumatt and Aedenthorn and the JVL team. 
+A lot of the credit goes to  aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
+Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
+Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
+CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
+Thank you to Azumatt and Aedenthorn and the JVL team. </br>
+A Huge thank you to Rexabit and his Visual Modifier https://github.com/Rexabit/valheim-visuals-modifier
+Do whatever you want with this mod.</br>
 </details>
