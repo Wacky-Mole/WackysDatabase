@@ -35,7 +35,7 @@ namespace wackydatabase.SetData
 
             var name = data.Name;
             var go = Instant.GetStatusEffect(name);
-            go.m_name = data.m_Name ?? go.m_name;
+            go.m_name = data.Status_m_name ?? go.m_name;
             go.m_category = data.Category ?? go.m_category;
             if (!DataHelpers.ECheck(data.CustomIcon))
             {

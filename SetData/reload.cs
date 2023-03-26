@@ -12,7 +12,6 @@ using wackydatabase.Datas;
 using wackydatabase.Util;
 using System.IO;
 using System.Collections;
-
 using wackydatabase.Startup;
 using YamlDotNet.Serialization;
 using VisualsModifier;
@@ -63,6 +62,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.armorDatas.Clear();
                 WMRecipeCust.pieceWithLvl.Clear(); 
                 WMRecipeCust.visualDatasYml.Clear();
+                WMRecipeCust.effectDataYml.Clear();
                 WMRecipeCust.cacheDataYML.Clear();
 
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
@@ -80,11 +80,14 @@ namespace wackydatabase.SetData
                         }
                         else if (word.Contains("piecehammer")) // only piece
                         {
-                            WMRecipeCust.recipeDatasYml.Add(deserializer.Deserialize<RecipeData>(word));
+                            WMRecipeCust.pieceDatasYml.Add(deserializer.Deserialize<PieceData>(word));
                         }
                         else if (word.Contains("reqs"))// only recipes
                         {
                             WMRecipeCust.recipeDatasYml.Add(deserializer.Deserialize<RecipeData>(word));
+                        }else if (word.Contains("Status_m_name"))
+                        {
+                            WMRecipeCust.effectDataYml.Add(deserializer.Deserialize<StatusData>(word));
                         }
 
                         //WLog.LogDebug(word);

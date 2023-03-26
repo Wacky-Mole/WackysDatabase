@@ -230,7 +230,7 @@ namespace wackydatabase.GetData
             {
 
                 Name = effect.name ?? "",
-                m_Name = effect.m_name ?? "",
+                Status_m_name = effect.m_name ?? "",
                 Category = effect.m_category ?? null,
                 IconName = effect.m_icon.name ?? "",
                 //CustomIcon = effect.m_icon.name ?? "",

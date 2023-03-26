@@ -15,8 +15,8 @@ namespace wackydatabase.Datas
     [CanBeNull]
     public class StatusData 
     {
-        public string? Name;
-        public string? m_Name;
+        public string? Name;// required
+        public string? Status_m_name;// required
         public string? Category;
         public string? IconName;
         public string? CustomIcon;

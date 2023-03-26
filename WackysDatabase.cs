@@ -285,6 +285,7 @@ namespace wackydatabase
         }
 
 
+
         internal static void CheckModFolder()
         {
             /*
@@ -316,6 +317,21 @@ namespace wackydatabase
             {
                 Dbgl("Creating Cache folder"); 
                 Directory.CreateDirectory(assetPathCache);
+            }
+        }
+
+        public static void AdminReload(long peer, bool go)
+        {
+            if (go)
+            {
+                ReadFiles readnow = new ReadFiles();
+                readnow.GetDataFromFiles();
+                WMRecipeCust.readFiles = readnow;
+
+                SetData.Reload josh = new SetData.Reload();
+                WMRecipeCust.CurrentReload = josh;
+
+                josh.LoadAllRecipeData(true);
             }
         }
 

@@ -15,12 +15,25 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Core;
 using System.Security.Policy;
-
+using HarmonyLib;
 
 namespace wackydatabase.Startup
 {
+
+    [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake))]
+    static class ZrouteMethodsAdminReloadPushOnServer
+    {
+        private static void Postfix()
+        {
+            if (!ZNet.instance.IsServer()) return; // for servers only
+            ZRoutedRpc.instance.Register($"{WMRecipeCust.ModName} AdminReload",
+                new Action<long, bool>(WMRecipeCust.AdminReload));
+        }
+    }
+
     public class Startupserver
     {
+
 
          public IEnumerable<string> CheckForJsons()
         {
