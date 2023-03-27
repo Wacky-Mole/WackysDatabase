@@ -12,6 +12,8 @@ namespace wackydatabase.Datas
         #nullable enable
         public string name; // must have
 
+        public float m_weight; // must have
+
         public string? m_name;
 
         public string? m_description;
@@ -26,9 +28,7 @@ namespace wackydatabase.Datas
 
         public string? cloneMaterial;
 
-        public float? sizeMultiplier;
-
-        public float? m_weight; // must have
+        public float? sizeMultiplier;  
 
         public float? scale_weight_by_quality;
 

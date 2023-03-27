@@ -33,6 +33,7 @@ Features:
 - WackysDatabase also allows you to make clone/mock of these objects as well. 
 - This mod is one of the last to load in the game. 
 - As such it can touch almost all normal and modded objects.
+- Can color items or changes icons of items/pieces/set effects
 
 - You can create new items with this mod and make them exclusive. 
 
@@ -113,9 +114,9 @@ wackydb_all_pieces [Hammer] [Optionally: Category] - Use 'Hammer' for default, s
 You can optionally set what category to only get like 'Misc' </br>
 - wackydb_all_pieces Hammer Misc
 
-wackydb_se_all - Gets almost all SE_Effects in game, will get modded Effects (be careful)\ Will save all into the Effects folder
+wackydb_se_all - Gets almost all SE_Effects in game, will get modded Effects (be careful) - Will save all into the Effects folder
 
-wackydb_se [effectname] - get a singular effect will save in effect folder.
+wackydb_se [effectname] - get a singular effect, will save in Effect folder.
 
 wackydb_help -- commands
 
@@ -142,41 +143,107 @@ wackydb_material - saves a Materials.txt file in wackysDatabase for the differen
 
 <details><summary> YML Knowledge</summary>
 
+YML is easier to edit and change without getting confused on the syntac. 
 
+You can use https://www.yamllint.com/ to validate any yml code
 
+Almost every componet of items/pieces/recipes/effects can be deleted.
+
+Some components are multilined where you can actually add your own stuff the ymls.
 
 </details>
 
 <details><summary> Item components</summary>
 
 
-
 ## Item Options:
 
 ![Glowing Red BronzeSword ](https://wackymole.com/hosts/redsword.png)
 
+Hang on to your butts, items got an overhaul.  ONLY 2 components are required for ITEMS, 3 if it is a clone
 
-cloneMaterial: You can change the material(colorish) of a cloned object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
+name: item name in database, has to be unique (REQUIRED)
 
-m_damages: how much and what type of damage is inflicted.
+m_weight: weight of item (REQUIRED)
 
-m_damagesPerLevel: how much and what type of damage per upgraded lvl
+m_name: in game name
 
-m_armor: If object is equitable, like armor. Gives armor value to player
+m_description: in game description
 
-m_value: if value is >0. Then the object becomes salable at Trader. The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
+clonePrefabName: name of the item you want to clone (REQUIRED if clone)
 
-damageModifiers: - From https://www.nexusmods.com/valheim/mods/1162 - Thx aedenthorn - I did added water damage in 1.1.8
+cloneMaterial: You can change the material(colorish) of a cloned object.</br>
+Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
+Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
 
-Damage modifiers are a list of colon-separated pairs, e.g. for the Wolf Chest armor: - 
-"damageModifiers":["Frost:Resistant"]
+customIcon: You can set a custom icon for this item, use a PNG or Jpeg 64 x 64 px. Icon needs to be in the Icon folder ( doesn't server sync)
 
-The first value is the damage type, the second value is the resistance level.
+sizeMultiplier: Is a float, you can go from .01 to 1000.5 if you want. Have fun!
 
-Valid damage types include:
+scale_weight_by_quality: scales weight by quality or something
 
+## Attacks, Primary and Secondary
+Most weapons have two attacks, you can control each independantly now. </br>
+Primary_Attack and Secondary_Attack</br>
+ Each one has 30+ things you can change, you can delete the whole section if you don't want to change anything.
+
+ <details><summary>Attack Components</summary>
+
+  Probably have to move to wackymole.com due to character count - but github has no restriction so post away 
+ </details>
+
+ Damage: dmg</br>
+ DamagePerLevel: how much extra dmg you get for upgrading item</br> // add brs at end, once done editing
+
+ Armor: armor doesn't do much on non clothing items
+ ArmorPerLevel:
+
+ m_foodHealth: health gained from food
+ m_foodStamina: stamina gained from food
+ m_foodRegen: regen from food tick
+ m_foodBurnTime: how long it lasts
+ m_FoodEitr: Eitr you get from food
+
+ m_movementModifier: equip movement mod, can be neg
+ m_EitrRegen: equip eitr regen, extra special stuff
+
+ SE_Equip - EffectName: If you want an Item to have an Effect by itself, put the effect name here
+ SE_SET_Equip: - Set Effect - All this Should be the same accorss all items that have this set
+ SetName: What you call this Set
+ Size: how many items share this set
+ EffectName: What effect does this give when all items are equipped.
+
+ m_blockPower
+ m_blockPowerPerLevel
+ m_timedBlockBonus: Perfect Parry
+ m_deflectionForce
+ m_deflectionForcePerLevel
+
+ m_maxStackSize: how many can you stack in 1 slot
+ m_canBeReparied: 
+ m_destroyBroken: like tourch
+ m_dodgeable: 
+ m_questItem: doesn't really do anything now
+ m_teleportable: tele or not
+ m_knockback:
+ m_useDurability: Durability goes down
+ m_useDurabilityDrain: drain on use
+ m_durabilityDrain: on equip?
+ m_maxDurability: actual dura
+ m_durabilityPerLevel:
+ m_equipDuration: how long to equip item
+ m_skillType: what skill this item belongs to
+ m_animationState: 
+ m_toolTier: what can it break?
+ m_maxQuality: how much can you upgrade it
+ m_value: if value is >0. Then the object becomes salable at Trader. </br>
+ The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
+
+damageModifiers: - 
+Damage modifiers etc
+
+The first value is the damage type, the second value is the resistance level.</br>
 Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
-
  
     Normal - no change
     Resistant - increases Wet status countdown speed by 100%
@@ -185,19 +252,6 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
     Ignore - prevents Wet status effect
     VeryResistant - prevent wet status effect application except when swimming, increases Wet status countdown speed by 100%
     VeryWeak - decreases Wet status countdown speed by 2/3
-
-Valid resistence levels include:
-
-Normal Resistant Weak Immune Ignore VeryResistant VeryWeak
-
-m_blockPower: Very useful for shields
-m_blockPowerPerLevel:
-
-m_timedBlockBonus is the Parry bonus
-
-m_attackStamina set both Primary and Secondary attacks. Will expand upon in future.
-
-The rest you can probably figure out.
 
 </details>
 
