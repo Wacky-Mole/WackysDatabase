@@ -189,7 +189,7 @@ Primary_Attack and Secondary_Attack</br>
 
  <details><summary>Attack Components</summary>
 
-  Probably have to move to wackymole.com due to character count - but github has no restriction so post away 
+  Probably have to move to wackymole.com due to character count 32,000 - but github has no restriction so post away 
  </details>
 
  Damage: dmg</br>
@@ -259,12 +259,51 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 
 <img src="https://wackymole.com/hosts/red%20walls.png" width="450"/>
 
+Most of these components can be deleted if you don't need them
 
-piecehammer: default is the Hammer or Hoe: it can't really check for modded Hammers. Change this to the modded hammer prefab manually.
+name: Database name, must be unique per hammer (Required)
 
-adminonly: Makes certain pieces only for admins. 
+piecehammer: hammer that the piece is located in - Default Hammer (Required)
+
+m_name: in game name
+
+sizeMultiplier: Probably the coolest feature, make a whole world of giant pieces or very small pieces. Float any number range .05 to 100000
+
+m_description: in game:
+
+customIcon: You can set a custom icon for this piece, use a PNG or Jpeg 64 x 64 px. Icon needs to be in the Icon folder ( doesn't server sync)
+
+clonePrefabName: name of the piece you would like to clone (Required if clone)
+
+material:
+
+damagedMaterial: material change of damaged (50% piece)
 
 craftingStation: What craftingstation needs to be near you to build the piece. Default: $piece_workbench
+
+piecehammerCategory: You can change this, but things will be wonky if you add or remove any mods (maybe in future will fix)
+
+minStationLevel: Min crafting station for construction, you could require a lvl 4 forge for example for Portals
+
+amount: Probably best if you don't change this
+
+disabled: disable this piece for everyone, (Can't build new ones)
+
+adminonly: enable this piece only for admins, automically disables for everyone else, 
+
+comfort
+
+
+groundPiece: idk
+ground: idk
+waterPiece: idk
+noInWater: cannot be place in water
+notOnFloor: not inside on wood floor
+onlyinTeleportArea: not sure how big a teleport area is, I think those rock formations are teleport zone, could be fun for an advanced Portal
+allowedInDungeons: use wisely
+canBeRemoved: Infinity Hammer go burrr
+wearNTearData:
+    health: 0 or very high health makes stuff
 
 minStationLevel: Checks what level craftingstation is needed before building piece. 
 
