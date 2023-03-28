@@ -74,7 +74,7 @@ namespace wackydatabase.Datas
 
         //CraftingStation
         //public string? cStationName;
-        public string? cStationCustionIcon;
+        public string? cStationCustomIcon;
         public float? discoveryRange;
         public float? buildRange;
         public bool? craftRequiresRoof;

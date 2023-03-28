@@ -101,7 +101,7 @@ namespace wackydatabase.Datas
             return pieces;
 
         }
-        public static GameObject GetModdedPieces(string name)
+        public static GameObject GetModdedPieces(string name) //, out PieceTable selectedPiecehammer)
         {
             WMRecipeCust.selectedPiecehammer = null;
             GameObject Searchingfor = null;

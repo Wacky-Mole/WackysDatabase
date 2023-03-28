@@ -13,7 +13,7 @@ using wackydatabase.SetData;
 using wackydatabase.Datas;
 using wackydatabase.Read;
 using System.Security.Policy;
-
+using wackydatabase.SetData.SetOldData;
 
 namespace wackydatabase.Startup
 {
@@ -156,7 +156,15 @@ namespace wackydatabase.Startup
             WMRecipeCust.CurrentReload = temp;
             //ReadFiles readnow = new ReadFiles(); // should already be read
             //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
+            OldReloadSet oldset = new OldReloadSet();
 
+            if (WMRecipeCust.jsonsFound && WMRecipeCust.issettoSinglePlayer) 
+            {
+                WMRecipeCust.WLog.LogWarning("Jsons Found, loading jsons for conversion");
+                //WMRecipeCust.startupserver.BeginConvertingJsons(WMRecipeCust.jsoncount);
+                oldset.OldReload();
+                
+            }
             temp.LoadAllRecipeData(true);
             yield break;
         }

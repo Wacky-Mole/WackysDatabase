@@ -1253,7 +1253,7 @@ namespace wackydatabase.SetData
 
                     PrimaryItemData.m_shared.m_name = data.m_name ?? PrimaryItemData.m_shared.m_name;
                     PrimaryItemData.m_shared.m_description = data.m_description ?? PrimaryItemData.m_shared.m_description;
-                    PrimaryItemData.m_shared.m_weight = data.m_weight ?? PrimaryItemData.m_shared.m_weight;
+                    PrimaryItemData.m_shared.m_weight = data.m_weight;
                     PrimaryItemData.m_shared.m_scaleWeightByQuality = data.scale_weight_by_quality ?? PrimaryItemData.m_shared.m_scaleWeightByQuality;
                     if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
                     {

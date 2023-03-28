@@ -135,6 +135,7 @@
     <Compile Include="PatchClasses\basicpatches.cs" />
     <Compile Include="PatchClasses\console.cs" />
     <Compile Include="PatchClasses\status.cs" />
+    <Compile Include="SetData\SetOldData\OldReloadSet.cs" />
     <Compile Include="Utility\ServerSync.cs" />
     <Compile Include="SetData\Reload.cs" />
     <Compile Include="SetData\SetData.cs" />

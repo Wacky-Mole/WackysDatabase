@@ -171,7 +171,7 @@ namespace wackydatabase
             if (jsonsFound)
             {
                 WMRecipeCust.WLog.LogWarning("Jsons Found");
-                startupserver.BeginConvertingJsons(jsoncount);
+                //startupserver.BeginConvertingJsons(jsoncount);
             }
             readFiles.GetDataFromFiles(); // YML get
             AwakeHasRun = true;

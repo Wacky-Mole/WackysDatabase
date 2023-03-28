@@ -190,6 +190,10 @@ Primary_Attack and Secondary_Attack</br>
  <details><summary>Attack Components</summary>
 
   Probably have to move to wackymole.com due to character count 32,000 - but github has no restriction so post away 
+
+
+  AEffects - VFX,SFX, FX currently in view only mode for only Hit_Effects, </br> There is 
+  Hit_Terrain_Effects, Start_Effect, Hold_Start_Effects, Trigger_Effect,Trail_Effect,Burst_Effect availble for both Primary and Secondary if people show interest.
  </details>
 
  Damage: dmg</br>
@@ -253,6 +257,11 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
     VeryResistant - prevent wet status effect application except when swimming, increases Wet status countdown speed by 100%
     VeryWeak - decreases Wet status countdown speed by 2/3
 
+
+GEffects Like Attack Effects above, only showing VFX, SFX and FX effects for Hit_Effects, </br>
+Hit_Terrain_Effects, Start_Effect, Hold_Start_Effects, Trigger_Effect, Trail_Effect
+</br> If there is interest I will allow users to change/remove/add them.
+
 </details>
 
 <details><summary> Piece components</summary>
@@ -291,7 +300,10 @@ disabled: disable this piece for everyone, (Can't build new ones)
 
 adminonly: enable this piece only for admins, automically disables for everyone else, 
 
-comfort
+comfort:
+    confort: amount
+    ComfortGroup: like a category
+    comfortObject:
 
 
 groundPiece: idk
@@ -303,12 +315,48 @@ onlyinTeleportArea: not sure how big a teleport area is, I think those rock form
 allowedInDungeons: use wisely
 canBeRemoved: Infinity Hammer go burrr
 wearNTearData:
-    health: 0 or very high health makes stuff
+    health: 0 or very high health makes stuff invincible due to rounding
+    noRoofWear- no weather wear for roof stuff
+    noSupportWear- idk
+    supports:
+    triggerPrivateArea- can't attack this thing inside bubble
 
-minStationLevel: Checks what level craftingstation is needed before building piece. 
+craftingStationData:
+    CraftingStationName: too risky to touch, removed
+    cStationCustomIcon: You can set a custom icon for this piece, use a PNG or Jpeg 64 x 64 px. Icon needs to be in the Icon folder ( doesn't server sync)
+    discoveryRange: range that you discovery the piece for the first time
+    buildRange: how far build radius goes
+    craftRequiresRoof:
+    craftRequiresFire: cooking stations,
+    showBasicRecipes: idk
+    useDistance: how far away you can be while interacting
+    useAnimation:
 
-reqs: requirements to build: Item:amount:amountPerLevel:refundable,
+cSExtensionData: pieces that upgrade craftstations levels
+    MainCraftingStationName: Should be craftingstation name
+    maxStationDistance:
+    continousConnection: animation of dots
+    stack: idk
 
+smelterData:
+    smelterName:
+    addOreTooltip: 
+    emptyOreTooltip:
+    fuelItem: You can change the fuel used to power your furance or whatever
+    maxOre: capacity of ore
+    maxFuel: capacity of fuel
+    fuelPerProduct: how much fuel per product
+    secPerProduct: seconds it takes
+    spawnStack: Spawn stack on completion
+    requiresRoof: 
+    addOreAnimationLength:
+    smelterConversion: You can edit/delete or add conversions here, which in my opionion is realllly cool
+
+
+build: requirements to build: Item:amount:amountPerLevel:refundable,
+
+
+Put this somewhere
 cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. 
 - Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible. "material1,material2" (full,half health)(no spaces)
 - Otherwise "material1", one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
@@ -321,17 +369,26 @@ cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Imag
 
 <img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
 
-Cloned recipes need a unique name. 
+name: (Required must be Unique)
 
-1.2.4 Expanded Recipe Compatibility to Recipe_ ( Modification only, no cloning)
+clonePrefabName: (Required if clone)
 
-If cloning a recipe of a cloned item, clonePrefabName needs to be cloned item prefab.
+craftingStation: "" is hand crafted
 
-Recipe searches for prefab to put recipe next to it. 
+minStationLevel: minstation required
 
-Arrows x50 will be put above Arrow x20
+maxStationLevelCap: Caps the station level to stop it from going outside possiblity: not working
 
-reqs: requirements to build: Item:amount:amountPerLevel:refundable,
+repairStation: Where you can repair piece, people should be careful with this one
+
+amount: obvious
+
+disabled: disables recipe for everyone
+
+reqs: (Required) requirements to build: Item:amount:amountPerLevel:refundable,
+
+    Arrows x50 will be put above Arrow x20
+
 
 </details>
 
