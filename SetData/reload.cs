@@ -23,7 +23,7 @@ namespace wackydatabase.SetData
 
         public void SyncEventDetected()
         {
-            WMRecipeCust.WLog.LogWarning($"DSync Detected - remove before release");
+            WMRecipeCust.WLog.LogInfo($"Dedicated Sync Detected - remove before release");
 
             if (WMRecipeCust.Firstrun)
             {
@@ -41,7 +41,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.recieveServerInfo = true;
                 WMRecipeCust.NoMoreLoading = false;
                 WMRecipeCust.Dbgl($" No More Loading was true");
-                WMRecipeCust.WLog.LogWarning("Warning any ServerFiles will see be On Your Local Games Until Restart! ");
+                WMRecipeCust.WLog.LogInfo("Warning any modifcations will still be On Your Local Games Until Restart! ");
             }
             else
             {
@@ -98,7 +98,8 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($" Delaying Server Reloading Until very end");
                         return;
                     }
-                    LoadAllRecipeData(true); // true magic
+
+                    WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReload());
 
                     WMRecipeCust.WLog.LogDebug("done with customSyncEvent");
                 }
@@ -108,6 +109,7 @@ namespace wackydatabase.SetData
                 }
             }
         }
+
 
         public void LoadClonedItems()
         {
@@ -138,7 +140,6 @@ namespace wackydatabase.SetData
                 }
                 else
                 {
-                    WMRecipeCust.WLog.LogWarning($" Reloading - remove before final");
                     WMRecipeCust.GetAllMaterials(); // remove
 
                     if (!WMRecipeCust.ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())

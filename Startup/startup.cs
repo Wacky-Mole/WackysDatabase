@@ -148,22 +148,49 @@ namespace wackydatabase.Startup
             return WMRecipeCust.issettoSinglePlayer;
         }
 
+        public static IEnumerator CleartoReload()
+        {
+            if (!WMRecipeCust.ReloadingOkay)
+            {
+                WMRecipeCust.WLog.LogInfo("Waiting...");
+                yield return new WaitForSeconds(0.2f);
+            }
+            WMRecipeCust.WLog.LogInfo("Load Sync Data");
+            SetData.Reload temp = new SetData.Reload();
+            WMRecipeCust.CurrentReload = temp;
+
+            temp.LoadAllRecipeData(true); // true magic
+
+        }
+
         public static IEnumerator DelayedLoadRecipes()
         {
             yield return new WaitForSeconds(0.1f);
-            
+
+            WMRecipeCust.ReloadingOkay = true;
+
             SetData.Reload temp = new SetData.Reload();
             WMRecipeCust.CurrentReload = temp;
             //ReadFiles readnow = new ReadFiles(); // should already be read
             //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
             OldReloadSet oldset = new OldReloadSet();
 
-            if (WMRecipeCust.jsonsFound && WMRecipeCust.issettoSinglePlayer) 
+
+            if (WMRecipeCust.jsonsFound) 
             {
                 WMRecipeCust.WLog.LogWarning("Jsons Found, loading jsons for conversion");
-                //WMRecipeCust.startupserver.BeginConvertingJsons(WMRecipeCust.jsoncount);
+
+                oldset.OldGetJsons();
+
+                WMRecipeCust.WLog.LogWarning("Jsons Loading into Database, Please stand by");
                 oldset.OldReload();
-                
+
+                WMRecipeCust.WLog.LogWarning("Jsons being converted, Please stand by");
+
+                WMRecipeCust.startupserver.SaveYMLBasedONJsons(WMRecipeCust.jsonfiles);
+
+                WMRecipeCust.WLog.LogWarning("Jsons found have been moved to wackysDatabase-OldJsons, any left over should be recreated using console commands");
+
             }
             temp.LoadAllRecipeData(true);
             yield break;

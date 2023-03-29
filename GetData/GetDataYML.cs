@@ -287,23 +287,38 @@ namespace wackydatabase.GetData
                 return null;
             }
             string piecehammer = null;
+            ItemDrop hammer = null;
             if (WMRecipeCust.selectedPiecehammer != null)
+            {
+
+                hammer = WMRecipeCust.selectedPiecehammer.GetComponent<ItemDrop>();
                 piecehammer = WMRecipeCust.selectedPiecehammer.name;
+            }
+            else
+            {
 
-            if (piecehammer == null)
-                piecehammer = "Hammer"; // default
+                if (piecehammer == null)
+                    piecehammer = "Hammer"; // default
 
-            // these are kind of reduntant. // But are helpful for existing configs
-            ItemDrop hammer = tod.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
-            if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
-                piecehammer = "Hammer";
+                hammer = tod.GetItemPrefab("Hammer")?.GetComponent<ItemDrop>();
+                ItemDrop hoe = tod.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
+                if (hammer && hammer.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                {
+                    piecehammer = "Hammer";
 
-            ItemDrop hoe = tod.GetItemPrefab("Hoe")?.GetComponent<ItemDrop>();
-            if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
-                piecehammer = "Hoe";
+                } else if (hoe && hoe.m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                {
+                    piecehammer = "Hoe";
+                    hammer = hoe;
 
+                }else
+                {
+                    WMRecipeCust.WLog.LogWarning("Hammer selector needs help! in getdata GetPieceRecipeByName");
+                }                
 
-            WMRecipeCust.WLog.LogWarning("Hammer selector needs helkp! in getdata GetPieceRecipeByName");
+            }
+
+            
             return GetPiece(hammer, piecehammer, go, tod);
 
         }
@@ -394,7 +409,7 @@ namespace wackydatabase.GetData
                 CraftingStationData craftingStationData = new CraftingStationData
                 {
                     //cStationName = station.name,
-                 cStationCustionIcon = null,
+                 cStationCustomIcon = null,
                  discoveryRange = station.m_discoverRange,
                  buildRange = station.m_rangeBuild,
                  craftRequiresRoof = station.m_craftRequireRoof,

@@ -134,7 +134,7 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalFX;
         public static Dictionary<string, int> RecipeMaxStationLvl;
 
-        Startupserver startupserver = new Startupserver();
+        internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
         public static List<string> NoNotTheseSEs= new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
@@ -144,6 +144,8 @@ namespace wackydatabase
         public static bool ForceLogout = false;
         internal static bool LobbyRegistered = false;
         internal static bool HasLobbied = false;
+        internal static IEnumerable<string> jsonfiles;
+        internal static bool ReloadingOkay= false;
 
 
 
@@ -167,7 +169,7 @@ namespace wackydatabase
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
 
-            var jsoncount = startupserver.CheckForJsons(); // read jsons for server
+            jsonfiles = startupserver.CheckForJsons(); // read jsons for server
             if (jsonsFound)
             {
                 WMRecipeCust.WLog.LogWarning("Jsons Found");

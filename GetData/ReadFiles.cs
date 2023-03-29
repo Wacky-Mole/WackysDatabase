@@ -70,7 +70,7 @@ namespace wackydatabase.Read
         }
         public void GetDataFromFiles()
         {
-            wackydatabase.WMRecipeCust.WLog.LogWarning("Running Get DataFromFiles");
+            //wackydatabase.WMRecipeCust.WLog.LogWarning("Running Get DataFromFiles");
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun) 
             {
                 WMRecipeCust.CheckModFolder();

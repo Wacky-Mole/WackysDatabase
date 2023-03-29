@@ -16,6 +16,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Core;
 using System.Security.Policy;
 using HarmonyLib;
+using wackydatabase.GetData;
 
 namespace wackydatabase.Startup
 {
@@ -53,6 +54,89 @@ namespace wackydatabase.Startup
 
             return allfiles;
         }
+
+        internal void SaveYMLBasedONJsons(IEnumerable<string> wantedfiles)
+        {
+
+            var serializer = new SerializerBuilder()
+            .Build();
+
+            var deslizer = new DeserializerBuilder().Build();
+
+            if (!Directory.Exists(WMRecipeCust.assetPathOldJsons))
+            {
+                WMRecipeCust.Dbgl("Creating OldJsonFolder");
+                Directory.CreateDirectory(WMRecipeCust.assetPathOldJsons);
+            }
+
+            GetDataYML ObjectCheck = new GetDataYML();
+
+
+            foreach (string file in wantedfiles)
+            {
+
+                if (file.Contains("Item") || file.Contains("item")) // items are being rather mean with the damage classes
+                {
+                    try
+                    {
+
+                        var output = deslizer.Deserialize<WItemData_json>(File.ReadAllText(file));
+
+                        WItemData temp1 = ObjectCheck.GetItemDataByName(output.name, ObjectDB.instance);
+                        if (temp1 == null)
+                            continue;
+                        if (output.clone)
+                            temp1.clonePrefabName = output.clonePrefabName;
+
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + temp1.name + ".yml"), serializer.Serialize(temp1));
+
+                        File.Move(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Item_" + output.name + ".json"));
+
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }
+
+                }
+                else if (file.Contains("Piece") || file.Contains("piece"))
+                {
+                    try
+                    {
+                        var output = deslizer.Deserialize<PieceData_json>(File.ReadAllText(file));
+
+                        PieceData temp1 = ObjectCheck.GetPieceRecipeByName(output.name, ObjectDB.instance);
+                        if (temp1 == null)
+                            continue;
+                        if (output.clone)
+                            temp1.clonePrefabName = output.clonePrefabName;
+
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + temp1.name + ".yml"), serializer.Serialize(temp1));
+
+                        File.Move(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Piece_" + output.name + ".json"));
+
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }
+                }
+                else if (file.Contains("Recipe") || file.Contains("recipe"))
+                {
+                    try
+                    {
+                        var output = deslizer.Deserialize<RecipeData_json>(File.ReadAllText(file));
+
+                        RecipeData temp1 = ObjectCheck.GetRecipeDataByName(output.name, ObjectDB.instance);
+                        if (temp1 == null)
+                            continue;
+                        if (output.clone)
+                            temp1.clonePrefabName = output.clonePrefabName;
+
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + temp1.name + ".yml"), serializer.Serialize(temp1));
+
+                        File.Move(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Recipe_" + output.name + ".json"));
+
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }
+                }
+            }
+        }
+
         internal void BeginConvertingJsons(IEnumerable<string> wantedfiles)
         {
             var serializer = new SerializerBuilder()

@@ -441,7 +441,7 @@ namespace wackydatabase.SetData
                         return;
                     }
                     else // 2nd layer
-                        WMRecipeCust.Dbgl($"Piece {data.name} from known hammer {WMRecipeCust.selectedPiecehammer}");
+                        WMRecipeCust.Dbgl($"Piece {data.name} from known hammer {WMRecipeCust.selectedPiecehammer}"); // selected piecehammer is set in GetModdedPieces!
                 }
             }
             piece = go.GetComponent<Piece>();
@@ -627,7 +627,7 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"Category change has been detected for {data.name}, disabling old piece and setting new piece location");
                         if (piecehammer == null)
                         {
-                            if (WMRecipeCust.selectedPiecehammer == null)
+                            if (WMRecipeCust.selectedPiecehammer == null) // selectedPiecehammer is set in 
                             {
                                 piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
                                 piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);

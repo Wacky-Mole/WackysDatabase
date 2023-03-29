@@ -1,6 +1,8 @@
 ﻿using BepInEx.Bootstrap;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +15,36 @@ namespace wackydatabase.SetData.SetOldData
 {
     internal class OldReloadSet
     {
+
+
+            public void OldGetJsons()
+        {
+
+            YamlLoader json = new YamlLoader();
+
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.json", SearchOption.AllDirectories))
+            {
+                json.Load<WItemData_json>(file, WMRecipeCust.ItemDatas);
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?iece_*.json", SearchOption.AllDirectories))
+            {
+                json.Load<PieceData_json>(file, WMRecipeCust.PieceDatas);
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ecipe_*.json", SearchOption.AllDirectories))
+            {
+                json.Load<RecipeData_json>(file, WMRecipeCust.recipeDatas);
+            }
+
+            WMRecipeCust.WLog.LogInfo("Jsons loaded");
+
+        }
+
+
+
+
         public void OldReload()
         {
 
@@ -78,7 +110,7 @@ namespace wackydatabase.SetData.SetOldData
                 WMRecipeCust.Dbgl($"failed to update Hashes- probably due to too many calls");
             }
 
-            WMRecipeCust.Dbgl($" You did reload LOCAL Files");
+            WMRecipeCust.Dbgl($" You did reload OLD JSONS LOCAL Files");
         }
 
 
@@ -765,7 +797,26 @@ namespace wackydatabase.SetData.SetOldData
         }
 
 
+        public static float stringtoFloat(string data)
+        {
+            data = data.Split(':').Last();
+            float value = float.Parse(data, CultureInfo.InvariantCulture.NumberFormat);
+            return value;
+        }
+        private static Dictionary<string, Material> originalMaterials;
+        private static Dictionary<string, GameObject> originalVFX;
 
+        public static void GetAllMaterials()
+        {
+            Material[] array = Resources.FindObjectsOfTypeAll<Material>();
+            originalMaterials = new Dictionary<string, Material>();
+            Material[] array2 = array;
+            foreach (Material val in array2)
+            {
+                // Dbgl($"Material {val.name}" );
+                originalMaterials[val.name] = val;
+            }
+        }
 
 
 
