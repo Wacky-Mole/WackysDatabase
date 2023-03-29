@@ -1260,6 +1260,7 @@ namespace wackydatabase.SetData
                         Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
                         go.transform.GetChild(0).localScale = NewScale;
                     }
+                    
                     if (data.Primary_Attack != null)
                     {
                         WMRecipeCust.Dbgl($"   {data.name} Item attacks ");
@@ -1302,7 +1303,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial = data.Primary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
 
-                        PrimaryItemData.m_shared.m_attack.m_attackProjectile = data.Primary_Attack.Attack_Projectile ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
+                        PrimaryItemData.m_shared.m_attack.m_attackProjectile = GameObject.Find(data.Primary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
                         PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
                         PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
                         PrimaryItemData.m_shared.m_attack.m_projectiles = data.Primary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_attack.m_projectiles;
@@ -1347,7 +1348,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial = data.Secondary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
 
-                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = data.Secondary_Attack.Attack_Projectile ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = GameObject.Find(data.Secondary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel = data.Secondary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles = data.Secondary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles;

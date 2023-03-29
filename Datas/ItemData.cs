@@ -144,7 +144,7 @@ namespace wackydatabase.Datas
         public bool? Pickaxe_Special;
         public float? Last_Chain_Dmg_Multiplier;
 
-        public GameObject? Attack_Projectile;
+        public string? Attack_Projectile;
         public float? Projectile_Vel;
         public float? Projectile_Accuraccy;
         public int? Projectiles;

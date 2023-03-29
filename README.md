@@ -15,7 +15,7 @@ Version 2.0
 10) cloned items show up on mainscreen, will need some sort of cache - Done
 11) Add a ton more config options for everything - Done
 12) Catch up with wackydb 1.0 commits - Done
-13) Fix Converter?
+13) Fix Converter - Done
 
 Fixing Converter would mean users has to load into game the way, jsons are loading in game mem, then each name saved again into yml. 
 
@@ -521,5 +521,6 @@ Thanks to the Odin Discord server, for being active and good for the valheim com
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
 Thank you to Azumatt and Aedenthorn and the JVL team. </br>
 A Huge thank you to Rexabit and his Visual Modifier https://github.com/Rexabit/valheim-visuals-modifier
+Azumatt for Status Editor contributions. 
 Do whatever you want with this mod.</br>
 </details>

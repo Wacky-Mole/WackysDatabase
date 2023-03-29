@@ -26,7 +26,7 @@ namespace wackydatabase.Startup
         {
             static void Postfix()
             {
-                WMRecipeCust.Dbgl("ObjectDB Post");
+                WMRecipeCust.Dbgl("Loading Cloned items for Menu");
                 ReadFiles clones = new ReadFiles();
                 clones.GetCacheClonesOnly();          
                 SetData.Reload Startup = new SetData.Reload();
@@ -41,7 +41,7 @@ namespace wackydatabase.Startup
             static void Prefix()
             {
                 DestroyStartupItems(); // destory old item clones
-                WMRecipeCust.Dbgl("Fej End");
+                WMRecipeCust.Dbgl("Unloading Cloned Items from MainMenu");
             }
 
         }
@@ -191,8 +191,13 @@ namespace wackydatabase.Startup
 
                 WMRecipeCust.WLog.LogWarning("Jsons found have been moved to wackysDatabase-OldJsons, any left over should be recreated using console commands");
 
+                WMRecipeCust.WLog.LogError("You should Now Exit, please remove any jsons leftover from wackydatabase");
+
+
+                //Application.Quit();
+
             }
-            temp.LoadAllRecipeData(true);
+            //temp.LoadAllRecipeData(true);
             yield break;
         }
 

@@ -23,7 +23,7 @@ namespace wackydatabase.SetData
 
         public void SyncEventDetected()
         {
-            WMRecipeCust.WLog.LogInfo($"Dedicated Sync Detected - remove before release");
+           // WMRecipeCust.WLog.LogInfo($"Dedicated Sync Detected - remove before release");
 
             if (WMRecipeCust.Firstrun)
             {
@@ -48,6 +48,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.WLog.LogDebug("CustomSyncEventDetected was called ");
                 WMRecipeCust.Dbgl($" You recieved SERVER Files, so reloading");
                 WMRecipeCust.Admin = WMRecipeCust.ConfigSync.IsAdmin;
+                WMRecipeCust.recieveServerInfo = true;
                 if (WMRecipeCust.Admin)
                 {
                     WMRecipeCust.Dbgl($" You are an Admin");
@@ -68,9 +69,10 @@ namespace wackydatabase.SetData
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
                 {
+                    WMRecipeCust.WLog.LogDebug("Synced String was  " + SyncedString);
                     var deserializer = new DeserializerBuilder()
                     .Build();
-                    WMRecipeCust.WLog.LogDebug("Synced String was  " + SyncedString);
+                    
                     string[] yml = SyncedString.Split(WMRecipeCust.StringSeparator);
                     foreach (var word in yml) // Should really do a first pass for clones?
                     {
@@ -90,7 +92,6 @@ namespace wackydatabase.SetData
                             WMRecipeCust.effectDataYml.Add(deserializer.Deserialize<StatusData>(word));
                         }
 
-                        //WLog.LogDebug(word);
                     }
                     if (WMRecipeCust.LoadinMultiplayerFirst)
                     {
@@ -230,7 +231,7 @@ namespace wackydatabase.SetData
 
                     // Ignore visual data here for now, this is all JSON related
 
-                    WMRecipeCust.Dbgl($" You did reload LOCAL Files");
+                    WMRecipeCust.Dbgl($" You did reload Files");
                 }
                 try
                 {
@@ -245,7 +246,7 @@ namespace wackydatabase.SetData
             {
                 if (WMRecipeCust.issettoSinglePlayer)
                 {
-                    WMRecipeCust.Dbgl($" You did NOT reload LOCAL Files. You probably should have.");
+                    WMRecipeCust.Dbgl($" You did NOT reload Files. You probably should have.");
                 }
                 if (WMRecipeCust.LoadinMultiplayerFirst)
                 {

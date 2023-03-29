@@ -742,7 +742,7 @@ namespace wackydatabase.GetData
                     Pickaxe_Special = data.m_shared.m_attack.m_pickaxeSpecial,
                     Last_Chain_Dmg_Multiplier = data.m_shared.m_attack.m_lastChainDamageMultiplier,
 
-                    Attack_Projectile = data.m_shared.m_attack.m_attackProjectile,
+                    Attack_Projectile = data.m_shared.m_attack.m_attackProjectile.name,
                     Projectile_Vel = data.m_shared.m_attack.m_projectileVel,
                     Projectile_Accuraccy = data.m_shared.m_attack.m_projectileAccuracy,
                     Projectiles = data.m_shared.m_attack.m_projectiles,
@@ -791,7 +791,7 @@ namespace wackydatabase.GetData
                     Pickaxe_Special = data.m_shared.m_secondaryAttack.m_pickaxeSpecial,
                     Last_Chain_Dmg_Multiplier = data.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier,
 
-                    Attack_Projectile = data.m_shared.m_secondaryAttack.m_attackProjectile,
+                    Attack_Projectile = data.m_shared.m_secondaryAttack.m_attackProjectile.name,
                     Projectile_Vel = data.m_shared.m_secondaryAttack.m_projectileVel,
                     Projectile_Accuraccy = data.m_shared.m_secondaryAttack.m_projectileAccuracy,
                     Projectiles = data.m_shared.m_secondaryAttack.m_projectiles,
