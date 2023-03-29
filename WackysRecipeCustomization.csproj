@@ -159,11 +159,6 @@
     <Compile Include="WackysDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visuals\Colour.cs" />
-    <Compile Include="Visuals\ItemEffects\ISetEffect.cs" />
-    <Compile Include="Visuals\ItemEffects\SetDamageModifier.cs" />
-    <Compile Include="Visuals\ItemEffects\SetHealthRegenerationMultiplier.cs" />
-    <Compile Include="Visuals\ItemEffects\SetSkillModifier.cs" />
-    <Compile Include="Visuals\ItemEffects\ItemSet.cs" />
     <Compile Include="Visuals\Manipulators\IManipulator.cs" />
     <Compile Include="Visuals\Manipulators\IMaterialEffect.cs" />
     <Compile Include="Visuals\Manipulators\Realtime\IRealtimeEffect.cs" />
