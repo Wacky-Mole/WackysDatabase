@@ -13,7 +13,6 @@ using wackydatabase.Util;
 using System.IO;
 using YamlDotNet.Serialization;
 using wackydatabase.GetData;
-using VisualsModifier;
 using System.Runtime.InteropServices.ComTypes;
 
 namespace wackydatabase.Read

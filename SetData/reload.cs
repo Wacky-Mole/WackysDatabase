@@ -14,7 +14,6 @@ using System.IO;
 using System.Collections;
 using wackydatabase.Startup;
 using YamlDotNet.Serialization;
-using VisualsModifier;
 
 namespace wackydatabase.SetData
 {
