@@ -36,7 +36,7 @@ namespace wackydatabase.Datas
             foreach (GameObject piece in GetPieces())
             {
 
-                if (piece.GetComponent<Piece>()?.m_craftingStation?.m_name == name)
+                if (piece.GetComponent<Piece>()?.m_craftingStation?.m_name == name || piece.GetComponent<Piece>()?.m_craftingStation?.name == name)
                 {
 
                     // Dbgl("got crafting station " + name);

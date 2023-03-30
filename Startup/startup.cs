@@ -159,7 +159,7 @@ namespace wackydatabase.Startup
             SetData.Reload temp = new SetData.Reload();
             WMRecipeCust.CurrentReload = temp;
 
-            temp.LoadAllRecipeData(true); // true magic
+            temp.LoadAllRecipeData(true); // Dedicated Sync Reload
 
         }
 
@@ -197,7 +197,7 @@ namespace wackydatabase.Startup
                 //Application.Quit();
 
             }
-            temp.LoadAllRecipeData(true);
+            temp.LoadAllRecipeData(true); // Singleplayer Reload
             yield break;
         }
 

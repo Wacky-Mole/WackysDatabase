@@ -209,7 +209,7 @@ namespace wackydatabase
             NexusModID = config<string>("General", "NexusModID", "1825", "NexusModID Number", false);
             isDebug = config<bool>("General", "IsDebug", true, "Enable debug logs", false);
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
-            isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
+            isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false })); // not browseable and can only be set before launch
             WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
             ServerDedLoad = config<bool>("General", "DedServer load Memory", false, "Dedicated Servers will load wackydb files as a client would, this is usually not needed");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
@@ -333,7 +333,9 @@ namespace wackydatabase
                 SetData.Reload josh = new SetData.Reload();
                 WMRecipeCust.CurrentReload = josh;
 
-                josh.LoadAllRecipeData(true);
+
+                if (WMRecipeCust.ServerDedLoad.Value)
+                   josh.LoadAllRecipeData(true); // Admin Reload
             }
         }
 

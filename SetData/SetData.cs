@@ -720,8 +720,8 @@ namespace wackydatabase.SetData
                 {
                     WMRecipeCust.NewCraftingStations.Add(go.GetComponent<CraftingStation>()); // keeping track of them is hard
                 }
-                   // go.GetComponent<CraftingStation>().name = data.name; // must be set
-                    //go.GetComponent<CraftingStation>().m_name = data.m_name ?? go.GetComponent<CraftingStation>().m_name;
+                    go.GetComponent<CraftingStation>().name = data.name; // must be set
+                    go.GetComponent<CraftingStation>().m_name = data.m_name ?? go.GetComponent<CraftingStation>().m_name;
 
                     WMRecipeCust.Dbgl($"  new CraftingStation named {data.name} ");
              }
@@ -826,7 +826,7 @@ namespace wackydatabase.SetData
             {
                 go.TryGetComponent<CraftingStation>(out var station);
 
-                station.name = data.craftingStationData.cStationName ?? station.m_name;
+                //station.name = data.craftingStationData.cStationName ?? station.m_name;
                 station.m_discoverRange = data.craftingStationData.discoveryRange ?? station.m_discoverRange;
                 station.m_rangeBuild = data.craftingStationData.buildRange ?? station.m_rangeBuild;
                 station.m_craftRequireRoof = data.craftingStationData.craftRequiresRoof ?? station.m_craftRequireRoof;

@@ -128,7 +128,7 @@ namespace wackydatabase.PatchClasses
                          args =>
                          {
                              // GetRecipeDataFromFiles(); called in loadallrecipes
-                             if (ObjectDB.instance && WMRecipeCust.ForceLogout)
+                             if (ObjectDB.instance && WMRecipeCust.issettoSinglePlayer)
                              {
 
                                  ReadFiles readnow = new ReadFiles();
