@@ -81,6 +81,7 @@ namespace wackydatabase
         internal static string ConnectionError = "";
         internal static bool Firstrun = true;
         internal static bool AwakeHasRun = false;
+        internal static bool FirstSessionRun = true;
 
 
         public static List<RecipeData_json> recipeDatas = new List<RecipeData_json>();
@@ -146,6 +147,10 @@ namespace wackydatabase
         internal static bool HasLobbied = false;
         internal static IEnumerable<string> jsonfiles;
         internal static bool ReloadingOkay= false;
+        internal static int ProcessWait = 10;
+        internal static int ProcessWaitforRead = 10;
+        internal static float WaitTime = .3f;
+        internal static bool LockReload = false;
 
 
 
@@ -175,7 +180,7 @@ namespace wackydatabase
                 WMRecipeCust.WLog.LogWarning("Jsons Found");
                 //startupserver.BeginConvertingJsons(jsoncount);
             }
-            readFiles.GetDataFromFiles(); // YML get
+            WMRecipeCust.context.StartCoroutine(readFiles.GetDataFromFiles()); // YML get
             AwakeHasRun = true;
             skillConfigData.Value = ymlstring; // Shouldn't matter - maybe...
 
@@ -327,15 +332,16 @@ namespace wackydatabase
             if (go)
             {
                 ReadFiles readnow = new ReadFiles();
-                readnow.GetDataFromFiles();
+                WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
                 WMRecipeCust.readFiles = readnow;
 
-                SetData.Reload josh = new SetData.Reload();
-                WMRecipeCust.CurrentReload = josh;
+                WMRecipeCust.skillConfigData.Value = ymlstring;// push to clients
 
+               SetData.Reload josh = new SetData.Reload();
+               WMRecipeCust.CurrentReload = josh;
 
                 if (WMRecipeCust.ServerDedLoad.Value)
-                   josh.LoadAllRecipeData(true); // Admin Reload
+                   WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
             }
         }
 

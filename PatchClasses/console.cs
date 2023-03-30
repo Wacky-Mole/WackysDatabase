@@ -131,18 +131,20 @@ namespace wackydatabase.PatchClasses
                              if (ObjectDB.instance && WMRecipeCust.issettoSinglePlayer)
                              {
 
-                                 ReadFiles readnow = new ReadFiles();
-                                 readnow.GetDataFromFiles();
+                                 ReadFiles readnow = new ReadFiles();                               
+                                 WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles(true)); 
                                  WMRecipeCust.readFiles = readnow;
 
                                  SetData.Reload josh = new SetData.Reload();
                                  WMRecipeCust.CurrentReload = josh;
 
-                                 josh.LoadAllRecipeData(true);
+                                 WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true));
+
+                                 //josh.LoadAllRecipeData(true); // console singleplayer reload
 
 
-                                 args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
-                                 wackydatabase.WMRecipeCust.Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
+                                 //args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
+                                 //wackydatabase.WMRecipeCust.Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
                              }else if(WMRecipeCust.Admin)
                              {
 

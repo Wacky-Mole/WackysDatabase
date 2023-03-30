@@ -31,6 +31,7 @@ namespace wackydatabase.Startup
                 clones.GetCacheClonesOnly();          
                 SetData.Reload Startup = new SetData.Reload();
                 Startup.LoadClonedItems();
+                WMRecipeCust.FirstSessionRun = true;
             }
 
         }
@@ -159,7 +160,15 @@ namespace wackydatabase.Startup
             SetData.Reload temp = new SetData.Reload();
             WMRecipeCust.CurrentReload = temp;
 
-            temp.LoadAllRecipeData(true); // Dedicated Sync Reload
+            if (WMRecipeCust.FirstSessionRun)
+            {
+                WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Dedicated Sync Reload
+                WMRecipeCust.FirstSessionRun = false; // reset in a destory patch
+            }else
+            {
+                WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true, true)); // Dedicated Sync Reload SLOW
+            }
+                
 
         }
 
@@ -197,7 +206,7 @@ namespace wackydatabase.Startup
                 //Application.Quit();
 
             }
-            temp.LoadAllRecipeData(true); // Singleplayer Reload
+            WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
             yield break;
         }
 

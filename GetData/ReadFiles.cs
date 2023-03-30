@@ -14,6 +14,9 @@ using System.IO;
 using YamlDotNet.Serialization;
 using wackydatabase.GetData;
 using System.Runtime.InteropServices.ComTypes;
+using System.Collections;
+
+
 
 namespace wackydatabase.Read
 {
@@ -42,7 +45,7 @@ namespace wackydatabase.Read
                 if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() && WMRecipeCust.enableYMLWatcher.Value || ZNet.instance.IsServer() && WMRecipeCust.isSettoAutoReload && WMRecipeCust.enableYMLWatcher.Value)
                 {  // should only load for the server now
                     WMRecipeCust.Dbgl("YML files have changed. Server or Singleplayer and Autoreload is on");
-                    GetDataFromFiles(); // load stuff in mem
+                    WMRecipeCust.context.StartCoroutine(GetDataFromFiles()); // load stuff in mem
                     WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; //Sync Event // Single player forces client to reload as well. 
                 }
             }
@@ -67,7 +70,7 @@ namespace wackydatabase.Read
                 cache.Load<WItemData>(file, WMRecipeCust.cacheDataYML);
             }
         }
-        public void GetDataFromFiles()
+        internal IEnumerator GetDataFromFiles(bool slowmode = false)
         {
             //wackydatabase.WMRecipeCust.WLog.LogWarning("Running Get DataFromFiles");
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun) 
@@ -93,31 +96,72 @@ namespace wackydatabase.Read
             WMRecipeCust.CheckModFolder();
 
             YamlLoader yaml = new YamlLoader();
-         
+            int processcount = 0;
 
-            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
+            if (slowmode)
+            {
+                WMRecipeCust.WLog.LogInfo($"Beginning SLOW Reading");
+                WMRecipeCust.LockReload = true;
+            }
+
+                foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml);
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?iece_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<PieceData>(file, WMRecipeCust.pieceDatasYml);
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ecipe_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<RecipeData>(file, WMRecipeCust.recipeDatasYml);
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?isual_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<VisualData>(file, WMRecipeCust.visualDatasYml);
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "SE_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<StatusData>(file, WMRecipeCust.effectDataYml);
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
             }
 
             WMRecipeCust.ymlstring = yaml.ToString();//(WMRecipeCust.itemDatasYml.ToString() + WMRecipeCust.pieceDatasYml.ToString() + WMRecipeCust.recipeDatasYml + WMRecipeCust.visualDatasYml + WMRecipeCust.effectDataYml).ToString();
@@ -128,8 +172,19 @@ namespace wackydatabase.Read
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathCache, "*.zz", SearchOption.AllDirectories))
             {
                 cache.Load<WItemData>(file, WMRecipeCust.cacheDataYML);
-            }
 
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            WMRecipeCust.LockReload = false;
+            if (slowmode)
+            {
+                WMRecipeCust.WLog.LogInfo($"Finished SLOW Reading");
+            }
             WMRecipeCust.WLog.LogDebug("Loaded YML files in ReadFiles");
             if (WMRecipeCust.isDebugString.Value)
             {
