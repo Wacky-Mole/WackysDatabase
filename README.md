@@ -30,6 +30,7 @@ MaxCraftingStationLevel, YML, Mainscreen cloned items, Water Resistance is back
 Slow Reload!, Visuals Modifier by Rexabit!, Seteffect by Azu!
 Most components can be removed from YML
 sizeMultiplier! - Make a small or HUGE world
+Future Proof - Can add or remove componets without much fuss
 
 
 
@@ -111,6 +112,8 @@ FileWatcher for YMLs = true // wackydb_reloads on any changes to the wackydataba
 - While in game press F5 to open the game console then type help for more informations. To enable console for valheim - launch options add "-console"
 
 wackydb_reload  - Primary way to reload all the YML files in wackysDatabase folder.  </br> Can now be done remotely by an admin client
+
+wackydb_reload_fast - No slow reload - will stutter the game
 
 wackydb_save_recipe [ItemName] - saves a Recipe YML in wackysDatabase Recipe Folder
 

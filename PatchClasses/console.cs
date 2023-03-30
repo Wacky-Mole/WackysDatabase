@@ -161,6 +161,29 @@ namespace wackydatabase.PatchClasses
 
                          });
 
+            Terminal.ConsoleCommand WackyReloadFast =
+                new("wackydb_reload_fast", "reload the whole config files fast",
+                 args =>
+                 {
+                     // GetRecipeDataFromFiles(); called in loadallrecipes
+                     if (ObjectDB.instance && WMRecipeCust.issettoSinglePlayer)
+                     {
+
+                         ReadFiles readnow = new ReadFiles();
+                         WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
+                         WMRecipeCust.readFiles = readnow;
+
+                         SetData.Reload josh = new SetData.Reload();
+                         WMRecipeCust.CurrentReload = josh;
+
+                         WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true));
+
+
+
+                         args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
+                     }
+
+                 });
             Terminal.ConsoleCommand WackyitemSave =
                 new("wackydb_save_item", "Save an Item ",
                     args =>
