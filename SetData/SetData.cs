@@ -268,9 +268,9 @@ namespace wackydatabase.SetData
                 RecipeR.name = tempname;
                 if (data.maxStationLevelCap != null)
                 {
-                    if (WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeR.name))
+                    if (!WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeR.m_item.name))
                     {
-                        WMRecipeCust.RecipeMaxStationLvl.Add(RecipeR.name, data.maxStationLevelCap ?? -1); // -1 no cap
+                        WMRecipeCust.RecipeMaxStationLvl.Add(RecipeR.m_item.name, data.maxStationLevelCap ?? -1); // -1 no cap
                     }
                 }
                 
@@ -961,7 +961,7 @@ namespace wackydatabase.SetData
                         ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                         if (!string.IsNullOrEmpty(data.clonePrefabName)) // object is a clone do clonethings
                         {
-                            WMRecipeCust.Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
+                            WMRecipeCust.WLog.LogDebug($"Item CLONE DATA in SetItemData for {tempname} from cache ");
                             WMRecipeCust.ClonedI.Add(tempname);
                             Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
                             GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
@@ -1303,7 +1303,9 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial = data.Primary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
 
-                        PrimaryItemData.m_shared.m_attack.m_attackProjectile = GameObject.Find(data.Primary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
+                        if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile))
+                            PrimaryItemData.m_shared.m_attack.m_attackProjectile = GameObject.Find(data.Primary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
+
                         PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
                         PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
                         PrimaryItemData.m_shared.m_attack.m_projectiles = data.Primary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_attack.m_projectiles;
@@ -1348,7 +1350,9 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial = data.Secondary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
 
-                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = GameObject.Find(data.Secondary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
+                        if (!string.IsNullOrEmpty(data.Secondary_Attack.Attack_Projectile))
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = GameObject.Find(data.Secondary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
+
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel = data.Secondary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles = data.Secondary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles;

@@ -71,8 +71,37 @@ namespace wackydatabase.PatchClasses
     [HarmonyPatch(typeof(Recipe), "GetRequiredStationLevel")]
     static class RecipeStationPatch
     {
-        private static void Postfix(ref int __result, CraftingStation ___m_craftingStation,  ItemDrop ___m_item)
+        private static void Postfix( Recipe __instance, ref int __result)
         {
+
+
+            if (__instance == null) return;
+            if(__instance.m_item == null) return;
+            //if (__instance.m_item.name == null) return;
+
+            //var level2 = WMRecipeCust.RecipeMaxStationLvl[__instance.m_item.m_itemData.m_shared.m_name];
+            /*
+            foreach (KeyValuePair<string, int> kvp in WMRecipeCust.RecipeMaxStationLvl)
+            {
+                //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
+                WMRecipeCust.WLog.LogInfo("Key and Value "+ kvp.Key + " "  +kvp.Value);
+            
+            } */
+
+            if (WMRecipeCust.RecipeMaxStationLvl.TryGetValue(__instance.m_item.name, out int level))
+            {
+                if (level == -1)
+                {
+
+                }
+                else
+                {
+                    __result = Math.Min(__result, level);
+                    
+                }
+
+            }
+
             /*
             if (___recipe == null )
                 return;

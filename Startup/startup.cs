@@ -197,7 +197,7 @@ namespace wackydatabase.Startup
                 //Application.Quit();
 
             }
-            //temp.LoadAllRecipeData(true);
+            temp.LoadAllRecipeData(true);
             yield break;
         }
 

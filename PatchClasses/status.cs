@@ -8,8 +8,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
 using System.Security.Cryptography;
-
-
 using wackydatabase.Datas;
 using wackydatabase.Util;
 using System.Reflection.Emit;

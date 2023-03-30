@@ -17,7 +17,10 @@ Version 2.0
 12) Catch up with wackydb 1.0 commits - Done
 13) Fix Converter - Done
 
-Fixing Converter would mean users has to load into game the way, jsons are loading in game mem, then each name saved again into yml. 
+
+Only this left is materials and visuals and load slowly. And any effectlist data if I ever want to do that.
+Beta over 2-4 weeks probably.
+
 
 
 

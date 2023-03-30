@@ -132,7 +132,7 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalVFX;
         public static Dictionary<string, GameObject> originalSFX;
         public static Dictionary<string, GameObject> originalFX;
-        public static Dictionary<string, int> RecipeMaxStationLvl;
+        public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>(); 
 
         internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();
