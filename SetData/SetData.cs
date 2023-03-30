@@ -539,7 +539,7 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
             } // end clone 1st pass
 
-
+            /*
 
             if (!string.IsNullOrEmpty(data.material) || !string.IsNullOrEmpty(data.damagedMaterial)) // allows changing of any piece
             {
@@ -607,7 +607,8 @@ namespace wackydatabase.SetData
 
                 //SnapshotPiece(go); // piece snapshot doesn't work without instancing
                 //SnapshotItem(null, go.GetComponent<Piece>());
-            }
+            
+            }*/
             if (data.craftingStation != null)
             {
                 CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation);
@@ -973,24 +974,6 @@ namespace wackydatabase.SetData
                             ObjectDB.instance.m_items.Add(newItem);
 
                             /*
-                            ZNetScene znet = ZNetScene.instance;
-                            if (znet)
-                            {
-                                string name = newItem.name;
-                                if (znet.m_namedPrefabs.ContainsKey(hash))
-                                    WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
-                                else
-                                {
-                                    if (newItem.GetComponent<ZNetView>() != null)
-                                        znet.m_prefabs.Add(newItem);
-                                    else
-                                        znet.m_nonNetViewPrefabs.Add(newItem);
-
-                                    znet.m_namedPrefabs.Add(hash, newItem);
-                                    WMRecipeCust.Dbgl($"Added prefab {name}");
-                                }
-                            } */
-
                             if (!string.IsNullOrEmpty(data.cloneMaterial))
                             {
                                 WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial}");
@@ -1022,48 +1005,14 @@ namespace wackydatabase.SetData
                                     }
                                 }
                                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
-                            }
+                            } */ // disabled temp
+
+
                             go = Instant.GetItemPrefab(tempname);
                             PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                             data.name = tempname; // putting back name
 
                         }
-                        /*
-                        var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>();
-                        bool usecustom = false;
-                        if (!DataHelpers.ECheck(data.customIcon))
-                        {
-                            var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.customIcon);
-                            var nullcheck = File.ReadAllBytes(pathI);
-                            if (nullcheck != null)
-                            {
-                                try
-                                {
-
-                                    var Spri = SpriteTools.LoadNewSprite(pathI);
-                                    ItemDr.m_itemData.m_shared.m_icons[0] = Spri;
-                                    usecustom = true;
-
-                                }
-                                catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
-                            }
-                            else
-                            {
-                                WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
-                            }
-                        }
-
-
-                        if (!DataHelpers.ECheck(data.cloneMaterial) && !usecustom)
-                        {
-
-                            try
-                            {
-                                Functions.SnapshotItem(ItemDr); // snapshot go
-                            }
-                            catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
-                        }*/
-
                     }
                 }
             }//  skip
@@ -1163,6 +1112,7 @@ namespace wackydatabase.SetData
                                //NewItemComp.m_itemData.m_shared.m_icons[0].
                                */
 
+                        /*
                         if (!string.IsNullOrEmpty(data.cloneMaterial))
                         {
                             WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial}");
@@ -1194,7 +1144,9 @@ namespace wackydatabase.SetData
                                 }
                             }
                             catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
-                        }
+                        } */ //disabled temp
+
+
                         go = Instant.GetItemPrefab(tempname);
                         PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
