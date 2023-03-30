@@ -73,7 +73,7 @@ namespace wackydatabase.Datas
     public class CraftingStationData {
 
         //CraftingStation
-        //public string? cStationName;
+        public string? cStationName;
         public string? cStationCustomIcon;
         public float? discoveryRange;
         public float? buildRange;

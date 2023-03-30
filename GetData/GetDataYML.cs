@@ -408,7 +408,7 @@ namespace wackydatabase.GetData
                 //var station = PieceID.GetComponent<CraftingStation>();
                 CraftingStationData craftingStationData = new CraftingStationData
                 {
-                    //cStationName = station.name,
+                    cStationName = station.name,
                  cStationCustomIcon = null,
                  discoveryRange = station.m_discoverRange,
                  buildRange = station.m_rangeBuild,

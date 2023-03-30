@@ -716,18 +716,17 @@ namespace wackydatabase.SetData
             bool CStationAdded = false;
             if (!string.IsNullOrEmpty(data.clonePrefabName) && go.TryGetComponent<CraftingStation>(out var station3))
             {
-                CStationAdded = WMRecipeCust.NewCraftingStations.Contains(station3);       
-            }
+                if (!WMRecipeCust.NewCraftingStations.Contains(station3))
+                {
+                    WMRecipeCust.NewCraftingStations.Add(go.GetComponent<CraftingStation>()); // keeping track of them is hard
+                }
+                   // go.GetComponent<CraftingStation>().name = data.name; // must be set
+                    //go.GetComponent<CraftingStation>().m_name = data.m_name ?? go.GetComponent<CraftingStation>().m_name;
 
-            if (!string.IsNullOrEmpty(data.clonePrefabName) && go.TryGetComponent<CraftingStation>(out var station2) && !CStationAdded)
-            {
-                //go.GetComponent<Piece>().m_craftingStation = ""; dont change crafting station hopefully it is empty already
-                go.GetComponent<CraftingStation>().name = data.name; // must be set
-                go.GetComponent<CraftingStation>().m_name = data.m_name ?? go.GetComponent<CraftingStation>().m_name;
-                WMRecipeCust.NewCraftingStations.Add(go.GetComponent<CraftingStation>()); // keeping track of them is hard
-
-                WMRecipeCust.Dbgl($"  new CraftingStation named {data.name} ");
-            }
+                    WMRecipeCust.Dbgl($"  new CraftingStation named {data.name} ");
+             }
+            
+                  
 
             if (data.minStationLevel > 1)
             {
@@ -827,7 +826,7 @@ namespace wackydatabase.SetData
             {
                 go.TryGetComponent<CraftingStation>(out var station);
 
-                //station.name = data.craftingStationData.cStationName ?? station.m_name;
+                station.name = data.craftingStationData.cStationName ?? station.m_name;
                 station.m_discoverRange = data.craftingStationData.discoveryRange ?? station.m_discoverRange;
                 station.m_rangeBuild = data.craftingStationData.buildRange ?? station.m_rangeBuild;
                 station.m_craftRequireRoof = data.craftingStationData.craftRequiresRoof ?? station.m_craftRequireRoof;
