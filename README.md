@@ -41,7 +41,7 @@ sizeMultiplier! - Make a small or HUGE world
 Future Proof - Can add or remove componets without much fuss
 
 
-Materials is currently disabled in BETA!
+Materials is currently disabled in BETA! Future- https://github.com/Rexabit/valheim-visuals-modifier
 
 
 
