@@ -90,6 +90,12 @@ For Multiplayer, the mod has been locked down to prevent easy cheating, but I re
 
 </details> 
 
+<details><summary> FAQ</summary>
+
+
+</details> 
+
+
 <details><summary> Configuration cfg</summary>
 
 ## Configuration file BepInEx/config/WackyMole.WackysDatabase.cfg

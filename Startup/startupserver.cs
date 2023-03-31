@@ -88,9 +88,13 @@ namespace wackydatabase.Startup
                         if (output.clone)
                             temp1.clonePrefabName = output.clonePrefabName;
 
-                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + temp1.name + ".yml"), serializer.Serialize(temp1));
+                        // File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + temp1.name + ".yml"), serializer.Serialize(temp1));
 
-                        File.Move(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Item_" + output.name + ".json"));
+                        var copyfile = file;
+                        File.Copy(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Item_" + output.name + ".json"));
+                        copyfile = Path.ChangeExtension(file, ".yml");
+                        File.WriteAllText(copyfile, serializer.Serialize(temp1));
+                        File.Delete(file);
 
                     }
                     catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }
@@ -107,10 +111,17 @@ namespace wackydatabase.Startup
                             continue;
                         if (output.clone)
                             temp1.clonePrefabName = output.clonePrefabName;
+                        if (output.disabled)
+                            temp1.disabled = true;
+                        if(output.adminonly)
+                            temp1.adminonly = true;
 
-                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + temp1.name + ".yml"), serializer.Serialize(temp1));
 
-                        File.Move(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Piece_" + output.name + ".json"));
+                        var copyfile = file;
+                        File.Copy(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Piece_" + output.name + ".json"));
+                        copyfile = Path.ChangeExtension(file, ".yml");
+                        File.WriteAllText(copyfile, serializer.Serialize(temp1));
+                        File.Delete(file);
 
                     }
                     catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }
@@ -126,10 +137,20 @@ namespace wackydatabase.Startup
                             continue;
                         if (output.clone)
                             temp1.clonePrefabName = output.clonePrefabName;
+                        if (output.disabled)
+                            temp1.disabled = true;
 
-                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + temp1.name + ".yml"), serializer.Serialize(temp1));
+                        var copyfile = file;
+                        File.Copy(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Recipe_" + output.name + ".json"));
+                        copyfile = Path.ChangeExtension(file, ".yml");
+                        File.WriteAllText(copyfile, serializer.Serialize(temp1));
+                        File.Delete(file);
+                        
+                        
+                        
+                 
 
-                        File.Move(file, Path.Combine(WMRecipeCust.assetPathOldJsons, "Recipe_" + output.name + ".json"));
+                        
 
                     }
                     catch { WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file); }

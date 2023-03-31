@@ -139,12 +139,7 @@ namespace wackydatabase.SetData.SetOldData
                     if (!(recipes.m_item == null) && recipes.name == data.name)
                     {
                         WMRecipeCust.Dbgl($"An actual Recipe_ {data.name} has been found!-- Only modification allowed");
-                        if (data.disabled)
-                        {
-                            WMRecipeCust.Dbgl($"Removing recipe for {data.name} from the game");
-                            Instant.m_recipes.Remove(recipes);
-                            return;
-                        }
+
                         recipes.m_amount = data.amount;
                         recipes.m_minStationLevel = data.minStationLevel;
                         recipes.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
@@ -175,8 +170,6 @@ namespace wackydatabase.SetData.SetOldData
             } // it is a prefab and it is an item.
             if (data.clone && !skip)
             {
-                if (!data.disabled)
-                {
                     WMRecipeCust.Dbgl("Setting Cloned Recipe for " + tempname);
                     Recipe clonerecipe = ScriptableObject.CreateInstance<Recipe>();
                     WMRecipeCust.ClonedR.Add(tempname);
@@ -231,12 +224,7 @@ namespace wackydatabase.SetData.SetOldData
                     //Dbgl($"Recipe clone check {citem} against {data.name}");
 
                     return;
-                }
-                else
-                {
-                    WMRecipeCust.Dbgl("Cloned Recipe is disabled for " + data.clonePrefabName + " Will not unload if already loaded");
-                    return;
-                }
+
 
             }
             else if (skip) // if a previous clone
@@ -297,12 +285,6 @@ namespace wackydatabase.SetData.SetOldData
                     {
                         // if not clone normal edit
                         WMRecipeCust.Dbgl("Setting Recipe for " + data.name);
-                        if (data.disabled)
-                        {
-                            WMRecipeCust.Dbgl($"Removing recipe for {data.name} from the game");
-                            Instant.m_recipes.RemoveAt(i);
-                            return;
-                        }
                         Instant.m_recipes[i].m_amount = data.amount;
                         Instant.m_recipes[i].m_minStationLevel = data.minStationLevel;
                         Instant.m_recipes[i].m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
@@ -536,27 +518,8 @@ namespace wackydatabase.SetData.SetOldData
                     }
                 }
             } //end Cat
-            if (data.adminonly)
-            {
-                if (WMRecipeCust.Admin)
-                {
 
-                    WMRecipeCust.Dbgl($"{data.name} is set for Adminonly, and you are admin, enjoy this exclusive Piece");
-                }
-                else
-                {
-                    data.disabled = true;
-                    WMRecipeCust.Dbgl($"{data.name} is set for Adminonly, you are not an admin");
-                }
-            }
 
-            if (data.disabled)
-            {
-                WMRecipeCust.Dbgl($"Disabling Piece {data.name}");
-                go.GetComponent<Piece>().m_enabled = false;
-            }
-            else
-                WMRecipeCust.Dbgl("Setting Piece data for " + data.name);
             if (!string.IsNullOrEmpty(data.m_name))
             {
                 go.GetComponent<Piece>().m_name = data.m_name;

@@ -69,14 +69,15 @@ namespace wackydatabase.GetData
         internal  RecipeData GetRecipeDataByNum(int count, ObjectDB tod)
         {
             var rep = tod.m_recipes[count];
-            WMRecipeCust.Dbgl($"Recipe {rep.name} Item saving");
+            WMRecipeCust.Dbgl($" {rep.name} Item saving");
             
             try
             {
+                /*
                 if (rep.name.Contains("Recipe_"))
                 {
                     return GetRecip(rep, tod, false);
-                }
+                } */
 
                 return GetRecip(rep, tod);
             }
