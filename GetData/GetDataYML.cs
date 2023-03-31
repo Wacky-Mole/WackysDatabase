@@ -378,8 +378,8 @@ namespace wackydatabase.GetData
                 //WMRecipeCust.WLog.LogWarning("Piece Comfort");
                 ComfortData comfort = new ComfortData
                 {
-                    confort = piece.m_comfort,
-                    confortGroup = piece.m_comfortGroup,
+                    comfort = piece.m_comfort,
+                    comfortGroup = piece.m_comfortGroup,
                     comfortObject = piece.m_comfortObject,
                 };
                 data.comfort = comfort;

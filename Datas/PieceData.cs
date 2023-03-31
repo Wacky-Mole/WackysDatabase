@@ -52,8 +52,8 @@ namespace wackydatabase.Datas
     public class ComfortData
     {
         //Confort
-        public int? confort;
-        public Piece.ComfortGroup? confortGroup;
+        public int? comfort;
+        public Piece.ComfortGroup? comfortGroup;
         public GameObject? comfortObject;
     }
 
