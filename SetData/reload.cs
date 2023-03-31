@@ -113,11 +113,14 @@ namespace wackydatabase.SetData
 
         public void LoadClonedItems()
         {
+            if (WMRecipeCust.IsServer) return;
             ObjectDB Instant = ObjectDB.instance;
             foreach (var data in WMRecipeCust.cacheDataYML) // recipes last
             {
                 try
                 {
+                    
+
                     SetData.SetClonedItemsData(data, Instant);// has issues
                 }
                 catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }

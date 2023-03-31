@@ -34,7 +34,7 @@ using wackydatabase.Startup;
 using wackydatabase.Util;
 using wackydatabase.SetData;
 using wackydatabase.Read;
-
+using UnityEngine.Rendering;
 
 namespace wackydatabase
 {
@@ -149,6 +149,7 @@ namespace wackydatabase
         internal static int ProcessWaitforRead = 10;
         internal static float WaitTime = .3f;
         internal static bool LockReload = false;
+        internal static bool IsServer => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
 
 
