@@ -41,6 +41,9 @@ sizeMultiplier! - Make a small or HUGE world
 Future Proof - Can add or remove componets without much fuss
 
 
+Materials is currently disabled in BETA!
+
+
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
