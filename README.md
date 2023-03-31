@@ -547,7 +547,7 @@ Wackymole
 <details><summary>Credits</summary>
 
 Credits:
-A lot of the credit goes to  aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
+aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
 Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
 Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>

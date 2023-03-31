@@ -1,11 +1,9 @@
 ﻿// A Lot of the credit goes to  aedenthorn  and all of his Many Mods! https://github.com/aedenthorn/ValheimMods
 // Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate
 // Thanks to the Odin Discord server, for being active and good for the valheim community.
-// Do whatever you want with this mod. // except sale it as per Aedenthorn Permissions https://www.nexusmods.com/valheim/mods/1245
-// Goal for this mod is RecipeCustomization + Recipe LVL station Requirement + Server Sync
 // Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
 // CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
-// Thx Aedenthorn again
+// Thank you to Rexabit for Visual Modifier - It really is an amazing mod. 
 
 
 using System.IO;
