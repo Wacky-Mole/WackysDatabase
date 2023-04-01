@@ -448,7 +448,7 @@ namespace wackydatabase.SetData
 
                     WMRecipeCust.Dbgl($" You finished wackydb reload");
 
-                    OnAllRecipeReloaded?.Invoke();
+                    OnAllReloaded?.Invoke();
                 }
 
             }
@@ -464,7 +464,7 @@ namespace wackydatabase.SetData
         }
 
 
-        public static event Action OnAllRecipeReloaded;
+        public static event Action OnAllReloaded;
 
 
     }
