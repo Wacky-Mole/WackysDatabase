@@ -227,6 +227,8 @@ namespace wackydatabase
             else isSettoAutoReload = false;
 
         }
+
+        
         private void OnDestroy()
         {
             Config.Save();

@@ -447,6 +447,8 @@ namespace wackydatabase.SetData
                     }
 
                     WMRecipeCust.Dbgl($" You finished wackydb reload");
+
+                    OnAllRecipeReloaded?.Invoke();
                 }
 
             }
@@ -457,13 +459,12 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($" You did NOT reload Files. You probably should have.");
                 }
             }
+            
 
         }
 
 
-
-
-
+        public static event Action OnAllRecipeReloaded;
 
 
     }
