@@ -8,6 +8,7 @@ using static ItemSets;
 using System.Collections.Generic;
 using System;
 using wackydatabase.Util;
+using System.Linq.Expressions;
 
 namespace wackydatabase.GetData
 {
@@ -436,74 +437,75 @@ namespace wackydatabase.GetData
                  data.cSExtensionData = cSExtension;
             }
 
-
-            if (PieceID.TryGetComponent<Smelter>(out var smelt))
-            {
-                // WMRecipeCust.WLog.LogWarning("Piece Smelter");
-                // var smelt = PieceID.GetComponent<Smelter>();
-                if (smelt.name == "charcoal_kiln" || smelt.name == "windmill" || smelt.name == "piece_spinningwheel")
+            try {
+                if (PieceID.TryGetComponent<Smelter>(out var smelt))
                 {
-
-                    List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
-                    foreach (var Item in smelt.m_conversion)
+                    // WMRecipeCust.WLog.LogWarning("Piece Smelter");
+                    // var smelt = PieceID.GetComponent<Smelter>();
+                    if (smelt.name == "charcoal_kiln" || smelt.name == "windmill" || smelt.name == "piece_spinningwheel")
                     {
-                        SmelterConversionList smell = new SmelterConversionList();
-                        smell.FromName = Item.m_from.name;
-                        smell.ToName = Item.m_to.name;
-                        smelterConversionList.Add(smell);
+
+                        List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
+                        foreach (var Item in smelt.m_conversion)
+                        {
+                            SmelterConversionList smell = new SmelterConversionList();
+                            smell.FromName = Item.m_from.name;
+                            smell.ToName = Item.m_to.name;
+                            smelterConversionList.Add(smell);
+                        }
+
+                        SmelterData smelterData2 = new SmelterData
+                        {
+                            smelterName = smelt.name,
+                            smelterConversion = smelterConversionList,
+                            emptyOreTooltip = smelt.m_emptyOreTooltip,
+                            addOreTooltip = smelt.m_addOreTooltip,
+                            maxOre = smelt.m_maxOre,
+                            secPerProduct = smelt.m_secPerProduct,
+                        };
+                        data.smelterData = smelterData2;
                     }
+                    else
+                    {
+                        fuelItemData fuelItemData = new fuelItemData
+                        {
+                            name = smelt.m_fuelItem.name,
+                            // ItemNameShared = smelt.m_fuelItem.m_itemData.m_shared.m_name,
+                        };
 
-                    SmelterData smelterData2 = new SmelterData
-                    {
-                        smelterName = smelt.name,
-                        smelterConversion = smelterConversionList,
-                        emptyOreTooltip = smelt.m_emptyOreTooltip,
-                        addOreTooltip = smelt.m_addOreTooltip,
-                        maxOre = smelt.m_maxOre,
-                        secPerProduct = smelt.m_secPerProduct,
-                    };
-                    data.smelterData = smelterData2;
-                }
-                else
-                {
-                    fuelItemData fuelItemData = new fuelItemData
-                    {
-                        name = smelt.m_fuelItem.name,
-                        // ItemNameShared = smelt.m_fuelItem.m_itemData.m_shared.m_name,
-                    };
+                        List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
+                        foreach (var Item in smelt.m_conversion)
+                        {
+                            SmelterConversionList smell = new SmelterConversionList();
+                            smell.FromName = Item.m_from.name;
+                            smell.ToName = Item.m_to.name;
+                            smelterConversionList.Add(smell);
+                        }
 
-                    List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
-                    foreach (var Item in smelt.m_conversion)
-                    {
-                        SmelterConversionList smell = new SmelterConversionList();
-                        smell.FromName = Item.m_from.name;
-                        smell.ToName = Item.m_to.name;
-                        smelterConversionList.Add(smell);
+
+                        SmelterData smelterData = new SmelterData
+                        {
+                            smelterName = smelt.name,
+                            addOreTooltip = smelt.m_addOreTooltip,
+                            emptyOreTooltip = smelt.m_emptyOreTooltip,
+                            //addFuelSwitch = smelt.m_addWoodSwitch,
+                            // addOreSwitch = smelt.m_addOreSwitch,
+                            //emptyOreSwitch = smelt.m_emptyOreSwitch,
+                            //fuelItem = smelt.m_fuelItem,
+                            fuelItem = fuelItemData,
+                            maxOre = smelt.m_maxOre,
+                            maxFuel = smelt.m_maxFuel,
+                            fuelPerProduct = smelt.m_fuelPerProduct,
+                            secPerProduct = smelt.m_secPerProduct,
+                            spawnStack = smelt.m_spawnStack,
+                            requiresRoof = smelt.m_requiresRoof,
+                            addOreAnimationLength = smelt.m_addOreAnimationDuration,
+                            smelterConversion = smelterConversionList,
+                        };
+                        data.smelterData = smelterData;
                     }
-
-
-                    SmelterData smelterData = new SmelterData
-                    {
-                        smelterName = smelt.name,
-                        addOreTooltip = smelt.m_addOreTooltip,
-                        emptyOreTooltip = smelt.m_emptyOreTooltip,
-                        //addFuelSwitch = smelt.m_addWoodSwitch,
-                        // addOreSwitch = smelt.m_addOreSwitch,
-                        //emptyOreSwitch = smelt.m_emptyOreSwitch,
-                        //fuelItem = smelt.m_fuelItem,
-                        fuelItem = fuelItemData,
-                        maxOre = smelt.m_maxOre,
-                        maxFuel = smelt.m_maxFuel,
-                        fuelPerProduct = smelt.m_fuelPerProduct,
-                        secPerProduct = smelt.m_secPerProduct,
-                        spawnStack = smelt.m_spawnStack,
-                        requiresRoof = smelt.m_requiresRoof,
-                        addOreAnimationLength = smelt.m_addOreAnimationDuration,
-                        smelterConversion = smelterConversionList,
-                    };
-                    data.smelterData = smelterData;
-                }
-            }
+                } 
+            } catch  { }
 
     
             foreach (Piece.Requirement req in piece.m_resources)

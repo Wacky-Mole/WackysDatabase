@@ -73,14 +73,7 @@ namespace wackydatabase.Read
         internal IEnumerator GetDataFromFiles(bool slowmode = false)
         {
             //wackydatabase.WMRecipeCust.WLog.LogWarning("Running Get DataFromFiles");
-            if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun) 
-            {
-                WMRecipeCust.CheckModFolder();
-                WMRecipeCust.GetAllMaterials();
-                DataHelpers.GetPieceStations();
-                DataHelpers.GetPiecesatStart();
-                WMRecipeCust.Firstrun = false;
-            }
+
             WMRecipeCust.recipeDatas.Clear();
             WMRecipeCust.ItemDatas.Clear();
             WMRecipeCust.PieceDatas.Clear();

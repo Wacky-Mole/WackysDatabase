@@ -280,6 +280,16 @@ namespace wackydatabase.SetData
                 ZNet Net = new ZNet();
                 Startup.Startup.IsLocalInstance(Net);
             }
+
+            if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
+            {
+                WMRecipeCust.CheckModFolder();
+                WMRecipeCust.GetAllMaterials();
+                DataHelpers.GetPieceStations();
+                DataHelpers.GetPiecesatStart();
+                WMRecipeCust.Firstrun = false;
+            }
+
             if (reload && (WMRecipeCust.issettoSinglePlayer || WMRecipeCust.recieveServerInfo || WMRecipeCust.LobbyRegistered)) // single player only or recievedServerInfo
             {
                 if (WMRecipeCust.recieveServerInfo && WMRecipeCust.issettoSinglePlayer)
@@ -289,12 +299,6 @@ namespace wackydatabase.SetData
                 }
                 else
                 {
-                    if (WMRecipeCust.Firstrun)
-                    {
-                        WMRecipeCust.GetAllMaterials();
-                        WMRecipeCust.Firstrun = false;
-                    }
-
                     if (!WMRecipeCust.ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
                         yield break;
                     ObjectDB Instant = ObjectDB.instance;
