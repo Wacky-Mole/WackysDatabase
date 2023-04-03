@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ItemManager;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -517,9 +518,11 @@ namespace wackydatabase.PatchClasses
 
                         var serializer = new SerializerBuilder()
                                         .Build();
-
-
-                       var temp = SEcheck.GetStatusEByName(name, tod);
+                        StatusData temp = null;
+                        try
+                        {
+                             temp = SEcheck.GetStatusEByName(name, tod);
+                        } catch  { }
                         if (temp == null)
                         {
                             args.Context?.AddString($"No SE effect by that name");
@@ -530,6 +533,32 @@ namespace wackydatabase.PatchClasses
                                                     
                         args.Context?.AddString($"saved SE effect {name} to SE_{name}.yml in Effects folder");
                         WMRecipeCust.WLog.LogInfo($"saved SE effect {name} to SE_{name}.yml in Effects folder");
+
+
+                    });
+
+            Terminal.ConsoleCommand WackySEcreate =
+                new("wackydb_se_create", "Create a clone se_effect to use",
+                    args =>
+                    {
+
+                       // string name = args[1];
+                        var tod = ObjectDB.instance;
+                        GetDataYML SEcheck = new GetDataYML();
+
+                        var serializer = new SerializerBuilder()
+                                        .Build();
+
+                        
+                        var temp = SEcheck.GetStatusEByName("SetEffect_FenringArmor", tod);
+                        //StatusData temp = new StatusData();
+                        temp.Name = "SetEffect_New1";
+
+
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" + temp.Name + ".yml"), serializer.Serialize(temp));
+
+                        args.Context?.AddString($"Created a clone from SetEffect_FenringArmor, saved as a file SE_{temp.Name}.yml in Effects folder");
+                        WMRecipeCust.WLog.LogInfo($"Created a clone from SetEffect_FenringArmor, saved as a file SE_{temp.Name}.yml in Effects folder");
 
 
                     });

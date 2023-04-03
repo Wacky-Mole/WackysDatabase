@@ -19,6 +19,8 @@ using RainbowTrollArmor;
 using ItemManager;
 using static Attack;
 using System.Xml.Schema;
+using static ItemSets;
+using System.Security.Policy;
 
 namespace wackydatabase.SetData
 {
@@ -35,6 +37,18 @@ namespace wackydatabase.SetData
 
             var name = data.Name;
             var go = Instant.GetStatusEffect(name);
+            if (go == null) {
+                // create new
+                go = Instant.GetStatusEffect("SetEffect_FenringArmor");// cloned
+                //WMRecipeCust.WLog.LogDebug($"Item CLONE DATA in SetItemData for {tempname} from cache ");
+                WMRecipeCust.ClonedE.Add(name);
+                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
+                StatusEffect newStatus = WMRecipeCust.Instantiate(go, RootT, false);
+                newStatus.name = name;
+                ObjectDB.instance.m_StatusEffects.Add(newStatus);
+                go = Instant.GetStatusEffect(name);
+
+            }
             go.m_name = data.Status_m_name ?? go.m_name;
             go.m_category = data.Category ?? go.m_category;
             if (!DataHelpers.ECheck(data.CustomIcon))
@@ -1334,15 +1348,34 @@ namespace wackydatabase.SetData
                     }
                     if (data.SE_Equip != null)
                     {
-                        WMRecipeCust.Dbgl($"   {data.name} Item equip effects ");
-                        PrimaryItemData.m_shared.m_equipStatusEffect = Instant.GetStatusEffect(data.SE_Equip.EffectName) ?? PrimaryItemData.m_shared.m_equipStatusEffect;
+                        if (data.SE_Equip.EffectName == "delete")
+                        {
+                            PrimaryItemData.m_shared.m_equipStatusEffect = null;
+                            WMRecipeCust.Dbgl($"   {data.name} Item equip effects removed");
+                        }
+                        else
+                        {
+
+                            WMRecipeCust.Dbgl($"   {data.name} Item equip effects ");
+                            PrimaryItemData.m_shared.m_equipStatusEffect = Instant.GetStatusEffect(data.SE_Equip.EffectName) ?? PrimaryItemData.m_shared.m_equipStatusEffect;
+                        }
                     }
                     if (data.SE_SET_Equip != null)
                     {
-                        WMRecipeCust.Dbgl($"   {data.name} Item seteffects ");
-                        PrimaryItemData.m_shared.m_setName = data.SE_SET_Equip.SetName ?? PrimaryItemData.m_shared.m_setName;
-                        PrimaryItemData.m_shared.m_setSize = data.SE_SET_Equip.Size ?? PrimaryItemData.m_shared.m_setSize;
-                        PrimaryItemData.m_shared.m_setStatusEffect = Instant.GetStatusEffect(data.SE_SET_Equip.EffectName) ?? PrimaryItemData.m_shared.m_setStatusEffect;
+                        if (data.SE_SET_Equip.EffectName == "delete")
+                        {
+                            PrimaryItemData.m_shared.m_setName = null;
+                            PrimaryItemData.m_shared.m_setSize = 0;
+                            PrimaryItemData.m_shared.m_setStatusEffect = null;
+                            WMRecipeCust.Dbgl($"   {data.name} Item seteffects removed");
+                        }
+                        else
+                        {
+                            WMRecipeCust.Dbgl($"   {data.name} Item seteffects ");
+                            PrimaryItemData.m_shared.m_setName = data.SE_SET_Equip.SetName ?? PrimaryItemData.m_shared.m_setName;
+                            PrimaryItemData.m_shared.m_setSize = data.SE_SET_Equip.Size ?? PrimaryItemData.m_shared.m_setSize;
+                            PrimaryItemData.m_shared.m_setStatusEffect = Instant.GetStatusEffect(data.SE_SET_Equip.EffectName) ?? PrimaryItemData.m_shared.m_setStatusEffect;
+                        }
                     }
 
                     if (data.ShieldStats != null)
