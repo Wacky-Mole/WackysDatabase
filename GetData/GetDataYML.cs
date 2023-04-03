@@ -176,6 +176,8 @@ namespace wackydatabase.GetData
             var f2 = effect.GetType();
             WMRecipeCust.WLog.LogInfo("             StatusEffect " + effect.name);
 
+
+
             SEdata stats = new SEdata
             {
                 //m_tickInterval = f2.GetField("m_tickInterval", BindingFlags.Instance | BindingFlags.Public)?.GetValue(effect)
@@ -201,7 +203,7 @@ namespace wackydatabase.GetData
                 m_skillLevelModifier = Functions.getCast<float>(f2, "m_skillLevelModifier", effect),
                 m_skillLevel2 = Functions.getCast<Skills.SkillType>(f2, "m_skillLevel2", effect),
                 m_skillLevelModifier2 = Functions.getCast<float>(f2, "m_skillLevelModifier2", effect),
-                m_mods = Functions.getCast<HitData.DamageModPair>(f2, "m_mods", effect),
+                m_mods = Functions.getCast<List<HitData.DamageModPair>>(f2, "m_mods", effect),
                 m_modifyAttackSkill = Functions.getCast<Skills.SkillType>(f2, "m_modifyAttackSkill", effect),
                 m_damageModifier = Functions.getCast<float>(f2, "m_damageModifier",effect),
                 m_noiseModifier = Functions.getCast<float>(f2, "m_noiseModifier", effect),
@@ -216,6 +218,8 @@ namespace wackydatabase.GetData
                 m_healthOverTimeTickHP = Functions.getCast<float>(f2, "m_healthOverTimeTickHP", effect),
 
             };
+
+
 
             List<string> StartEeffect = new List<string>();
             foreach (var som in effect.m_startEffects.m_effectPrefabs)
@@ -253,8 +257,21 @@ namespace wackydatabase.GetData
                 Cooldown = effect.m_cooldown,
                 ActivationAnimation = effect.m_activationAnimation ?? "",
                 SeData = stats,
-            }; 
+            };
 
+
+
+            List<HitData.DamageModPair> jsoh = Functions.getCast<List<HitData.DamageModPair>>(f2, "m_mods", effect);
+            if (jsoh != null)
+            {
+                if (jsoh.Count() > 0)
+                {
+                    foreach (var list in jsoh)
+                    {
+                        WMRecipeCust.WLog.LogInfo("                      mods " + list.m_modifier + " " + list.m_type);
+                    }
+                }
+            }
 
 
             return statusData;

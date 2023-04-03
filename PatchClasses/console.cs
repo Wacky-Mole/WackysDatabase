@@ -518,16 +518,10 @@ namespace wackydatabase.PatchClasses
 
                         var serializer = new SerializerBuilder()
                                         .Build();
-                        StatusData temp = null;
-                        try
-                        {
-                             temp = SEcheck.GetStatusEByName(name, tod);
-                        } catch  { }
-                        if (temp == null)
-                        {
-                            args.Context?.AddString($"No SE effect by that name");
-                            return;
-                        }                      
+
+                        var temp = SEcheck.GetStatusEByName(name, tod);
+                          //args.Context?.AddString($"No SE effect by that name")
+                     
 
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" + temp.Name + ".yml"), serializer.Serialize(temp));
                                                     
