@@ -290,8 +290,8 @@ namespace wackydatabase.SetData
                 }
                 
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-                
 
+                RecipeR.m_requireOnlyOneIngredient = data.requireOnlyOneIngredient ?? RecipeR.m_requireOnlyOneIngredient;
 
                 foreach (string req in data.reqs) 
                 {

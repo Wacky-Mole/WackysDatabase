@@ -422,6 +422,8 @@ amount: obvious
 
 disabled: disables recipe for everyone
 
+requireOnlyOneIngredient: Any ingredient listed in reqs can make this recipe, for an example look at FishRaw.
+
 reqs: (Required) requirements to build: Item:amount:amountPerLevel:refundable,
 
     Arrows x50 will be put above Arrow x20

@@ -18,6 +18,7 @@ namespace wackydatabase.Datas
         public string? repairStation;
         public int? amount;
         public bool? disabled;
+        public bool? requireOnlyOneIngredient;
         public List<string>? reqs = new List<string>(); // must have
 
     }

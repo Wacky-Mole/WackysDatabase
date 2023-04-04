@@ -117,6 +117,7 @@ namespace wackydatabase.GetData
                 minStationLevel = data.m_minStationLevel,
                 maxStationLevelCap = null,
                 disabled = !data.m_enabled,
+                requireOnlyOneIngredient = data.m_requireOnlyOneIngredient,
                 reqs = reqs2,
 
             };
