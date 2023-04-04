@@ -150,6 +150,11 @@ wackydb_se_all - Gets almost all SE_Effects in game, will get modded Effects (be
 
 wackydb_se [effectname] - get a singular effect, will save in Effect folder.
 
+wackydb_se_create - Creates a clone of SetEffect_FenringArmor in Status Folder. You can edit to your liking and it should work.
+You should be able to delete existing m_mods, by
+</br>m_mods:
+</br> -
+
 wackydb_help -- commands
 
 wackydb_clone  [recipe/item/piece] [Prefab to clone] [Unique name for the clone]  - clone an object and change it differently than a base game object. 
@@ -426,6 +431,15 @@ reqs: (Required) requirements to build: Item:amount:amountPerLevel:refundable,
 
 <details><summary> Item Effect Components</summary>
 
+You can delete an Effect or seteffect from item using EffectName : delete 
+
+You should be able to delete existing m_mods, by
+</br>m_mods:
+</br> -
+
+Use wackydb_se_create as a "template" to create a new status effect
+
+customIcon, jpeg or png. ie wacky.png 64 x 64
 
 
 </details>

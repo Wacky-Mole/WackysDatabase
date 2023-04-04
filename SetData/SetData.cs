@@ -129,6 +129,7 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_skillLevel2", null, null, null, null,data.SeData.m_skillLevel2);
             Functions.setValue(type, go, "m_skillLevelModifier2", data.SeData.m_skillLevelModifier2);
 
+
             Functions.setValue(type, go, "m_mods", null, null, null,data.SeData.m_mods);
 
             Functions.setValue(type, go, "m_modifyAttackSkill", null, null, null, null, data.SeData.m_modifyAttackSkill);

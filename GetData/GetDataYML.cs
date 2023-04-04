@@ -260,7 +260,7 @@ namespace wackydatabase.GetData
             };
 
 
-
+            /*
             List<HitData.DamageModPair> jsoh = Functions.getCast<List<HitData.DamageModPair>>(f2, "m_mods", effect);
             if (jsoh != null)
             {
@@ -271,7 +271,7 @@ namespace wackydatabase.GetData
                         WMRecipeCust.WLog.LogInfo("                      mods " + list.m_modifier + " " + list.m_type);
                     }
                 }
-            }
+            }*/
 
 
             return statusData;
