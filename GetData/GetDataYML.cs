@@ -852,14 +852,18 @@ namespace wackydatabase.GetData
 
 
             //WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " shield "); Maybe everything deflects a bit
-            ShieldData ShieldData = new ShieldData
+            if (data.m_shared.m_blockPower != 0)
             {
-                m_blockPower = data.m_shared.m_blockPower,
-                m_blockPowerPerLevel = data.m_shared.m_blockPowerPerLevel,
-                m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
-                m_deflectionForce = data.m_shared.m_deflectionForce,
-                m_deflectionForcePerLevel = data.m_shared.m_deflectionForcePerLevel,
-            };
+                ShieldData ShieldData = new ShieldData
+                {
+                    m_blockPower = data.m_shared.m_blockPower,
+                    m_blockPowerPerLevel = data.m_shared.m_blockPowerPerLevel,
+                    m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
+                    m_deflectionForce = data.m_shared.m_deflectionForce,
+                    m_deflectionForcePerLevel = data.m_shared.m_deflectionForcePerLevel,
+                };
+                ItemData.ShieldStats = ShieldData;
+            }
 
 
             return ItemData;
