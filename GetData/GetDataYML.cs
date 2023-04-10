@@ -743,7 +743,7 @@ namespace wackydatabase.GetData
 
                     AttackRange = data.m_shared.m_attack.m_attackRange,
                     AttackHeight = data.m_shared.m_attack.m_attackHeight,
-                    Spawn_On_Trigger = data.m_shared.m_attack.m_spawnOnTrigger,
+                    Spawn_On_Trigger = data.m_shared.m_attack.m_spawnOnTrigger?.name,
 
                     Requires_Reload = data.m_shared.m_attack.m_requiresReload,
                     Reload_Animation = data.m_shared.m_attack.m_reloadAnimation,
@@ -792,7 +792,7 @@ namespace wackydatabase.GetData
 
                     AttackRange = data.m_shared.m_secondaryAttack.m_attackRange,
                     AttackHeight = data.m_shared.m_secondaryAttack.m_attackHeight,
-                    Spawn_On_Trigger = data.m_shared.m_secondaryAttack.m_spawnOnTrigger,
+                    Spawn_On_Trigger = data.m_shared.m_secondaryAttack.m_spawnOnTrigger?.name,
 
                     Requires_Reload = data.m_shared.m_secondaryAttack.m_requiresReload,
                     Reload_Animation = data.m_shared.m_secondaryAttack.m_reloadAnimation,

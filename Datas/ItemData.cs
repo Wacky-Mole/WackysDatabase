@@ -124,7 +124,7 @@ namespace wackydatabase.Datas
 
         public float? AttackRange;
         public float? AttackHeight;
-        public GameObject? Spawn_On_Trigger;
+        public string? Spawn_On_Trigger;
 
         public bool? Requires_Reload;
         public string? Reload_Animation;

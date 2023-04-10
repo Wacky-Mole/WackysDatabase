@@ -1249,7 +1249,8 @@ namespace wackydatabase.SetData
 
                         PrimaryItemData.m_shared.m_attack.m_attackRange = data.Primary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_attack.m_attackRange;
                         PrimaryItemData.m_shared.m_attack.m_attackHeight = data.Primary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_attack.m_attackHeight;
-                        PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = data.Primary_Attack.Spawn_On_Trigger ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
+                        if (!string.IsNullOrEmpty(data.Primary_Attack.Spawn_On_Trigger))
+                            PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = GameObject.Find(data.Primary_Attack.Spawn_On_Trigger) ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
 
                         PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
                         PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
@@ -1296,7 +1297,9 @@ namespace wackydatabase.SetData
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange = data.Secondary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight = data.Secondary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight;
-                        PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = data.Secondary_Attack.Spawn_On_Trigger ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
+
+                        if (!string.IsNullOrEmpty(data.Secondary_Attack.Spawn_On_Trigger))
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = GameObject.Find(data.Secondary_Attack.Spawn_On_Trigger) ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;

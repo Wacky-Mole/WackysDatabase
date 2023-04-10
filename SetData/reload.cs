@@ -32,7 +32,7 @@ namespace wackydatabase.SetData
                 DataHelpers.GetPiecesatStart();
                 //LoadinMultiplayerFirst = true; // this is going to require some rewrite
                 if (!WMRecipeCust.isDebug.Value)
-                    WMRecipeCust.WLog.LogWarning($"Debug String is off, which suprisingly makes it hard to debug");
+                    WMRecipeCust.WLog.LogWarning($"Debug is off, which suprisingly, makes it hard to debug");
             }
             if (WMRecipeCust.NoMoreLoading)
             {
@@ -60,7 +60,11 @@ namespace wackydatabase.SetData
                 WMRecipeCust.ItemDatas.Clear();
                 WMRecipeCust.PieceDatas.Clear();
                 WMRecipeCust.armorDatas.Clear();
+
                 WMRecipeCust.pieceWithLvl.Clear(); 
+                WMRecipeCust.recipeDatasYml.Clear();
+                WMRecipeCust.itemDatasYml.Clear();
+                WMRecipeCust.pieceDatasYml.Clear();
                 WMRecipeCust.visualDatasYml.Clear();
                 WMRecipeCust.effectDataYml.Clear();
                 WMRecipeCust.cacheDataYML.Clear();
@@ -68,12 +72,14 @@ namespace wackydatabase.SetData
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
                 {
-                    WMRecipeCust.WLog.LogDebug("Synced String was  " + SyncedString);
+                    if(WMRecipeCust.isDebugString.Value)
+                        WMRecipeCust.WLog.LogInfo("Synced String was  " + SyncedString);
+
                     var deserializer = new DeserializerBuilder()
                     .Build();
                     
                     string[] yml = SyncedString.Split(WMRecipeCust.StringSeparator);
-                    foreach (var word in yml) // Should really do a first pass for clones?
+                    foreach (var word in yml) 
                     {
                         if (word.Contains("m_weight")) //item
                         {

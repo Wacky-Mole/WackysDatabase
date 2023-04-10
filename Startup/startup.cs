@@ -56,8 +56,8 @@ namespace wackydatabase.Startup
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
 
-                
-                WMRecipeCust.context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
+                if (ZNet.instance.IsServer() && !ZNet.instance.IsDedicated()) // Only Load if Singleplayer or COOP Server -otherwise need to wait for client
+                    WMRecipeCust.context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
 
                 if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied) // is client now
                 {
@@ -70,7 +70,6 @@ namespace wackydatabase.Startup
                         WMRecipeCust.WLog.LogWarning("You hosted a COOP game before trying to connect to a server - LOCKOUT - 0.0.1 - Restart Game " + WMRecipeCust.ConfigSync.CurrentVersion);
                     }
                 }
-                //LoadAllRecipeData(true);
             }
         }
 
@@ -157,16 +156,13 @@ namespace wackydatabase.Startup
                 yield return new WaitForSeconds(0.2f);
             }
             WMRecipeCust.WLog.LogInfo("Load Sync Data");
-            SetData.Reload temp = new SetData.Reload();
-            WMRecipeCust.CurrentReload = temp;
-
             if (WMRecipeCust.FirstSessionRun)
             {
-                WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Dedicated Sync Reload
+                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); // Dedicated Sync Reload 
                 WMRecipeCust.FirstSessionRun = false; // reset in a destory patch
             }else
             {
-                WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true, true)); // Dedicated Sync Reload SLOW
+                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); // Dedicated Sync Reload SLOW
             }
                 
 

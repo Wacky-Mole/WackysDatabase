@@ -333,6 +333,7 @@ namespace wackydatabase
         {
             if (go)
             {
+                WMRecipeCust.WLog.LogInfo("Recieved Admin Request to Reload");
                 ReadFiles readnow = new ReadFiles();
                 WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
                 WMRecipeCust.readFiles = readnow;
