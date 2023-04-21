@@ -123,13 +123,23 @@ namespace wackydatabase.SetData
             ObjectDB Instant = ObjectDB.instance;
             foreach (var data in WMRecipeCust.cacheDataYML) // recipes last
             {
-                try
+                bool alreadyexist = false;
+                foreach (var citem in WMRecipeCust.ClonedI)
                 {
-                    
-
-                    SetData.SetClonedItemsData(data, Instant);// has issues
+                    if (citem == data.name)
+                    {
+                        alreadyexist = true;
+                    }
+                                              
                 }
-                catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
+                if (!alreadyexist)
+                {
+                    try
+                    {
+                        SetData.SetClonedItemsData(data, Instant);// has issues
+                    }
+                    catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
+                }
             }
             Instant.UpdateItemHashes();
         }

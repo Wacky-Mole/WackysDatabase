@@ -5,6 +5,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using wackydatabase.Datas;
 using wackydatabase.GetData;
@@ -235,6 +236,55 @@ namespace wackydatabase.PatchClasses
 
                     }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
+            Terminal.ConsoleCommand WackyRecipeItem =
+            new("wackydb_save_recipeitem", "Save the recipe and item at the same time, this will create a recipe if not found",
+                args =>
+                {
+
+                    WMRecipeCust.CheckModFolder();
+                    if (args.Length - 1 < 1)
+                    {
+                        args.Context?.AddString("<color=lime>Not enough arguments</color>");
+                    }
+                    else
+                    {
+                        var serializer = new SerializerBuilder()
+                        .Build();
+                        GetDataYML RecipeCheck = new GetDataYML();
+                        string prefab = args[1];
+                        //string newname = args[2];
+                        // string file = args[2];
+                        WItemData item = RecipeCheck.GetItemDataByName(prefab, ObjectDB.instance);
+                        if (item == null)
+                            return;
+
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + item.name + ".yml"), serializer.Serialize(item));
+                        string file = "";
+
+                        RecipeData recipe = RecipeCheck.GetRecipeDataByName(prefab, ObjectDB.instance);//  prefab of cloned item
+                        if (recipe != null)
+                        { 
+                          //  clone.name = "R" + newname;
+                         //   clone.clonePrefabName = itemclone.name; // cloned item
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipe.name + ".yml"), serializer.Serialize(recipe));
+                            file = "Item saved as Item_" + item.name + ".yml,  Recipe saved as Recipe_" + recipe.name + ".yml";
+                        }else
+                        {
+                            recipe = RecipeCheck.GetRecipeDataByName("Club", ObjectDB.instance);// Club clone
+                            if (recipe == null)
+                                return;
+                            recipe.name = "R" + prefab;
+                            recipe.clonePrefabName = prefab; // cloned item
+                            file = "Item saved as Item_" + item.name + ".yml,  Recipe saved as a clone from 'Club' Recipe_" + recipe.name + ".yml";
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipe.name + ".yml"), serializer.Serialize(recipe));
+                        }
+
+
+                        args.Context?.AddString($"{file}");
+                    }
+
+                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+
             Terminal.ConsoleCommand WackyMaterials =
                 new("wackydb_material", "Create txt file of materials",
                     args =>
@@ -285,13 +335,23 @@ namespace wackydatabase.PatchClasses
                    });
 
             Terminal.ConsoleCommand WackySE =
-                new("wackydb_se_all", "Get all SE effects in game and create your own",
+                new("wackydb_all_se", "Get all SE effects in game and create your own",
                     args =>
                     {
                         var tod = ObjectDB.instance;
                         var max = tod.m_StatusEffects.Count();
                         GetDataYML SEcheck = new GetDataYML();
                         int count = 0;
+
+                        if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
+                        {
+                            WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
+                            Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                        }
+                        if (!Directory.Exists(WMRecipeCust.assetPathBulkYMLEffects))
+                        {
+                            Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLEffects);
+                        }
 
                         var serializer = new SerializerBuilder()
                                         .Build();
@@ -319,11 +379,11 @@ namespace wackydatabase.PatchClasses
                             */
 
 
-                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" +temp.Name+".yml"), part1);
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLEffects, "SE_" +temp.Name+".yml"), part1);
                             
                         }
-                        args.Context?.AddString($"saved all Status Effects to folder Effects");
-                        WMRecipeCust.WLog.LogInfo($"saved all Status Effects to folder Effects");
+                        args.Context?.AddString($"saved all Status Effects to wackyDatabase-BulkYML Effects");
+                        WMRecipeCust.WLog.LogInfo($"saved all Status Effects to wackyDatabase-BulkYML Effects");
 
                     });
                     Terminal.ConsoleCommand WackyAllItems =
@@ -334,6 +394,10 @@ namespace wackydatabase.PatchClasses
                             {
                                 WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
                                 Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                            }
+                            if (!Directory.Exists(WMRecipeCust.assetPathBulkYMLItems))
+                            {
+                                Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLItems);
                             }
                             var tod = ObjectDB.instance;
                             var max = tod.m_items.Count();
@@ -354,11 +418,11 @@ namespace wackydatabase.PatchClasses
                                 var part1 = serializer.Serialize(temp);
 
 
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Item_" + temp.name + ".yml"), part1);
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLItems, "Item_" + temp.name + ".yml"), part1);
 
                             }
-                            args.Context?.AddString($"saved all Items in WackyBulk");
-                            WMRecipeCust.WLog.LogInfo($"saved all Items in WackyBulk");
+                            args.Context?.AddString($"saved all Items in WackyBulk Items");
+                            WMRecipeCust.WLog.LogInfo($"saved all Items in WackyBulk Items");
 
                         });
 
@@ -371,7 +435,11 @@ namespace wackydatabase.PatchClasses
                                 WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
                                 Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
                             }
-                            var tod = ObjectDB.instance;
+                            if (!Directory.Exists(WMRecipeCust.assetPathBulkYMLRecipes))
+                            {
+                                Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLRecipes);
+                            }
+                                var tod = ObjectDB.instance;
                             var max = tod.m_recipes.Count();
                            // WMRecipeCust.WLog.LogWarning($"max is {max} with {tod.m_recipes[0].name}being first");
                                 GetDataYML RecipeCheck = new GetDataYML();
@@ -391,12 +459,12 @@ namespace wackydatabase.PatchClasses
                                 var part1 = serializer.Serialize(temp);
 
 
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Recipe_" + temp.name + ".yml"), part1);
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLRecipes, "Recipe_" + temp.name + ".yml"), part1);
 
                             }
 
-                            args.Context?.AddString($"saved all Recipes in WackyBulk");
-                            WMRecipeCust.WLog.LogInfo("saved all Recipes in WackyBulk");
+                            args.Context?.AddString($"saved all Recipes in WackyBulk Recipes Folder");
+                            WMRecipeCust.WLog.LogInfo("saved all Recipes in WackyBulk Recipes Folder");
 
                         });
 
@@ -420,6 +488,11 @@ namespace wackydatabase.PatchClasses
                                     {
                                         WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
                                         Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                                    }
+
+                                    if (!Directory.Exists(WMRecipeCust.assetPathBulkYMLPieces))
+                                    {
+                                        Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLPieces);
                                     }
                                     var tod = ObjectDB.instance;
                                     ItemDrop HamerItemdrop = null;
@@ -462,12 +535,12 @@ namespace wackydatabase.PatchClasses
                                                     continue;
 
                                                 var part1 = serializer.Serialize(temp);
-                                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Piece_" + temp.name + ".yml"), part1);
+                                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPieces, "Piece_" + temp.name + ".yml"), part1);
                                             }
 
 
-                                            args.Context?.AddString($"saved all Pieces from hammer {hammer} with category {cat} in WackyBulk");
-                                            WMRecipeCust.WLog.LogInfo($"saved all Pieces from hammer {hammer} with category {cat} in WackyBulk");
+                                            args.Context?.AddString($"saved all Pieces from hammer {hammer} with category {cat} in WackyBulk Pieces");
+                                            WMRecipeCust.WLog.LogInfo($"saved all Pieces from hammer {hammer} with category {cat} in WackyBulk Pieces");
                                         }
                                         else
                                         {
@@ -496,7 +569,7 @@ namespace wackydatabase.PatchClasses
                                             var part1 = serializer.Serialize(temp);
 
 
-                                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYML, "Piece_" + temp.name + ".yml"), part1);
+                                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPieces, "Piece_" + temp.name + ".yml"), part1);
 
                                         }
                                         args.Context?.AddString($"saved all Pieces from hammer {hammer} in WackyBulk");
@@ -544,15 +617,18 @@ namespace wackydatabase.PatchClasses
                                         .Build();
 
                         
-                        var temp = SEcheck.GetStatusEByName("SetEffect_FenringArmor", tod);
+                        var temp = SEcheck.GetStatusEByName("SetEffect_TrollArmor", tod);
                         //StatusData temp = new StatusData();
-                        temp.Name = "SetEffect_New1";
+                        var rand = new System.Random();
+                        int num = rand.Next(1, 1000);
+                        temp.Name = "SetEffect_New"+num;
+
 
 
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" + temp.Name + ".yml"), serializer.Serialize(temp));
 
-                        args.Context?.AddString($"Created a clone from SetEffect_FenringArmor, saved as a file SE_{temp.Name}.yml in Effects folder");
-                        WMRecipeCust.WLog.LogInfo($"Created a clone from SetEffect_FenringArmor, saved as a file SE_{temp.Name}.yml in Effects folder");
+                        args.Context?.AddString($"Created a clone from SetEffect_TrollArmor, saved as a file SE_{temp.Name}.yml in Effects folder, PLEASE ReNAME");
+                        WMRecipeCust.WLog.LogInfo($"Created a clone from SetEffect_TrollArmor, saved as a file SE_{temp.Name}.yml in Effects folder, PLEASE ReNAME");
 
 
                     });
@@ -561,8 +637,95 @@ namespace wackydatabase.PatchClasses
              * wackydb_clone <item/recipe/piece> <prefab to clone> <nameofclone>(has to be unquie otherwise we would have to check) 
              * 
              */
+            /*
+            Terminal.ConsoleCommand WackyDisa_Clone =
+            new("wackydb_disableandclone", "Save an Item or Piece, disable, and clone a new one",
+                args =>
+                {
+                    if (args.Length - 1 < 3)
+                    {
+                        args.Context?.AddString("<color=lime>Not enough arguments</color>");
+
+                    }else
+                    {
+                        string prefab = args[1];
+                        string newname = args[2];
+                        string pieceorItem = args[3];
+                        string file_string = "Not found";
+                        var gameo = ZNetScene.instance.GetPrefab(prefab);
+                        //var GameItem = ZNetScene.instance.GetPrefab("SwordIron");
+                        //var GamePiece = ZNetScene.instance.GetPrefab("woodchest");
+                    
+                        var serializer = new SerializerBuilder()
+                        .Build();
+                        GetDataYML RecipeCheck = new GetDataYML();
+
+
+                        if (pieceorItem == "item")
+                        {
+                            WItemData item = RecipeCheck.GetItemDataByName(prefab, ObjectDB.instance);
+                            if (item == null)
+                                return;
+
+                            var clone = item;
+                            clone.name = newname;
+                            clone.clonePrefabName = prefab;
+                            clone.m_name = newname;
+
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + clone.name + ".yml"), serializer.Serialize(clone));
+                            file_string = "cloned Item written as Item_" + clone.name + ".yml ";
+
+                            RecipeData recipe = RecipeCheck.GetRecipeDataByName(prefab, ObjectDB.instance);//  prefab of cloned item
+                            if (recipe != null)
+                            {
+                                var reipeclone = recipe;
+                                recipe.disabled = true;
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipe.name + ".yml"), serializer.Serialize(recipe));
+                                file_string += " Orginal Recipe saved and disabled ";
+
+
+                                reipeclone.name = "R" + newname;
+                                reipeclone.clonePrefabName = item.name; // cloned item
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + reipeclone.name + ".yml"), serializer.Serialize(reipeclone));
+                                file_string += " Clone Recipe saved as " + "Recipe_" + reipeclone.name + ".yml ";
+
+
+                            }
+
+                        }
+                        else if (pieceorItem == "piece")
+                        {
+
+                            PieceData pie = RecipeCheck.GetPieceRecipeByName(prefab, ObjectDB.instance);
+                            if (pie == null)
+                                return;
+                            var clone = pie;
+                            clone.name = newname;
+                            clone.clonePrefabName = prefab;
+
+                            pie.disabled = true;
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + pie.name + ".yml"), serializer.Serialize(pie));
+                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + clone.name + ".yml"), serializer.Serialize(clone));
+                            file_string = "Piece has been saved and disabled, a clone has been created and saved as " +"Piece_" + clone.name + ".yml ";
+
+                        }
+                        else
+                        {
+                            args.Context?.AddString(file_string);
+                            
+                        }
+
+
+                    }
+
+
+
+
+                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+
+            */
             Terminal.ConsoleCommand WackyClone =
-                new("wackydb_clone", "Clone an item or piecce with different status, names, effects ect... ",
+                new("wackydb_clone", "Clone an Item/Piece/Recipe with different stats, names, effects ect... ",
                     args =>
                     {
                         if (args.Length - 1 < 3)
@@ -689,7 +852,7 @@ namespace wackydatabase.PatchClasses
                             args.Context?.AddString($"{file}");
                         }
 
-                    });
+                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
 
             Terminal.ConsoleCommand Wackyadmin =    //dont look :)

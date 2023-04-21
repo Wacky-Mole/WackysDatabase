@@ -108,6 +108,10 @@ namespace wackydatabase
         internal static string assetPathVisuals;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
+        internal static string assetPathBulkYMLItems;
+        internal static string assetPathBulkYMLPieces;
+        internal static string assetPathBulkYMLEffects;
+        internal static string assetPathBulkYMLRecipes;
         internal static string assetPathIcons;
         internal static string assetPathEffects;
         internal static string assetPathCache;
@@ -165,7 +169,13 @@ namespace wackydatabase
             assetPathVisuals = Path.Combine(assetPathconfig, "Visuals");
             assetPathEffects = Path.Combine(assetPathconfig, "Effects");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
+
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
+            assetPathBulkYMLItems = Path.Combine(assetPathBulkYML, "Items");
+            assetPathBulkYMLPieces = Path.Combine(assetPathBulkYML, "Pieces");
+            assetPathBulkYMLRecipes = Path.Combine(assetPathBulkYML, "Recipes");
+            assetPathBulkYMLEffects = Path.Combine(assetPathBulkYML, "Effects");
+
             assetPathIcons = Path.Combine(assetPathconfig, "Icons");
             assetPathCache = Path.Combine(assetPathconfig, "Cache");
             // testme(); // function for testing things
