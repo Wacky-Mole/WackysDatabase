@@ -98,6 +98,7 @@ namespace wackydatabase
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
         public static bool ForceLogout = false;
+        internal static List<GameObject> BlacklistClone = new List<GameObject>();
 
 
 
@@ -151,6 +152,13 @@ namespace wackydatabase
         {
 
         } */
+
+        public static void AddBlacklistClone(GameObject newObject)
+        {
+            if (newObject == null) return;
+            if (BlacklistClone.Contains(newObject)) return; 
+            BlacklistClone.Add(newObject);
+        }
         public static bool SinglePlayerchecker
         {
             get { return issettoSinglePlayer; }
@@ -956,6 +964,12 @@ namespace wackydatabase
             }
             if (data.clone && !skip) // object is a clone do clonethings
             {
+                if(BlacklistClone.Contains(go))
+                {
+                    Dbgl($"Can not clone {tempname} ");
+                    return;
+                }
+
                 Dbgl($"Item CLONE DATA in SetPiece for {tempname} ");
                 Transform RootT = Root.transform; // Root set to inactive to perserve components. 
                 GameObject newItem = Instantiate(go, RootT, false);
@@ -1365,6 +1379,11 @@ namespace wackydatabase
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                     if (data.clone && !skip) // object is a clone do clonethings
                     {
+                        if (BlacklistClone.Contains(go))
+                        {
+                            Dbgl($"Can not clone {tempname} ");
+                            return;
+                        }
                         Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
                         ClonedI.Add(tempname);
                         Transform RootT = Root.transform; // Root set to inactive to perserve components. 

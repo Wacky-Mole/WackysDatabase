@@ -54,6 +54,7 @@
     </When>
   </Choose>
   <ItemGroup>
+    <Compile Include="API.cs" />
     <Compile Include="color.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ItemData.cs" />
