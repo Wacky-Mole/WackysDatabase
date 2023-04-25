@@ -98,7 +98,7 @@ namespace wackydatabase
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
         public static bool ForceLogout = false;
-        internal static List<GameObject> BlacklistClone = new List<GameObject>();
+        internal static List<string> BlacklistClone = new List<string>();
 
 
 
@@ -153,7 +153,7 @@ namespace wackydatabase
 
         } */
 
-        public static void AddBlacklistClone(GameObject newObject)
+        public static void AddBlacklistClone(string newObject)
         {
             if (newObject == null) return;
             if (BlacklistClone.Contains(newObject)) return; 
@@ -964,7 +964,7 @@ namespace wackydatabase
             }
             if (data.clone && !skip) // object is a clone do clonethings
             {
-                if(BlacklistClone.Contains(go))
+                if(BlacklistClone.Contains(tempname))
                 {
                     Dbgl($"Can not clone {tempname} ");
                     return;
@@ -1379,7 +1379,7 @@ namespace wackydatabase
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                     if (data.clone && !skip) // object is a clone do clonethings
                     {
-                        if (BlacklistClone.Contains(go))
+                        if (BlacklistClone.Contains(tempname))
                         {
                             Dbgl($"Can not clone {tempname} ");
                             return;

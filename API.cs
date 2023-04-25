@@ -13,7 +13,7 @@ public class WackyDatabase_API
 
 
     public static bool IsInstalled() => _IsInstalled;
-    public static void AddBlacklistClone(GameObject value)
+    public static void AddBlacklistClone(string value)
     {
         eAddBlacklistClone?.Invoke(null, new object[] { value });
     }
@@ -37,7 +37,7 @@ public class WackyDatabase_API
 // don't use
 public static class WackyAPI
 {
-   public static void AddBlacklistClone(GameObject value)
+   public static void AddBlacklistClone(string value)
     {
         WMRecipeCust.AddBlacklistClone(value);
     }
