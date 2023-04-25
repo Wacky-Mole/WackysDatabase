@@ -22,7 +22,7 @@ public class WackyDatabase_API
 
     static WackyDatabase_API()
     {
-        if (Type.GetType("API.WackydbAPI, wackydb") is not { } wackydatabaseAPI)
+        if (Type.GetType("API.WackyAPI, wackydb") is not { } wackydatabaseAPI)
         {
             _IsInstalled = false;
             return;
@@ -35,7 +35,7 @@ public class WackyDatabase_API
 }
 
 // don't use
-public static class WackydbAPI
+public static class WackyAPI
 {
    public static void AddBlacklistClone(GameObject value)
     {
