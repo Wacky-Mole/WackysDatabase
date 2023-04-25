@@ -154,6 +154,7 @@ namespace wackydatabase
         internal static int ProcessWaitforRead = 10;
         internal static float WaitTime = .3f;
         internal static bool LockReload = false;
+        internal static bool Reloading = false;
         internal static bool IsServer => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
 

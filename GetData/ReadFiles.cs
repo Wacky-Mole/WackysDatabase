@@ -44,9 +44,13 @@ namespace wackydatabase.Read
             {
                 if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() && WMRecipeCust.enableYMLWatcher.Value || ZNet.instance.IsServer() && WMRecipeCust.isSettoAutoReload && WMRecipeCust.enableYMLWatcher.Value)
                 {  // should only load for the server now
+                    if (WMRecipeCust.Reloading)
+                        return;
                     WMRecipeCust.Dbgl("YML files have changed. Server or Singleplayer and Autoreload is on");
                     WMRecipeCust.context.StartCoroutine(GetDataFromFiles()); // load stuff in mem
+                    WMRecipeCust.context.StartCoroutine(StartReloadingTimer());
                     WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; //Sync Event // Single player forces client to reload as well. 
+                    WMRecipeCust.Reloading = true;
                 }
             }
             catch
@@ -70,7 +74,15 @@ namespace wackydatabase.Read
                 cache.Load<WItemData>(file, WMRecipeCust.cacheDataYML);
             }
         }
-        internal IEnumerator GetDataFromFiles(bool slowmode = false)
+        internal IEnumerator StartReloadingTimer()
+        {
+
+             yield return new WaitForSeconds(10); // wait 10 seconds before another reload can be called
+            WMRecipeCust.Reloading = false;
+            
+
+        }
+            internal IEnumerator GetDataFromFiles(bool slowmode = false)
         {
             //wackydatabase.WMRecipeCust.WLog.LogWarning("Running Get DataFromFiles");
 
