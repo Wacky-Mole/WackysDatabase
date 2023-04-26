@@ -208,6 +208,8 @@ Support me at https://www.buymeacoffee.com/WackyMole
 
 
 ## Changelog
+        Version 1.4.3
+            2.0 is coming along, but not quite ready yet - Added enableYMLWatcher config in the meantime. 
         Version 1.4.2
             Had to disable Piece snapshot because of hovering pieces stacking up on each other, hopefully someone fixes it someday.
             You might have to destroy the existing pieces at (0,0) with infinity hammer quite a lot depending on reloads and players joining.    

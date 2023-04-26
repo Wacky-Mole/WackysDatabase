@@ -54,6 +54,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> isDebugString;
         public static ConfigEntry<bool> ServerDedLoad;
         public static ConfigEntry<bool> extraSecurity;
+        public static ConfigEntry<bool> enableYMLWatcher;
        // public static ConfigEntry<string> WaterName;
         private static bool issettoSinglePlayer = false;
         private static bool isSettoAutoReload;
@@ -216,6 +217,7 @@ namespace wackydatabase
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
             ServerDedLoad = config<bool>("General", "DedServer load Memory", false, "Dedicated Servers will load wackydb files as a client would, this is usually not needed");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
+            enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
             //isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
             //WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
             ConfigSync.CurrentVersion = ModVersion;
@@ -273,7 +275,7 @@ namespace wackydatabase
             if (!File.Exists(ConfigFileFullPath)) return;
             try
             {
-                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() || issettoSinglePlayer && isSettoAutoReload)
+                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() && enableYMLWatcher.Value || issettoSinglePlayer && isSettoAutoReload)
                 {  // should only load for the server now
                     Dbgl("Jsons files have changed and access is either on a dedicated server or singleplayer with autoreload on therefore reloading everything");
                     GetRecipeDataFromFiles(); // load stuff in mem
