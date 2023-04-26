@@ -966,9 +966,9 @@ namespace wackydatabase
             }
             if (data.clone && !skip) // object is a clone do clonethings
             {
-                if(BlacklistClone.Contains(tempname))
+                if(BlacklistClone.Contains(data.name))
                 {
-                    Dbgl($"Can not clone {tempname} ");
+                    Dbgl($"Can not clone {data.name} ");
                     return;
                 }
 
@@ -1381,9 +1381,9 @@ namespace wackydatabase
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                     if (data.clone && !skip) // object is a clone do clonethings
                     {
-                        if (BlacklistClone.Contains(tempname))
+                        if (BlacklistClone.Contains(data.name))
                         {
-                            Dbgl($"Can not clone {tempname} ");
+                            Dbgl($"Can not clone {data.name} ");
                             return;
                         }
                         Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
