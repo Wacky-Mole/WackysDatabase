@@ -121,7 +121,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.4.2" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.4.3" }; // it is very picky on version number
 
 
         #endregion
@@ -217,13 +217,13 @@ namespace wackydatabase
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // not browseable and can only be set before launch
             ServerDedLoad = config<bool>("General", "DedServer load Memory", false, "Dedicated Servers will load wackydb files as a client would, this is usually not needed");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
-            enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
+            enableYMLWatcher = config<bool>("General", "FileWatcher", true, "EnableWatcher Servers, Jsons will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
             //isSinglePlayer = config<bool>("General", "IsSinglePlayerOnly", false, new ConfigDescription("Allow Single Player- Must be off for Multiplayer", null, new ConfigurationManagerAttributes { Browsable = false }), false); // doesn't allow you to connect if set to true
             //WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
             ConfigSync.CurrentVersion = ModVersion;
             if (isDebugString.Value)
-                isSetStringisDebug = true;
 
+                isSetStringisDebug = true;
             WackysRecipeCustomizationLogger.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
             if (isautoreload.Value)
                 isSettoAutoReload = true;

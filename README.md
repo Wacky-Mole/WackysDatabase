@@ -1,7 +1,7 @@
 # WackysDatabase
 WackysDatabase by Wackymole
 
-Version 1.4.2
+Version 1.4.3
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
