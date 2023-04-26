@@ -467,6 +467,12 @@ namespace wackydatabase.SetData
             }
             if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
             {
+                if (WMRecipeCust.BlacklistClone.Contains(data.clonePrefabName))
+                {
+                    WMRecipeCust.Dbgl($"Can not clone {data.clonePrefabName} ");
+                    return;
+                }
+
                 WMRecipeCust.Dbgl($"Item CLONE DATA in SetPiece for {tempname} ");
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
                 GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
@@ -1081,6 +1087,12 @@ namespace wackydatabase.SetData
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                     if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
                     {
+                        if (WMRecipeCust.BlacklistClone.Contains(data.clonePrefabName))
+                        {
+                            WMRecipeCust.Dbgl($"Can not clone {data.clonePrefabName} ");
+                            return;
+                        }
+
                         WMRecipeCust.Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
                         WMRecipeCust.ClonedI.Add(tempname);
                         Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
