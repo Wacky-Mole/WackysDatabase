@@ -121,6 +121,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API.cs" />
     <Compile Include="Armor\armor.cs" />
     <Compile Include="Datas\DataHelpers.cs" />
     <Compile Include="Datas\ItemData.cs" />

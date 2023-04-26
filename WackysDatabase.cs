@@ -99,6 +99,7 @@ namespace wackydatabase
         public static List<string> ClonedP = new List<string>();
         public static List<string> ClonedR = new List<string>();
         public static List<string> ClonedE = new List<string>();
+        public static List<string> BlacklistClone = new List<string>();
 
         internal static string assetPath;
         internal static string assetPathconfig;
@@ -289,6 +290,14 @@ namespace wackydatabase
             public bool? Browsable = false;
         }
 
+        internal static void AddBlacklistClone(string prefab)
+        {
+            if (!BlacklistClone.Contains(prefab))
+            {
+                BlacklistClone.Add(prefab);
+            }
+
+        }
 
 
         private void CustomSyncEventDetected()
