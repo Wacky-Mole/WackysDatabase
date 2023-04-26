@@ -292,10 +292,9 @@ namespace wackydatabase
 
         internal static void AddBlacklistClone(string prefab)
         {
-            if (!BlacklistClone.Contains(prefab))
-            {
-                BlacklistClone.Add(prefab);
-            }
+            if (prefab == null) return;
+            if (BlacklistClone.Contains(prefab)) return;
+            BlacklistClone.Add(prefab);
 
         }
 
