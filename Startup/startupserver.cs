@@ -17,6 +17,7 @@ using YamlDotNet.Core;
 using System.Security.Policy;
 using HarmonyLib;
 using wackydatabase.GetData;
+using static Interpolate;
 
 namespace wackydatabase.Startup
 {
@@ -24,11 +25,15 @@ namespace wackydatabase.Startup
     [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake))]
     static class ZrouteMethodsAdminReloadPushOnServer
     {
-        private static void Postfix()
+        internal static void Prefix()
         {
             if (!ZNet.instance.IsServer()) return; // for servers only
-            ZRoutedRpc.instance.Register($"{WMRecipeCust.ModName} AdminReload",
-                new Action<long, bool>(WMRecipeCust.AdminReload));
+
+            WMRecipeCust.WLog.LogInfo("Server Ready to receive AdminReload");
+           // ZRoutedRpc.instance.Register($"{WMRecipeCust.ModName} AdminReload",new Action<long, bool>(WMRecipeCust.AdminReload));
+
+            ZRoutedRpc.instance.Register("WackyDBAdminReload", new Action<long, ZPackage>(WMRecipeCust.AdminReload));
+
         }
     }
 

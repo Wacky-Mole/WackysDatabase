@@ -348,23 +348,23 @@ namespace wackydatabase
             }
         }
 
-        public static void AdminReload(long peer, bool go)
+        public static void AdminReload(long peer, ZPackage go)
         {
-            if (go)
-            {
-                WMRecipeCust.WLog.LogInfo("Recieved Admin Request to Reload");
-                ReadFiles readnow = new ReadFiles();
-                WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
-                WMRecipeCust.readFiles = readnow;
+            WMRecipeCust.WLog.LogInfo("Recieved Admin Request to Reload");
+             
+            ReadFiles readnow = new ReadFiles();
+            WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
+            WMRecipeCust.readFiles = readnow;
 
-                WMRecipeCust.skillConfigData.Value = ymlstring;// push to clients
+            WMRecipeCust.skillConfigData.Value = ymlstring;// push to clients
 
-               SetData.Reload josh = new SetData.Reload();
-               WMRecipeCust.CurrentReload = josh;
+            SetData.Reload josh = new SetData.Reload();
+            WMRecipeCust.CurrentReload = josh;
+            WMRecipeCust.WLog.LogInfo("Sent YML to clients");
 
-                if (WMRecipeCust.ServerDedLoad.Value)
-                   WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
-            }
+            if (WMRecipeCust.ServerDedLoad.Value)
+                WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
+            
         }
 
         public static void GetAllMaterials()

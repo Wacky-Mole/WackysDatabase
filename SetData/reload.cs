@@ -22,7 +22,9 @@ namespace wackydatabase.SetData
 
         public void SyncEventDetected()
         {
-           // WMRecipeCust.WLog.LogInfo($"Dedicated Sync Detected - remove before release");
+            // WMRecipeCust.WLog.LogInfo($"Dedicated Sync Detected - remove before release");
+            if (ZNet.instance.IsServer())
+                return; // no need for a server to get this 
 
             if (WMRecipeCust.Firstrun)
             {
@@ -32,14 +34,14 @@ namespace wackydatabase.SetData
                 DataHelpers.GetPiecesatStart();
                 //LoadinMultiplayerFirst = true; // this is going to require some rewrite
                 if (!WMRecipeCust.isDebug.Value)
-                    WMRecipeCust.WLog.LogWarning($"Debug is off, which suprisingly, makes it hard to debug");
+                    WMRecipeCust.WLog.LogInfo($"Debug is off, which suprisingly, makes it hard to debug");
             }
             if (WMRecipeCust.NoMoreLoading)
             {
                 //startupSync++;
                 WMRecipeCust.recieveServerInfo = true;
                 WMRecipeCust.NoMoreLoading = false;
-                WMRecipeCust.Dbgl($" No More Loading was true");
+               // WMRecipeCust.WLog.LogDebug($" No More Loading was true");
                 WMRecipeCust.WLog.LogInfo("Warning any modifcations will still be On Your Local Games Until Restart! ");
             }
             else

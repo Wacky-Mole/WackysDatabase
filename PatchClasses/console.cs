@@ -149,8 +149,10 @@ namespace wackydatabase.PatchClasses
                                  //wackydatabase.WMRecipeCust.Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
                              }else if(WMRecipeCust.Admin)
                              {
-
-                                 ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "AdminReload", true);
+                                 ZPackage pkg = new ZPackage();
+                                 pkg.Write("true");
+                                 ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDBAdminReload", new object[] { pkg });
+                                 //ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDBAdminReload", true);
 
                                  wackydatabase.WMRecipeCust.Dbgl("Admin: Attempting to tell Server to reload");
                                  args.Context?.AddString($"Admin: Attempting to tell Server to reload");
