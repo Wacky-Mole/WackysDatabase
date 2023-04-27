@@ -204,7 +204,7 @@ namespace wackydatabase.SetData
 
             if (go == null && ActualR == null)
             {
-                WMRecipeCust.Dbgl("maybe null " + data.name + " Should not get here");
+                WMRecipeCust.Dbgl(" null " + data.name );
                 return;
             }
 

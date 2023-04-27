@@ -76,8 +76,11 @@ namespace wackydatabase.SetData
                         WMRecipeCust.WLog.LogInfo("Synced String was  " + SyncedString);
 
                     var deserializer = new DeserializerBuilder()
-                    .Build();
-                    
+                        .WithTypeConverter(new ColorConverter())
+                        .WithTypeConverter(new ValheimTimeConverter())
+                        .IgnoreUnmatchedProperties() // future proofing
+                        .Build(); // make sure to include all
+
                     string[] yml = SyncedString.Split(WMRecipeCust.StringSeparator);
                     foreach (var word in yml) 
                     {
