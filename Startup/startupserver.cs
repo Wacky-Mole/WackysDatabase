@@ -18,6 +18,7 @@ using System.Security.Policy;
 using HarmonyLib;
 using wackydatabase.GetData;
 using static Interpolate;
+using System.Reflection;
 
 namespace wackydatabase.Startup
 {
@@ -36,6 +37,29 @@ namespace wackydatabase.Startup
 
         }
     }
+
+
+    /*
+    [HarmonyPatch]
+    public static class Checkme
+    {
+        private static MethodInfo TargetMethod()
+        {
+            var paul = AccessTools.Method(typeof(ZSteamMatchmaking), "<OnServerResponded>g__TryConvertTagsStringToDictionary|37_0");
+
+            return paul;
+
+        }
+
+        private static void Prefix(string tagsString)
+        {
+            //print tagstring
+            WMRecipeCust.WLog.LogWarning("ZsteamString " + tagsString);
+        }
+    }
+    */
+
+
 
     public class Startupserver
     {

@@ -36,7 +36,7 @@ namespace wackydatabase.Startup
 
         }
 
-        [HarmonyPatch(typeof(FejdStartup), "OnCharacterStart")]
+        [HarmonyPatch(typeof(DungeonDB), "Awake")]
         static class FejdEndClone
         {
             static void Prefix()
@@ -51,6 +51,8 @@ namespace wackydatabase.Startup
         [HarmonyPriority(Priority.Last)]
         static class ZNetScene_Awake_Patch_WackysDatabase
         {
+
+
             static void Postfix()
             {
                 if (!WMRecipeCust.modEnabled.Value)
