@@ -106,6 +106,7 @@ namespace wackydatabase
         internal static string assetPathRecipes;
         internal static string assetPathPieces;
         internal static string assetPathVisuals;
+        internal static string assetPathObjects;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
         internal static string assetPathBulkYMLItems;
@@ -169,6 +170,7 @@ namespace wackydatabase
             assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
             assetPathVisuals = Path.Combine(assetPathconfig, "Visuals");
             assetPathEffects = Path.Combine(assetPathconfig, "Effects");
+            assetPathObjects = Path.Combine(assetPathconfig, "Objects");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
 
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
@@ -344,6 +346,11 @@ namespace wackydatabase
             {
                 Dbgl("Creating Cache folder"); 
                 Directory.CreateDirectory(assetPathCache);
+            }
+            if (!Directory.Exists(assetPathObjects))
+            {
+                Dbgl("Creating Objects folder");
+                Directory.CreateDirectory(assetPathObjects);
             }
         }
 
