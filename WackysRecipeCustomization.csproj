@@ -58,6 +58,7 @@
     <Compile Include="color.cs" />
     <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="ItemData.cs" />
+    <Compile Include="otherapi\Marketplace_API.cs" />
     <Compile Include="RecipeData.cs" />
     <Compile Include="ServerSync.cs" />
     <Compile Include="WackysRecipeCustomization.cs" />

@@ -408,6 +408,10 @@ namespace wackydatabase
                     Dbgl($" You did reload LOCAL Files");
 
                     FindandDestoryCamerasandLights();
+                    if (OtherApi.Marketplace_API.IsInstalled())
+                    {
+                        OtherApi.Marketplace_API.ResetTraderItems();
+                    }
                 }// else end
 
             }
@@ -576,6 +580,10 @@ namespace wackydatabase
 
                         WackysRecipeCustomizationLogger.LogDebug("done with customSyncEvent");
                         FindandDestoryCamerasandLights();
+                        if (OtherApi.Marketplace_API.IsInstalled())
+                        {
+                            OtherApi.Marketplace_API.ResetTraderItems();
+                        }
 
                     }
                     else
