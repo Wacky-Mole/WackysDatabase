@@ -146,7 +146,11 @@ namespace wackydatabase.SetData
                     catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
                 }
             }
-            Instant.UpdateItemHashes();
+            try
+            {
+                Instant.UpdateItemHashes();
+            }
+            catch { WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems"); }
         }
 
 

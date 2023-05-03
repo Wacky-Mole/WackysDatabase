@@ -566,11 +566,15 @@ namespace wackydatabase.GetData
 
         private string[] CheckEffectsArray(EffectList.EffectData[] tosh)
         {
+            if (tosh == null) return null;
             string[] temp = null;
-            if (tosh.Count() > 0 && tosh != null)
+            try
             {
-                return tosh.Select(p => p.m_prefab.name).ToArray();
-            }
+                if (tosh.Count() > 0 && tosh != null)
+                {
+                    return tosh.Select(p => p.m_prefab.name).ToArray();
+                }
+            } catch { }
             return temp;
 
         }
@@ -632,28 +636,37 @@ namespace wackydatabase.GetData
                 m_EitrRegen = data.m_shared.m_eitrRegenModifier,
             };
 
-            string[] Primary_hit_effects = null;
-            string[] Sec_hit_effects = null;
-            string[] General_hit_effects = null;
+            //string[] g_hit = data.m_shared.m_hitEffect?.m_effectPrefabs ?? null;
 
-
-
-            Primary_hit_effects = CheckEffectsArray(data.m_shared.m_attack?.m_hitEffect?.m_effectPrefabs);
-            General_hit_effects = CheckEffectsArray(data.m_shared.m_hitEffect?.m_effectPrefabs);
-            Sec_hit_effects = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_hitEffect?.m_effectPrefabs);
 
             GEffects gEffects = new GEffects()
             {
-                Hit_Effects = General_hit_effects ?? null,
+                Hit_Effects = CheckEffectsArray(data.m_shared.m_hitEffect?.m_effectPrefabs) ?? null,
+                Hit_Terrain_Effects = CheckEffectsArray(data.m_shared.m_hitTerrainEffect?.m_effectPrefabs) ?? null,
+                Start_Effect = CheckEffectsArray(data.m_shared.m_startEffect?.m_effectPrefabs) ?? null,
+                Hold_Start_Effects = CheckEffectsArray(data.m_shared.m_holdStartEffect?.m_effectPrefabs) ?? null,
+                Trigger_Effect = CheckEffectsArray(data.m_shared.m_triggerEffect?.m_effectPrefabs) ?? null,
+                Trail_Effect = CheckEffectsArray(data.m_shared.m_trailStartEffect?.m_effectPrefabs) ?? null,
             };
             AEffects aEffects = new AEffects()
             {
-                Hit_Effects = Primary_hit_effects ?? null,
+                Hit_Effects = CheckEffectsArray(data.m_shared.m_attack?.m_hitEffect?.m_effectPrefabs) ?? null,
+                Hit_Terrain_Effects = CheckEffectsArray(data.m_shared.m_attack?.m_hitTerrainEffect.m_effectPrefabs) ?? null,
+                Start_Effect = CheckEffectsArray(data.m_shared.m_attack?.m_startEffect.m_effectPrefabs) ?? null,
+                Trigger_Effect = CheckEffectsArray(data.m_shared.m_attack?.m_triggerEffect.m_effectPrefabs) ?? null,
+                Trail_Effect = CheckEffectsArray(data.m_shared.m_attack?.m_trailStartEffect.m_effectPrefabs) ?? null,
+                Burst_Effect = CheckEffectsArray(data.m_shared.m_attack?.m_burstEffect?.m_effectPrefabs) ?? null,
+
             };
 
             AEffects sEffects = new AEffects()
             {
-                Hit_Effects = Sec_hit_effects ?? null,
+                Hit_Effects = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_hitEffect?.m_effectPrefabs) ?? null,
+                Hit_Terrain_Effects = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_hitTerrainEffect.m_effectPrefabs) ?? null,
+                Start_Effect = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_startEffect.m_effectPrefabs) ?? null,
+                Trigger_Effect = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_triggerEffect.m_effectPrefabs) ?? null,
+                Trail_Effect = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_trailStartEffect.m_effectPrefabs) ?? null,
+                Burst_Effect = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_burstEffect?.m_effectPrefabs) ?? null,
             };
 
             WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " Main ");

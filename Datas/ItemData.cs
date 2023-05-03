@@ -158,22 +158,21 @@ namespace wackydatabase.Datas
     public class AEffects
     {
         public string[]? Hit_Effects;
-        //public string? Hit_Terrain_Effects;
-        //public string? Start_Effect;
-       // public string? Hold_Start_Effects;
-        //public string? Trigger_Effect;
-        //public string? Trail_Effect;
-        //public string? Burst_Effect;
+        public string[]? Hit_Terrain_Effects;
+        public string[]? Start_Effect;
+        public string[]? Trigger_Effect;
+        public string[]? Trail_Effect;
+        public string[]? Burst_Effect;
     }
 
     public class GEffects
     {
         public string[]? Hit_Effects;
-       // public string? Hit_Terrain_Effects;
-        //public string? Start_Effect;
-       // public string? Hold_Start_Effects;
-        //public string? Trigger_Effect;
-        //public string? Trail_Effect;
+        public string[]? Hit_Terrain_Effects;
+        public string[]? Start_Effect;
+        public string[]? Hold_Start_Effects;
+        public string[]? Trigger_Effect;
+        public string[]? Trail_Effect;
 
     }
         [Serializable]
