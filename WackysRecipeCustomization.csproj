@@ -133,6 +133,7 @@
     <Compile Include="GetData\GetDataYML.cs" />
     <Compile Include="GetData\GetDataOld\GetData.cs" />
     <Compile Include="GetData\YamlLoader.cs" />
+    <Compile Include="otherAPI\Marketplace_API.cs" />
     <Compile Include="PatchClasses\basicpatches.cs" />
     <Compile Include="PatchClasses\console.cs" />
     <Compile Include="PatchClasses\status.cs" />

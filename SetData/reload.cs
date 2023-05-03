@@ -474,6 +474,11 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($" You finished wackydb reload");
 
                     OnAllReloaded?.Invoke();
+
+                    if (OtherApi.Marketplace_API.IsInstalled())
+                    {
+                        OtherApi.Marketplace_API.ResetTraderItems();
+                    }
                 }
 
             }
@@ -484,10 +489,11 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($" You did NOT reload Files. You probably should have.");
                 }
             }
-            
+                      
 
         }
 
+        
 
         public static event Action OnAllReloaded;
 
