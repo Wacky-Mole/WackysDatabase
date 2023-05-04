@@ -212,24 +212,6 @@ namespace wackydatabase
         }
 
 
-        [HarmonyPatch(typeof(FejdStartup), "Start")]
-        static class FejdstartupWackyBlackPatch // Add your name/modname to this class method - should be unique
-        {
-            private static void Prefix()
-            {
-                if (FejdStartup.m_firstStartup)
-                {
-                    if (WackyDatabase_API.IsInstalled())
-                    {
-                        // Add blacklist here
-                        //WackyDatabase_API.AddBlacklistClone("Wood");
-
-
-                    }
-                }
-            }
-        }
-    
             private void StartupConfig()
         {
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
@@ -401,5 +383,25 @@ namespace wackydatabase
                 originalMaterials[val.name] = val;
             }
         }
+
+
+        [HarmonyPatch(typeof(FejdStartup), "Start")]
+        static class FejdstartupWackyBlackPatch // Add your name/modname to this class method - should be unique
+        {
+            private static void Prefix()
+            {
+                if (FejdStartup.m_firstStartup)
+                {
+                    if (WackyDatabase_API.IsInstalled())
+                    {
+                        // Add blacklist here
+                        //WackyDatabase_API.AddBlacklistClone("Wood");
+
+
+                    }
+                }
+            }
+        }
+
     }
 }
