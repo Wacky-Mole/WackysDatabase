@@ -34,6 +34,7 @@ using wackydatabase.Util;
 using wackydatabase.SetData;
 using wackydatabase.Read;
 using UnityEngine.Rendering;
+using API;
 
 namespace wackydatabase
 {
@@ -203,7 +204,6 @@ namespace wackydatabase
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom sync watcher for yml file synced from server
 
 
-
         }
         public static void Dbgl(string str = "", bool pref = true)
         {
@@ -212,7 +212,25 @@ namespace wackydatabase
         }
 
 
-        private void StartupConfig()
+        [HarmonyPatch(typeof(FejdStartup), "Start")]
+        static class FejdstartupWackyBlackPatch // Add your name/modname to this class method - should be unique
+        {
+            private static void Prefix()
+            {
+                if (FejdStartup.m_firstStartup)
+                {
+                    if (WackyDatabase_API.IsInstalled())
+                    {
+                        // Add blacklist here
+                        //WackyDatabase_API.AddBlacklistClone("Wood");
+
+
+                    }
+                }
+            }
+        }
+    
+            private void StartupConfig()
         {
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);

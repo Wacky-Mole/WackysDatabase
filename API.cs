@@ -18,18 +18,16 @@ public class WackyDatabase_API
         eAddBlacklistClone?.Invoke(null, new object[] { value });
     }
 
-
-
     static WackyDatabase_API()
     {
-        if (Type.GetType("API.WackyAPI, wackydb") is not { } wackydatabaseAPI)
+        if (Type.GetType("API.WackyAPI") is not { } wackydatabaseAPI)
         {
             _IsInstalled = false;
             return;
         }
 
         _IsInstalled = true;
-        eAddBlacklistClone = wackydatabaseAPI.GetMethod("AddAddBlacklistClone", BindingFlags.Public | BindingFlags.Static);
+        eAddBlacklistClone = wackydatabaseAPI.GetMethod("AddBlacklistClone", BindingFlags.Public | BindingFlags.Static);
     }
 
 }
@@ -39,6 +37,8 @@ public static class WackyAPI
 {
    public static void AddBlacklistClone(string value)
     {
+        WMRecipeCust.WLog.LogInfo("Added to blacklist "+ value);
+
         WMRecipeCust.AddBlacklistClone(value);
     }
 
