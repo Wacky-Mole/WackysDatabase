@@ -16,7 +16,15 @@ public static class ObjModelLoader
     private static readonly int MetallicGlossMap = Shader.PropertyToID("_MetallicGlossMap");
     private static readonly int BumpMap = Shader.PropertyToID("_BumpMap");
 
-    private static void LoadObjs()
+    internal static void ClearObjs()
+    {
+        _loadedModels.Clear();
+        _loadedIcons.Clear();
+        pngFiles.Clear();
+
+    }
+
+    internal static void LoadObjs()
     {
         foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathObjects, "*.png", SearchOption.AllDirectories))
         {

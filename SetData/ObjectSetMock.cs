@@ -16,7 +16,7 @@ namespace wackydatabase.SetData
         private static GameObject MockItemBase;
         private static bool CanMockItems;
 
-/*
+        /*
         private static void MockItems()
         {
             if (!ZNetScene.instance || !CanMockItems || ItemMocker_DataTypes.SyncedMockedItems.Value.Count == 0) return;

@@ -80,6 +80,22 @@ namespace wackydatabase.PatchClasses
 
             if (!WMRecipeCust.modEnabled.Value)
                 return;
+
+
+
+
+           Terminal.ConsoleCommand WackyClearCache =
+            new("wackydb_clearcache", "ClearCache",
+             args =>
+             {
+                 WMRecipeCust.WLog.LogWarning(" deleteing Cache");
+                 WMRecipeCust.DeleteCache();
+                 args.Context?.AddString(" deleteing Cache");
+
+             });
+
+
+
             if (SceneManager.GetActiveScene().name != "main") return; // can't do anything from main 
 
 
@@ -188,7 +204,28 @@ namespace wackydatabase.PatchClasses
                      }
 
                  });
-            Terminal.ConsoleCommand WackyitemSave =
+
+            Terminal.ConsoleCommand SendBigData =
+                    new("wackydb_sendtheload", "Sends images/icons/obj to clients, highly experimental",
+                        args =>
+                        {
+                            if (WMRecipeCust.Admin)
+                            {
+
+                                ZPackage pkg = new ZPackage();
+                                pkg.Write("true");
+                                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDBAdminBigData", new object[] { pkg });
+                                //ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDBAdminReload", true);
+
+                                wackydatabase.WMRecipeCust.Dbgl("Admin: Attempting to tell Server to Send the Motherload");
+                                args.Context?.AddString($"Admin: Attempting to tell Server to Send the Motherload");
+                            }
+
+
+                        });
+
+
+                            Terminal.ConsoleCommand WackyitemSave =
                 new("wackydb_save_item", "Save an Item ",
                     args =>
                     {

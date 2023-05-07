@@ -133,6 +133,7 @@
     <Compile Include="GetData\GetDataYML.cs" />
     <Compile Include="GetData\GetDataOld\GetData.cs" />
     <Compile Include="GetData\YamlLoader.cs" />
+    <Compile Include="OBJimporter\HandleData.cs" />
     <Compile Include="OBJimporter\Lib\BinaryExtensions.cs" />
     <Compile Include="OBJimporter\Lib\BMPLoader.cs" />
     <Compile Include="OBJimporter\Lib\CharWordReader.cs" />

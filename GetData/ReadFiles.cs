@@ -15,6 +15,7 @@ using YamlDotNet.Serialization;
 using wackydatabase.GetData;
 using System.Runtime.InteropServices.ComTypes;
 using System.Collections;
+using wackydatabase.OBJimporter;
 
 
 
@@ -102,6 +103,11 @@ namespace wackydatabase.Read
 
             YamlLoader yaml = new YamlLoader();
             int processcount = 0;
+
+            if (WMRecipeCust.Firstrun)
+            {
+                ObjModelLoader.LoadObjs(); // This means will never get sync data, but that's okay?
+            }
 
             if (slowmode)
             {

@@ -35,6 +35,7 @@ using wackydatabase.SetData;
 using wackydatabase.Read;
 using UnityEngine.Rendering;
 using API;
+using wackydatabase.OBJimporter;
 
 namespace wackydatabase
 {
@@ -69,6 +70,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> enableYMLWatcher;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
+        internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Experimental
 
         internal static bool issettoSinglePlayer = false;
         internal static bool isSettoAutoReload = false;
@@ -99,6 +101,7 @@ namespace wackydatabase
         public static List<string> ClonedP = new List<string>();
         public static List<string> ClonedR = new List<string>();
         public static List<string> ClonedE = new List<string>();
+        public static List<string> MockI = new List<string>();
         public static List<string> BlacklistClone = new List<string>();
 
         internal static string assetPath;
@@ -128,6 +131,7 @@ namespace wackydatabase
         // bool admin2 = ConfigSync.IsAdmin;
 
         internal static GameObject Root;
+        internal static GameObject MockItemBase;
         public static PieceTable selectedPiecehammer;
         //private static List<string> piecemods = new List<string>();
         public static PieceTable[] MaybePieceStations;
@@ -202,6 +206,8 @@ namespace wackydatabase
 
 
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom sync watcher for yml file synced from server
+
+            largeTransfer.ValueChanged += LargeTransferDetected;
 
 
         }
@@ -313,6 +319,11 @@ namespace wackydatabase
             }// end is not the server
         }
 
+        private void LargeTransferDetected()
+        {
+            HandleData.RecievedData();
+        }
+
 
 
         internal static void CheckModFolder()
@@ -352,6 +363,29 @@ namespace wackydatabase
                 Dbgl("Creating Objects folder");
                 Directory.CreateDirectory(assetPathObjects);
             }
+            var versionpath = Path.Combine(assetPathCache, $"Last_Cleared.txt");
+            if (File.Exists(versionpath))
+            {
+                var filev = File.ReadAllText(versionpath);
+                if (filev != ModVersion)
+                {
+                    WMRecipeCust.WLog.LogWarning("New Wackydb Version, deleteing Cache");
+                    DeleteCache();
+                }
+            }
+            else
+            {
+                File.WriteAllText(versionpath, ModVersion);
+            }
+
+        }
+
+        public static void DeleteCache()
+        {
+            var versionpath = Path.Combine(assetPathCache, $"Last_Cleared.txt");
+            Directory.Delete(assetPathCache, true);
+            Directory.CreateDirectory(assetPathCache);
+            File.WriteAllText(versionpath, ModVersion);
         }
 
         public static void AdminReload(long peer, ZPackage go)

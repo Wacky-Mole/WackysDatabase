@@ -19,6 +19,7 @@ using HarmonyLib;
 using wackydatabase.GetData;
 using static Interpolate;
 using System.Reflection;
+using wackydatabase.OBJimporter;
 
 namespace wackydatabase.Startup
 {
@@ -34,6 +35,7 @@ namespace wackydatabase.Startup
            // ZRoutedRpc.instance.Register($"{WMRecipeCust.ModName} AdminReload",new Action<long, bool>(WMRecipeCust.AdminReload));
 
             ZRoutedRpc.instance.Register("WackyDBAdminReload", new Action<long, ZPackage>(WMRecipeCust.AdminReload));
+            ZRoutedRpc.instance.Register("WackyDBAdminBigData", new Action<long, ZPackage>(HandleData.SendData));
 
         }
     }

@@ -21,6 +21,7 @@ using static Attack;
 using System.Xml.Schema;
 using static ItemSets;
 using System.Security.Policy;
+using wackydatabase.OBJimporter;
 
 namespace wackydatabase.SetData
 {
@@ -1046,10 +1047,78 @@ namespace wackydatabase.SetData
             // Dbgl("Loaded SetItemData!");
 
             bool skip = false;
+            
             foreach (var citem in WMRecipeCust.ClonedI)
             {
                 if (citem == data.name)
                     skip = true;
+            }
+
+            bool mock = false;
+            if (data.MockName != null)
+            {
+                if (ObjModelLoader._loadedModels.ContainsKey(data.MockName))
+                {
+                    mock = true;
+                    bool mockskip = false;
+                    foreach (var citem in WMRecipeCust.MockI)
+                    {
+                        if (citem == data.name)
+                            mockskip = true;
+                    }
+                    if (!mockskip)
+                    {
+
+                        
+                        LayerMask itemLayer = LayerMask.NameToLayer("item");
+                        GameObject inactive = new GameObject("Inactive_MockerBase");
+                        inactive.SetActive(false);
+                        GameObject newObj = UnityEngine.Object.Instantiate(WMRecipeCust.MockItemBase, inactive.transform);
+                        newObj.name = data.name;
+                        ItemDrop itemDrop = newObj.GetComponent<ItemDrop>();
+                        itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "";
+                        
+                        if (ObjModelLoader._loadedModels.TryGetValue(data.MockName, out var model))
+                        {
+                            newObj.transform.Find("Cube").gameObject.SetActive(false);
+                            var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
+                            newModel.SetActive(true);
+                            newModel.name = "attach";
+                            newModel.transform.localScale = Vector3.one * 1; // default scale
+                            newModel.layer = itemLayer;
+                            foreach (var transform in newModel.GetComponentsInChildren<Transform>())
+                            {
+                                transform.gameObject.layer = itemLayer;
+                            }
+                        }
+                        else
+                        {
+                            WMRecipeCust.Dbgl("New Mock failed for some reason" + data.name);
+                            return;
+                        }
+                        GameObject go2 = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
+                        if (go2 == null)
+                            go2 = Instant.GetItemPrefab(data.name); // normal check
+                        if (go2 == null)
+                        {
+                            ObjectDB.instance.m_items.Add(newObj);
+                            ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
+                            WMRecipeCust.MockI.Add(data.name);
+                            WMRecipeCust.Dbgl("New Mock Model with New Gameobject, loaded " + data.name);
+                        }
+                        else
+                        {
+                            WMRecipeCust.Dbgl("New Mock Model with an existing Gameobject, doesn't work right now, please create name for mock item " + data.name);
+                        }
+                        
+                    }
+                    ///skip to normal editing
+                }
+                else
+                {
+                    WMRecipeCust.Dbgl("Mock Model is not loaded, please redownload file or rename or goodluck! " + data.name);
+                    return;
+                }
             }
 
             string tempname = data.name;
