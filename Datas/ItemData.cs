@@ -22,7 +22,7 @@ namespace wackydatabase.Datas
 
         public string? clonePrefabName;
 
-        public string? MockName;
+        public string? mockName;
 
         public string? customIcon;
 
@@ -61,6 +61,12 @@ namespace wackydatabase.Datas
         public bool? m_destroyBroken;
 
         public bool? m_dodgeable;
+
+        public string? Attack_status_effect;
+
+        public string? spawn_on_hit;
+
+        public string? spawn_on_terrain_hit;
 
         public bool? m_questItem;
 

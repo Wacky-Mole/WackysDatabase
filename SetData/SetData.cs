@@ -1055,9 +1055,9 @@ namespace wackydatabase.SetData
             }
 
             bool mock = false;
-            if (data.MockName != null)
+            if (data.mockName != null)
             {
-                if (ObjModelLoader._loadedModels.ContainsKey(data.MockName))
+                if (ObjModelLoader._loadedModels.ContainsKey(data.mockName))
                 {
                     mock = true;
                     bool mockskip = false;
@@ -1078,7 +1078,7 @@ namespace wackydatabase.SetData
                         ItemDrop itemDrop = newObj.GetComponent<ItemDrop>();
                         itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "";
                         
-                        if (ObjModelLoader._loadedModels.TryGetValue(data.MockName, out var model))
+                        if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
                             newObj.transform.Find("Cube").gameObject.SetActive(false);
                             var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
@@ -1295,7 +1295,7 @@ namespace wackydatabase.SetData
 
                     if (data.Damage_Per_Level != null )
                     {
-                        PrimaryItemData.m_shared.m_damagesPerLevel = WeaponDamage.ParseDamageTypes(data.Damage);
+                        PrimaryItemData.m_shared.m_damagesPerLevel = WeaponDamage.ParseDamageTypes(data.Damage_Per_Level);
                     }
 
                     PrimaryItemData.m_shared.m_name = data.m_name ?? PrimaryItemData.m_shared.m_name;
@@ -1509,6 +1509,16 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_teleportable = data.m_teleportable ?? PrimaryItemData.m_shared.m_teleportable;
                     PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus ?? PrimaryItemData.m_shared.m_backstabBonus;
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback ?? PrimaryItemData.m_shared.m_attackForce;
+
+
+                    if (data.Attack_status_effect != null)
+                        PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
+
+                    if (!string.IsNullOrEmpty(data.spawn_on_hit))
+                        PrimaryItemData.m_shared.m_spawnOnHit = GameObject.Find(data.spawn_on_hit) ?? PrimaryItemData.m_shared.m_spawnOnHit;
+
+                    if (!string.IsNullOrEmpty(data.spawn_on_terrain_hit))
+                        PrimaryItemData.m_shared.m_spawnOnHitTerrain = GameObject.Find(data.spawn_on_terrain_hit) ?? PrimaryItemData.m_shared.m_spawnOnHitTerrain;
 
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability ?? PrimaryItemData.m_shared.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain ?? PrimaryItemData.m_shared.m_useDurabilityDrain;

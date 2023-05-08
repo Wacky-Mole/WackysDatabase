@@ -48,8 +48,8 @@ namespace wackydatabase.Startup
         }
 
         [HarmonyPatch(typeof(ZNetScene), "Awake")]
-        //[HarmonyPriority(Priority.Last)]
-        [HarmonyPriority(Priority.VeryLow)]
+        [HarmonyPriority(Priority.Last)]
+        //[HarmonyPriority(Priority.VeryLow)]
         static class ZNetScene_Awake_Patch_WackysDatabase
         {
 
@@ -173,7 +173,7 @@ namespace wackydatabase.Startup
 
         public static IEnumerator DelayedLoadRecipes()
         {
-            //yield return new WaitForSeconds(0.1f); funzies will probably break something 
+            yield return new WaitForSeconds(0.1f); 
 
             WMRecipeCust.ReloadingOkay = true;
 

@@ -639,6 +639,7 @@ namespace wackydatabase.GetData
             //string[] g_hit = data.m_shared.m_hitEffect?.m_effectPrefabs ?? null;
 
 
+
             GEffects gEffects = new GEffects()
             {
                 Hit_Effects = CheckEffectsArray(data.m_shared.m_hitEffect?.m_effectPrefabs) ?? null,
@@ -675,7 +676,7 @@ namespace wackydatabase.GetData
                 name = go.GetComponent<ItemDrop>().name,
                 //m_armor = data.m_shared.m_armor,
                 //clone = false,
-                clonePrefabName = "",
+                //clonePrefabName = "",
                 //m_armorPerLevel = data.m_shared.m_armorPerLevel,
                 m_description = data.m_shared.m_description,
                 m_durabilityDrain = data.m_shared.m_durabilityDrain,
@@ -706,6 +707,11 @@ namespace wackydatabase.GetData
                 Moddifiers = StatModdifers,
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
                 GEffects = gEffects,
+                Attack_status_effect = data.m_shared.m_attackStatusEffect.name,
+                spawn_on_hit = data.m_shared.m_spawnOnHit?.name,
+                spawn_on_terrain_hit = data.m_shared.m_spawnOnHitTerrain?.name, 
+
+
 
                 //damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 
