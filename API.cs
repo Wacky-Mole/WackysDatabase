@@ -13,7 +13,6 @@ public class WackyDatabase_API
     private static readonly bool _IsInstalled;
     private static MethodInfo eAddBlacklistClone;
 
-
     public static bool IsInstalled() => _IsInstalled;
     public static void AddBlacklistClone(string value)
     {
@@ -39,7 +38,7 @@ public static class WackyAPI
 {
    public static void AddBlacklistClone(string value)
     {
-        WMRecipeCust.WLog.LogInfo("Added to blacklist "+ value);
+        //WMRecipeCust.WLog.LogInfo("Added to blacklist "+ value);
 
         WMRecipeCust.AddBlacklistClone(value);
     }

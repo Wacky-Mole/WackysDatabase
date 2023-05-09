@@ -1084,11 +1084,13 @@ namespace wackydatabase.SetData
                         LayerMask itemLayer = LayerMask.NameToLayer("item");
                         GameObject inactive = new GameObject("Inactive_MockerBase");
                         inactive.SetActive(false);
-                        GameObject newObj = UnityEngine.Object.Instantiate(WMRecipeCust.Root, inactive.transform);
+                        GameObject newObj = UnityEngine.Object.Instantiate(ObjModelLoader.MockItemBase, inactive.transform);
                         newObj.name = data.name;
                         ItemDrop itemDrop = newObj.GetComponent<ItemDrop>();
-                        itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "";
-                        
+                        itemDrop.name = data.name;
+                        itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "Cube";
+
+
                         if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
                             WMRecipeCust.Dbgl("Mock Model is loaded 2" + data.name);
@@ -1116,6 +1118,15 @@ namespace wackydatabase.SetData
                             ObjectDB.instance.m_items.Add(newObj);
                             ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
+
+                            if ( string.IsNullOrEmpty(data.customIcon))
+                            {
+                                try
+                                {
+                                    Functions.SnapshotItem(newObj.GetComponent<ItemDrop>()); // snapshot go
+                                }
+                                catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
+                            }
                             WMRecipeCust.Dbgl("New Mock Model with New Gameobject, loaded " + data.name);
                         }
                         else

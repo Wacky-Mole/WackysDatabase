@@ -216,6 +216,7 @@
     <Content Include="LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="OBJimporter\rootcube" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>

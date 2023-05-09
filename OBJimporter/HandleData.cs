@@ -20,7 +20,7 @@ namespace wackydatabase.OBJimporter
         public static void RecievedData()
         {
             bigDataR = WMRecipeCust.largeTransfer.Value;
-            if (string.IsNullOrEmpty(bigDataR))
+            if (string.IsNullOrEmpty(bigDataR) || ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
             {
                 return;
             }
@@ -32,24 +32,29 @@ namespace wackydatabase.OBJimporter
             foreach (var image in bigDataRChucks)
             {
                var index =  image.IndexOf(":");
-               var filename = image.Substring(0, index);
-               var index2 = image.IndexOf(";");
-               var type = image.Substring(index + 1, index2);
-               var imagebase64 = image.Substring(index2 + 1);
-               byte[] decodedBytes = Convert.FromBase64String(imagebase64);
+                var index2 = image.IndexOf(";");
+                var filename = image.Substring(0, index);
+                WMRecipeCust.WLog.LogInfo("filename " + filename);
+                int leng = index2 - index;
+               var type = image.Substring(index + 1, leng -1);
+                WMRecipeCust.WLog.LogInfo("type " + type);
+                var imagebase64 = image.Substring(index2 + 1);
+                imagebase64 = imagebase64 + "==";
+                WMRecipeCust.WLog.LogInfo("image  " + imagebase64);
+                byte[] decodedBytes = Convert.FromBase64String(imagebase64);
                //string decodedText = Encoding.UTF8.GetString(decodedBytes);
                 if (type == "icon")
                 {
-                    var path = Path.Combine(WMRecipeCust.assetPathIcons, filename);
+                    var path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".png");
                     File.WriteAllBytes(path, decodedBytes);
                 }
                 else if (type == "png"){
-                    var path = Path.Combine(WMRecipeCust.assetPathObjects, filename);
+                    var path = Path.Combine(WMRecipeCust.assetPathObjects, filename +".png");
                     File.WriteAllBytes(path, decodedBytes);
 
                 }
                 else if ( type == "obj") {
-                    var path = Path.Combine(WMRecipeCust.assetPathObjects, filename);
+                    var path = Path.Combine(WMRecipeCust.assetPathObjects, filename +".obj");
                     File.WriteAllBytes(path, decodedBytes);
 
                 }
@@ -98,9 +103,10 @@ namespace wackydatabase.OBJimporter
                 bigDataSChucks.Add(Chunk);
             }
 
-            bigDataS = string.Join("", bigDataRChucks);
+            bigDataS = string.Join("", bigDataSChucks.ToArray());
             WMRecipeCust.WLog.LogInfo("Preparing to Send, hold onto your CPU");
             WMRecipeCust.largeTransfer.Value = bigDataS;
+            //WMRecipeCust.WLog.LogWarning(bigDataS);
 
             // wait
             HandleData holdme = new HandleData();

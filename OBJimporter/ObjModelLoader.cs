@@ -2,7 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace wackydatabase.OBJimporter;
 
@@ -15,6 +18,8 @@ public static class ObjModelLoader
     private static readonly int MainTex = Shader.PropertyToID("_MainTex");
     private static readonly int MetallicGlossMap = Shader.PropertyToID("_MetallicGlossMap");
     private static readonly int BumpMap = Shader.PropertyToID("_BumpMap");
+    public static GameObject MockItemBase;
+    public static AssetBundle asset;
 
     internal static void ClearObjs()
     {
@@ -23,9 +28,22 @@ public static class ObjModelLoader
         pngFiles.Clear();
 
     }
+    private static AssetBundle GetAssetBundle(string filename)
+    {
+        Assembly execAssembly = Assembly.GetExecutingAssembly();
+        string resourceName = execAssembly.GetManifestResourceNames().Single(str => str.EndsWith(filename));
+        using Stream stream = execAssembly.GetManifestResourceStream(resourceName);
+        return AssetBundle.LoadFromStream(stream);
+    }
+    internal static void OnInit()
+    {
+        asset = GetAssetBundle("rootcube");
+       MockItemBase = asset.LoadAsset<GameObject>("RootCube");
+    }
 
     internal static void LoadObjs()
     {
+        OnInit();
         foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathObjects, "*.png", SearchOption.AllDirectories))
         {
             string fileName = Path.GetFileNameWithoutExtension(file);
