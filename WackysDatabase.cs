@@ -103,6 +103,7 @@ namespace wackydatabase
         public static List<string> ClonedE = new List<string>();
         public static List<string> MockI = new List<string>();
         public static List<string> BlacklistClone = new List<string>();
+        
 
         internal static string assetPath;
         internal static string assetPathconfig;
@@ -142,7 +143,8 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalVFX;
         public static Dictionary<string, GameObject> originalSFX;
         public static Dictionary<string, GameObject> originalFX;
-        public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>(); 
+        public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>();
+        public static Dictionary<string, Dictionary<string, int>> QualityRecipeReq = new Dictionary<string, Dictionary<string, int>>();
 
         internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();
@@ -429,7 +431,7 @@ namespace wackydatabase
                     if (WackyDatabase_API.IsInstalled())
                     {
                         // Add blacklist here
-                        //WackyDatabase_API.AddBlacklistClone("Wood");
+                       // WackyDatabase_API.AddBlacklistClone("Wood");
 
 
                     }

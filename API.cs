@@ -1,9 +1,11 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Reflection;
 using UnityEngine;
 using wackydatabase;
 
 namespace API;
+
 
 public class WackyDatabase_API
 {
@@ -20,19 +22,19 @@ public class WackyDatabase_API
 
     static WackyDatabase_API()
     {
-        if (Type.GetType("API.WackyAPI") is not { } wackydatabaseAPI)
-        {
+            if (Type.GetType("API.WackyAPI, WackysDatabase") == null)
+            {
             _IsInstalled = false;
             return;
         }
-
+        Type wackydatabaseAPI = Type.GetType("API.WackyAPI, WackysDatabase");
         _IsInstalled = true;
         eAddBlacklistClone = wackydatabaseAPI.GetMethod("AddBlacklistClone", BindingFlags.Public | BindingFlags.Static);
     }
-
 }
 
 // don't use
+[PublicAPI]
 public static class WackyAPI
 {
    public static void AddBlacklistClone(string value)

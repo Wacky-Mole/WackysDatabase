@@ -22,6 +22,7 @@ using System.Xml.Schema;
 using static ItemSets;
 using System.Security.Policy;
 using wackydatabase.OBJimporter;
+using System.Linq.Expressions;
 
 namespace wackydatabase.SetData
 {
@@ -282,6 +283,7 @@ namespace wackydatabase.SetData
                 RecipeR.m_minStationLevel = data.minStationLevel ?? RecipeR.m_minStationLevel;
                 RecipeR.m_amount = data.amount ?? RecipeR.m_amount;
                 RecipeR.name = tempname;
+
                 if (data.maxStationLevelCap != null)
                 {
                     if (!WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeR.m_item.name))
@@ -293,26 +295,35 @@ namespace wackydatabase.SetData
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
 
                 RecipeR.m_requireOnlyOneIngredient = data.requireOnlyOneIngredient ?? RecipeR.m_requireOnlyOneIngredient;
-
+                bool alreadyadded = true;
+                if (!WMRecipeCust.QualityRecipeReq.ContainsKey(tempname))
+                {
+                    alreadyadded = false;
+                    WMRecipeCust.QualityRecipeReq.Add(tempname, new Dictionary<string, int>());
+                }
                 foreach (string req in data.reqs) 
                 {
                     if (!string.IsNullOrEmpty(req))
                     {
-                        string[] array = req.Split(':'); // safer vewrsion
-                        string itemname = array[0];
+                        string[] array = req.Split(':'); // safer vewrsion // could add a 5th col for Quality, item must be such and such quality would require a small patch
+                        string itemname = array[0];  // and a three tier directonary
                         if (Instant.GetItemPrefab(itemname))
                         {
                             int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
                             int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
                             bool recover = array.Length != 4 || bool.Parse(array[3].ToLower());
+                            int quality = ((array.Length < 5) ? 1 : int.Parse(array[4]));
                             Piece.Requirement item = new Piece.Requirement
                             {
                                 m_amount = amount,
                                 m_recover = recover,
-                                m_resItem = ObjectDB.instance.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
+                                m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
                                 m_amountPerLevel = amountPerLevel
                             };
                             reqs.Add(item);
+                          
+                            if(!alreadyadded)
+                                WMRecipeCust.QualityRecipeReq[tempname].Add(itemname, quality);
                         }
                     }
                 }// foreach
@@ -1059,6 +1070,7 @@ namespace wackydatabase.SetData
             {
                 if (ObjModelLoader._loadedModels.ContainsKey(data.mockName))
                 {
+                    WMRecipeCust.Dbgl("Mock Model is loaded" + data.name);
                     mock = true;
                     bool mockskip = false;
                     foreach (var citem in WMRecipeCust.MockI)
@@ -1068,18 +1080,18 @@ namespace wackydatabase.SetData
                     }
                     if (!mockskip)
                     {
-
-                        
+                        WMRecipeCust.Dbgl("Mock Model is loaded 1" + data.name);
                         LayerMask itemLayer = LayerMask.NameToLayer("item");
                         GameObject inactive = new GameObject("Inactive_MockerBase");
                         inactive.SetActive(false);
-                        GameObject newObj = UnityEngine.Object.Instantiate(WMRecipeCust.MockItemBase, inactive.transform);
+                        GameObject newObj = UnityEngine.Object.Instantiate(WMRecipeCust.Root, inactive.transform);
                         newObj.name = data.name;
                         ItemDrop itemDrop = newObj.GetComponent<ItemDrop>();
                         itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "";
                         
                         if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
+                            WMRecipeCust.Dbgl("Mock Model is loaded 2" + data.name);
                             newObj.transform.Find("Cube").gameObject.SetActive(false);
                             var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
                             newModel.SetActive(true);
@@ -1537,17 +1549,17 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_value = data.m_value ?? PrimaryItemData.m_shared.m_value;
 
                     if (data.GEffects.Hit_Effects != null)
-                        PrimaryItemData.m_shared.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_hitEffect, data.GEffects.Hit_Effects);
+                        PrimaryItemData.m_shared.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_hitEffect, data.GEffects.Hit_Effects, "m_hitEffect");
                     if (data.GEffects.Hit_Terrain_Effects != null)
-                        PrimaryItemData.m_shared.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_hitTerrainEffect, data.GEffects.Hit_Terrain_Effects);
+                        PrimaryItemData.m_shared.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_hitTerrainEffect, data.GEffects.Hit_Terrain_Effects, "m_hitTerrainEffect");
                     if (data.GEffects.Start_Effect != null)
-                        PrimaryItemData.m_shared.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_startEffect, data.GEffects.Start_Effect);
+                        PrimaryItemData.m_shared.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_startEffect, data.GEffects.Start_Effect, "m_startEffect");
+                    if (data.GEffects.Hold_Start_Effects != null)
+                      PrimaryItemData.m_shared.m_holdStartEffect = FindEffect(PrimaryItemData.m_shared.m_holdStartEffect, data.GEffects.Hold_Start_Effects, "m_holdStartEffect");
                     if (data.GEffects.Trigger_Effect != null)
-                        PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffects.Trigger_Effect);
+                        PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffects.Trigger_Effect, "m_triggerEffect");
                     if (data.GEffects.Trail_Effect != null)
-                        PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffects.Trail_Effect);
-                    if (data.GEffects.Trail_Effect != null)
-                        PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffects.Trail_Effect);
+                        PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffects.Trail_Effect, "m_trailStartEffect");
 
 
 
@@ -1576,104 +1588,110 @@ namespace wackydatabase.SetData
 
         }
 
-        private static EffectList FindEffect(EffectList current, string[] userlist)
+        private static EffectList FindEffect(EffectList current, string[] userlist, string name= "")
         {
-            if (current != null && current.m_effectPrefabs != null) // has existing effectlist
+            try
             {
-                var copy = current;
-                var count = 0;
-                var currentcount = copy.m_effectPrefabs.Count();
-                List<string> copyuserlist = userlist.ToList<string>();
-
-                List<string> currentList = new List<string>();
-                Dictionary<string, int> removeList = new Dictionary<string, int>();
-
-                var effectprecount = 0;
-                foreach (var eff in copy.m_effectPrefabs)
+                if (current != null && current.m_effectPrefabs != null) // has existing effectlist
                 {
-                    currentList.Add(eff.m_prefab.name);
-                    if (copyuserlist.Contains(eff.m_prefab.name))
+
+                    var copy = current;
+                    var count = 0;
+                    var currentcount = copy.m_effectPrefabs.Count();
+                    List<string> copyuserlist = userlist.ToList<string>();
+
+                    List<string> currentList = new List<string>();
+                    Dictionary<string, int> removeList = new Dictionary<string, int>();
+
+                    var effectprecount = 0;
+                    foreach (var eff in copy.m_effectPrefabs)
                     {
-                        copyuserlist.Remove(eff.m_prefab.name);
+                        currentList.Add(eff.m_prefab.name);
+                        if (copyuserlist.Contains(eff.m_prefab.name))
+                        {
+                            copyuserlist.Remove(eff.m_prefab.name);
+                        }
+                        else
+                        {
+                            removeList.Add(eff.m_prefab.name, effectprecount);
+                        }
+                        effectprecount++;
                     }
-                    else
+                    foreach (var userEff in removeList)
                     {
-                        removeList.Add(eff.m_prefab.name, effectprecount);
+                        copy.m_effectPrefabs[userEff.Value].m_enabled = false; // make it false
                     }
-                    effectprecount++;
+
+                    var countuserlist = 0;
+
+                    foreach (var userEff in copyuserlist)
+                    {
+                        EffectList.EffectData effectDataone = new EffectList.EffectData();
+
+
+                        if (WMRecipeCust.originalVFX.TryGetValue(userEff, out GameObject list1))
+                        {
+                            effectDataone.m_prefab = list1;
+                            effectDataone.m_enabled = true;
+                            count++;
+                        }
+                        else if (WMRecipeCust.originalSFX.TryGetValue(userEff, out GameObject list2))
+                        {
+                            effectDataone.m_prefab = list2;
+                            effectDataone.m_enabled = true;
+                            count++;
+                        }
+                        else if (WMRecipeCust.originalFX.TryGetValue(userEff, out GameObject list3))
+                        {
+                            effectDataone.m_prefab = list3;
+                            effectDataone.m_enabled = true;
+                            count++;
+                        }
+                        else
+                        { // failure to find
+
+                        }
+
+                        copy.m_effectPrefabs.AddItem(effectDataone);
+                    }
+                    return copy;
+
                 }
-                foreach (var userEff in removeList)
+                else
                 {
-                    copy.m_effectPrefabs[userEff.Value].m_enabled = false; // make it false
+                    EffectList effectList = new EffectList();
+                    EffectList.EffectData[] effectData = new EffectList.EffectData[userlist.Count()];
+
+                    var count = 0;
+                    foreach (var userEffe in userlist)
+                    {
+
+                        if (WMRecipeCust.originalVFX.TryGetValue(userEffe, out GameObject list1))
+                        {
+                            effectData[count].m_prefab = list1;
+                            count++;
+                        }
+                        else if (WMRecipeCust.originalSFX.TryGetValue(userEffe, out GameObject list2))
+                        {
+                            effectData[count].m_prefab = list2;
+                            count++;
+                        }
+                        else if (WMRecipeCust.originalFX.TryGetValue(userEffe, out GameObject list3))
+                        {
+                            effectData[count].m_prefab = list3;
+                            count++;
+                        }
+                        else
+                        { // failure to find
+
+                        }
+                    }
+                    effectList.m_effectPrefabs = effectData;
+                    return effectList;
+
                 }
-
-                var countuserlist = 0;
-
-                foreach(var userEff in copyuserlist)
-                {
-                    EffectList.EffectData effectDataone = new EffectList.EffectData();
-
-
-                    if (WMRecipeCust.originalVFX.TryGetValue(userEff, out GameObject list1))
-                    {
-                        effectDataone.m_prefab = list1;
-                        effectDataone.m_enabled = true;
-                        count++;
-                    }
-                    else if (WMRecipeCust.originalSFX.TryGetValue(userEff, out GameObject list2))
-                    {
-                        effectDataone.m_prefab = list2;
-                        effectDataone.m_enabled = true;
-                        count++;
-                    }
-                    else if (WMRecipeCust.originalFX.TryGetValue(userEff, out GameObject list3))
-                    {
-                        effectDataone.m_prefab = list3;
-                        effectDataone.m_enabled = true;
-                        count++;
-                    }
-                    else
-                    { // failure to find
-
-                    }
-
-                    copy.m_effectPrefabs.AddItem(effectDataone);
-                }
-                return copy;
-
             }
-            else
-            {
-                EffectList effectList = new EffectList();
-                EffectList.EffectData[] effectData = new EffectList.EffectData[userlist.Count()];
-
-                var count = 0;
-                foreach (var userEffe in userlist)
-                {
-
-                    if (WMRecipeCust.originalVFX.TryGetValue(userEffe, out GameObject list1))
-                    {
-                        effectData[count].m_prefab = list1;
-                        count++;
-                    }
-                    else if (WMRecipeCust.originalSFX.TryGetValue(userEffe, out GameObject list2))
-                    {
-                        effectData[count].m_prefab = list2;
-                        count++;
-                    }
-                    else if (WMRecipeCust.originalFX.TryGetValue(userEffe, out GameObject list3))  
-                    {
-                        effectData[count].m_prefab = list3;
-                        count++;    
-                    } else
-                    { // failure to find
-
-                    }              
-                }
-                effectList.m_effectPrefabs = effectData;
-                return effectList;
-
-            }
+            catch { WMRecipeCust.WLog.LogInfo($"Effect {name} had problems "); return current; }
         }
     }
     #endregion

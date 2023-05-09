@@ -707,9 +707,6 @@ namespace wackydatabase.GetData
                 Moddifiers = StatModdifers,
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
                 GEffects = gEffects,
-                Attack_status_effect = data.m_shared.m_attackStatusEffect.name,
-                spawn_on_hit = data.m_shared.m_spawnOnHit?.name,
-                spawn_on_terrain_hit = data.m_shared.m_spawnOnHitTerrain?.name, 
 
 
 
@@ -736,6 +733,8 @@ namespace wackydatabase.GetData
                 };
                 ItemData.SE_SET_Equip = SE_SET_Equip2;
             }
+            if(go.name == "StaffShield") // for the special cases
+                hasdmg = true;
 
             if (hasdmg)
             {
@@ -883,6 +882,17 @@ namespace wackydatabase.GetData
                 };
                 ItemData.ShieldStats = ShieldData;
             }
+
+
+            if (data.m_shared.m_attackStatusEffect != null)
+                ItemData.Attack_status_effect = data.m_shared.m_attackStatusEffect?.name;
+
+            if (data.m_shared.m_spawnOnHit != null)
+                ItemData.spawn_on_hit = data.m_shared.m_spawnOnHit?.name;
+
+            if (data.m_shared.m_spawnOnHitTerrain != null)
+                ItemData.spawn_on_terrain_hit = data.m_shared.m_spawnOnHitTerrain?.name;
+
 
 
             return ItemData;

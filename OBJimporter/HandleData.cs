@@ -13,9 +13,9 @@ namespace wackydatabase.OBJimporter
     {
         // scheme is going to be filename:type;base64==filename:type;base64==
         internal static string bigDataR;
-        internal static List<string> bigDataRChucks;
+        internal static List<string> bigDataRChucks = new List<string>();
         internal static string bigDataS;
-        internal static List<string> bigDataSChucks;
+        internal static List<string> bigDataSChucks = new List<string>();   
 
         public static void RecievedData()
         {
