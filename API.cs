@@ -6,7 +6,7 @@ using wackydatabase;
 
 namespace API;
 
-
+[PublicAPI]
 public class WackyDatabase_API
 {
 
@@ -33,7 +33,6 @@ public class WackyDatabase_API
 }
 
 // don't use
-[PublicAPI]
 public static class WackyAPI
 {
    public static void AddBlacklistClone(string value)
