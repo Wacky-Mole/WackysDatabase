@@ -104,12 +104,6 @@ namespace wackydatabase.Read
             YamlLoader yaml = new YamlLoader();
             int processcount = 0;
 
-            if (WMRecipeCust.Firstrun)
-            {
-                ObjModelLoader.LoadObjs(); // This means will never get sync data, but that's okay?
-                if(ZNet.instance.IsServer()& ZNet.instance.IsDedicated() && !WMRecipeCust.ServerDedLoad.Value)
-                    WMRecipeCust.Firstrun = false;
-            }
 
             if (slowmode)
             {

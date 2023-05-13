@@ -455,6 +455,19 @@ namespace wackydatabase.GetData
                  data.cSExtensionData = cSExtension;
             }
 
+            if (PieceID.TryGetComponent<Container>(out var cont))
+            {
+                ContainerData ContData = new ContainerData
+                {
+                    Width = cont.m_width,
+                    Height = cont.m_height,
+                   // Privacy = cont.m_privacy.ToString(),
+                    CheckWard = cont.m_checkGuardStone,
+                    AutoDestoryIfEmpty = cont.m_autoDestroyEmpty,
+                };
+                data.contData = ContData;
+            }
+
             try {
                 if (PieceID.TryGetComponent<Smelter>(out var smelt))
                 {

@@ -883,6 +883,15 @@ namespace wackydatabase.SetData
 
             }
 
+            if (data.contData != null)
+            {
+                go.TryGetComponent<Container>(out var cont);
+                cont.m_autoDestroyEmpty = data.contData.AutoDestoryIfEmpty ?? cont.m_autoDestroyEmpty;
+                cont.m_height = data.contData.Height ?? cont.m_height;
+                cont.m_width = data.contData.Width ?? cont. m_width;     
+
+            }
+
             Type type = go.GetType();
             if (data.smelterData != null && go.TryGetComponent<Smelter>(out var smelt))
             {
@@ -943,7 +952,7 @@ namespace wackydatabase.SetData
 
         #region Items
 
-        internal static void SetClonedItemsData(WItemData data, ObjectDB Instant)
+        internal static void SetClonedItemsData(WItemData data, ObjectDB Instant) // need to add mock items as well I guess
         {
 
             bool skip = false;

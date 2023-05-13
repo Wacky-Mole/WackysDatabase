@@ -37,6 +37,13 @@ namespace wackydatabase.Startup
             ZRoutedRpc.instance.Register("WackyDBAdminReload", new Action<long, ZPackage>(WMRecipeCust.AdminReload));
             ZRoutedRpc.instance.Register("WackyDBAdminBigData", new Action<long, ZPackage>(HandleData.SendData));
 
+            if (WMRecipeCust.Firstrun)
+            {
+                ObjModelLoader.LoadObjs(); // This means will never get sync data, but that's okay?
+                if (ZNet.instance.IsServer() & ZNet.instance.IsDedicated() && !WMRecipeCust.ServerDedLoad.Value)
+                    WMRecipeCust.Firstrun = false;
+            }
+
         }
     }
 

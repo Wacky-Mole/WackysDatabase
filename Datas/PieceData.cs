@@ -44,6 +44,8 @@ namespace wackydatabase.Datas
 
         public CSExtensionData? cSExtensionData;
 
+        public ContainerData? contData;
+
         public SmelterData? smelterData;
 
         public List<string>? build = new List<string>();
@@ -92,6 +94,15 @@ namespace wackydatabase.Datas
         public bool? continousConnection;
         public bool? stack;
 
+
+    }
+    public class ContainerData
+    {
+        public int? Width;
+        public int? Height;
+        public bool? CheckWard;
+        public bool? AutoDestoryIfEmpty;
+        //public string? Privacy;
 
     }
 
