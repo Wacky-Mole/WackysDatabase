@@ -1,7 +1,7 @@
 # WackysDatabase
 WackysDatabase by Wackymole
 
-Version 1.4.3
+Version 1.4.4
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -208,6 +208,8 @@ Support me at https://www.buymeacoffee.com/WackyMole
 
 
 ## Changelog
+        Version 1.4.4
+            Updated API, fixed Marketplace for cloned Items using KG's API (thx), 2.0 beta is progressing.
         Version 1.4.3
             2.0 is coming along, but not quite ready yet - Added enableYMLWatcher config in the meantime. 
         Version 1.4.2

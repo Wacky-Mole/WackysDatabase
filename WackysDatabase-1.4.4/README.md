@@ -1,7 +1,7 @@
 # WackysDatabase
 WackysDatabase by Wackymole
 
-Version 1.4.3
+Version 1.4.4
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -208,8 +208,10 @@ Support me at https://www.buymeacoffee.com/WackyMole
 
 
 ## Changelog
+        Version 1.4.4
+            Updated API, fixed Marketplace for cloned Items using KG's API (thx), 2.0 beta is progressing.
         Version 1.4.3
-            2.0 is coming along, but not quite ready yet - Added enableWatcher config in the meantime. 
+            2.0 is coming along, but not quite ready yet - Added enableYMLWatcher config in the meantime. 
         Version 1.4.2
             Had to disable Piece snapshot because of hovering pieces stacking up on each other, hopefully someone fixes it someday.
             You might have to destroy the existing pieces at (0,0) with infinity hammer quite a lot depending on reloads and players joining.    
