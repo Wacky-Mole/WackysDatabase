@@ -441,3 +441,38 @@ namespace wackydatabase
 
     }
 }
+/*	[HarmonyPatch(typeof(CharacterAnimEvent), "FixedUpdate")]  KG patch for animation speed 
+	private static class AttackSpeedSystem
+	{
+		private static readonly Dictionary<string, float> _data_Main = new Dictionary<string, float>();
+
+		private static readonly Dictionary<string, float> _data_Secondary = new Dictionary<string, float>();
+
+		public static void RegisterMainAttacks(GameObject item, float speed)
+		{
+			_data_Main[((Object)item).get_name()] = speed;
+		}
+
+		public static void RegisterSecondaryAttacks(GameObject item, float speed)
+		{
+			_data_Secondary[((Object)item).get_name()] = speed;
+		}
+
+		private static void Prefix(CharacterAnimEvent __instance)
+		{
+			Player localPlayer = Player.m_localPlayer;
+			if (!((Object)(object)localPlayer != (Object)(object)__instance.m_character) && localPlayer.InAttack())
+			{
+				GameObject val = localPlayer.GetCurrentWeapon()?.m_dropPrefab;
+				if (Object.op_Implicit((Object)(object)val) && _data_Main.TryGetValue(((Object)val).get_name(), out var value) && !((Humanoid)localPlayer).m_currentAttackIsSecondary)
+				{
+					__instance.m_animator.set_speed(value);
+				}
+				else if (Object.op_Implicit((Object)(object)val) && _data_Secondary.TryGetValue(((Object)val).get_name(), out value) && ((Humanoid)localPlayer).m_currentAttackIsSecondary)
+				{
+					__instance.m_animator.set_speed(value);
+				}
+			}
+		}
+	}
+*/

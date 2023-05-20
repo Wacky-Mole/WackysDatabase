@@ -527,6 +527,8 @@ This mod should load last. It needs to so it can touch all other mods.
 
 Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. 
 
+A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wrong can break Azu show container contents
+
 
 (Note!: If you want the game to have default values, close the game and delete the wackysDatabase folder).
 
