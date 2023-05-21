@@ -30,7 +30,7 @@ namespace wackydatabase.Startup
                 ReadFiles clones = new ReadFiles();
                 clones.GetCacheClonesOnly();          
                 SetData.Reload Startup = new SetData.Reload();
-                Startup.LoadClonedItems();
+                Startup.LoadClonedCachedItems();
                 WMRecipeCust.FirstSessionRun = true;
             }
 

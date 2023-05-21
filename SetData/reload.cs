@@ -122,9 +122,9 @@ namespace wackydatabase.SetData
         }
 
 
-        public void LoadClonedItems()
+        public void LoadClonedCachedItems()
         {
-            if (WMRecipeCust.IsServer) return;
+            if (WMRecipeCust.IsServer && WMRecipeCust.isDedServer) return;
             ObjectDB Instant = ObjectDB.instance;
             foreach (var data in WMRecipeCust.cacheDataYML) // recipes last
             {
@@ -154,8 +154,23 @@ namespace wackydatabase.SetData
         }
 
 
+        internal void LoadClonedItemsPieceOnce()
+        {
+            if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
+            {
+                WMRecipeCust.CheckModFolder();
+                WMRecipeCust.GetAllMaterials();
+                DataHelpers.GetPieceStations();
+                DataHelpers.GetPiecesatStart();
+                WMRecipeCust.Firstrun = false;
+            }
 
-       internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
+            ObjectDB Instant = ObjectDB.instance;
+
+        }
+
+
+        internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
         {
 
             if (reload)
