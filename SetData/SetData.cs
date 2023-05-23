@@ -573,7 +573,7 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
             } // end clone 1st pass
 
-            /*
+            
 
             if (!string.IsNullOrEmpty(data.material) || !string.IsNullOrEmpty(data.damagedMaterial)) // allows changing of any piece
             {
@@ -642,7 +642,7 @@ namespace wackydatabase.SetData
                 //SnapshotPiece(go); // piece snapshot doesn't work without instancing
                 //SnapshotItem(null, go.GetComponent<Piece>());
             
-            }*/
+            }
             if (data.craftingStation != null)
             {
                 CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation);
@@ -1016,7 +1016,7 @@ namespace wackydatabase.SetData
                             var hash = newItem.name.GetStableHashCode();
                             ObjectDB.instance.m_items.Add(newItem);
 
-                            /*
+                            
                             if (!string.IsNullOrEmpty(data.cloneMaterial))
                             {
                                 WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial}");
@@ -1048,7 +1048,7 @@ namespace wackydatabase.SetData
                                     }
                                 }
                                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
-                            } */ // disabled temp
+                            } 
 
 
                             go = Instant.GetItemPrefab(tempname);
@@ -1241,7 +1241,7 @@ namespace wackydatabase.SetData
                                //NewItemComp.m_itemData.m_shared.m_icons[0].
                                */
 
-                        /*
+                        
                         if (!string.IsNullOrEmpty(data.cloneMaterial))
                         {
                             WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial}");
@@ -1273,13 +1273,17 @@ namespace wackydatabase.SetData
                                 }
                             }
                             catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
-                        } */ //disabled temp
+                        }
 
 
                         go = Instant.GetItemPrefab(tempname);
                         PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
 
+                        try
+                        {
+                            
+                        }
                     }
 
                     var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>();
