@@ -336,6 +336,22 @@ namespace wackydatabase.PatchClasses
 
                     });
 
+            Terminal.ConsoleCommand WackyPieceStations =
+                new("wackydb_get_piecehammers", "Create txt file of PieceHammers/PieceStations",
+                    args =>
+                    {
+                        string theString = "";
+                        //WMRecipeCust.CheckModFolder();
+                        foreach (var hammer in WMRecipeCust.MaybePieceStations)
+                        {
+                            theString = theString + hammer.ToString() + " \r\n";
+                        }
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathconfig, "Hammers.txt"), theString);
+                        args.Context?.AddString($"saved data to Hammers.txt");
+                        WMRecipeCust.WLog.LogInfo($"saved data to Hammers.txt");
+
+                    });
+
             Terminal.ConsoleCommand Wackyvfx =
                 new("wackydb_vfx", "Create txt file of VFX",
                     args =>

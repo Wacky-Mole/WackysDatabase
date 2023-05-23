@@ -118,6 +118,7 @@ namespace wackydatabase.Datas
         public int? Attack_Random_Animation;
         public int? Chain_Attacks;
         public bool? Hit_Terrain;
+        public float? Custom_AttackSpeed;
 
 		public float? m_attackStamina;
         public float? m_eitrCost;
