@@ -440,7 +440,7 @@ namespace wackydatabase.SetData
 
 
 
-        internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant)
+        internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant, bool cloneonly = false)
         {
             bool skip = false;
             foreach (var citem in WMRecipeCust.ClonedP)
@@ -953,7 +953,7 @@ namespace wackydatabase.SetData
 
         #region Items
 
-        internal static void SetClonedItemsData(WItemData data, ObjectDB Instant) // need to add mock items as well I guess
+        internal static void SetClonedItemsDataCache(WItemData data, ObjectDB Instant) // need to add mock items as well I guess
         {
 
             bool skip = false;
@@ -1063,7 +1063,7 @@ namespace wackydatabase.SetData
 
 
         
-        internal static void SetItemData(WItemData data, ObjectDB Instant, bool CloneOnly = false)
+        internal static void SetItemData(WItemData data, ObjectDB Instant)
         {
             // Dbgl("Loaded SetItemData!");
 
@@ -1280,10 +1280,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
 
-                        try
-                        {
-                            
-                        }
+
                     }
 
                     var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>();

@@ -26,12 +26,14 @@ namespace wackydatabase.SetData
             if (ZNet.instance.IsServer())
                 return; // no need for a server to get this 
 
+            bool firstsyncreload = false;
             if (WMRecipeCust.Firstrun)
             {
                 WMRecipeCust.GetAllMaterials();
                 WMRecipeCust.Firstrun = false;
                 DataHelpers.GetPieceStations();
                 DataHelpers.GetPiecesatStart();
+                firstsyncreload = true;
                 //LoadinMultiplayerFirst = true; // this is going to require some rewrite
                 if (!WMRecipeCust.isDebug.Value)
                     WMRecipeCust.WLog.LogInfo($"Debug is off, which suprisingly, makes it hard to debug");
@@ -112,6 +114,9 @@ namespace wackydatabase.SetData
 
                     WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReload());
 
+                    if (firstsyncreload)
+                        LoadClonesEarly(); // trying to load clones first pass
+
                     WMRecipeCust.WLog.LogDebug("done with customSyncEvent");
                 }
                 else
@@ -141,7 +146,7 @@ namespace wackydatabase.SetData
                 {
                     try
                     {
-                        SetData.SetClonedItemsData(data, Instant);// has issues
+                        SetData.SetClonedItemsDataCache(data, Instant);// has issues
                     }
                     catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
                 }
@@ -154,7 +159,7 @@ namespace wackydatabase.SetData
         }
 
 
-        internal void LoadClonedItemsPieceOnce()
+        internal void LoadClonesEarly()
         {
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {
@@ -162,12 +167,96 @@ namespace wackydatabase.SetData
                 WMRecipeCust.GetAllMaterials();
                 DataHelpers.GetPieceStations();
                 DataHelpers.GetPiecesatStart();
-                WMRecipeCust.Firstrun = false;
+                //WMRecipeCust.Firstrun = false; run again for final pickups
             }
 
             ObjectDB Instant = ObjectDB.instance;
+            WMRecipeCust.WLog.LogInfo($"Loading Cloned CraftingStation");
+
+            foreach (var data1 in WMRecipeCust.pieceDatasYml)
+            {
+                if (data1 != null && !string.IsNullOrEmpty(data1.clonePrefabName))
+                {
+                    try
+                    {
+                        CraftingStation checkifStation = null;
+                        GameObject go = DataHelpers.FindPieceObjectName(data1.clonePrefabName);
+                        string tempnam = null;
+                        tempnam = go.GetComponent<CraftingStation>()?.m_name;
+                        if (tempnam != null)
+                        {
+                            checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                            if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                            {
+                                SetData.SetPieceRecipeData(data1, Instant);
+                            }
+                        }
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning($"SetPiece CraftingStation for {data1.name} failed, might get it on second pass"); } // spams just catch any empty
+                }
+            }
+
+            WMRecipeCust.WLog.LogInfo($"Loading SEs");
+            foreach (var data in WMRecipeCust.effectDataYml) // recipes last
+            {
+                try
+                {
+                    SetData.SetStatusData(data, Instant);// has issues
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
+            }
+
+            WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
+            foreach (var data3 in WMRecipeCust.itemDatasYml)
+            {
+                if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName) && !WMRecipeCust.ClonedI.Contains(data3.name))
+                {
+                    try
+                    {
+                        SetData.SetItemData(data3, Instant);
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning($"Set Item Data for {data3.name} failed, might get it on second pass"); } // spams just catch any empty
+                }
+            }
+
+            try
+            {
+                Instant.UpdateItemHashes();
+            }
+            catch
+            {
+                WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems");
+            }
+
+                WMRecipeCust.WLog.LogInfo($"Loading Cloned Pieces");
+            foreach (var data2 in WMRecipeCust.pieceDatasYml)
+            {
+                if (data2 != null && !string.IsNullOrEmpty(data2.clonePrefabName) && !WMRecipeCust.ClonedP.Contains(data2.name))
+                {
+                    try
+                    {
+                      SetData.SetPieceRecipeData(data2, Instant);                                      
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data2.name} failed, might get it on second pass"); } // spams just catch any empty
+                }
+            }
+
+            WMRecipeCust.WLog.LogInfo($"Loading Cloned Recipes");
+            foreach (var data4 in WMRecipeCust.recipeDatasYml)
+            {
+                if (data4 != null && !string.IsNullOrEmpty(data4.clonePrefabName) && !WMRecipeCust.ClonedR.Contains(data4.name))
+                {
+                    try
+                    {
+                        SetData.SetRecipeData(data4, Instant);
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data4.name} failed, might get it on second pass"); } // spams just catch any empty
+                }
+            }
+
 
         }
+
 
 
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false) // same as LoadAllRecipeData except broken into chunks// maybe replace?

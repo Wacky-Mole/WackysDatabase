@@ -48,11 +48,26 @@ namespace wackydatabase.Startup
         }
 
         [HarmonyPatch(typeof(ZNetScene), "Awake")]
+        [HarmonyPriority(Priority.LowerThanNormal)]
+
+        static class ZNetScene_Awake_Patch_Middle_WackysDatabase
+        {
+            static void Postfix()
+            {
+                if (ZNet.instance.IsServer()) // singleplayer or COOP Server
+                {
+                    SetData.Reload temp = new SetData.Reload();
+                    WMRecipeCust.CurrentReload = temp;
+                    temp.LoadClonesEarly();
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(ZNetScene), "Awake")]
         [HarmonyPriority(Priority.Last)]
         //[HarmonyPriority(Priority.VeryLow)]
-        static class ZNetScene_Awake_Patch_WackysDatabase
+        static class ZNetScene_Awake_Patch_LastWackysDatabase
         {
-
 
             static void Postfix()
             {
