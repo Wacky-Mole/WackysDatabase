@@ -1575,6 +1575,7 @@ namespace wackydatabase.SetData
 
                     PrimaryItemData.m_shared.m_skillType = data.m_skillType ?? PrimaryItemData.m_shared.m_skillType;
                     PrimaryItemData.m_shared.m_animationState = data.m_animationState ?? PrimaryItemData.m_shared.m_animationState;
+                    PrimaryItemData.m_shared.m_itemType = data.m_itemType ?? PrimaryItemData.m_shared.m_itemType;
 
                     PrimaryItemData.m_shared.m_toolTier = data.m_toolTier ?? PrimaryItemData.m_shared.m_toolTier;
                     PrimaryItemData.m_shared.m_maxQuality = data.m_maxQuality ?? PrimaryItemData.m_shared.m_maxQuality;

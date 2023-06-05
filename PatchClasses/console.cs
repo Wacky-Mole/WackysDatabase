@@ -12,8 +12,11 @@ using wackydatabase.GetData;
 using wackydatabase.Read;
 using wackydatabase.Util;
 using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.EventEmitters;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization.ObjectFactories;
 
 namespace wackydatabase.PatchClasses
 {
@@ -236,7 +239,7 @@ namespace wackydatabase.PatchClasses
                         if (recipData == null)
                             return;
                         WMRecipeCust.CheckModFolder();
-                        var serializer = new SerializerBuilder()
+                        var serializer = new SerializerBuilder().WithNewLine("\n")
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved item data to Item_{file}.yml");
@@ -252,7 +255,7 @@ namespace wackydatabase.PatchClasses
                         if (recipData == null)
                             return;
                         WMRecipeCust.CheckModFolder();
-                        var serializer = new SerializerBuilder()
+                        var serializer = new SerializerBuilder().WithNewLine("\n")
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved data to Piece_{file}.yml");
@@ -268,7 +271,7 @@ namespace wackydatabase.PatchClasses
                         if (recipData == null)
                             return;
                         WMRecipeCust.CheckModFolder();
-                        var serializer = new SerializerBuilder()
+                        var serializer = new SerializerBuilder().WithNewLine("\n")
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved data to Recipe_{file}.yml");
@@ -287,7 +290,7 @@ namespace wackydatabase.PatchClasses
                     }
                     else
                     {
-                        var serializer = new SerializerBuilder()
+                        var serializer = new SerializerBuilder().WithNewLine("\n")
                         .Build();
                         GetDataYML RecipeCheck = new GetDataYML();
                         string prefab = args[1];
@@ -408,7 +411,7 @@ namespace wackydatabase.PatchClasses
                             Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLEffects);
                         }
 
-                        var serializer = new SerializerBuilder()
+                        var serializer = new SerializerBuilder().WithNewLine("\n")
                                         .Build();
                        // var deserialized = new DeserializerBuilder()
                           //      .Build();
@@ -459,7 +462,7 @@ namespace wackydatabase.PatchClasses
                             GetDataYML ItemCheck = new GetDataYML();
                             int count = 0;
 
-                            var serializer = new SerializerBuilder()
+                            var serializer = new SerializerBuilder().WithNewLine("\n")
                                             .Build();
                             // var deserialized = new DeserializerBuilder()
                             //      .Build();
@@ -500,7 +503,7 @@ namespace wackydatabase.PatchClasses
                                 GetDataYML RecipeCheck = new GetDataYML();
                             int count = 0;
 
-                            var serializer = new SerializerBuilder()
+                            var serializer = new SerializerBuilder().WithNewLine("\n")
                                             .Build();
                             // var deserialized = new DeserializerBuilder()
                             //      .Build();
@@ -579,7 +582,7 @@ namespace wackydatabase.PatchClasses
                                         if (PieceList != null)
                                         {
                                             GetDataYML PieceCheck = new GetDataYML();
-                                            var serializer = new SerializerBuilder()
+                                            var serializer = new SerializerBuilder().WithNewLine("\n")
                                                                     .Build();
                                             foreach (var pie in PieceList)
                                             {
@@ -610,7 +613,7 @@ namespace wackydatabase.PatchClasses
                                         GetDataYML PieceCheck = new GetDataYML();
                                         int count = 0;
 
-                                        var serializer = new SerializerBuilder()
+                                        var serializer = new SerializerBuilder().WithNewLine("\n")
                                                                     .Build();
                                         // var deserialized = new DeserializerBuilder()
                                         //      .Build();
@@ -645,6 +648,7 @@ namespace wackydatabase.PatchClasses
                         GetDataYML SEcheck = new GetDataYML();
 
                         var serializer = new SerializerBuilder()
+                                        .WithNewLine("\n")
                                         .Build();
 
                         var temp = SEcheck.GetStatusEByName(name, tod);
@@ -669,6 +673,7 @@ namespace wackydatabase.PatchClasses
                         GetDataYML SEcheck = new GetDataYML();
 
                         var serializer = new SerializerBuilder()
+                                        .WithNewLine("\n")
                                         .Build();
 
                         
@@ -800,7 +805,8 @@ namespace wackydatabase.PatchClasses
                                 return;
                             }
                             var serializer = new SerializerBuilder()
-                            .Build();
+                            .WithNewLine("\n")
+                            .Build();                         
                             GetDataYML RecipeCheck = new GetDataYML();
 
                             if (commandtype == "recipe" || commandtype == "Recipe")
@@ -883,6 +889,7 @@ namespace wackydatabase.PatchClasses
                         else
                         {
                             var serializer = new SerializerBuilder()
+                            .WithNewLine("\n")
                             .Build();
                             GetDataYML RecipeCheck = new GetDataYML();
                             string prefab = args[1];

@@ -93,6 +93,8 @@ namespace wackydatabase.Datas
         public Skills.SkillType? m_skillType; 
 
         public ItemDrop.ItemData.AnimationState? m_animationState; 
+        
+        public ItemDrop.ItemData.ItemType? m_itemType;
 
         
         public int? m_toolTier;

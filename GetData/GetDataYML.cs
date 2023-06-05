@@ -715,6 +715,7 @@ namespace wackydatabase.GetData
                 m_knockback = data.m_shared.m_attackForce,
                 m_skillType = data.m_shared.m_skillType,
                 m_animationState = data.m_shared.m_animationState,
+                m_itemType = data.m_shared.m_itemType,
                 Damage = damages,
                 Damage_Per_Level = damagesPerLevel,
                 Moddifiers = StatModdifers,

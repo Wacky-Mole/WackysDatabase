@@ -97,6 +97,7 @@ namespace wackydatabase.Startup
         {
 
             var serializer = new SerializerBuilder()
+            .WithNewLine("\n")
             .Build();
 
             var deslizer = new DeserializerBuilder().Build();
