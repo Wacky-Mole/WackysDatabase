@@ -1,7 +1,11 @@
 # WackysDatabase
 WackysDatabase by Wackymole
 
-Version 1.4.4
+Support me!
+
+<a href="https://www.buymeacoffee.com/WackyMole" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 36px !important;" ></a>   <a href='https://ko-fi.com/H2H6LL5GA' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
+Version 1.4.5
 
 <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/>
 
@@ -196,18 +200,22 @@ reqs: requirements to build: Item:amount:amountPerLevel:refundable,
 
 https://github.com/Wacky-Mole/WackysDatabase
 
-For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus)
-
 It has been a lot of fun making this mod, if you need help please ask in Odin's Server
 
-Support me at https://www.buymeacoffee.com/WackyMole 
+For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus) or my discord at [Wolf Den](https://discord.gg/yPj7xjs3Xf)
 
-<img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
+Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole
+
+<a href="https://www.buymeacoffee.com/WackyMole" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+<a href='https://ko-fi.com/H2H6LL5GA' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 </details> 
 
 
 ## Changelog
+        Version 1.4.5
+            Updated just to Update, nothing changed at all, Enjoy! - 2.0 beta is progressing with b16 coming soon
         Version 1.4.4
             Updated API, fixed Marketplace for cloned Items using KG's API (thx), 2.0 beta is progressing.
         Version 1.4.3

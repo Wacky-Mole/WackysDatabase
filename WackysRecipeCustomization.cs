@@ -6,13 +6,7 @@
 // Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
 // CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
 // Thx Aedenthorn again
-/*
- * i wouldn't say there is a single bottleneck that you can remove and everything is fine.
-but lots of small stuff that can be improved.
-you iterate the entire object db for each item, just to find an item with a matching name.
-you instantiate every item.
-you call update item hashes for each item.
-so, it's mostly suffering, because you reload everything for each update. */
+
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -42,7 +36,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.4.4";
+        internal const string ModVersion = "1.4.5";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -121,7 +115,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.4.3" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.4.5" }; // it is very picky on version number
 
 
         #endregion
