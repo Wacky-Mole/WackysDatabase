@@ -56,33 +56,33 @@ namespace wackydatabase.PatchClasses
                 if (___m_seman.HaveStatusEffect("Wet"))
                 {
                     HitData.DamageModifier water = GetNewDamageTypeMod(NewDamageTypes.Water, ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem);
-                    var wet = ___m_seman.GetStatusEffect("Wet");
+                    var wet = ___m_seman.GetStatusEffect("Wet".GetStableHashCode());
                     var t = Traverse.Create(wet);
 
                     if (water == HitData.DamageModifier.Ignore || water == HitData.DamageModifier.Immune)
                     {
-                        ___m_seman.RemoveStatusEffect("Wet", true);
+                        ___m_seman.RemoveStatusEffect(wet, true);
                     }
                     else if (water == HitData.DamageModifier.VeryResistant && !__instance.InLiquidSwimDepth())
                     {
-                        ___m_seman.RemoveStatusEffect("Wet", true);
+                        ___m_seman.RemoveStatusEffect(wet, true);
                     }
                     else if (water == HitData.DamageModifier.Resistant)
                     {
                         t.Field("m_time").SetValue(t.Field("m_time").GetValue<float>() + dt);
-                        ___m_seman.RemoveStatusEffect("Wet", true);
+                        ___m_seman.RemoveStatusEffect(wet, true);
                         ___m_seman.AddStatusEffect(wet);
                     }
                     else if (water == HitData.DamageModifier.Weak)
                     {
                         t.Field("m_time").SetValue(t.Field("m_time").GetValue<float>() - dt / 3);
-                        ___m_seman.RemoveStatusEffect("Wet", true);
+                        ___m_seman.RemoveStatusEffect(wet, true);
                         ___m_seman.AddStatusEffect(wet);
                     }
                     else if (water == HitData.DamageModifier.VeryWeak)
                     {
                         t.Field("m_time").SetValue(t.Field("m_time").GetValue<float>() - dt * 2 / 3);
-                        ___m_seman.RemoveStatusEffect("Wet", true);
+                        ___m_seman.RemoveStatusEffect(wet, true);
                         ___m_seman.AddStatusEffect(wet);
                     }
                 }
