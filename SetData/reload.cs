@@ -171,6 +171,7 @@ namespace wackydatabase.SetData
             }
 
             ObjectDB Instant = ObjectDB.instance;
+            
             WMRecipeCust.WLog.LogInfo($"Loading Cloned CraftingStation");
 
             foreach (var data1 in WMRecipeCust.pieceDatasYml)
@@ -205,7 +206,7 @@ namespace wackydatabase.SetData
                 }
                 catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
             }
-
+            
             WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
             foreach (var data3 in WMRecipeCust.itemDatasYml)
             {
@@ -267,6 +268,8 @@ namespace wackydatabase.SetData
                 ZNet Net = new ZNet();
                 Startup.Startup.IsLocalInstance(Net);
             }
+
+            
 
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {

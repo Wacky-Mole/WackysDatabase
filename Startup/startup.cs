@@ -62,7 +62,7 @@ namespace wackydatabase.Startup
                 {
                     SetData.Reload temp = new SetData.Reload();
                     WMRecipeCust.CurrentReload = temp;
-                    temp.LoadClonesEarly();
+                    //temp.LoadClonesEarly();
                 }
             }
         }
@@ -77,6 +77,8 @@ namespace wackydatabase.Startup
             {
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
+
+                
 
                 if (ZNet.instance.IsServer() && !ZNet.instance.IsDedicated()) // Only Load if Singleplayer or COOP Server -otherwise need to wait for client
                     WMRecipeCust.context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
@@ -192,16 +194,20 @@ namespace wackydatabase.Startup
 
         public static IEnumerator DelayedLoadRecipes()
         {
+
+            
+
             yield return new WaitForSeconds(0.1f); 
 
             WMRecipeCust.ReloadingOkay = true;
 
             SetData.Reload temp = new SetData.Reload();
             WMRecipeCust.CurrentReload = temp;
+            temp.LoadClonesEarly();
             //ReadFiles readnow = new ReadFiles(); // should already be read
             //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
             OldReloadSet oldset = new OldReloadSet();
-
+            
 
             if (WMRecipeCust.jsonsFound) 
             {
