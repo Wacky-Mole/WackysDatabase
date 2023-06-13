@@ -68,6 +68,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> ServerDedLoad;
         public static ConfigEntry<bool> extraSecurity;
         public static ConfigEntry<bool> enableYMLWatcher;
+        public static ConfigEntry<bool> clonedcache;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
         internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Experimental
@@ -241,7 +242,7 @@ namespace wackydatabase
             ServerDedLoad = config<bool>("General", "DedServer load Memory", false, "Dedicated Servers will load wackydb files as a client would, this is usually not needed");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
-
+            clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Used for Cloned Items appearing in Start Menu");
             ConfigSync.CurrentVersion = ModVersion;
 
             WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);

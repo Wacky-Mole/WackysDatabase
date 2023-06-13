@@ -26,11 +26,15 @@ namespace wackydatabase.Startup
         {
             static void Postfix()
             {
-                WMRecipeCust.Dbgl("Loading Cloned items for Menu");
-                ReadFiles clones = new ReadFiles();
-                clones.GetCacheClonesOnly();          
-                SetData.Reload Startup = new SetData.Reload();
-                Startup.LoadClonedCachedItems();
+                if (WMRecipeCust.clonedcache.Value)
+                {
+                    WMRecipeCust.Dbgl("Loading Cloned items for Menu");
+                    ReadFiles clones = new ReadFiles();
+                    clones.GetCacheClonesOnly();
+                    SetData.Reload Startup = new SetData.Reload();
+                    Startup.LoadClonedCachedItems();
+                    
+                }
                 WMRecipeCust.FirstSessionRun = true;
             }
 
