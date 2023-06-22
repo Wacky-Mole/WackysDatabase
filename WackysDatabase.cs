@@ -104,7 +104,6 @@ namespace wackydatabase
         public static List<string> ClonedE = new List<string>();
         public static List<string> MockI = new List<string>();
         public static List<string> BlacklistClone = new List<string>();
-        
 
         internal static string assetPath;
         internal static string assetPathconfig;
@@ -112,6 +111,8 @@ namespace wackydatabase
         internal static string assetPathRecipes;
         internal static string assetPathPieces;
         internal static string assetPathVisuals;
+        internal static string assetPathTextures;
+        internal static string assetPathMaterials;
         internal static string assetPathObjects;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
@@ -178,6 +179,8 @@ namespace wackydatabase
             assetPathRecipes = Path.Combine(assetPathconfig, "Recipes");
             assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
             assetPathVisuals = Path.Combine(assetPathconfig, "Visuals");
+            assetPathMaterials = Path.Combine(assetPathconfig, "Materials");
+            assetPathTextures = Path.Combine(assetPathconfig, "Textures");
             assetPathEffects = Path.Combine(assetPathconfig, "Effects");
             assetPathObjects = Path.Combine(assetPathconfig, "Objects");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
@@ -420,6 +423,8 @@ namespace wackydatabase
                 // Dbgl($"Material {val.name}" );
                 originalMaterials[val.name] = val;
             }
+
+            MaterialDataManager.Instance.LoadFiles();
         }
 
 

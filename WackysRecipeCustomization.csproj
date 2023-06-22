@@ -50,16 +50,15 @@
         <GamePath Condition="!Exists('$(GamePath)') AND '$(_SteamLibraryPath)' != ''">$(_SteamLibraryPath)\steamapps\common\Valheim</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\Steam\steamapps\common\Valheim</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Valheim</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">D:\Steam\steamapps\common\Valheim</GamePath>
       </PropertyGroup>
     </When>
   </Choose>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_guiutils, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>$(GamePath)\valheim_Data\Managed\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
+      <HintPath>$(GamePath)\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>$(ModPath)\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="assembly_utils, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\valheim_Data\Managed\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
@@ -69,7 +68,8 @@
     </Reference>
     <Reference Include="BepInEx, Version=5.4.19.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>$(GamePath)\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>$(ModPath)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="ItemManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -94,15 +94,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.AssetBundleModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\unstripped_corlib\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.IMGUIModule.dll</HintPath>
@@ -128,7 +127,9 @@
     <Compile Include="API.cs" />
     <Compile Include="Armor\armor.cs" />
     <Compile Include="Datas\DataHelpers.cs" />
+    <Compile Include="Datas\DescriptorData.cs" />
     <Compile Include="Datas\ItemData.cs" />
+    <Compile Include="Datas\MaterialData.cs" />
     <Compile Include="Datas\PieceData.cs" />
     <Compile Include="Datas\RecipeData.cs" />
     <Compile Include="Datas\StatusData.cs" />
@@ -174,32 +175,21 @@
     <Compile Include="Datas\DatasOld\RecipeData_json.cs" />
     <Compile Include="Utility\functions.cs" />
     <Compile Include="Utility\SpriteTools.cs" />
-    <Compile Include="Visuals\Manipulators\IRendererEffect.cs" />
-    <Compile Include="Visuals\Manipulators\MaterialManipulator.cs" />
-    <Compile Include="Visuals\Manipulators\RendererManipulator.cs" />
-    <Compile Include="Visuals\Manipulators\Renderer\RendererMaterialEffect.cs" />
-    <Compile Include="Visuals\Manipulators\Renderer\RendererShaderEffect.cs" />
+    <Compile Include="Visuals\DataManagers\DataManager.cs" />
+    <Compile Include="Visuals\DataManagers\MaterialDataManager.cs" />
+    <Compile Include="Visuals\DataManagers\TextureDataManager.cs" />
+    <Compile Include="Visuals\DataManagers\VisualDataManager.cs" />
+    <Compile Include="Visuals\Materials\MaterialEffect.cs" />
+    <Compile Include="Visuals\Materials\MaterialManipulator.cs" />
+    <Compile Include="Visuals\PrefabAssistant.cs" />
+    <Compile Include="Visuals\Textures\TextureEffect.cs" />
+    <Compile Include="Visuals\Textures\TextureManipulator.cs" />
+    <Compile Include="Visuals\Textures\TextureMultiplyEffect.cs" />
+    <Compile Include="Visuals\Textures\TextureScreenEffect.cs" />
+    <Compile Include="Visuals\Textures\TextureToonEffect.cs" />
     <Compile Include="WackysDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visuals\Colour.cs" />
-    <Compile Include="Visuals\Manipulators\IManipulator.cs" />
-    <Compile Include="Visuals\Manipulators\IMaterialEffect.cs" />
-    <Compile Include="Visuals\Manipulators\Realtime\IRealtimeEffect.cs" />
-    <Compile Include="Visuals\Manipulators\Realtime\RealtimeApplicator.cs" />
-    <Compile Include="Visuals\Manipulators\Realtime\RealtimeColorEffect.cs" />
-    <Compile Include="Visuals\Manipulators\Realtime\RealtimeFloatEffect.cs" />
-    <Compile Include="Visuals\Manipulators\RealtimeManipulator.cs" />
-    <Compile Include="Visuals\Manipulators\Material\MaterialColorEffect.cs" />
-    <Compile Include="Visuals\Manipulators\Material\MaterialFloatEffect.cs" />
-    <Compile Include="Visuals\Manipulators\Material\MaterialEffect.cs" />
-    <Compile Include="Visuals\Manipulators\TextureManipulator.cs" />
-    <Compile Include="Visuals\Manipulators\Textures\TextureMultiplyEffect.cs" />
-    <Compile Include="Visuals\Manipulators\Textures\TextureScreenEffect.cs" />
-    <Compile Include="Visuals\Manipulators\Textures\TextureToonEffect.cs" />
-    <Compile Include="Visuals\MonoBehaviours\BiomeEffector.cs" />
-    <Compile Include="Visuals\MonoBehaviours\IRealtimeEffector.cs" />
-    <Compile Include="Visuals\MonoBehaviours\ProximityEffector.cs" />
-    <Compile Include="Visuals\MonoBehaviours\TimeEffector.cs" />
     <Compile Include="GetData\Converters\ColorConverter.cs" />
     <Compile Include="GetData\Converters\ValheimTimeConverter.cs" />
     <Compile Include="Datas\VisualData.cs" />

@@ -7,7 +7,7 @@ namespace wackydatabase
     {
         private static Color GRAYSCALE = new Color(0.2126729f, 0.7151522f, 0.0721750f);
 
-        private static Texture2D CloneTexture(Texture2D texture)
+        public static Texture2D CloneTexture(Texture2D texture)
         {
             RenderTexture tmp = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
 
@@ -26,22 +26,27 @@ namespace wackydatabase
             return clone;
         }
 
-        public static Color Screen(Color a, Color b)
+        public static Color Screen(Color pixel, Color screen)
         {
-            Color ret = Color.white - ((Color.white - a) * (Color.white - b));
+            Color ret = pixel + screen - pixel * screen;
 
-            ret.a = a.a;
+            ret.a = pixel.a;
 
             return ret;
         }
 
-        public static Color Multiply(Color a, Color b)
+        public static Color Multiply(Color pixel, Color multiply)
         {
-            Color ret = a * b;
+            Color ret = pixel * multiply;
 
-            ret.a = a.a;
+            ret.a = pixel.a;
 
             return ret;
+        }
+
+        public static Color Overlay(Color pixel, Color overlay)
+        {
+            return pixel.grayscale < 0.5 ? 2.0f * pixel * overlay : Color.white - (Color.white * 2) * (Color.white - pixel) * (Color.white - overlay);
         }
 
         private static float Luminance(Color a)
@@ -75,16 +80,7 @@ namespace wackydatabase
 
         public static Texture2D AsGrayscale(Texture2D texture)
         {
-            RenderTexture tmp = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
-
-            Graphics.Blit(texture, tmp);
-
-            RenderTexture previous = RenderTexture.active;
-            RenderTexture.active = tmp;
-
-            Texture2D clone = new Texture2D(texture.width, texture.height);
-                      clone.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
-                      clone.Apply();
+            Texture2D clone = CloneTexture(texture);
 
             try
             {
@@ -106,10 +102,6 @@ namespace wackydatabase
             } catch (Exception ex)
             {
                 Debug.Log(ex.Message);
-            } finally
-            {
-                RenderTexture.active = previous;
-                RenderTexture.ReleaseTemporary(tmp);
             }
 
             return clone;
@@ -117,16 +109,7 @@ namespace wackydatabase
 
         public static Texture2D AsGrayscaleColoured(Texture2D texture, Color colour)
         {
-            RenderTexture tmp = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
-
-            Graphics.Blit(texture, tmp);
-
-            RenderTexture previous = RenderTexture.active;
-            RenderTexture.active = tmp;
-
-            Texture2D clone = new Texture2D(texture.width, texture.height);
-            clone.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
-            clone.Apply();
+            Texture2D clone = CloneTexture(texture);
 
             try
             {
@@ -150,18 +133,13 @@ namespace wackydatabase
             {
                 Debug.Log(ex.Message);
             }
-            finally
-            {
-                RenderTexture.active = previous;
-                RenderTexture.ReleaseTemporary(tmp);
-            }
 
             return clone;
         }
 
         public static Texture2D AsScreen(Texture2D texture, Color colour)
         {
-            Texture2D clone = CloneTexture(texture);
+            Texture2D clone = CloneTexture(texture);            
 
             try
             {
