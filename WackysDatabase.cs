@@ -351,6 +351,9 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathItems);
                 Directory.CreateDirectory(assetPathPieces);
                 Directory.CreateDirectory(assetPathRecipes);
+                Directory.CreateDirectory(assetPathTextures);
+                Directory.CreateDirectory(assetPathVisuals);
+                Directory.CreateDirectory(assetPathMaterials);
             }
 
             if (!Directory.Exists(assetPathIcons))
