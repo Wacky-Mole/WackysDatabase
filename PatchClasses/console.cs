@@ -166,7 +166,8 @@ namespace wackydatabase.PatchClasses
 
                                  //args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
                                  //wackydatabase.WMRecipeCust.Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
-                             }else if(WMRecipeCust.Admin)
+                             }
+                             else if(WMRecipeCust.Admin)
                              {
                                  ZPackage pkg = new ZPackage();
                                  pkg.Write("true");
@@ -963,8 +964,12 @@ namespace wackydatabase.PatchClasses
                     
                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: true, allowInDevBuild: false );
 
+            Terminal.ConsoleCommand WackyDescribe = new("wackydb_describe", "Export visual description information for an item", args =>
+            {
+                string name = args[1];
 
-
+                VisualController.Export(PrefabAssistant.Describe(name));
+            });
         }
     }
 }

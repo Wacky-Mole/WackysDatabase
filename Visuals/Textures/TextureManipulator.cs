@@ -4,12 +4,17 @@ using wackydatabase.Datas;
 
 namespace wackydatabase
 {
-    public class TextureManipulator: IManipulator
+    public class TextureManipulator
     {
-        List<IMaterialEffect> effects = new List<IMaterialEffect>();
-
-        public TextureManipulator(TextureData data)
+        private List<ITextureEffect> effects = new();
+        private Texture2D _texture;
+        public TextureManipulator(TextureData data, Texture2D texture = null)
         {
+            if (texture)
+            {
+                _texture = texture;
+            }
+
             switch (data.Effect)
             {
                 case TextureEffect.Multiply:
@@ -24,24 +29,28 @@ namespace wackydatabase
             }
         }
 
-        public void AddValue<IMaterialEffect>(IMaterialEffect value)
+        public void AddValue(ITextureEffect value)
         {
             if (value != null)
             {
-                effects.Add((wackydatabase.IMaterialEffect) value);
+                effects.Add(value);
             }
         }
 
-        public void Invoke(Renderer smr, GameObject _prefab)
+        public void Invoke(Renderer smr)
         {
-            effects.ForEach(e => { 
-                e.Apply(smr.material); 
-
-                foreach (Material m in smr.materials)
+            effects.ForEach(e =>
+            { 
+                foreach (Material m in smr.sharedMaterials)
                 {
-                    e.Apply(m);
+                    e.Apply(m, _texture);
                 }
             });
+        }
+
+        public void Invoke(Material m)
+        {
+            effects.ForEach(e => { e.Apply(m, _texture); });
         }
     }
 }

@@ -215,8 +215,15 @@ namespace wackydatabase.SetData
                     try
                     {
                         SetData.SetItemData(data3, Instant);
+
                     }
                     catch { WMRecipeCust.WLog.LogWarning($"Set Item Data for {data3.name} failed, might get it on second pass"); } // spams just catch any empty
+
+                    try
+                    {
+                        VisualController.UpdatePrefab(data3.name);
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data3.name}"); } // spams just catch any empty
                 }
             }
 
@@ -229,7 +236,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems");
             }
 
-                WMRecipeCust.WLog.LogInfo($"Loading Cloned Pieces");
+            WMRecipeCust.WLog.LogInfo($"Loading Cloned Pieces");
             foreach (var data2 in WMRecipeCust.pieceDatasYml)
             {
                 if (data2 != null && !string.IsNullOrEmpty(data2.clonePrefabName) && !WMRecipeCust.ClonedP.Contains(data2.name))
@@ -254,8 +261,6 @@ namespace wackydatabase.SetData
                     catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data4.name} failed, might get it on second pass"); } // spams just catch any empty
                 }
             }
-
-
         }
 
 
@@ -365,7 +370,13 @@ namespace wackydatabase.SetData
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetItem Data for {data.name} failed"); }
 
-                        processcount++;
+                        try
+                        {
+                            VisualController.UpdatePrefab(data.name);
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
+
+                            processcount++;
                         if (processcount > WMRecipeCust.ProcessWait && slowmode)
                         {
                             yield return new WaitForSeconds(WMRecipeCust.WaitTime);
