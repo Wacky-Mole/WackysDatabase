@@ -241,7 +241,7 @@ namespace wackydatabase.SetData
                     catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data2.name} failed, might get it on second pass"); } // spams just catch any empty
                 }
             }
-
+            /*
             WMRecipeCust.WLog.LogInfo($"Loading Cloned Recipes");
             foreach (var data4 in WMRecipeCust.recipeDatasYml)
             {
@@ -254,6 +254,7 @@ namespace wackydatabase.SetData
                     catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data4.name} failed, might get it on second pass"); } // spams just catch any empty
                 }
             }
+            */ // No reason to load recipes early
 
 
         }

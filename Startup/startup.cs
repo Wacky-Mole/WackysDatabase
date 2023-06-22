@@ -195,15 +195,15 @@ namespace wackydatabase.Startup
         public static IEnumerator DelayedLoadRecipes()
         {
 
-            
+
+            SetData.Reload temp = new SetData.Reload();
+            WMRecipeCust.CurrentReload = temp;
+            temp.LoadClonesEarly();
 
             yield return new WaitForSeconds(0.1f); 
 
             WMRecipeCust.ReloadingOkay = true;
 
-            SetData.Reload temp = new SetData.Reload();
-            WMRecipeCust.CurrentReload = temp;
-            temp.LoadClonesEarly();
             //ReadFiles readnow = new ReadFiles(); // should already be read
             //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
             OldReloadSet oldset = new OldReloadSet();
