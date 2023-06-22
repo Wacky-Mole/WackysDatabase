@@ -1,88 +1,141 @@
-﻿using System;
+﻿using BepInEx;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using BepInEx;
-using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization;
 using wackydatabase.Datas;
-
-//Hierarchy
-// Player
-//  - body
-//  - Armature
-//  - attach_skin [Equipment components] (any order)
 
 namespace wackydatabase
 {
     public static class VisualController
     {
-        public static Dictionary<string, int> _visualsByName = new Dictionary<string, int>();
-        public static Dictionary<int, int> _visualsByHash = new Dictionary<int, int>();
-        public static List<VisualData> _visuals = new List<VisualData>();
-
-        private static ISerializer _serializer;
-        private static IDeserializer _deserializer;
-
         static VisualController()
         {
-            ColorConverter cc = new ColorConverter();
-            ValheimTimeConverter vtc = new ValheimTimeConverter();
+            MaterialDataManager.Instance.OnMaterialAdd += DataManager_OnMaterialAdd;
+            MaterialDataManager.Instance.OnMaterialChange += DataManager_OnMaterialChange;
+            MaterialDataManager.Instance.OnMaterialOverwrite += DataManager_OnMaterialOverwrite;
 
-            _serializer = new SerializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .WithTypeConverter(cc)
-            .WithTypeConverter(vtc)
-            .Build();
+            //TextureDataManager.OnTextureAdd += TextureDataManager_OnTextureAdd;
+            //TextureDataManager.OnTextureChange += TextureDataManager_OnTextureChange;
 
-            _deserializer = new DeserializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .WithTypeConverter(cc)
-            .WithTypeConverter(vtc)
-            .Build();
+            VisualDataManager.Instance.OnVisualChanged += VisualDataManager_OnVisualChange;
         }
 
-        public static void Add(string prefabName, VisualData data)
+        /*private static void TextureDataManager_OnTextureChange(object sender, TextureEventArgs e)
         {
-            int hash = prefabName.GetStableHashCode();
-
-            if (_visualsByName.ContainsKey(prefabName))
-            {
-                Debug.Log(string.Format("[VisualsModifer]: Updating {0}", prefabName, hash.ToString()));
-                int index = GetVisualIndex(prefabName);
-
-                _visuals[index] = data;
-                _visualsByHash[hash] = index;
-                _visualsByName[prefabName] = index;
-            }
-            else
-            {
-                Debug.Log(string.Format("[VisualsModifer]: Adding {0}", prefabName, hash.ToString()));
-
-                _visuals.Add(data);
-                _visualsByHash.Add(hash, _visuals.Count - 1);
-                _visualsByName.Add(prefabName, _visuals.Count - 1);
-            }
         }
 
-        public static void Import(string file)
+        private static void TextureDataManager_OnTextureAdd(object sender, TextureEventArgs e)
+        { 
+        }*/
+
+        private static void VisualDataManager_OnVisualChange(object sender, DataEventArgs<VisualData> e)
         {
+            UpdatePrefab(e.Data);
+        }
+
+        private static void DataManager_OnMaterialChange(object sender, MaterialEventArgs e)
+        {
+            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.Changes);
+
+            mm.Invoke(e.Material, null);
+        }
+
+        private static void DataManager_OnMaterialAdd(object sender, MaterialEventArgs e)
+        {
+            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.Changes);
+
+            mm.Invoke(e.Material, null);
+        }
+
+        private static void DataManager_OnMaterialOverwrite(object sender, MaterialEventArgs e)
+        {
+            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.Changes);
+
+            mm.Invoke(e.Material, null);
+        }
+
+        /// <summary>
+        /// Updates the material references on the prefab
+        /// </summary>
+        /// <param name="data">The visual data the specifies the prefab and changes</param>
+        public static void UpdatePrefab(VisualData data)
+        {
+            GameObject item = ObjectDB.instance.GetItemPrefab(data.PrefabName);
+
+            if (item == null)
+            {
+                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to find prefab {data.PrefabName}");
+                return;
+            }
+
             try
             {
-                VisualData data = _deserializer.Deserialize<VisualData>(File.ReadAllText(file));
+                Transform skin_meshes = item.transform.Find("attach_skin"); // Find Skinned Meshes
+                Transform static_meshes = item.transform.Find("attach");    // Find Static Meshes
+                Transform drop_meshes = PrefabAssistant.GetDropChild(item); // Find Drop Visual
 
-                Add(data.PrefabName, data);
+                List<Renderer> renderers = new List<Renderer>();
+
+                // Get renderers for each visual component
+                Renderer[] skinRenderers = skin_meshes != null ? skin_meshes.GetComponentsInChildren<SkinnedMeshRenderer>(true) : null;
+                Renderer[] dropRenderers = drop_meshes != null ? drop_meshes.GetComponentsInChildren<MeshRenderer>(true) : null;
+                Renderer[] meshRenderers = static_meshes != null ? static_meshes.GetComponentsInChildren<MeshRenderer>(true) : null;
+
+                if (skinRenderers != null) { renderers.AddRange(skinRenderers); }
+                if (dropRenderers != null) { renderers.AddRange(dropRenderers); }
+                if (meshRenderers != null) { renderers.AddRange(meshRenderers); }
+
+                // Alter chest material with new texture if exists
+                if (data.Chest != null)
+                {
+                    Material m = MaterialDataManager.Instance.GetMaterial(data.Chest);
+
+                    PrefabAssistant.UpdateItemMaterialReference(item, m);
+                }
+
+                // Alter leg material with new texture if exists
+                if (data.Legs != null)
+                {
+                    Material m = MaterialDataManager.Instance.GetMaterial(data.Legs);
+
+                    PrefabAssistant.UpdateItemMaterialReference(item, m);
+                }
+
+                if (data.Material != null)
+                {
+                    Material m = MaterialDataManager.Instance.GetMaterial(data.Material);
+
+                    for (int i = 0; i < renderers.Count; i++)
+                    {
+                        PrefabAssistant.UpdateMaterialReference(renderers[i], m);
+                    }
+                } else if (data.Materials != null)
+                {
+                    Material[] instances = MaterialDataManager.Instance.GetMaterials(data.Materials);
+
+                    for (int i = 0; i < renderers.Count; i++)
+                    {
+                        PrefabAssistant.UpdateMaterialReferences(renderers[i], instances);
+                    }
+                }
             }
-            catch (Exception ex)
+            catch (System.Exception e)
             {
-                Debug.Log(ex.Message);
-                Debug.Log(ex.InnerException);
+                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to update material - {e.Message}");
             }
         }
 
-        public static void Export(VisualData visual)
+        /// <summary>
+        /// Updates the material references on the prefab
+        /// </summary>
+        /// <param name="prefabName">The name of the prefab</param>
+        public static void UpdatePrefab(string prefabName) { 
+            UpdatePrefab(VisualDataManager.Instance.GetVisualByName(prefabName));
+        }
+
+        public static void Export(DescriptorData data)
         {
-            string contents = _serializer.Serialize(visual);
+            string contents = DataManager<DescriptorData>.Serializer.Serialize(data);
             string storage = Path.Combine(Paths.ConfigPath, "Visuals");
 
             if (!Directory.Exists(storage))
@@ -90,151 +143,12 @@ namespace wackydatabase
                 Directory.CreateDirectory(storage);
             }
 
-            File.WriteAllText(Path.Combine(storage, "Visual_" + visual.PrefabName + ".yml"), contents);
+            File.WriteAllText(Path.Combine(storage, "Describe_" + data.Name + ".yml"), contents);
         }
 
-        public static void UpdateVisuals(string prefabName, ObjectDB instance)
+        public static void Apply()
         {
-            GameObject armor = instance.GetItemPrefab(prefabName);
-
-            if (armor == null)
-            {
-                Debug.Log("Failed to find armor");
-                return;
-            }
-
-            Transform skin = armor.transform.Find("attach_skin") ?? armor.transform.Find("attach");
-
-            if (skin == null)
-            {
-                Debug.Log("Failed to find skin");
-                return;
-            }
-
-            Renderer[] renderers = skin.GetComponentsInChildren<Renderer>();
-
-            try
-            {
-                //Transform material = armor.transform.Find("default") ?? armor.transform;
-                //Material m = material.GetComponentInChildren<Renderer>().sharedMaterial;
-
-                List<IManipulator> materialChanges = VisualController.GetManipulations(prefabName);
-                List<IManipulator> particleChanges = VisualController.GetParticleChanges(prefabName);
-
-                for (uint i = 0; i < renderers.Length; i++)
-                {
-                    if (renderers[i].GetType() == typeof(ParticleSystemRenderer))
-                    {
-                        particleChanges.ForEach(change => { change.Invoke(renderers[i], armor); });
-                    }
-                    else
-                    {
-                        materialChanges.ForEach(change => { change.Invoke(renderers[i], armor); });
-                    }
-                }
-
-
-                // This light stuff should be moved into a manipulation
-                VisualData data = VisualController.GetVisualByName(prefabName);
-
-                if (data.Light != null)
-                {
-                    Light l = skin.GetComponentInChildren<Light>(true);
-                    if (l != null)
-                    {
-                        if (data.Light.Color != null)
-                        {
-                            l.color = data.Light.Color;
-                        }
-
-                        if (data.Light.Range != null)
-                        {
-                            l.range = data.Light.Range;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.Log(string.Format("VisualsModifier: Failed to update material - {0}", ex.Message));
-                Debug.Log(ex.InnerException);
-            }
-        }
-
-        public static int GetVisualIndex(string name)
-        {
-            return _visualsByName[name];
-        }
-
-        public static int GetVisualIndex(int hash)
-        {
-            return _visualsByHash[hash];
-        }
-
-        public static VisualData GetVisualByIndex(int index)
-        {
-            return _visuals[index];
-        }
-
-        public static VisualData GetVisualByName(string name)
-        {
-            if (_visualsByName.ContainsKey(name))
-            {
-                return _visuals[_visualsByName[name]];
-            }
-
-            return null;
-        }
-
-        public static VisualData GetVisualByHash(int hash)
-        {
-            if (_visualsByHash.ContainsKey(hash))
-            {
-                return _visuals[_visualsByHash[hash]];
-
-            }
-            return null;
-        }
-
-        public static List<IManipulator> GetManipulations(string prefab)
-        {
-            List<IManipulator> manipulations = new List<IManipulator>();
-            VisualData data = GetVisualByName(prefab);
-
-            if (data == null)
-            {
-                return manipulations;
-            }
-
-            if (data.Material != null)
-            {
-                manipulations.Add(new MaterialManipulator(data.Material));
-            }
-
-            if (data.Effect != null)
-            {
-                manipulations.Add(new RealtimeManipulator(data.Effect));
-            }
-
-            if (data.Shader != null)
-            {
-                manipulations.Add(new RendererManipulator(data.Shader));
-            }
-
-            return manipulations;
-        }
-
-        public static List<IManipulator> GetParticleChanges(string prefab)
-        {
-            List<IManipulator> manipulations = new List<IManipulator>();
-            VisualData data = GetVisualByName(prefab);
-
-            if (data.Particle != null)
-            {
-                manipulations.Add(new MaterialManipulator(data.Particle));
-            }
-
-            return manipulations;
+            VisualDataManager.Instance._visuals.ForEach(action => { UpdatePrefab(action.PrefabName); });
         }
     }
 }
