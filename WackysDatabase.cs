@@ -114,6 +114,7 @@ namespace wackydatabase
         internal static string assetPathTextures;
         internal static string assetPathMaterials;
         internal static string assetPathObjects;
+        internal static string assetPathCreatures;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
         internal static string assetPathBulkYMLItems;
@@ -183,6 +184,7 @@ namespace wackydatabase
             assetPathTextures = Path.Combine(assetPathconfig, "Textures");
             assetPathEffects = Path.Combine(assetPathconfig, "Effects");
             assetPathObjects = Path.Combine(assetPathconfig, "Objects");
+            assetPathCreatures = Path.Combine(assetPathconfig, "Creatures");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
 
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
@@ -210,7 +212,6 @@ namespace wackydatabase
             skillConfigData.Value = ymlstring; // Shouldn't matter - maybe...
 
             readFiles.SetupWatcher();
-
 
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom sync watcher for yml file synced from server
 
@@ -245,7 +246,7 @@ namespace wackydatabase
             ServerDedLoad = config<bool>("General", "DedServer load Memory", false, "Dedicated Servers will load wackydb files as a client would, this is usually not needed");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
-            clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Used for Cloned Items appearing in Start Menu");
+            clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
             ConfigSync.CurrentVersion = ModVersion;
 
             WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
@@ -427,7 +428,7 @@ namespace wackydatabase
             MaterialDataManager.Instance.LoadFiles();
         }
 
-
+        /*
         [HarmonyPatch(typeof(FejdStartup), "Start")]
         static class FejdstartupWackyBlackPatch // Add your name/modname to this class method - should be unique
         {
@@ -444,7 +445,8 @@ namespace wackydatabase
                     }
                 }
             }
-        }
+        } example code for modders
+        */
 
     }
 }

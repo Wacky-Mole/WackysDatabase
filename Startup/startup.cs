@@ -14,6 +14,7 @@ using wackydatabase.Datas;
 using wackydatabase.Read;
 using System.Security.Policy;
 using wackydatabase.SetData.SetOldData;
+using System.Reflection;
 
 namespace wackydatabase.Startup
 {
@@ -97,6 +98,7 @@ namespace wackydatabase.Startup
             }
         }
 
+        //static MethodBase TargetMethod(HarmonyInstance inst) need to make this more comptabilie with non steam verions 
         [HarmonyPatch(typeof(ZSteamMatchmaking), "RegisterServer")]
         private class COOPCheckSteam
         {

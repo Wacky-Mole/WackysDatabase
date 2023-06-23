@@ -27,20 +27,23 @@ namespace wackydatabase.Read
         {
             WMRecipeCust.CheckModFolder();
 
-            FileSystemWatcher watcher = new(WMRecipeCust.assetPathconfig); // jsons in config
+            FileSystemWatcher watcher = new(WMRecipeCust.assetPathconfig); // yml in config
             watcher.Changed += ReadYMLValues;
             watcher.Created += ReadYMLValues;
             watcher.Renamed += ReadYMLValues;
             watcher.IncludeSubdirectories = true;
             watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher.EnableRaisingEvents = true;
-
             
         }
 
         private void ReadYMLValues(object sender, FileSystemEventArgs e)
         {
+
             if (!File.Exists(WMRecipeCust.ConfigFileFullPath)) return;
+
+            if (e.FullPath.Contains("Visuals") || e.FullPath.Contains("Materials")) return; // Let Visual Datamanger handle
+            if (!e.FullPath.Contains("yml")) return; // does not contain yml
             try
             {
                 if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() && WMRecipeCust.enableYMLWatcher.Value || ZNet.instance.IsServer() && WMRecipeCust.isSettoAutoReload && WMRecipeCust.enableYMLWatcher.Value)
