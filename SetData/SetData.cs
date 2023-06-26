@@ -1208,7 +1208,7 @@ namespace wackydatabase.SetData
                         ObjectDB.instance.m_items.Add(newItem);
 
                         ZNetScene znet = ZNetScene.instance;
-                        if (znet)
+                        if (false)
                         {
                             string name = newItem.name;
                             if (znet.m_namedPrefabs.ContainsKey(hash))

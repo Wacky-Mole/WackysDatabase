@@ -98,29 +98,43 @@ namespace wackydatabase.Startup
             }
         }
 
-        //static MethodBase TargetMethod(HarmonyInstance inst) need to make this more comptabilie with non steam verions 
-        [HarmonyPatch(typeof(ZSteamMatchmaking), "RegisterServer")]
-        private class COOPCheckSteam
+
+        [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.Start))]
+        public static class FejdStartupPatch
         {
-            private static void Postfix()
+            static void Postfix(FejdStartup __instance)
+            {
+                if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
+                {
+
+                    WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.CreateLobby)),
+                        postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
+                            nameof(gamepassServer))));
+
+                }
+                else if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
+                {
+                    WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.RegisterServer)),
+                        postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
+                            nameof(steamServer))));
+                }
+
+            }
+
+            private static void steamServer()
             {
                 WMRecipeCust.WLog.LogWarning("Steam Lobby is active");
                 WMRecipeCust.LobbyRegistered = true;
             }
 
-        }
-
-        [HarmonyPatch(typeof(ZPlayFabMatchmaking), "RegisterServer")]
-        private class COOPCheckPlayfab
-        {
-            private static void Postfix()
+            private static void gamepassServer()
             {
                 WMRecipeCust.WLog.LogWarning("Zplay Lobby is active");
                 WMRecipeCust.LobbyRegistered = true;
             }
 
         }
-        
+
         public static void DestroyStartupItems()
         {
             var delObj = ObjectDB.instance;
@@ -199,9 +213,6 @@ namespace wackydatabase.Startup
         {
 
 
-            SetData.Reload temp = new SetData.Reload();
-            WMRecipeCust.CurrentReload = temp;
-            temp.LoadClonesEarly();
 
             yield return new WaitForSeconds(0.1f); 
 
@@ -210,7 +221,10 @@ namespace wackydatabase.Startup
             //ReadFiles readnow = new ReadFiles(); // should already be read
             //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
             OldReloadSet oldset = new OldReloadSet();
-            
+            SetData.Reload temp = new SetData.Reload();
+            WMRecipeCust.CurrentReload = temp;
+            temp.LoadClonesEarly();
+
 
             if (WMRecipeCust.jsonsFound) 
             {

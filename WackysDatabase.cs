@@ -49,7 +49,7 @@ namespace wackydatabase
         internal static string ConfigFileName = ModGUID + ".cfg";
         internal static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
         internal static WMRecipeCust context;
-        private readonly Harmony _harmony = new(ModGUID);
+        internal readonly Harmony _harmony = new(ModGUID);
         public static readonly ManualLogSource WLog =
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
@@ -226,7 +226,7 @@ namespace wackydatabase
         }
 
 
-            private void StartupConfig()
+        private void StartupConfig()
         {
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
@@ -370,6 +370,21 @@ namespace wackydatabase
             {
                 Dbgl("Creating Objects folder");
                 Directory.CreateDirectory(assetPathObjects);
+            }
+            if (!Directory.Exists(assetPathVisuals))
+            {
+                Dbgl("Creating Visuals folder");
+                Directory.CreateDirectory(assetPathVisuals);
+            }
+            if (!Directory.Exists(assetPathTextures))
+            {
+                Dbgl("Creating Texture folder");
+                Directory.CreateDirectory(assetPathTextures);
+            }
+            if (!Directory.Exists(assetPathMaterials))
+            {
+                Dbgl("Creating Materials folder");
+                Directory.CreateDirectory(assetPathMaterials);
             }
             var versionpath = Path.Combine(assetPathCache, $"Last_Cleared.txt");
             if (File.Exists(versionpath))
