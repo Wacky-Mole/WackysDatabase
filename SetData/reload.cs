@@ -14,6 +14,8 @@ using System.IO;
 using System.Collections;
 using wackydatabase.Startup;
 using YamlDotNet.Serialization;
+using static ItemSets;
+using System.Security.Policy;
 
 namespace wackydatabase.SetData
 {
@@ -214,7 +216,7 @@ namespace wackydatabase.SetData
                 {
                     try
                     {
-                        SetData.SetItemData(data3, Instant);
+                        SetData.SetItemData(data3, Instant, false);
 
                     }
                     catch { WMRecipeCust.WLog.LogWarning($"Set Item Data for {data3.name} failed, might get it on second pass"); } // spams just catch any empty
@@ -264,7 +266,35 @@ namespace wackydatabase.SetData
             } */ // No reason to do recipes early
         }
 
+        internal void FinishZnetObjects()
+        {
+            ZNetScene znet = ZNetScene.instance;
+            if (WMRecipeCust.ZnetWaitList.Count > 0)
+            {
+                WMRecipeCust.WLog.LogInfo("Adding Znets from ZnetWaitlists");
 
+                foreach (var obj in WMRecipeCust.ZnetWaitList)
+                {
+                    string name = obj.name;
+                    var hash = name.GetStableHashCode();
+
+                    if (znet.m_namedPrefabs.ContainsKey(hash))
+                        WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
+                    else
+                    {
+                        if (obj.GetComponent<ZNetView>() != null)
+                            znet.m_prefabs.Add(obj);
+                        else
+                            znet.m_nonNetViewPrefabs.Add(obj);
+
+                        znet.m_namedPrefabs.Add(hash, obj);
+                        WMRecipeCust.Dbgl($"Added prefab {name}");
+                    }
+
+                }
+                WMRecipeCust.ZnetWaitList.Clear();
+            }
+        }
 
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
         {
@@ -285,6 +315,8 @@ namespace wackydatabase.SetData
                 DataHelpers.GetPiecesatStart();
                 WMRecipeCust.Firstrun = false;
             }
+
+
 
             if (reload && (WMRecipeCust.issettoSinglePlayer || WMRecipeCust.recieveServerInfo || WMRecipeCust.LobbyRegistered)) // single player only or recievedServerInfo
             {
@@ -451,6 +483,8 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($" You finished wackydb reload");
 
                     OnAllReloaded?.Invoke();
+
+                    //FinishZnetObjects();
 
                     if (OtherApi.Marketplace_API.IsInstalled())
                     {

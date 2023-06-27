@@ -98,7 +98,9 @@ namespace wackydatabase
         public static List<StatusData> effectDataYml = new List<StatusData>();
         public static List<WItemData> cacheDataYML = new List<WItemData>();// cacheonly
 
+
         public static List<string> ClonedI = new List<string>();
+        public static List<GameObject> ZnetWaitList = new List<GameObject>();
         public static List<string> ClonedP = new List<string>();
         public static List<string> ClonedR = new List<string>();
         public static List<string> ClonedE = new List<string>();

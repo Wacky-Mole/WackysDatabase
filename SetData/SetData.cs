@@ -1063,7 +1063,7 @@ namespace wackydatabase.SetData
 
 
         
-        internal static void SetItemData(WItemData data, ObjectDB Instant)
+        internal static void SetItemData(WItemData data, ObjectDB Instant, bool ZnetNow=true)
         {
             // Dbgl("Loaded SetItemData!");
 
@@ -1205,11 +1205,12 @@ namespace wackydatabase.SetData
                         newItem.name = tempname; // resets the orginal name- needs to be unquie
                         NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
                         var hash = newItem.name.GetStableHashCode();
-                        ObjectDB.instance.m_items.Add(newItem);
+                        Instant.m_items.Add(newItem);
 
                         ZNetScene znet = ZNetScene.instance;
-                        if (znet)
+                        if (znet )
                         {
+
                             string name = newItem.name;
                             if (znet.m_namedPrefabs.ContainsKey(hash))
                                 WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
@@ -1223,6 +1224,10 @@ namespace wackydatabase.SetData
                                 znet.m_namedPrefabs.Add(hash, newItem);
                                 WMRecipeCust.Dbgl($"Added prefab {name}");
                             }
+                        }else
+                        {
+                            WMRecipeCust.ZnetWaitList.Add(newItem);
+                            WMRecipeCust.Dbgl($" prefab {newItem.name} added to ZnetWaitList");
                         }
                         /*
                                SpriteRenderer m_Spriter;
