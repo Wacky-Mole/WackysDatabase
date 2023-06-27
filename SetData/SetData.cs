@@ -1200,12 +1200,15 @@ namespace wackydatabase.SetData
                         Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
                         GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
                         ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
+                        ItemDrop.ItemData NewItemData = newItem.GetComponent<ItemDrop.ItemData>();
+
 
                         NewItemComp.name = tempname; // added and seems to be the issue
                         newItem.name = tempname; // resets the orginal name- needs to be unquie
                         NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
                         var hash = newItem.name.GetStableHashCode();
                         Instant.m_items.Add(newItem);
+                        Instant.m_itemByHash.Add(newItem.name.GetStableHashCode(), newItem);
 
                         ZNetScene znet = ZNetScene.instance;
                         if (znet )
@@ -1224,11 +1227,11 @@ namespace wackydatabase.SetData
                                 znet.m_namedPrefabs.Add(hash, newItem);
                                 WMRecipeCust.Dbgl($"Added prefab {name}");
                             }
-                        }else
-                        {
-                            WMRecipeCust.ZnetWaitList.Add(newItem);
-                            WMRecipeCust.Dbgl($" prefab {newItem.name} added to ZnetWaitList");
                         }
+
+                        //WMRecipeCust.WaitList.Add(newItem, NewItemComp); // failed testing
+                            //WMRecipeCust.Dbgl($" prefab {newItem.name} added to ZnetWaitList");
+                        
                         /*
                                SpriteRenderer m_Spriter;
                                Color newtestcolor;
@@ -1284,7 +1287,7 @@ namespace wackydatabase.SetData
                         go = Instant.GetItemPrefab(tempname);
                         PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
-
+                        
 
                     }
 

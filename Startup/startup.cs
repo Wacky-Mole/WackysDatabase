@@ -80,7 +80,6 @@ namespace wackydatabase.Startup
                     return;
 
                 
-
                 if (ZNet.instance.IsServer() && !ZNet.instance.IsDedicated()) // Only Load if Singleplayer or COOP Server -otherwise need to wait for client
                     WMRecipeCust.context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
 
@@ -212,18 +211,17 @@ namespace wackydatabase.Startup
         public static IEnumerator DelayedLoadRecipes()
         {
 
-            
-            yield return new WaitForSeconds(0.1f); 
-
-            WMRecipeCust.ReloadingOkay = true;
-
-            //ReadFiles readnow = new ReadFiles(); // should already be read
-            //readnow.GetDataFromFiles(); Don't need to reload files on first run, only on reload otherwise might override skillConfigData.Value
-            OldReloadSet oldset = new OldReloadSet();
-
             SetData.Reload temp = new SetData.Reload();
             WMRecipeCust.CurrentReload = temp;
-            temp.LoadClonesEarly();
+
+            //temp.LoadClonesEarly(); This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
+            // it failed because it couldn't init after item pickup by player. So spawn in, pickup, drop error on object init. No idea why, but works after teh .1f delay
+
+            yield return new WaitForSeconds(0.1f); 
+            WMRecipeCust.ReloadingOkay = true;
+          
+            OldReloadSet oldset = new OldReloadSet();
+
 
 
             if (WMRecipeCust.jsonsFound) 

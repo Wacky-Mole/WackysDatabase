@@ -16,6 +16,7 @@ using wackydatabase.Startup;
 using YamlDotNet.Serialization;
 using static ItemSets;
 using System.Security.Policy;
+using static ItemDrop;
 
 namespace wackydatabase.SetData
 {
@@ -265,15 +266,44 @@ namespace wackydatabase.SetData
                 }
             } */ // No reason to do recipes early
         }
+        
+        /*
+        internal void reloadDropPrefab()
+        {
+            if (WMRecipeCust.WaitList.Count > 0)
+            {
+                WMRecipeCust.WLog.LogInfo("Reloading DropPrefabs for early clones");
 
+                foreach (var obj in WMRecipeCust.WaitList)
+                {
+                    if (obj.Key != null)
+                    {
+                        if ( obj.Key.GetComponent<ItemDrop>() != null)
+                        {
+                            var wa = obj.Key;
+                            var wac = wa.GetComponent<ItemDrop>();
+                            wac = obj.Value;
+
+                        }else
+                        {
+                            WMRecipeCust.WLog.LogWarning("itemdrop is null");
+                        }
+                    }
+                    
+                }
+                WMRecipeCust.WaitList.Clear();
+            }
+
+        }
+       
         internal void FinishZnetObjects()
         {
             ZNetScene znet = ZNetScene.instance;
-            if (WMRecipeCust.ZnetWaitList.Count > 0)
+            if (WMRecipeCust.WaitList.Count > 0)
             {
                 WMRecipeCust.WLog.LogInfo("Adding Znets from ZnetWaitlists");
 
-                foreach (var obj in WMRecipeCust.ZnetWaitList)
+                foreach (var obj in WMRecipeCust.WaitList)
                 {
                     string name = obj.name;
                     var hash = name.GetStableHashCode();
@@ -292,10 +322,10 @@ namespace wackydatabase.SetData
                     }
 
                 }
-                WMRecipeCust.ZnetWaitList.Clear();
+                WMRecipeCust.WaitList.Clear();
             }
         }
-
+        */
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
         {
 
@@ -485,6 +515,7 @@ namespace wackydatabase.SetData
                     OnAllReloaded?.Invoke();
 
                     //FinishZnetObjects();
+                    //reloadDropPrefab();
 
                     if (OtherApi.Marketplace_API.IsInstalled())
                     {

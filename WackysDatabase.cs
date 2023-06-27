@@ -100,7 +100,7 @@ namespace wackydatabase
 
 
         public static List<string> ClonedI = new List<string>();
-        public static List<GameObject> ZnetWaitList = new List<GameObject>();
+        public static Dictionary<GameObject, ItemDrop> WaitList = new Dictionary<GameObject, ItemDrop>();
         public static List<string> ClonedP = new List<string>();
         public static List<string> ClonedR = new List<string>();
         public static List<string> ClonedE = new List<string>();
