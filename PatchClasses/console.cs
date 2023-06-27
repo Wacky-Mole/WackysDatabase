@@ -967,9 +967,9 @@ namespace wackydatabase.PatchClasses
             Terminal.ConsoleCommand WackyDescribe = new("wackydb_describe", "Export visual description information for an item", args =>
             {
                 string name = args[1];
-
+                WMRecipeCust.WLog.LogInfo(name);
                 VisualController.Export(PrefabAssistant.Describe(name));
-            });
+            }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
         }
     }
 }

@@ -134,9 +134,11 @@ namespace wackydatabase
         }
 
         public static void Export(DescriptorData data)
-        {
+        { 
+
             string contents = DataManager<DescriptorData>.Serializer.Serialize(data);
-            string storage = Path.Combine(Paths.ConfigPath, "Visuals");
+            string storage = Path.Combine(WMRecipeCust.assetPathconfig, "Visuals");
+    
 
             if (!Directory.Exists(storage))
             {

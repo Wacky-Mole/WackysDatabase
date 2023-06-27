@@ -225,6 +225,7 @@ namespace wackydatabase
             try
             {
                 T data = Deserializer.Deserialize<T>(yaml);
+                WMRecipeCust.WLog.LogInfo("passed deseraliz");
 
                 Cache(data);
 

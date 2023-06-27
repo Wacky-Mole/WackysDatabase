@@ -54,6 +54,7 @@ namespace wackydatabase
 
             if (!item)
             {
+                WMRecipeCust.WLog.LogInfo(" item describe is null");
                 return data;
             }
 
@@ -110,7 +111,7 @@ namespace wackydatabase
             {
                 Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to find base Renderer for {prefabName}");
             }
-
+            WMRecipeCust.WLog.LogInfo("done with describe data");
             return data;
         }
 

@@ -7,6 +7,7 @@ namespace wackydatabase.Datas
     [Serializable]
     public class VisualData
     {
+        
         public string PrefabName;
         public string Material = null;
         public string Chest;
