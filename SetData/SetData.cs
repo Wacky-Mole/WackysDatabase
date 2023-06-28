@@ -24,6 +24,7 @@ using System.Security.Policy;
 using wackydatabase.OBJimporter;
 using System.Linq.Expressions;
 using static ClutterSystem;
+using static EffectList;
 
 namespace wackydatabase.SetData
 {
@@ -1640,65 +1641,79 @@ namespace wackydatabase.SetData
                     var count = 0;
                     var currentcount = copy.m_effectPrefabs.Count();
                     List<string> copyuserlist = userlist.ToList<string>();
+                    int userlistcount = userlist.Count();
 
-                    List<string> currentList = new List<string>();
+                    EffectData[] newEffectData = new EffectData[userlistcount];
+
+                    //List<string> currentList = new List<string>();
                     Dictionary<string, int> removeList = new Dictionary<string, int>();
 
                     var effectprecount = 0;
                     foreach (var eff in copy.m_effectPrefabs)
                     {
-                        currentList.Add(eff.m_prefab.name);
+                        //currentList.Add(eff.m_prefab.name);
                         if (copyuserlist.Contains(eff.m_prefab.name))
                         {
+                            eff.m_enabled = true;
+                            newEffectData[count] =eff;
+                            count++;
                             copyuserlist.Remove(eff.m_prefab.name);
                         }
                         else
                         {
-                            removeList.Add(eff.m_prefab.name, effectprecount);
+                            //removeList.Add(eff.m_prefab.name, effectprecount);
                         }
                         effectprecount++;
                     }
                     foreach (var userEff in removeList)
                     {
-                        copy.m_effectPrefabs[userEff.Value].m_enabled = false; // make it false
+                        //copy.m_effectPrefabs[userEff.Value].m_enabled = false; // make it false
                     }
 
-                    var countuserlist = 0;
-
-                    foreach (var userEff in copyuserlist)
+                    foreach (var userEffKey in copyuserlist) // the list left to add to end of effectlist
                     {
                         EffectList.EffectData effectDataone = new EffectList.EffectData();
 
 
-                        if (WMRecipeCust.originalVFX.TryGetValue(userEff, out GameObject list1))
+
+                        if (WMRecipeCust.originalVFX.TryGetValue(userEffKey, out GameObject list1))
                         {
                             effectDataone.m_prefab = list1;
                             effectDataone.m_enabled = true;
+                            effectDataone.m_childTransform = "";
+                            newEffectData[count] = effectDataone;
                             count++;
+
                         }
-                        else if (WMRecipeCust.originalSFX.TryGetValue(userEff, out GameObject list2))
+                        else if (WMRecipeCust.originalSFX.TryGetValue(userEffKey, out GameObject list2))
                         {
                             effectDataone.m_prefab = list2;
                             effectDataone.m_enabled = true;
+                            effectDataone.m_childTransform = "";
+                            newEffectData[count] = effectDataone;
                             count++;
+
                         }
-                        else if (WMRecipeCust.originalFX.TryGetValue(userEff, out GameObject list3))
+                        else if (WMRecipeCust.originalFX.TryGetValue(userEffKey, out GameObject list3))
                         {
                             effectDataone.m_prefab = list3;
                             effectDataone.m_enabled = true;
+                            effectDataone.m_childTransform = "";
+                            newEffectData[count] = effectDataone;
                             count++;
+
                         }
                         else
                         { // failure to find
-
+                            WMRecipeCust.WLog.LogInfo("Didn't find effect " + userEffKey);
                         }
 
-                        copy.m_effectPrefabs.AddItem(effectDataone);
-                    }
+                    } // end of foreach
+                    copy.m_effectPrefabs = newEffectData;
                     return copy;
 
                 }
-                else
+                else if (userlist.Count() > 0)
                 {
                     EffectList effectList = new EffectList();
                     EffectList.EffectData[] effectData = new EffectList.EffectData[userlist.Count()];
@@ -1710,29 +1725,34 @@ namespace wackydatabase.SetData
                         if (WMRecipeCust.originalVFX.TryGetValue(userEffe, out GameObject list1))
                         {
                             effectData[count].m_prefab = list1;
+                            effectData[count].m_enabled = true;
+
                             count++;
                         }
                         else if (WMRecipeCust.originalSFX.TryGetValue(userEffe, out GameObject list2))
                         {
                             effectData[count].m_prefab = list2;
+                            effectData[count].m_enabled = true;
                             count++;
                         }
                         else if (WMRecipeCust.originalFX.TryGetValue(userEffe, out GameObject list3))
                         {
                             effectData[count].m_prefab = list3;
+                            effectData[count].m_enabled = true;
                             count++;
                         }
                         else
                         { // failure to find
-
+                            WMRecipeCust.WLog.LogInfo("Didn't find effect " + userEffe);
                         }
                     }
                     effectList.m_effectPrefabs = effectData;
                     return effectList;
 
                 }
+                else { return current; }
             }
-            catch { WMRecipeCust.WLog.LogInfo($"Effect {name} had problems "); return current; }
+            catch (System.Exception e) { WMRecipeCust.WLog.LogWarning($"Effect {name} had problems  {e.Message}"); return current; }
         }
     }
     #endregion
