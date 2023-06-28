@@ -28,9 +28,9 @@ namespace wackydatabase.Datas
 
         //public string cloneEffects;
 
-        public string? vanillaMaterial;
+        public string? material;
 
-        public CustomMaterial? customMaterial;
+        public CustomVisual? customVisual;
 
         public float? sizeMultiplier;  
 
@@ -167,11 +167,12 @@ namespace wackydatabase.Datas
     }
 
     [Serializable]
-    public class CustomMaterial
+    public class CustomVisual
     {
         public string? base_mat;
         public string? chest;
         public string? legs;
+        public string? realtime;
 
     }
 

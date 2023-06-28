@@ -1017,15 +1017,15 @@ namespace wackydatabase.SetData
                             ObjectDB.instance.m_items.Add(newItem);
 
                             
-                            if (!string.IsNullOrEmpty(data.cloneMaterial))
+                            if (!string.IsNullOrEmpty(data.material))
                             {
-                                WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial}");
+                                WMRecipeCust.Dbgl($"Material name searching for {data.material}");
                                 try
                                 {
                                     renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
-                                    if (data.cloneMaterial.Contains(','))
+                                    if (data.material.Contains(','))
                                     {
-                                        string[] materialstr = data.cloneMaterial.Split(',');
+                                        string[] materialstr = data.material.Split(',');
                                         Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
                                         Material part = WMRecipeCust.originalMaterials[materialstr[1]];
 
@@ -1039,7 +1039,7 @@ namespace wackydatabase.SetData
                                     }
                                     else
                                     {
-                                        Material mat = WMRecipeCust.originalMaterials[data.cloneMaterial];
+                                        Material mat = WMRecipeCust.originalMaterials[data.material];
                                         foreach (Renderer renderitem in renderfinder)
                                         {
                                             if (renderitem.receiveShadows)
@@ -1250,15 +1250,15 @@ namespace wackydatabase.SetData
                                */
 
                         
-                        if (!string.IsNullOrEmpty(data.cloneMaterial))
+                        if (!string.IsNullOrEmpty(data.material))
                         {
-                            WMRecipeCust.Dbgl($"Material name searching for {data.cloneMaterial}");
+                            WMRecipeCust.Dbgl($"Material name searching for {data.material}");
                             try
                             {
                                 renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
-                                if (data.cloneMaterial.Contains(','))
+                                if (data.material.Contains(','))
                                 {
-                                    string[] materialstr = data.cloneMaterial.Split(',');
+                                    string[] materialstr = data.material.Split(',');
                                     Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
                                     Material part = WMRecipeCust.originalMaterials[materialstr[1]];
 
@@ -1272,7 +1272,7 @@ namespace wackydatabase.SetData
                                 }
                                 else
                                 {
-                                    Material mat = WMRecipeCust.originalMaterials[data.cloneMaterial];
+                                    Material mat = WMRecipeCust.originalMaterials[data.material];
                                     foreach (Renderer renderitem in renderfinder)
                                     {
                                         if (renderitem.receiveShadows)
@@ -1316,7 +1316,7 @@ namespace wackydatabase.SetData
                     }
 
 
-                    if (!DataHelpers.ECheck(data.cloneMaterial) && !usecustom)
+                    if (!DataHelpers.ECheck(data.material) && !usecustom)
                     {
 
                         try
