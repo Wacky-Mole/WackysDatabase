@@ -96,6 +96,7 @@ namespace wackydatabase
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
         public static List<VisualData> visualDatasYml = new List<VisualData>();
         public static List<StatusData> effectDataYml = new List<StatusData>();
+        public static List<CreatureData> creatureDatasYml = new List<CreatureData>();
         public static List<WItemData> cacheDataYML = new List<WItemData>();// cacheonly
 
 
@@ -388,6 +389,12 @@ namespace wackydatabase
                 Dbgl("Creating Materials folder");
                 Directory.CreateDirectory(assetPathMaterials);
             }
+            if (!Directory.Exists(assetPathCreatures))
+            {
+                Dbgl("Creating Creature folder");
+                Directory.CreateDirectory(assetPathCreatures);
+            }
+
             var versionpath = Path.Combine(assetPathCache, $"Last_Cleared.txt");
             if (File.Exists(versionpath))
             {

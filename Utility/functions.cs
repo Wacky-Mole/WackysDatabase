@@ -191,7 +191,7 @@ namespace wackydatabase.Util
             WMRecipeCust.originalVFX = new Dictionary<string, GameObject>();
             foreach (GameObject val2 in array4)
             {
-                if (val2.name.Contains("vfx"))
+                if (val2.name.ToLower().Contains("vfx"))
                 {
                     Dbgl($"VFX {val2.name}");
                     TheString = TheString + val2.name + System.Environment.NewLine;
@@ -209,7 +209,7 @@ namespace wackydatabase.Util
             WMRecipeCust.originalSFX = new Dictionary<string, GameObject>();
             foreach (GameObject val2 in array4)
             {
-                if (val2.name.Contains("sfx"))
+                if (val2.name.ToLower().Contains("sfx"))
                 {
                     Dbgl($"SFX {val2.name}");
                     TheString = TheString + val2.name + System.Environment.NewLine;
@@ -227,7 +227,7 @@ namespace wackydatabase.Util
             WMRecipeCust.originalFX = new Dictionary<string, GameObject>();
             foreach (GameObject val2 in array4)
             {
-                if (val2.name.StartsWith("fx_"))
+                if (val2.name.ToLower().StartsWith("fx_"))
                 {
                     Dbgl($"FX {val2.name}");
                     TheString = TheString + val2.name + System.Environment.NewLine;

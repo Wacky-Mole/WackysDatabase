@@ -28,15 +28,15 @@ using static EffectList;
 
 namespace wackydatabase.SetData
 {
-    public class SetData 
+    public class SetData
     {
-        
+
         public static Component[] renderfinder;
         internal static Renderer[] renderfinder2;
 
 
         #region Effects
-        internal static void SetStatusData (StatusData data, ObjectDB Instant)
+        internal static void SetStatusData(StatusData data, ObjectDB Instant)
         {
 
             var name = data.Name;
@@ -84,15 +84,15 @@ namespace wackydatabase.SetData
             go.m_repeatMessageType = data.RepeatMessageLoc ?? go.m_repeatMessageType;
             go.m_repeatMessage = data.RepeatMessage ?? go.m_repeatMessage;
             go.m_ttl = data.TimeToLive ?? go.m_ttl;
-            if (data.StartEffect  != null)
+            if (data.StartEffect != null)
             {
                 var count = 0;
-                foreach ( var Seff in data.StartEffect)
+                foreach (var Seff in data.StartEffect)
                 {
                     //EffectList.EffectData
-                       // Instant.GetPrefabHash
+                    // Instant.GetPrefabHash
                     //go.m_startEffects.m_effectPrefabs[count] = go. data.StartEffect[count];
-                        count++;
+                    count++;
                 }
                 //go.m_startEffects.m_effectPrefabs.c
             }
@@ -125,16 +125,16 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_staminaRegenMultiplier", data.SeData.m_staminaRegenMultiplier);
             Functions.setValue(type, go, "m_eitrRegenMultiplier", data.SeData.m_eitrRegenMultiplier);
 
-            Functions.setValue(type, go, "m_raiseSkill", null,null, null, null,data.SeData.m_raiseSkill);
+            Functions.setValue(type, go, "m_raiseSkill", null, null, null, null, data.SeData.m_raiseSkill);
             Functions.setValue(type, go, "m_raiseSkillModifier", data.SeData.m_raiseSkillModifier);
 
-            Functions.setValue(type, go, "m_skillLevel",null, null, null, null, data.SeData.m_skillLevel);
+            Functions.setValue(type, go, "m_skillLevel", null, null, null, null, data.SeData.m_skillLevel);
             Functions.setValue(type, go, "m_skillLevelModifier", data.SeData.m_skillLevelModifier);
-            Functions.setValue(type, go, "m_skillLevel2", null, null, null, null,data.SeData.m_skillLevel2);
+            Functions.setValue(type, go, "m_skillLevel2", null, null, null, null, data.SeData.m_skillLevel2);
             Functions.setValue(type, go, "m_skillLevelModifier2", data.SeData.m_skillLevelModifier2);
 
 
-            Functions.setValue(type, go, "m_mods", null, null, null,data.SeData.m_mods);
+            Functions.setValue(type, go, "m_mods", null, null, null, data.SeData.m_mods);
 
             Functions.setValue(type, go, "m_modifyAttackSkill", null, null, null, null, data.SeData.m_modifyAttackSkill);
             Functions.setValue(type, go, "m_damageModifier", data.SeData.m_damageModifier);
@@ -208,7 +208,7 @@ namespace wackydatabase.SetData
 
             if (go == null && ActualR == null)
             {
-                WMRecipeCust.Dbgl(" null " + data.name );
+                WMRecipeCust.Dbgl(" null " + data.name);
                 return;
             }
 
@@ -245,7 +245,7 @@ namespace wackydatabase.SetData
                             break;
                         }
                     }
-                }else if (ActualR != null)
+                } else if (ActualR != null)
                 {
                     WMRecipeCust.Dbgl($"An actual Recipe for {data.name}");
                     RecipeR = ActualR;
@@ -271,17 +271,17 @@ namespace wackydatabase.SetData
                     return;
                 }
 
-                if(ActualR == null)
+                if (ActualR == null)
                     RecipeR.m_item = go.GetComponent<ItemDrop>();
 
-                if (data.craftingStation != null) 
+                if (data.craftingStation != null)
                 { // null is don't set, '' is only by hand
                     RecipeR.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
                 }
                 if (data.repairStation != null)
                 {
                     RecipeR.m_repairStation = DataHelpers.GetCraftingStation(data.repairStation);
-                }              
+                }
                 RecipeR.m_minStationLevel = data.minStationLevel ?? RecipeR.m_minStationLevel;
                 RecipeR.m_amount = data.amount ?? RecipeR.m_amount;
                 RecipeR.name = tempname;
@@ -293,7 +293,7 @@ namespace wackydatabase.SetData
                         WMRecipeCust.RecipeMaxStationLvl.Add(RecipeR.m_item.name, data.maxStationLevelCap ?? -1); // -1 no cap
                     }
                 }
-                
+
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
 
                 RecipeR.m_requireOnlyOneIngredient = data.requireOnlyOneIngredient ?? RecipeR.m_requireOnlyOneIngredient;
@@ -303,7 +303,7 @@ namespace wackydatabase.SetData
                     alreadyadded = false;
                     WMRecipeCust.QualityRecipeReq.Add(tempname, new Dictionary<string, int>());
                 }
-                foreach (string req in data.reqs) 
+                foreach (string req in data.reqs)
                 {
                     if (!string.IsNullOrEmpty(req))
                     {
@@ -323,8 +323,8 @@ namespace wackydatabase.SetData
                                 m_amountPerLevel = amountPerLevel
                             };
                             reqs.Add(item);
-                          
-                            if(!alreadyadded)
+
+                            if (!alreadyadded)
                                 WMRecipeCust.QualityRecipeReq[tempname].Add(itemname, quality);
                         }
                     }
@@ -369,7 +369,7 @@ namespace wackydatabase.SetData
                 else if (!skip && !string.IsNullOrEmpty(data.clonePrefabName))
                 { // never added so need to disable
                     WMRecipeCust.Dbgl("Cloned Recipe is disabled for " + tempname);
-                } 
+                }
                 else if (ActualR != null)
                 {
                     ActualR.m_enabled = false;
@@ -387,7 +387,7 @@ namespace wackydatabase.SetData
 
                         }
                     }
-                }                                 
+                }
             }// end else
 
             /*
@@ -574,7 +574,7 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
             } // end clone 1st pass
 
-            
+
 
             if (!string.IsNullOrEmpty(data.material) || !string.IsNullOrEmpty(data.damagedMaterial)) // allows changing of any piece
             {
@@ -642,7 +642,7 @@ namespace wackydatabase.SetData
 
                 //SnapshotPiece(go); // piece snapshot doesn't work without instancing
                 //SnapshotItem(null, go.GetComponent<Piece>());
-            
+
             }
             if (data.craftingStation != null)
             {
@@ -737,7 +737,7 @@ namespace wackydatabase.SetData
             {
                 WMRecipeCust.Dbgl($"Disabling Piece {data.name}");
                 go.GetComponent<Piece>().m_enabled = false;
-            }else
+            } else
             {
                 go.GetComponent<Piece>().m_enabled = true;
             }
@@ -756,13 +756,13 @@ namespace wackydatabase.SetData
                 {
                     WMRecipeCust.NewCraftingStations.Add(go.GetComponent<CraftingStation>()); // keeping track of them is hard
                 }
-                    go.GetComponent<CraftingStation>().name = data.name; // must be set
-                    go.GetComponent<CraftingStation>().m_name = data.m_name ?? go.GetComponent<CraftingStation>().m_name;
+                go.GetComponent<CraftingStation>().name = data.name; // must be set
+                go.GetComponent<CraftingStation>().m_name = data.m_name ?? go.GetComponent<CraftingStation>().m_name;
 
-                    WMRecipeCust.Dbgl($"  new CraftingStation named {data.name} ");
-             }
-            
-                  
+                WMRecipeCust.Dbgl($"  new CraftingStation named {data.name} ");
+            }
+
+
 
             if (data.minStationLevel > 1)
             {
@@ -775,10 +775,10 @@ namespace wackydatabase.SetData
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
                 foreach (string req in data.build)
                 {
-                   // WMRecipeCust.Dbgl(req);
+                    // WMRecipeCust.Dbgl(req);
                     string[] parts = req.Split(':');
                     reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
-                   // WMRecipeCust.Dbgl(reqs.Last().ToString() ) ;
+                    // WMRecipeCust.Dbgl(reqs.Last().ToString() ) ;
                 }
                 go.GetComponent<Piece>().m_resources = reqs.ToArray();
             }
@@ -831,7 +831,7 @@ namespace wackydatabase.SetData
             pi.m_waterPiece = data.waterPiece ?? pi.m_waterPiece;
             pi.m_noInWater = data.noInWater ?? pi.m_noInWater;
             pi.m_notOnFloor = data.notOnFloor ?? pi.m_notOnFloor;
-            pi.m_onlyInTeleportArea = data.onlyinTeleportArea ?? pi.m_onlyInTeleportArea; 
+            pi.m_onlyInTeleportArea = data.onlyinTeleportArea ?? pi.m_onlyInTeleportArea;
             pi.m_allowedInDungeons = data.allowedInDungeons ?? pi.m_allowedInDungeons;
             pi.m_canBeRemoved = data.canBeRemoved ?? pi.m_canBeRemoved;
 
@@ -854,8 +854,8 @@ namespace wackydatabase.SetData
                 wear.m_noRoofWear = data.wearNTearData.noRoofWear ?? wear.m_noRoofWear;
                 wear.m_noSupportWear = data.wearNTearData.noSupportWear ?? wear.m_noSupportWear;
                 wear.m_supports = data.wearNTearData.supports ?? wear.m_supports;
-                wear.m_triggerPrivateArea = data.wearNTearData.triggerPrivateArea ?? wear.m_triggerPrivateArea; 
-             }
+                wear.m_triggerPrivateArea = data.wearNTearData.triggerPrivateArea ?? wear.m_triggerPrivateArea;
+            }
 
 
             if (data.craftingStationData != null)
@@ -890,7 +890,7 @@ namespace wackydatabase.SetData
                 go.TryGetComponent<Container>(out var cont);
                 cont.m_autoDestroyEmpty = data.contData.AutoDestoryIfEmpty ?? cont.m_autoDestroyEmpty;
                 cont.m_height = data.contData.Height ?? cont.m_height;
-                cont.m_width = data.contData.Width ?? cont. m_width;     
+                cont.m_width = data.contData.Width ?? cont.m_width;
 
             }
 
@@ -907,18 +907,18 @@ namespace wackydatabase.SetData
 
                 if (data.smelterData.fuelItem != null)
                 {
-                   smelt.m_fuelItem = Instant.GetItemPrefab(data.smelterData.fuelItem.name).GetComponent<ItemDrop>();
+                    smelt.m_fuelItem = Instant.GetItemPrefab(data.smelterData.fuelItem.name).GetComponent<ItemDrop>();
                 }
 
                 smelt.m_maxOre = data.smelterData.maxOre ?? smelt.m_maxOre;
                 smelt.m_maxFuel = data.smelterData.maxFuel ?? smelt.m_maxFuel;
                 smelt.m_fuelPerProduct = data.smelterData.fuelPerProduct ?? smelt.m_fuelPerProduct;
                 smelt.m_secPerProduct = data.smelterData.secPerProduct ?? smelt.m_secPerProduct;
-                smelt.m_spawnStack = data.smelterData.spawnStack?? smelt.m_spawnStack;
+                smelt.m_spawnStack = data.smelterData.spawnStack ?? smelt.m_spawnStack;
                 smelt.m_requiresRoof = data.smelterData.requiresRoof ?? smelt.m_requiresRoof;
                 smelt.m_addOreAnimationDuration = data.smelterData.addOreAnimationLength ?? smelt.m_addOreAnimationDuration;
 
-   
+
                 if (data.smelterData.smelterConversion != null)
                 {
                     smelt.m_conversion.Clear();
@@ -926,7 +926,7 @@ namespace wackydatabase.SetData
                     {
                         Smelter.ItemConversion paul = new Smelter.ItemConversion();
 
-                         //smelt.m_conversion[0].; // has to have 1 set before 
+                        //smelt.m_conversion[0].; // has to have 1 set before 
                         if (list != null)
                         {
                             if (list.FromName != null)
@@ -1017,7 +1017,7 @@ namespace wackydatabase.SetData
                             var hash = newItem.name.GetStableHashCode();
                             ObjectDB.instance.m_items.Add(newItem);
 
-                            
+
                             if (!string.IsNullOrEmpty(data.material))
                             {
                                 WMRecipeCust.Dbgl($"Material name searching for {data.material}");
@@ -1049,7 +1049,7 @@ namespace wackydatabase.SetData
                                     }
                                 }
                                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
-                            } 
+                            }
 
 
                             go = Instant.GetItemPrefab(tempname);
@@ -1063,13 +1063,13 @@ namespace wackydatabase.SetData
         }
 
 
-        
-        internal static void SetItemData(WItemData data, ObjectDB Instant, bool ZnetNow=true)
+
+        internal static void SetItemData(WItemData data, ObjectDB Instant, bool ZnetNow = true)
         {
             // Dbgl("Loaded SetItemData!");
 
             bool skip = false;
-            
+
             foreach (var citem in WMRecipeCust.ClonedI)
             {
                 if (citem == data.name)
@@ -1130,7 +1130,7 @@ namespace wackydatabase.SetData
                             ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
 
-                            if ( string.IsNullOrEmpty(data.customIcon))
+                            if (string.IsNullOrEmpty(data.customIcon))
                             {
                                 try
                                 {
@@ -1144,7 +1144,7 @@ namespace wackydatabase.SetData
                         {
                             WMRecipeCust.Dbgl("New Mock Model with an existing Gameobject, doesn't work right now, please create name for mock item " + data.name);
                         }
-                        
+
                     }
                     ///skip to normal editing
                 }
@@ -1182,7 +1182,7 @@ namespace wackydatabase.SetData
                 return;
             }
 
-            
+
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
                 if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
@@ -1212,7 +1212,7 @@ namespace wackydatabase.SetData
                         Instant.m_itemByHash.Add(newItem.name.GetStableHashCode(), newItem);
 
                         ZNetScene znet = ZNetScene.instance;
-                        if (znet )
+                        if (znet)
                         {
 
                             string name = newItem.name;
@@ -1231,8 +1231,8 @@ namespace wackydatabase.SetData
                         }
 
                         //WMRecipeCust.WaitList.Add(newItem, NewItemComp); // failed testing
-                            //WMRecipeCust.Dbgl($" prefab {newItem.name} added to ZnetWaitList");
-                        
+                        //WMRecipeCust.Dbgl($" prefab {newItem.name} added to ZnetWaitList");
+
                         /*
                                SpriteRenderer m_Spriter;
                                Color newtestcolor;
@@ -1250,7 +1250,7 @@ namespace wackydatabase.SetData
                                //NewItemComp.m_itemData.m_shared.m_icons[0].
                                */
 
-                        
+
                         if (!string.IsNullOrEmpty(data.material))
                         {
                             WMRecipeCust.Dbgl($"Material name searching for {data.material}");
@@ -1288,7 +1288,7 @@ namespace wackydatabase.SetData
                         go = Instant.GetItemPrefab(tempname);
                         PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         data.name = tempname; // putting back name
-                        
+
 
                     }
 
@@ -1329,14 +1329,14 @@ namespace wackydatabase.SetData
 
                     WMRecipeCust.Dbgl($"Item being Set in SetItemData for {data.name} ");
 
-                    if (data.Damage != null )
+                    if (data.Damage != null)
                     {
                         WMRecipeCust.Dbgl($"   {data.name} Item has damage values ");
 
                         PrimaryItemData.m_shared.m_damages = WeaponDamage.ParseDamageTypes(data.Damage);
                     }
 
-                    if (data.Damage_Per_Level != null )
+                    if (data.Damage_Per_Level != null)
                     {
                         PrimaryItemData.m_shared.m_damagesPerLevel = WeaponDamage.ParseDamageTypes(data.Damage_Per_Level);
                     }
@@ -1575,11 +1575,11 @@ namespace wackydatabase.SetData
 
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability ?? PrimaryItemData.m_shared.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain ?? PrimaryItemData.m_shared.m_useDurabilityDrain;
-                   // WMRecipeCust.WLog.LogWarning($"use Durabilty is " + data.m_useDurability); // test temp
+                    // WMRecipeCust.WLog.LogWarning($"use Durabilty is " + data.m_useDurability); // test temp
                     PrimaryItemData.m_shared.m_durabilityDrain = data.m_durabilityDrain ?? PrimaryItemData.m_shared.m_durabilityDrain;
                     PrimaryItemData.m_shared.m_maxDurability = data.m_maxDurability ?? PrimaryItemData.m_shared.m_maxDurability;
                     PrimaryItemData.m_shared.m_durabilityPerLevel = data.m_durabilityPerLevel ?? PrimaryItemData.m_shared.m_durabilityPerLevel;
-                    
+
                     PrimaryItemData.m_shared.m_equipDuration = data.m_equipDuration ?? PrimaryItemData.m_shared.m_equipDuration;
 
                     PrimaryItemData.m_shared.m_skillType = data.m_skillType ?? PrimaryItemData.m_shared.m_skillType;
@@ -1597,7 +1597,7 @@ namespace wackydatabase.SetData
                     if (data.GEffects.Start_Effect != null)
                         PrimaryItemData.m_shared.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_startEffect, data.GEffects.Start_Effect, "m_startEffect");
                     if (data.GEffects.Hold_Start_Effects != null)
-                      PrimaryItemData.m_shared.m_holdStartEffect = FindEffect(PrimaryItemData.m_shared.m_holdStartEffect, data.GEffects.Hold_Start_Effects, "m_holdStartEffect");
+                        PrimaryItemData.m_shared.m_holdStartEffect = FindEffect(PrimaryItemData.m_shared.m_holdStartEffect, data.GEffects.Hold_Start_Effects, "m_holdStartEffect");
                     if (data.GEffects.Trigger_Effect != null)
                         PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffects.Trigger_Effect, "m_triggerEffect");
                     if (data.GEffects.Trail_Effect != null)
@@ -1623,14 +1623,14 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_description = data.m_description + valu;
                     }
                     return;
-                } 
+                }
 
 
             }
 
         }
 
-        private static EffectList FindEffect(EffectList current, string[] userlist, string name= "")
+        private static EffectList FindEffect(EffectList current, string[] userlist, string name = "")
         {
             try
             {
@@ -1655,7 +1655,7 @@ namespace wackydatabase.SetData
                         if (copyuserlist.Contains(eff.m_prefab.name))
                         {
                             eff.m_enabled = true;
-                            newEffectData[count] =eff;
+                            newEffectData[count] = eff;
                             count++;
                             copyuserlist.Remove(eff.m_prefab.name);
                         }
@@ -1754,6 +1754,22 @@ namespace wackydatabase.SetData
             }
             catch (System.Exception e) { WMRecipeCust.WLog.LogWarning($"Effect {name} had problems  {e.Message}"); return current; }
         }
+
+
+        internal static void SetCreature(CreatureData data, GameObject[] arrayCreature)
+        {
+            foreach (GameObject obj in arrayCreature)
+            {
+                if (obj.name == data.name && obj.TryGetComponent<Humanoid>(out Humanoid piggy) )
+                {
+                    WMRecipeCust.Dbgl($"Setting {data.name} ");
+                    piggy.m_name = data.mob_display_name;
+                    //piggy.m_faction = (Character.Faction)data.faction ?? piggy.m_faction;
+                }
+            }
+        }
+
     }
     #endregion
+
 }
