@@ -36,7 +36,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.4.5";
+        internal const string ModVersion = "1.4.6";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -2891,24 +2891,38 @@ namespace wackydatabase
             yield break;
         }
 
-        [HarmonyPatch(typeof(ZSteamMatchmaking), "RegisterServer")]
-        private class COOPCheckSteam
+        [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.Start))]
+        public static class FejdStartupPatch
         {
-            private static void Postfix()
+            static void Postfix(FejdStartup __instance)
             {
-                WackysRecipeCustomizationLogger.LogWarning("Steam Lobby is active");
-                LobbyRegistered = true;
+                if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
+                {
+
+                    WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.CreateLobby)),
+                        postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
+                            nameof(gamepassServer))));
+
+                }
+                else if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
+                {
+                    WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.RegisterServer)),
+                        postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
+                            nameof(steamServer))));
+                }
+
             }
 
-        }
-
-        [HarmonyPatch(typeof(ZPlayFabMatchmaking), "RegisterServer")]
-        private class COOPCheckPlayfab
-        {
-            private static void Postfix()
+            private static void steamServer()
             {
-                WackysRecipeCustomizationLogger.LogWarning("Zplay Lobby is active");
-                LobbyRegistered = true;
+                WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("Steam Lobby is active");
+                WMRecipeCust.LobbyRegistered = true;
+            }
+
+            private static void gamepassServer()
+            {
+                WMRecipeCust.WackysRecipeCustomizationLogger.LogWarning("Zplay Lobby is active");
+                WMRecipeCust.LobbyRegistered = true;
             }
 
         }
