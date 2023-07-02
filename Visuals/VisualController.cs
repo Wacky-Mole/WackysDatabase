@@ -60,6 +60,8 @@ namespace wackydatabase
         /// <param name="data">The visual data the specifies the prefab and changes</param>
         public static void UpdatePrefab(VisualData data)
         {
+            if (data == null) return;
+
             GameObject item = ObjectDB.instance.GetItemPrefab(data.PrefabName);
 
             if (item == null)
