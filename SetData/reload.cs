@@ -106,8 +106,12 @@ namespace wackydatabase.SetData
                         {
                             WMRecipeCust.effectDataYml.Add(deserializer.Deserialize<StatusData>(word));
                         }
+                        else if (word.Contains("mob_display_name"))
+                        {
+                        WMRecipeCust.creatureDatasYml.Add(deserializer.Deserialize<CreatureData>(word));
+                        }
 
-                    }
+                }
                     if (WMRecipeCust.LoadinMultiplayerFirst)
                     {
                         WMRecipeCust.LoadinMultiplayerFirst = false; // Only for first Load in on Multiplayer, Keeps Mutliplayer loading last 
@@ -475,7 +479,23 @@ namespace wackydatabase.SetData
                             processcount = 0;
                         }
                     }
+                    WMRecipeCust.Dbgl($"Setting Creatures ");
+                    GameObject[] arrayCreature = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
+                    foreach ( var data in WMRecipeCust.creatureDatasYml)
+                    {
+                        try
+                        {
+                            SetData.SetCreature(data, arrayCreature);
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
 
+                        processcount++;
+                        if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                        {
+                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                            processcount = 0;
+                        }
+                    }
 
                     //string currentplayer = Player.m_localPlayer.name;// save item cache
                     WMRecipeCust.Dbgl($"Building Cache for Player ");

@@ -126,6 +126,7 @@
   <ItemGroup>
     <Compile Include="API.cs" />
     <Compile Include="Armor\armor.cs" />
+    <Compile Include="Datas\CreatureData.cs" />
     <Compile Include="Datas\DataHelpers.cs" />
     <Compile Include="Datas\DescriptorData.cs" />
     <Compile Include="Datas\ItemData.cs" />

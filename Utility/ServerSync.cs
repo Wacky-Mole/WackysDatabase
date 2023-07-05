@@ -140,7 +140,7 @@ public class ConfigSync
         set => forceConfigLocking = value;
     }
 
-    public bool IsAdmin => lockExempt;
+    public bool IsAdmin => lockExempt || isSourceOfTruth;
 
     private bool isSourceOfTruth = true;
 
@@ -156,6 +156,8 @@ public class ConfigSync
             }
         }
     }
+
+    public bool InitialSyncDone { get; private set; } = false;
 
     public event Action<bool>? SourceOfTruthChanged;
 
@@ -247,14 +249,13 @@ public class ConfigSync
         [HarmonyPostfix]
         private static void Postfix(ZNet __instance)
         {
-
             isServer = __instance.IsServer();
             foreach (ConfigSync configSync in configSyncs)
             {
-                configSync.IsSourceOfTruth = __instance.IsDedicated() || __instance.IsServer();
-                ZRoutedRpc.instance.Register<ZPackage>(configSync.Name + " ConfigSync", configSync.RPC_ConfigSync);
+                ZRoutedRpc.instance.Register<ZPackage>(configSync.Name + " ConfigSync", configSync.RPC_FromOtherClientConfigSync);
                 if (isServer)
                 {
+                    configSync.InitialSyncDone = true;
                     Debug.Log($"Registered '{configSync.Name} ConfigSync' RPC - waiting for incoming connections");
                 }
             }
@@ -309,7 +310,7 @@ public class ConfigSync
             {
                 foreach (ConfigSync configSync in configSyncs)
                 {
-                    peer.m_rpc.Register<ZPackage>(configSync.Name + " ConfigSync", configSync.RPC_InitialConfigSync);
+                    peer.m_rpc.Register<ZPackage>(configSync.Name + " ConfigSync", configSync.RPC_FromServerConfigSync);
                 }
             }
         }
@@ -322,18 +323,31 @@ public class ConfigSync
     private readonly Dictionary<string, SortedDictionary<int, byte[]>> configValueCache = new();
     private readonly List<KeyValuePair<long, string>> cacheExpirations = new(); // avoid leaking memory
 
-    private void RPC_InitialConfigSync(ZRpc rpc, ZPackage package) => RPC_ConfigSync(0, package);
+    private void RPC_FromServerConfigSync(ZRpc rpc, ZPackage package)
+    {
+        lockedConfigChanged += serverLockedSettingChanged;
+        IsSourceOfTruth = false;
 
-    private void RPC_ConfigSync(long sender, ZPackage package)
+        if (HandleConfigSyncRPC(0, package, false))
+        {
+            InitialSyncDone = true;
+        }
+    }
+
+    private void RPC_FromOtherClientConfigSync(long sender, ZPackage package) => HandleConfigSyncRPC(sender, package, true);
+
+    private bool HandleConfigSyncRPC(long sender, ZPackage package, bool clientUpdate)
     {
         try
         {
-            if (isServer && IsLocked)
+            if (isServer && IsLocked && SnatchCurrentlyHandlingRPC.currentRpc?.GetSocket()?.GetHostName() is { } client)
             {
-                bool? exempt = ((SyncedList?)AccessTools.DeclaredField(typeof(ZNet), "m_adminList").GetValue(ZNet.instance))?.Contains(SnatchCurrentlyHandlingRPC.currentRpc?.GetSocket()?.GetHostName());
-                if (exempt == false)
+                MethodInfo? listContainsId = AccessTools.DeclaredMethod(typeof(ZNet), "ListContainsId");
+                SyncedList adminList = (SyncedList)AccessTools.DeclaredField(typeof(ZNet), "m_adminList").GetValue(ZNet.instance);
+                bool exempt = listContainsId is null ? adminList.Contains(client) : (bool)listContainsId.Invoke(ZNet.instance, new object[] { adminList, client });
+                if (!exempt)
                 {
-                    return;
+                    return false;
                 }
             }
 
@@ -368,7 +382,7 @@ public class ConfigSync
 
                 if (dataFragments.Count < fragments)
                 {
-                    return;
+                    return false;
                 }
 
                 configValueCache.Remove(cacheKey);
@@ -399,15 +413,6 @@ public class ConfigSync
                 resetConfigsFromServer();
             }
 
-            if (!isServer)
-            {
-                if (IsSourceOfTruth)
-                {
-                    lockedConfigChanged += serverLockedSettingChanged;
-                }
-                IsSourceOfTruth = false;
-            }
-
             ParsedConfigs configs = ReadConfigsFromPackage(package);
 
             foreach (KeyValuePair<OwnConfigEntryBase, object?> configKv in configs.configValues)
@@ -430,12 +435,14 @@ public class ConfigSync
                 configKv.Key.BoxedValue = configKv.Value;
             }
 
+            Debug.Log($"Received {configs.configValues.Count} configs and {configs.customValues.Count} custom values from {(isServer || clientUpdate ? $"client {sender}" : "the server")} for mod {DisplayName ?? Name}");
+
             if (!isServer)
             {
-                Debug.Log($"Received {configs.configValues.Count} configs and {configs.customValues.Count} custom values from the server for mod {DisplayName ?? Name}");
-
                 serverLockedSettingChanged(); // Re-evaluate for intial locking
             }
+
+            return true;
         }
         finally
         {
@@ -541,6 +548,8 @@ public class ConfigSync
             foreach (ConfigSync serverSync in configSyncs)
             {
                 serverSync.resetConfigsFromServer();
+                serverSync.IsSourceOfTruth = true;
+                serverSync.InitialSyncDone = false;
             }
             ProcessingServerUpdate = false;
         }
@@ -579,7 +588,6 @@ public class ConfigSync
         }
 
         lockedConfigChanged -= serverLockedSettingChanged;
-        IsSourceOfTruth = true;
         serverLockedSettingChanged();
     }
 
@@ -1185,7 +1193,7 @@ public class VersionCheck
         {
             return $"Mod {DisplayName} must not be installed.";
         }
-        
+
         bool myVersionOk = new System.Version(CurrentVersion) >= new System.Version(ReceivedMinimumRequiredVersion);
         if (CurrentVersion == "0.0.1")
         {

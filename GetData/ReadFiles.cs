@@ -174,6 +174,18 @@ namespace wackydatabase.Read
                 }
             }
 
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "Creature_*.yml", SearchOption.AllDirectories))
+            {
+                yaml.Load<CreatureData>(file, WMRecipeCust.creatureDatasYml);
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
             WMRecipeCust.ymlstring = yaml.ToString();//(WMRecipeCust.itemDatasYml.ToString() + WMRecipeCust.pieceDatasYml.ToString() + WMRecipeCust.recipeDatasYml + WMRecipeCust.visualDatasYml + WMRecipeCust.effectDataYml).ToString();
 
 

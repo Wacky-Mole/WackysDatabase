@@ -916,6 +916,25 @@ namespace wackydatabase.GetData
 
         }
 
+        internal CreatureData GetCreature(string name)
+        {
+            GameObject[] array = Resources.FindObjectsOfTypeAll<GameObject>();
+            GameObject cre = null;
+            CreatureData creatureData = new CreatureData();
+
+            foreach (GameObject obj in array)
+            {
+                if (obj.name == (name))
+                {
+                    creatureData.name = obj.name;
+                    creatureData.mob_display_name = obj.GetComponent<Humanoid>().m_name;
+                    //creatureData.faction = obj.GetComponent<Humanoid>().m_faction;
+                    return creatureData;
+                }
+            }
+            return null;
+        }
+
 
 
 

@@ -96,6 +96,7 @@ namespace wackydatabase
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
         public static List<VisualData> visualDatasYml = new List<VisualData>();
         public static List<StatusData> effectDataYml = new List<StatusData>();
+        public static List<CreatureData> creatureDatasYml = new List<CreatureData>();
         public static List<WItemData> cacheDataYML = new List<WItemData>();// cacheonly
 
 
@@ -391,6 +392,12 @@ namespace wackydatabase
                 Dbgl("Creating Materials folder");
                 Directory.CreateDirectory(assetPathMaterials);
             }
+            if (!Directory.Exists(assetPathCreatures))
+            {
+                Dbgl("Creating Creature folder");
+                Directory.CreateDirectory(assetPathCreatures);
+            }
+
             var versionpath = Path.Combine(assetPathCache, $"Last_Cleared.txt");
             if (File.Exists(versionpath))
             {
@@ -435,15 +442,38 @@ namespace wackydatabase
             
         }
 
-        public static void GetAllMaterials()
+        public static void GetAllMaterials() // Get all Materials, SFX, VFX, FX
         {
             Material[] array = Resources.FindObjectsOfTypeAll<Material>();
+            GameObject[] array3 = Resources.FindObjectsOfTypeAll<GameObject>();
+
             originalMaterials = new Dictionary<string, Material>();
+            originalVFX = new Dictionary<string, GameObject>();
+            originalSFX = new Dictionary<string, GameObject>();
+            originalFX = new Dictionary<string, GameObject>();
+
             foreach (Material val in array)
             {
-                // Dbgl($"Material {val.name}" );
                 originalMaterials[val.name] = val;
             }
+            foreach (GameObject val1 in array3)
+            {
+                if (val1.name.ToLower().StartsWith("vfx"))
+                {
+                    originalVFX[val1.name]= val1;
+                }
+                else if (val1.name.ToLower().StartsWith("sfx"))
+                {
+                    originalSFX[val1.name] = val1;
+                }
+                else if (val1.name.ToLower().StartsWith("fx_"))
+                {
+                    originalFX[val1.name] = val1;
+                }
+            }
+
+
+
 
             MaterialDataManager.Instance.LoadFiles();
         }

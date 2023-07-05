@@ -279,6 +279,24 @@ namespace wackydatabase.PatchClasses
 
                     }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
+
+            Terminal.ConsoleCommand WackyCreatureSave =
+            new("wackydb_save_creature", "Save a Creature ",
+                args =>
+                {
+                    string file = args[1];
+                    GetDataYML CreatureCheck = new GetDataYML();
+                    CreatureData creatureData = CreatureCheck.GetCreature(file);
+                    if (creatureData == null)
+                        return;
+                    WMRecipeCust.CheckModFolder();
+                    var serializer = new SerializerBuilder().WithNewLine("\n")
+                        .Build();
+                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCreatures, "Creature_" + creatureData.name + ".yml"), serializer.Serialize(creatureData));
+                    args.Context?.AddString($"saved data to Creature_{file}.yml");
+
+                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+
             Terminal.ConsoleCommand WackyRecipeItem =
             new("wackydb_save_recipeitem", "Save the recipe and item at the same time, this will create a recipe if not found",
                 args =>
