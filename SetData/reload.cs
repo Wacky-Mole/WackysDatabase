@@ -72,7 +72,6 @@ namespace wackydatabase.SetData
                 WMRecipeCust.recipeDatasYml.Clear();
                 WMRecipeCust.itemDatasYml.Clear();
                 WMRecipeCust.pieceDatasYml.Clear();
-                WMRecipeCust.visualDatasYml.Clear();
                 WMRecipeCust.effectDataYml.Clear();
                 WMRecipeCust.cacheDataYML.Clear();
 
@@ -228,7 +227,7 @@ namespace wackydatabase.SetData
 
                     try
                     {
-                        VisualController.UpdatePrefab(data3.name);
+                        VisualController.UpdatePrefab(data3.name, data3.customVisual);
                     }
                     catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data3.name}"); } // spams just catch any empty
                 }
@@ -439,7 +438,7 @@ namespace wackydatabase.SetData
 
                         try
                         {
-                            VisualController.UpdatePrefab(data.name);
+                            VisualController.UpdatePrefab(data.name, data.customVisual);
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
 

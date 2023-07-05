@@ -16,8 +16,6 @@ namespace wackydatabase
 
             //TextureDataManager.OnTextureAdd += TextureDataManager_OnTextureAdd;
             //TextureDataManager.OnTextureChange += TextureDataManager_OnTextureChange;
-
-            VisualDataManager.Instance.OnVisualChanged += VisualDataManager_OnVisualChange;
         }
 
         /*private static void TextureDataManager_OnTextureChange(object sender, TextureEventArgs e)
@@ -28,11 +26,6 @@ namespace wackydatabase
         { 
         }*/
 
-        private static void VisualDataManager_OnVisualChange(object sender, DataEventArgs<VisualData> e)
-        {
-            UpdatePrefab(e.Data);
-        }
-
         private static void DataManager_OnMaterialChange(object sender, MaterialEventArgs e)
         {
             MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.Changes);
@@ -42,6 +35,8 @@ namespace wackydatabase
 
         private static void DataManager_OnMaterialAdd(object sender, MaterialEventArgs e)
         {
+            Debug.Log($"[{WMRecipeCust.ModName}]: Setting material properties for: {e.Material.name}");
+
             MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.Changes);
 
             mm.Invoke(e.Material, null);
@@ -58,17 +53,23 @@ namespace wackydatabase
         /// Updates the material references on the prefab
         /// </summary>
         /// <param name="data">The visual data the specifies the prefab and changes</param>
-        public static void UpdatePrefab(VisualData data)
+        public static void UpdatePrefab(string name, CustomVisual visual)
         {
-            if (data == null) return;
-
-            GameObject item = ObjectDB.instance.GetItemPrefab(data.PrefabName);
+            GameObject item = ObjectDB.instance.GetItemPrefab(name);
 
             if (item == null)
             {
-                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to find prefab {data.PrefabName}");
+                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to find prefab {name}");
                 return;
             }
+
+            if (visual == null)
+            {
+                Debug.LogError($"[{WMRecipeCust.ModName}]: No custom visuals for {name}");
+                return;
+            }
+
+            Debug.Log($"Base: {visual.base_mat}, Legs: {visual.legs}, Chest: {visual.chest}");
 
             try
             {
@@ -88,30 +89,45 @@ namespace wackydatabase
                 if (meshRenderers != null) { renderers.AddRange(meshRenderers); }
 
                 // Alter chest material with new texture if exists
-                if (data.Chest != null)
+                if (visual.chest != null && visual.chest != "")
                 {
-                    Material m = MaterialDataManager.Instance.GetMaterial(data.Chest);
+                    Material m = MaterialDataManager.Instance.GetMaterial(visual.chest);
 
-                    PrefabAssistant.UpdateItemMaterialReference(item, m);
+                    if (m != null)
+                    {
+                        PrefabAssistant.UpdateItemMaterialReference(item, m);   
+                    } else
+                    {
+                        Debug.LogWarning($"[{WMRecipeCust.ModName}]: Failed to get leg material {visual.chest}");
+                    }
                 }
 
                 // Alter leg material with new texture if exists
-                if (data.Legs != null)
+                if (visual.legs != null && visual.legs != "")
                 {
-                    Material m = MaterialDataManager.Instance.GetMaterial(data.Legs);
+                    Material m = MaterialDataManager.Instance.GetMaterial(visual.legs);
 
-                    PrefabAssistant.UpdateItemMaterialReference(item, m);
+                    if (m != null)
+                    {
+                        PrefabAssistant.UpdateItemMaterialReference(item, m);
+                    } else
+                    {
+                        Debug.LogWarning($"[{WMRecipeCust.ModName}]: Failed to get leg material {visual.legs}");
+                    }
                 }
 
-                if (data.Material != null)
+                if (visual.base_mat != null && visual.base_mat != "")
                 {
-                    Material m = MaterialDataManager.Instance.GetMaterial(data.Material);
+                    Material m = MaterialDataManager.Instance.GetMaterial(visual.base_mat);
 
                     for (int i = 0; i < renderers.Count; i++)
                     {
                         PrefabAssistant.UpdateMaterialReference(renderers[i], m);
                     }
-                } else if (data.Materials != null)
+                } 
+                
+                /*
+                else if (data.Materials != null)
                 {
                     Material[] instances = MaterialDataManager.Instance.GetMaterials(data.Materials);
 
@@ -120,19 +136,12 @@ namespace wackydatabase
                         PrefabAssistant.UpdateMaterialReferences(renderers[i], instances);
                     }
                 }
+                */
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to update material - {e.Message}");
+                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to update material - {e.Message} - {e.StackTrace}");
             }
-        }
-
-        /// <summary>
-        /// Updates the material references on the prefab
-        /// </summary>
-        /// <param name="prefabName">The name of the prefab</param>
-        public static void UpdatePrefab(string prefabName) { 
-            UpdatePrefab(VisualDataManager.Instance.GetVisualByName(prefabName));
         }
 
         public static void Export(DescriptorData data)
@@ -148,11 +157,6 @@ namespace wackydatabase
             }
 
             File.WriteAllText(Path.Combine(storage, "Describe_" + data.Name + ".yml"), contents);
-        }
-
-        public static void Apply()
-        {
-            VisualDataManager.Instance._visuals.ForEach(action => { UpdatePrefab(action.PrefabName); });
         }
     }
 }

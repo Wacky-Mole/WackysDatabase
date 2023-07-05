@@ -94,7 +94,6 @@ namespace wackydatabase
         public static List<WItemData> itemDatasYml = new List<WItemData>();
         public static List<PieceData> pieceDatasYml = new List<PieceData>();
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
-        public static List<VisualData> visualDatasYml = new List<VisualData>();
         public static List<StatusData> effectDataYml = new List<StatusData>();
         public static List<CreatureData> creatureDatasYml = new List<CreatureData>();
         public static List<WItemData> cacheDataYML = new List<WItemData>();// cacheonly
@@ -113,7 +112,6 @@ namespace wackydatabase
         internal static string assetPathItems;
         internal static string assetPathRecipes;
         internal static string assetPathPieces;
-        internal static string assetPathVisuals;
         internal static string assetPathTextures;
         internal static string assetPathMaterials;
         internal static string assetPathObjects;
@@ -182,7 +180,6 @@ namespace wackydatabase
             assetPathItems = Path.Combine(assetPathconfig, "Items");
             assetPathRecipes = Path.Combine(assetPathconfig, "Recipes");
             assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
-            assetPathVisuals = Path.Combine(assetPathconfig, "Visuals");
             assetPathMaterials = Path.Combine(assetPathconfig, "Materials");
             assetPathTextures = Path.Combine(assetPathconfig, "Textures");
             assetPathEffects = Path.Combine(assetPathconfig, "Effects");
@@ -352,6 +349,8 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathItems);
                 Directory.CreateDirectory(assetPathPieces);
                 Directory.CreateDirectory(assetPathRecipes);
+                Directory.CreateDirectory(assetPathTextures);
+                Directory.CreateDirectory(assetPathMaterials);
             }
 
             if (!Directory.Exists(assetPathIcons))
@@ -373,11 +372,6 @@ namespace wackydatabase
             {
                 Dbgl("Creating Objects folder");
                 Directory.CreateDirectory(assetPathObjects);
-            }
-            if (!Directory.Exists(assetPathVisuals))
-            {
-                Dbgl("Creating Visuals folder");
-                Directory.CreateDirectory(assetPathVisuals);
             }
             if (!Directory.Exists(assetPathTextures))
             {
@@ -468,9 +462,6 @@ namespace wackydatabase
                     originalFX[val1.name] = val1;
                 }
             }
-
-
-
 
             MaterialDataManager.Instance.LoadFiles();
         }

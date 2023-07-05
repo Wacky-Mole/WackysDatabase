@@ -98,7 +98,6 @@ namespace wackydatabase.Read
             WMRecipeCust.pieceDatasYml.Clear();
             WMRecipeCust.armorDatas.Clear();
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
-            WMRecipeCust.visualDatasYml.Clear();
             WMRecipeCust.effectDataYml.Clear();
             WMRecipeCust.ymlstring = ""; //clear
 
@@ -114,7 +113,7 @@ namespace wackydatabase.Read
                 WMRecipeCust.LockReload = true;
             }
 
-                foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml);
 
@@ -141,18 +140,6 @@ namespace wackydatabase.Read
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ecipe_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<RecipeData>(file, WMRecipeCust.recipeDatasYml);
-
-                processcount++;
-                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
-                {
-                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                    processcount = 0;
-                }
-            }
-
-            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?isual_*.yml", SearchOption.AllDirectories))
-            {
-                yaml.Load<VisualData>(file, WMRecipeCust.visualDatasYml);
 
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
