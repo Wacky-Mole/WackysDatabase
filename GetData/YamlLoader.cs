@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace wackydatabase.Datas {
     public class YamlLoader
     {
         private IDeserializer _deserializer;
+        private ISerializer _serializer;
         private StringBuilder _stringBuilder;
 
         public YamlLoader()
@@ -17,6 +19,13 @@ namespace wackydatabase.Datas {
                 .WithTypeConverter(new ValheimTimeConverter())
                 .IgnoreUnmatchedProperties() // future proofing
                 .Build();
+
+            _serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .WithTypeConverter(new ColorConverter())
+                .WithTypeConverter(new ValheimTimeConverter())
+                .Build();
+
             _stringBuilder = new StringBuilder();
         }
 
@@ -48,13 +57,26 @@ namespace wackydatabase.Datas {
             return false;
         }
 
+        public bool Write<T>(string file, T data)
+        {
+            try
+            {
+                var fileContents = _serializer.Serialize(data);
+
+                File.WriteAllText(file, fileContents);
+
+                return true;
+            } catch (Exception ex)
+            {
+                WMRecipeCust.WLog.LogError(ex.Message);
+            }
+
+            return false;
+        }
+
         public override string ToString()
         {
             return _stringBuilder.ToString();
         }
-
-
-
-
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using wackydatabase.Datas;
 using wackydatabase.GetData;
@@ -987,6 +988,64 @@ namespace wackydatabase.PatchClasses
                 string name = args[1];
                 WMRecipeCust.WLog.LogInfo(name);
                 VisualController.Export(PrefabAssistant.Describe(name));
+            }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+
+
+            Terminal.ConsoleCommand WackySaveMaterial = new("wackydb_save_material", "Export default material settings for a material", args =>
+            {
+                string name = args[1];
+
+                if (WMRecipeCust.originalMaterials.ContainsKey(name))
+                {
+                    var material = WMRecipeCust.originalMaterials[name];
+                    var loader = new YamlLoader();
+
+                    MaterialInstance mi = new MaterialInstance()
+                    {
+                        Original = name,
+                        Name = name + "_clone",
+                        Overwrite = false
+                    };
+
+                    int propertyCount = material.shader.GetPropertyCount();
+
+                    for (int k = 0; k < propertyCount; k++)
+                    {
+                        ShaderPropertyType type = material.shader.GetPropertyType(k);
+                        string propertyName = material.shader.GetPropertyName(k);
+
+                        switch (type)
+                        {
+                            case ShaderPropertyType.Color:
+                                mi.Changes.Colors.Add(propertyName, material.GetColor(propertyName));
+                                break;
+                            case ShaderPropertyType.Float:
+                            case ShaderPropertyType.Range:
+                            case ShaderPropertyType.Vector:
+                                mi.Changes.Floats.Add(propertyName, material.GetFloat(propertyName));
+                                break;
+                            case ShaderPropertyType.Texture:
+                                Texture t = material.GetTexture(propertyName);
+
+                                try
+                                {
+                                    if (t != null)
+                                    {
+                                        mi.Changes.Textures.Add(propertyName, t.name);
+                                        TextureDataManager.SaveTexture(t.name, t);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to write texture for property: {propertyName} - {ex.Message}");
+                                }
+
+                                break;
+                        }
+                    }
+
+                    loader.Write(Path.Combine(WMRecipeCust.assetPathMaterials, mi.Name + ".yml"), mi);
+                }
             }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
         }
     }
