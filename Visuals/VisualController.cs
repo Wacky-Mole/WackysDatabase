@@ -1,5 +1,4 @@
-﻿using BepInEx;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using wackydatabase.Datas;
@@ -73,20 +72,7 @@ namespace wackydatabase
 
             try
             {
-                Transform skin_meshes = item.transform.Find("attach_skin"); // Find Skinned Meshes
-                Transform static_meshes = item.transform.Find("attach");    // Find Static Meshes
-                Transform drop_meshes = PrefabAssistant.GetDropChild(item); // Find Drop Visual
-
-                List<Renderer> renderers = new List<Renderer>();
-
-                // Get renderers for each visual component
-                Renderer[] skinRenderers = skin_meshes != null ? skin_meshes.GetComponentsInChildren<SkinnedMeshRenderer>(true) : null;
-                Renderer[] dropRenderers = drop_meshes != null ? drop_meshes.GetComponentsInChildren<MeshRenderer>(true) : null;
-                Renderer[] meshRenderers = static_meshes != null ? static_meshes.GetComponentsInChildren<MeshRenderer>(true) : null;
-
-                if (skinRenderers != null) { renderers.AddRange(skinRenderers); }
-                if (dropRenderers != null) { renderers.AddRange(dropRenderers); }
-                if (meshRenderers != null) { renderers.AddRange(meshRenderers); }
+                List<Renderer> renderers = PrefabAssistant.GetRenderers(item);
 
                 // Alter chest material with new texture if exists
                 if (visual.chest != null && visual.chest != "")

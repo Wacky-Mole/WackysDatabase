@@ -2,18 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using HarmonyLib;
-using UnityEngine;
-using System.Threading.Tasks;
-using UnityEngine.SceneManagement;
-using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
 using System.Security.Cryptography;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Reflection;
+using UnityEngine;
 
 namespace wackydatabase.Util
 {
@@ -260,47 +252,62 @@ namespace wackydatabase.Util
             topLight.cullingMask = 1 << layer;
             topLight.intensity = lightIntensity;
 
-            Rect rect = new(0, 0, 64, 64);
-
-            GameObject visual = UnityEngine.Object.Instantiate(item.transform.Find("attach").gameObject);
-            foreach (Transform child in visual.GetComponentsInChildren<Transform>())
+            try
             {
-                child.gameObject.layer = layer;
+                Rect rect = new(0, 0, 64, 64);
+
+                Transform target = item.transform.Find("attach"); // ?? item.transform.Find("attach_skin");
+
+                if (!target)
+                {
+                    target = PrefabAssistant.GetDropChild(item.gameObject);
+                }
+
+                GameObject visual = UnityEngine.Object.Instantiate(target.gameObject);
+                foreach (Transform child in visual.GetComponentsInChildren<Transform>())
+                {
+                    child.gameObject.layer = layer;
+                }
+
+                Renderer[] renderers = visual.GetComponentsInChildren<Renderer>();
+                Vector3 min = renderers.Aggregate(Vector3.positiveInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Min(cur, renderer.bounds.min));
+                Vector3 max = renderers.Aggregate(Vector3.negativeInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Max(cur, renderer.bounds.max));
+                Vector3 size = max - min;
+
+                camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
+                float maxDim = Mathf.Max(size.x, size.z);
+                float minDim = Mathf.Min(size.x, size.z);
+                float yDist = (maxDim + minDim) / Mathf.Sqrt(2) / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad);
+                Transform transform = camera.transform;
+                transform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
+                topLight.transform.position = transform.position + new Vector3(-2, 0, 0.2f) / 3 * -yDist;
+
+                camera.Render();
+
+                RenderTexture currentRenderTexture = RenderTexture.active;
+                RenderTexture.active = camera.targetTexture;
+
+                Texture2D texture = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+                texture.ReadPixels(rect, 0, 0);
+                texture.Apply();
+
+                RenderTexture.active = currentRenderTexture;
+
+                item.m_itemData.m_shared.m_icons = new[] { Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f)) };
+
+                UnityEngine.Object.DestroyImmediate(visual);
+                camera.targetTexture.Release();
             }
-
-            Renderer[] renderers = visual.GetComponentsInChildren<Renderer>();
-            Vector3 min = renderers.Aggregate(Vector3.positiveInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Min(cur, renderer.bounds.min));
-            Vector3 max = renderers.Aggregate(Vector3.negativeInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Max(cur, renderer.bounds.max));
-            Vector3 size = max - min;
-
-            camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
-            float maxDim = Mathf.Max(size.x, size.z);
-            float minDim = Mathf.Min(size.x, size.z);
-            float yDist = (maxDim + minDim) / Mathf.Sqrt(2) / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad);
-            Transform transform = camera.transform;
-            transform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
-            topLight.transform.position = transform.position + new Vector3(-2, 0, 0.2f) / 3 * -yDist;
-
-            camera.Render();
-
-            RenderTexture currentRenderTexture = RenderTexture.active;
-            RenderTexture.active = camera.targetTexture;
-
-            Texture2D texture = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
-            texture.ReadPixels(rect, 0, 0);
-            texture.Apply();
-
-            RenderTexture.active = currentRenderTexture;
-
-            item.m_itemData.m_shared.m_icons = new[] { Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f)) };
-
-            UnityEngine.Object.DestroyImmediate(visual);
-            camera.targetTexture.Release();
-
-            UnityEngine.Object.Destroy(camera);
-            UnityEngine.Object.Destroy(topLight);
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to update icon - {ex.Message}");
+            }
+            finally
+            {
+                // Guarantee the deletion of these objects
+                UnityEngine.Object.Destroy(camera);
+                UnityEngine.Object.Destroy(topLight);
+            }
         }
-
-
     }
 }
