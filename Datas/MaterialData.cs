@@ -10,14 +10,14 @@ namespace wackydatabase.Datas
         public string Name;
         public string Original;
         public bool Overwrite = false;
-        public MaterialData Changes;
+        public MaterialData Changes = new MaterialData();
     }
 
     [Serializable]
     public class MaterialData
     {
-        public Dictionary<string, Color> Colors;
-        public Dictionary<string, float> Floats;
-        public Dictionary<string, string> Textures;
+        public Dictionary<string, Color> Colors = new Dictionary<string, Color>();
+        public Dictionary<string, float> Floats = new Dictionary<string, float>();
+        public Dictionary<string, string> Textures = new Dictionary<string, string>();
     }
 }

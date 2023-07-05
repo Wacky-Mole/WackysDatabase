@@ -21,6 +21,15 @@ namespace wackydatabase
             File.WriteAllBytes(Path.Combine(WMRecipeCust.assetPathTextures, name + ".png"), data);
         }
 
+        public static void SaveTexture(string name, Texture t)
+        {
+            var clone = Colour.CloneTexture(t as Texture2D);
+
+            byte[] data = clone.EncodeToPNG();
+
+            File.WriteAllBytes(Path.Combine(WMRecipeCust.assetPathTextures, name + ".png"), data);
+        }
+
         public static Texture2D LoadTexture(string name)
         {
             string path = Path.Combine(WMRecipeCust.assetPathTextures, name + ".png");
