@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using wackydatabase.Datas;
 
@@ -27,7 +28,14 @@ namespace wackydatabase
                 {
                     if (WMRecipeCust.originalMaterials.ContainsKey(mi.Original))
                     {
-                        OnMaterialOverwrite?.Invoke(null, new MaterialEventArgs(WMRecipeCust.originalMaterials[mi.Original], mi));
+                        // Due to the threading that occurs, this will not actually fire the event on the correct thread
+                        //OnMaterialOverwrite?.Invoke(this, new MaterialEventArgs(WMRecipeCust.originalMaterials[mi.Original], mi));
+
+                        // Do the material changes here so that it occurs on the thread that reads the files
+                        MaterialManipulator mm = new MaterialManipulator(mi.Changes);
+
+                        mm.Invoke(WMRecipeCust.originalMaterials[mi.Original], null);
+
                         return;
                     }
 
@@ -43,20 +51,35 @@ namespace wackydatabase
                     Debug.Log($"[{WMRecipeCust.ModName}]: Adding Material: {mi.Name}");
 
                     Material m = Material.Instantiate(WMRecipeCust.originalMaterials[mi.Original]);
+                    m.name = mi.Name;
 
-                    OnMaterialAdd?.Invoke(null, new MaterialEventArgs(m, mi));
+                    // Add the material into the material cache
+                    if (!WMRecipeCust.originalMaterials.ContainsKey(mi.Name))
+                    {
+                        WMRecipeCust.originalMaterials.Add(mi.Name, m);
+                    } else
+                    {
+                        WMRecipeCust.originalMaterials[mi.Name] = m;
+                    }
 
                     materials.Add(mi.Name, m);
+
+                    // Due to the threading that occurs, this will not actually fire the event on the correct thread
+                    //OnMaterialAdd?.Invoke(this, new MaterialEventArgs(m, mi));
+
+                    // Do the material changes here so that it occurs on the thread that reads the files
+                    MaterialManipulator mm = new MaterialManipulator(mi.Changes);
+
+                    mm.Invoke(m, null);
                 }
                 else if (materials.ContainsKey(mi.Name))
                 {
-                    OnMaterialChange?.Invoke(null, new MaterialEventArgs(materials[mi.Name], mi));
+                    OnMaterialChange?.Invoke(this, new MaterialEventArgs(materials[mi.Name], mi));
                 }
             } catch (Exception e)
             {
                 Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to cache material: {mi.Name} - {e.Message} - {e.StackTrace}");
             }
-
         }
 
         public Material[] GetMaterials(string[] mats)

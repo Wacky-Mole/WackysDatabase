@@ -199,12 +199,10 @@ namespace wackydatabase.Startup
             {
                 WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); // Dedicated Sync Reload 
                 WMRecipeCust.FirstSessionRun = false; // reset in a destory patch
-                VisualDataManager.Instance.LoadFiles();
             }
             else
             {
                 WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); // Dedicated Sync Reload SLOW
-                VisualDataManager.Instance.LoadFiles();
             }
         }
 
@@ -246,7 +244,6 @@ namespace wackydatabase.Startup
 
             }
             WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
-            VisualDataManager.Instance.LoadFiles();
             yield break;
         }
 
