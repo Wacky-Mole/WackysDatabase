@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using wackydatabase.Datas;
@@ -7,6 +8,31 @@ namespace wackydatabase
 {
     public static class PrefabAssistant
     {
+        /// <summary>
+        /// Retrieves all of the renderers for a prefab that have a direct visual component. Excludes particles & lights.
+        /// </summary>
+        /// <param name="item">The prefab</param>
+        /// <returns></returns>
+        public static List<Renderer> GetRenderers(GameObject item)
+        {
+            Transform skin_meshes = item.transform.Find("attach_skin"); // Find Skinned Meshes
+            Transform static_meshes = item.transform.Find("attach");    // Find Static Meshes
+            Transform drop_meshes = GetDropChild(item); // Find Drop Visual
+
+            List<Renderer> renderers = new List<Renderer>();
+
+            // Get renderers for each visual component
+            Renderer[] skinRenderers = skin_meshes != null ? skin_meshes.GetComponentsInChildren<SkinnedMeshRenderer>(true) : null;
+            Renderer[] dropRenderers = drop_meshes != null ? drop_meshes.GetComponentsInChildren<MeshRenderer>(true) : null;
+            Renderer[] meshRenderers = static_meshes != null ? static_meshes.GetComponentsInChildren<MeshRenderer>(true) : null;
+
+            if (skinRenderers != null) { renderers.AddRange(skinRenderers); }
+            if (dropRenderers != null) { renderers.AddRange(dropRenderers); }
+            if (meshRenderers != null) { renderers.AddRange(meshRenderers); }
+
+            return renderers;
+        }
+
         /// <summary>
         /// Gets the component which will appear on the ground
         /// </summary>

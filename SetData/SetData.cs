@@ -1033,18 +1033,18 @@ namespace wackydatabase.SetData
                                         foreach (Renderer renderitem in renderfinder)
                                         {
                                             if (renderitem.receiveShadows && materialstr[0] != "none")
-                                                renderitem.material = mat;
+                                                renderitem.sharedMaterial = mat;
                                             else if (!renderitem.receiveShadows)
-                                                renderitem.material = part;
+                                                renderitem.sharedMaterial = part;
                                         }
                                     }
                                     else
                                     {
                                         Material mat = WMRecipeCust.originalMaterials[data.material];
-                                        foreach (Renderer renderitem in renderfinder)
+
+                                        foreach (Renderer r in PrefabAssistant.GetRenderers(newItem))
                                         {
-                                            if (renderitem.receiveShadows)
-                                                renderitem.material = mat;
+                                            PrefabAssistant.UpdateMaterialReference(r, mat);
                                         }
                                     }
                                 }
@@ -1274,10 +1274,10 @@ namespace wackydatabase.SetData
                                 else
                                 {
                                     Material mat = WMRecipeCust.originalMaterials[data.material];
-                                    foreach (Renderer renderitem in renderfinder)
+
+                                    foreach (Renderer r in PrefabAssistant.GetRenderers(newItem))
                                     {
-                                        if (renderitem.receiveShadows)
-                                            renderitem.material = mat;
+                                        PrefabAssistant.UpdateMaterialReference(r, mat);
                                     }
                                 }
                             }
