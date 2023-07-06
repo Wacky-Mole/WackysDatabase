@@ -147,6 +147,7 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalVFX;
         public static Dictionary<string, GameObject> originalSFX;
         public static Dictionary<string, GameObject> originalFX;
+        public static Dictionary<string, GameObject> extraEffects;
         public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>();
         public static Dictionary<string, Dictionary<string, int>> QualityRecipeReq = new Dictionary<string, Dictionary<string, int>>();
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
@@ -155,6 +156,7 @@ namespace wackydatabase
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
         public static List<string> NoNotTheseSEs= new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
+        public static List<string> extraEffectList = new List<string>() { "lightningAOE" };
 
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;
@@ -442,6 +444,8 @@ namespace wackydatabase
             originalVFX = new Dictionary<string, GameObject>();
             originalSFX = new Dictionary<string, GameObject>();
             originalFX = new Dictionary<string, GameObject>();
+            extraEffects = new Dictionary<string, GameObject>();
+
 
             foreach (Material val in array)
             {
@@ -460,7 +464,11 @@ namespace wackydatabase
                 else if (val1.name.ToLower().StartsWith("fx_"))
                 {
                     originalFX[val1.name] = val1;
+                }else if (extraEffectList.Contains(val1.name))
+                {
+                    extraEffects[val1.name] = val1;
                 }
+
             }
 
             MaterialDataManager.Instance.LoadFiles();

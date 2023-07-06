@@ -120,8 +120,8 @@ namespace wackydatabase.SetData
 
                     WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReload());
 
-                    if (firstsyncreload)
-                        LoadClonesEarly(); // trying to load clones first pass
+                    //if (firstsyncreload)
+                      //  LoadClonesEarly(); // trying to load clones first pass
 
                     WMRecipeCust.WLog.LogDebug("done with customSyncEvent");
                 }
@@ -227,7 +227,7 @@ namespace wackydatabase.SetData
 
                     try
                     {
-                        VisualController.UpdatePrefab(data3.name, data3.customVisual);
+                        VisualController.UpdatePrefab(data3.name, data3.customVisual); // load clones early
                     }
                     catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data3.name}"); } // spams just catch any empty
                 }
@@ -436,11 +436,16 @@ namespace wackydatabase.SetData
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetItem Data for {data.name} failed"); }
 
-                        try
+                        if (data.material == null && data.customVisual == null)
+                        { }
+                        else
                         {
-                            VisualController.UpdatePrefab(data.name, data.customVisual);
+                            try
+                            {
+                                VisualController.UpdatePrefab(data.name, data.customVisual);
+                            }
+                            catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
                         }
-                        catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
 
                             processcount++;
                         if (processcount > WMRecipeCust.ProcessWait && slowmode)

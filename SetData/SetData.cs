@@ -1703,9 +1703,17 @@ namespace wackydatabase.SetData
                             count++;
 
                         }
+                        else if (WMRecipeCust.extraEffects.TryGetValue(userEffKey, out GameObject list4))
+                        {
+                            effectDataone.m_prefab = list4;
+                            effectDataone.m_enabled = true;
+                            effectDataone.m_childTransform = "";
+                            newEffectData[count] = effectDataone;
+                            count++;
+                        }
                         else
                         { // failure to find
-                            WMRecipeCust.WLog.LogInfo("Didn't find effect " + userEffKey);
+                            WMRecipeCust.WLog.LogError("Didn't find effect " + userEffKey + " This will cause an error when the effect is used - please remove");
                         }
 
                     } // end of foreach
@@ -1740,10 +1748,15 @@ namespace wackydatabase.SetData
                             effectData[count].m_prefab = list3;
                             effectData[count].m_enabled = true;
                             count++;
+                        }else if (WMRecipeCust.extraEffects.TryGetValue(userEffe, out GameObject list4))
+                        {
+                            effectData[count].m_prefab = list4;
+                            effectData[count].m_enabled = true;
+                            count++;
                         }
                         else
                         { // failure to find
-                            WMRecipeCust.WLog.LogInfo("Didn't find effect " + userEffe);
+                            WMRecipeCust.WLog.LogError("Didn't find effect " + userEffe + " This will cause an error when the effect is used - please remove");
                         }
                     }
                     effectList.m_effectPrefabs = effectData;
