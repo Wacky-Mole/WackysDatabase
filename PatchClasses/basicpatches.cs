@@ -125,7 +125,8 @@ namespace wackydatabase.PatchClasses
     }
 
     [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
-     static class CharacterAnimEvent_Awake_PatchWacky
+    [HarmonyPriority(Priority.HigherThanNormal)]
+    static class CharacterAnimEvent_Awake_PatchWacky
     {
         private static void Prefix(CharacterAnimEvent __instance)
         {

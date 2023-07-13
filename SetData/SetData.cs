@@ -1771,15 +1771,42 @@ namespace wackydatabase.SetData
 
         internal static void SetCreature(CreatureData data, GameObject[] arrayCreature)
         {
+            var count = 0;
+            GameObject currentModel = null;
             foreach (GameObject obj in arrayCreature)
             {
+                
                 if (obj.name == data.name && obj.TryGetComponent<Humanoid>(out Humanoid piggy) )
                 {
+                    if (data.creature_replacer != null)
+                    {
+                        // modelReplacer experiment.
+                        //find Boar
+                        currentModel = obj;
+                        foreach (GameObject obj2 in arrayCreature)
+                        {
+                            if (obj2.name == data.creature_replacer && obj2.TryGetComponent<Humanoid>(out Humanoid piggy2))
+                            {
+                                currentModel = obj2;
+                                currentModel.name = data.name;
+                                piggy2.m_name = data.mob_display_name;
+                                break;
+                            }
+                        }
+                    }
+
                     WMRecipeCust.Dbgl($"Setting {data.name} ");
                     piggy.m_name = data.mob_display_name;
                     //piggy.m_faction = (Character.Faction)data.faction ?? piggy.m_faction;
+
+                    break;
                 }
+                count++;
             }
+            if (currentModel != null) {
+                arrayCreature[count] = currentModel; // will override everything.
+            }
+            
         }
 
     }
