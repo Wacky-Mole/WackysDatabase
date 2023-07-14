@@ -69,6 +69,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> extraSecurity;
         public static ConfigEntry<bool> enableYMLWatcher;
         public static ConfigEntry<bool> clonedcache;
+        public static ConfigEntry<string> extraEffectList;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
         internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Experimental
@@ -105,6 +106,8 @@ namespace wackydatabase
         public static List<string> ClonedR = new List<string>(); // recipes
         public static List<string> ClonedE = new List<string>(); // effects
         public static List<string> ClonedC = new List<string>(); // creatures
+        public static Dictionary<string, GameObject> ClonedCC = new Dictionary<string, GameObject>();
+        public static List<string> ClonedCR = new List<string>(); // creaturesReplacer
         public static List<string> MockI = new List<string>();
         public static List<string> BlacklistClone = new List<string>();
 
@@ -157,7 +160,7 @@ namespace wackydatabase
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
         public static List<string> NoNotTheseSEs= new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
-        public static List<string> extraEffectList = new List<string>() { "lightningAOE" };
+       // public static List<string> extraEffectList = new List<string>() { "lightningAOE" };
 
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;
@@ -250,6 +253,7 @@ namespace wackydatabase
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
             clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
+            extraEffectList = config<string>("Effects","List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
             ConfigSync.CurrentVersion = ModVersion;
 
             WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
@@ -465,7 +469,7 @@ namespace wackydatabase
                 else if (val1.name.ToLower().StartsWith("fx_"))
                 {
                     originalFX[val1.name] = val1;
-                }else if (extraEffectList.Contains(val1.name))
+                }else if (extraEffectList.Value.Split(',').ToList().Contains(val1.name))
                 {
                     extraEffects[val1.name] = val1;
                 }

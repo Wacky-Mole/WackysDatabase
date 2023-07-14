@@ -1793,12 +1793,12 @@ namespace wackydatabase.SetData
             foreach (GameObject obj in arrayCreature)
             {
 
-                if (data.clone_creature != null && !skip && obj.name == data.clone_creature && obj.TryGetComponent<Humanoid>(out Humanoid clonepiggy))
+                if (data.clone_creature != null && !skip && obj.name == data.clone_creature && obj.TryGetComponent<Humanoid>(out Humanoid dontuse))
                 {
                     clonecreature = WMRecipeCust.Instantiate(obj, WMRecipeCust.Root.transform, false);
                     clonecreature.name = data.name;
                     clonecreature.GetComponent<ZNetView>().name = data.name;
-
+                    var clonepiggy = clonecreature.GetComponent<Humanoid>();
 
                     ZNetScene znet = ZNetScene.instance;
                     if (znet)
@@ -1816,13 +1816,15 @@ namespace wackydatabase.SetData
                                 znet.m_nonNetViewPrefabs.Add(clonecreature);
 
                             znet.m_namedPrefabs.Add(hash, clonecreature);
-                            WMRecipeCust.Dbgl($"Added prefab {name}");
+                            WMRecipeCust.Dbgl($"Added cloned Creature {name}");
                         }
                     }// end znet
 
                     clonepiggy.m_name = data.mob_display_name; // clone won't go through normal setting this round, so needs to all be set in here
 
                     WMRecipeCust.ClonedC.Add(data.name);
+                    WMRecipeCust.ClonedCC.Add(data.name,clonecreature);
+                    
                     return; // end loop
 
                 } // end clone
@@ -1831,20 +1833,15 @@ namespace wackydatabase.SetData
                 {
                     if (data.creature_replacer != null && !skipReplacer)
                     {
-                        // modelReplacer experiment.
-                        //find Boar
-                        //currentModel = obj;
                         foreach (GameObject obj2 in arrayCreature)
                         {
                             if (obj2.name == data.creature_replacer && obj2.TryGetComponent<Humanoid>(out Humanoid piggy2))
                             {
                                 obj.SetActive(false); // deactives current mob
                                 var del  = obj.gameObject;
-                                // GameObject.Destroy(del);
                                 replacermodel = WMRecipeCust.Instantiate(obj2, WMRecipeCust.Root.transform, false);
                                 replacermodel.name = data.name;
 
-                                //currentModel.GetComponent<ZNetView>().name = data.name;
                                 var copyznet = obj.GetComponent<ZNetView>();
                                 var repl = replacermodel.GetComponent<ZNetView>();
                                 repl = copyznet;
@@ -1861,14 +1858,14 @@ namespace wackydatabase.SetData
                                     var hash = replacermodel.name.GetStableHashCode();
                                     if (znet.m_namedPrefabs.ContainsKey(hash)){
 
-                                        WMRecipeCust.WLog.Dbgl($"Prefab {name} already in ZNetScene");
+                                        WMRecipeCust.Dbgl($"Prefab {name} already in ZNetScene");
 
                                         znet.m_namedPrefabs.Remove(hash);
                                         znet.m_prefabs.Remove(obj);
 
                                         znet.m_prefabs.Add(replacermodel);
                                         znet.m_namedPrefabs.Add(hash, replacermodel);
-                                        WMRecipeCust.Dbgl($"Removed old and Added prefab {name}");
+                                        WMRecipeCust.Dbgl($"Removed old {name} and replaced prefab with {obj2.name}");
 
                                     }
 

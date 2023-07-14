@@ -996,6 +996,8 @@ namespace wackydatabase.PatchClasses
                 string name = args[1];
                 WMRecipeCust.WLog.LogInfo(name);
                 VisualController.Export(PrefabAssistant.Describe(name));
+                args.Context?.AddString($"Saved in config folder Describe_{name}.yml");
+
             }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
 
@@ -1053,6 +1055,7 @@ namespace wackydatabase.PatchClasses
                     }
 
                     loader.Write(Path.Combine(WMRecipeCust.assetPathMaterials, mi.Name + ".yml"), mi);
+                    args.Context?.AddString($"Saved in the Material folder, as {name}.yml");
                 }
             }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
         }

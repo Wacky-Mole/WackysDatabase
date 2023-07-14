@@ -12,8 +12,8 @@ namespace wackydatabase.Datas
     [CanBeNull]
     public class CreatureData
     {
-        public string name;
-        public string? mob_display_name;
+        public string name; // must have
+        public string mob_display_name; // must have
         public string? custom_material;
         public string? clone_creature;
         public string? creature_replacer;

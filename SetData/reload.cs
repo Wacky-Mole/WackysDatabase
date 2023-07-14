@@ -74,6 +74,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.pieceDatasYml.Clear();
                 WMRecipeCust.effectDataYml.Clear();
                 WMRecipeCust.cacheDataYML.Clear();
+                WMRecipeCust.creatureDatasYml.Clear();
 
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")

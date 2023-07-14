@@ -84,58 +84,46 @@ namespace wackydatabase
                 return data;
             }
 
-            // Fetch the skin
+            // Try and fetch the skin (works for weapons & armors)
             Transform skin = item.transform.Find("attach_skin") ?? item.transform.Find("attach");
 
-            if (!skin)
-            {
-                skin = GetDropChild(item);
-            }
+            Renderer[] skin_renderers = skin != null ? skin.GetComponentsInChildren<Renderer>(true) : item.GetComponentsInChildren<Renderer>(true);
 
-            if (skin)
+            for (int i = 0; i < skin_renderers.Length; i++)
             {
-                Renderer[] skin_renderers = skin.GetComponentsInChildren<Renderer>(true);
+                RendererDescriptor rd = new RendererDescriptor() { Name = skin.name };
 
-                for (int i = 0; i < skin_renderers.Length; i++)
+                // Reference sharedMaterials as accessing 'materials' causes new instances
+                for (int j = 0; j < skin_renderers[i].sharedMaterials.Length; j++)
                 {
-                    RendererDescriptor rd = new RendererDescriptor() { Name = skin.name };
+                    Material m = skin_renderers[i].sharedMaterials[j];
+                    MaterialDescriptor md = new MaterialDescriptor() { Name = skin_renderers[i].sharedMaterials[j].name, Shader = m.shader.name };
 
-                    // Reference sharedMaterials as accessing 'materials' causes new instances
-                    for (int j = 0; j < skin_renderers[i].sharedMaterials.Length; j++)
+                    int propertyCount = m.shader.GetPropertyCount();
+
+                    for (int k = 0; k < propertyCount; k++)
                     {
-                        Material m = skin_renderers[i].sharedMaterials[j];
-                        MaterialDescriptor md = new MaterialDescriptor() { Name = skin_renderers[i].sharedMaterials[j].name, Shader = m.shader.name };
+                        ShaderPropertyType type = m.shader.GetPropertyType(k);
+                        string name = m.shader.GetPropertyName(k);
 
-                        int propertyCount = m.shader.GetPropertyCount();
-
-                        for (int k = 0; k < propertyCount; k++)
+                        MaterialPropertyDescriptor mpd = new MaterialPropertyDescriptor()
                         {
-                            ShaderPropertyType type = m.shader.GetPropertyType(k);
-                            string name = m.shader.GetPropertyName(k);
+                            Name = name,
+                            Type = type.ToString(),
+                            Range = type == ShaderPropertyType.Range ? string.Format("{0} to {1}", m.shader.GetPropertyRangeLimits(k).x, m.shader.GetPropertyRangeLimits(k).y) : null,
+                            Value = type == ShaderPropertyType.Color ? m.GetColor(name).ToString() :
+                                    type == ShaderPropertyType.Range ? m.GetFloat(name).ToString() :
+                                    type == ShaderPropertyType.Float ? m.GetFloat(name).ToString() :
+                                    type == ShaderPropertyType.Vector ? m.GetVector(name).ToString() : null
+                        };
 
-                            MaterialPropertyDescriptor mpd = new MaterialPropertyDescriptor()
-                            {
-                                Name = name,
-                                Type = type.ToString(),
-                                Range = type == ShaderPropertyType.Range ? string.Format("{0} to {1}", m.shader.GetPropertyRangeLimits(k).x, m.shader.GetPropertyRangeLimits(k).y) : null,
-                                Value = type == ShaderPropertyType.Color ? m.GetColor(name).ToString() :
-                                        type == ShaderPropertyType.Range ? m.GetFloat(name).ToString() :
-                                        type == ShaderPropertyType.Float ? m.GetFloat(name).ToString() :
-                                        type == ShaderPropertyType.Vector ? m.GetVector(name).ToString() : null
-                            };
-
-                            md.MaterialProperties.Add(mpd);
-                        }
-
-                        rd.Materials.Add(md);
+                        md.MaterialProperties.Add(mpd);
                     }
 
-                    data.Renderers.Add(rd);
+                    rd.Materials.Add(md);
                 }
-            }
-            else
-            {
-                Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to find base Renderer for {prefabName}");
+
+                data.Renderers.Add(rd);
             }
             WMRecipeCust.WLog.LogInfo("done with describe data");
             return data;

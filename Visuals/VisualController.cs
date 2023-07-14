@@ -134,7 +134,8 @@ namespace wackydatabase
         { 
 
             string contents = DataManager<DescriptorData>.Serializer.Serialize(data);
-            string storage = Path.Combine(WMRecipeCust.assetPathconfig, "Visuals");
+            //string storage = Path.Combine(WMRecipeCust.assetPathconfig, "Visuals");
+            string storage = WMRecipeCust.assetPathconfig;
     
 
             if (!Directory.Exists(storage))

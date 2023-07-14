@@ -89,7 +89,20 @@ namespace wackydatabase.Startup
                 }
                 catch { WMRecipeCust.Dbgl($"Error Destorying item {citem}"); }
 
-            } 
+            }
+
+            foreach (var citem in WMRecipeCust.ClonedCC)
+            {
+                try { 
+
+                    var hash = citem.Key.GetStableHashCode();
+                    znet.m_prefabs.Remove(citem.Value); // removing znets
+                    znet.m_namedPrefabs.Remove(hash);
+                    GameObject.Destroy(citem.Value); // remove gameobject
+                }
+                catch { WMRecipeCust.Dbgl($"Error Destorying Creature {citem}"); }
+
+            }
             foreach (var citem in WMRecipeCust.ClonedP)
             {
                 piecehammer = null;
@@ -119,6 +132,9 @@ namespace wackydatabase.Startup
             WMRecipeCust.ClonedI.Clear();
             WMRecipeCust.ClonedR.Clear();
             WMRecipeCust.ClonedP.Clear();
+            WMRecipeCust.ClonedC.Clear();
+            WMRecipeCust.ClonedCC.Clear();// clear dictonary
+            WMRecipeCust.ClonedCR.Clear();
             ObjectDB.instance.UpdateItemHashes();
 
             WMRecipeCust.Dbgl("All cloned Objects Destroyed");
