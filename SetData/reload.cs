@@ -133,7 +133,7 @@ namespace wackydatabase.SetData
         }
 
 
-        public void LoadClonedCachedItems()
+        public void LoadClonedCachedItems() // cached items for main menu only // don't load znets obviously 
         {
             if (WMRecipeCust.IsServer && WMRecipeCust.isDedServer) return;
             ObjectDB Instant = ObjectDB.instance;
@@ -165,7 +165,7 @@ namespace wackydatabase.SetData
         }
 
 
-        internal void LoadClonesEarly()
+        internal void LoadClonesEarly() // not working
         {
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {
@@ -348,7 +348,6 @@ namespace wackydatabase.SetData
                 DataHelpers.GetPiecesatStart();
                 WMRecipeCust.Firstrun = false;
             }
-
 
 
             if (reload && (WMRecipeCust.issettoSinglePlayer || WMRecipeCust.recieveServerInfo || WMRecipeCust.LobbyRegistered)) // single player only or recievedServerInfo

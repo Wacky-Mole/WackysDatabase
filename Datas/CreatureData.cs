@@ -15,6 +15,7 @@ namespace wackydatabase.Datas
         public string name;
         public string? mob_display_name;
         public string? custom_material;
+        public string? clone_creature;
         public string? creature_replacer;
         //public Humanoid.Faction? faction;
     }

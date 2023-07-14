@@ -282,7 +282,7 @@ namespace wackydatabase.PatchClasses
 
 
             Terminal.ConsoleCommand WackyCreatureSave =
-            new("wackydb_save_creature", "Save a Creature ",
+                new("wackydb_save_creature", "Save a Creature ",
                 args =>
                 {
                     string file = args[1];
@@ -866,9 +866,6 @@ namespace wackydatabase.PatchClasses
                                 clone.clonePrefabName = prefab;
                                 clone.m_name = newname;
 
-
-                                if (clone == null)
-                                    return;
                                 WMRecipeCust.CheckModFolder();
                                 File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + clone.name + ".yml"), serializer.Serialize(clone));
                                 file = "Item_" + clone.name;
@@ -884,13 +881,23 @@ namespace wackydatabase.PatchClasses
                                 clone.name = newname;
                                 clone.clonePrefabName = prefab;
 
-
-
-                                if (clone == null)
-                                    return;
                                 WMRecipeCust.CheckModFolder();
                                 File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + clone.name + ".yml"), serializer.Serialize(clone));
                                 file = "Piece_" + clone.name;
+
+                            }
+
+                            if (commandtype == "creature" || commandtype == "Creature" || commandtype == "mob")
+                            {
+                                CreatureData clone = RecipeCheck.GetCreature(prefab);
+                                if (clone == null)
+                                    return;
+                                clone.name = newname;
+                                clone.clone_creature = prefab;
+
+                                WMRecipeCust.CheckModFolder();
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCreatures, "Creature_" + clone.name + ".yml"), serializer.Serialize(clone));
+                                file = "Creature_" + clone.name;
 
                             }
                             args.Context?.AddString($"saved cloned data to {file}.yml");
@@ -982,6 +989,7 @@ namespace wackydatabase.PatchClasses
                    }
                     
                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: true, allowInDevBuild: false );
+
 
             Terminal.ConsoleCommand WackyDescribe = new("wackydb_describe", "Export visual description information for an item", args =>
             {

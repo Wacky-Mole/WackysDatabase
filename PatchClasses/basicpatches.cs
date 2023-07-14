@@ -125,9 +125,10 @@ namespace wackydatabase.PatchClasses
     }
 
     [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
-    [HarmonyPriority(Priority.HigherThanNormal)]
+
     static class CharacterAnimEvent_Awake_PatchWacky
     {
+        [HarmonyPriority(Priority.HigherThanNormal)]
         private static void Prefix(CharacterAnimEvent __instance)
         {
             //Bows warning, can be OP easy regardless
@@ -154,7 +155,7 @@ namespace wackydatabase.PatchClasses
                 }
                 if (customSpeed == 1f) 
                     return;
-               // WMRecipeCust.WLog.LogWarning(" normal speed " + __instance.m_animator.speed + " for " + skilltype + " Primary " + Primary);
+                //WMRecipeCust.WLog.LogWarning(" normal speed " + __instance.m_animator.speed + " for " + skilltype + " Primary " + Primary);
                 float animatorSpeed = __instance.m_animator.speed;
                 string number = __instance.m_animator.speed.ToString();
 

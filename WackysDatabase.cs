@@ -99,11 +99,12 @@ namespace wackydatabase
         public static List<WItemData> cacheDataYML = new List<WItemData>();// cacheonly
 
 
-        public static List<string> ClonedI = new List<string>();
+        public static List<string> ClonedI = new List<string>(); // items
         public static Dictionary<GameObject, ItemDrop> WaitList = new Dictionary<GameObject, ItemDrop>();
-        public static List<string> ClonedP = new List<string>();
-        public static List<string> ClonedR = new List<string>();
-        public static List<string> ClonedE = new List<string>();
+        public static List<string> ClonedP = new List<string>(); // pieces
+        public static List<string> ClonedR = new List<string>(); // recipes
+        public static List<string> ClonedE = new List<string>(); // effects
+        public static List<string> ClonedC = new List<string>(); // creatures
         public static List<string> MockI = new List<string>();
         public static List<string> BlacklistClone = new List<string>();
 

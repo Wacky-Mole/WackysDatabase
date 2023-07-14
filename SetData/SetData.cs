@@ -966,7 +966,6 @@ namespace wackydatabase.SetData
             if (!skip)
             {
 
-
                 string tempname = data.name;
                 if (!string.IsNullOrEmpty(data.clonePrefabName))
                 {
@@ -1210,6 +1209,7 @@ namespace wackydatabase.SetData
                         var hash = newItem.name.GetStableHashCode();
                         Instant.m_items.Add(newItem);
                         Instant.m_itemByHash.Add(newItem.name.GetStableHashCode(), newItem);
+                        
 
                         ZNetScene znet = ZNetScene.instance;
                         if (znet)
@@ -1772,41 +1772,125 @@ namespace wackydatabase.SetData
         internal static void SetCreature(CreatureData data, GameObject[] arrayCreature)
         {
             var count = 0;
-            GameObject currentModel = null;
+            GameObject replacermodel = null;
+            GameObject clonecreature = null;
+            bool skip = false;
+            bool skipReplacer = false;
+
+            foreach (var citem in WMRecipeCust.ClonedC)
+            {
+                if (citem == data.name)
+                    skip = true;
+            }
+
+
+            foreach (var citem in WMRecipeCust.ClonedCR)
+            {
+                if (citem == data.name)
+                    skipReplacer = true;
+            }
+
             foreach (GameObject obj in arrayCreature)
             {
-                
+
+                if (data.clone_creature != null && !skip && obj.name == data.clone_creature && obj.TryGetComponent<Humanoid>(out Humanoid clonepiggy))
+                {
+                    clonecreature = WMRecipeCust.Instantiate(obj, WMRecipeCust.Root.transform, false);
+                    clonecreature.name = data.name;
+                    clonecreature.GetComponent<ZNetView>().name = data.name;
+
+
+                    ZNetScene znet = ZNetScene.instance;
+                    if (znet)
+                    {
+
+                        string name = clonecreature.name;
+                        var hash = clonecreature.name.GetStableHashCode();
+                        if (znet.m_namedPrefabs.ContainsKey(hash))
+                            WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
+                        else
+                        {
+                            if (clonecreature.GetComponent<ZNetView>() != null)
+                                znet.m_prefabs.Add(clonecreature);
+                            else
+                                znet.m_nonNetViewPrefabs.Add(clonecreature);
+
+                            znet.m_namedPrefabs.Add(hash, clonecreature);
+                            WMRecipeCust.Dbgl($"Added prefab {name}");
+                        }
+                    }// end znet
+
+                    clonepiggy.m_name = data.mob_display_name; // clone won't go through normal setting this round, so needs to all be set in here
+
+                    WMRecipeCust.ClonedC.Add(data.name);
+                    return; // end loop
+
+                } // end clone
+
                 if (obj.name == data.name && obj.TryGetComponent<Humanoid>(out Humanoid piggy) )
                 {
-                    if (data.creature_replacer != null)
+                    if (data.creature_replacer != null && !skipReplacer)
                     {
                         // modelReplacer experiment.
                         //find Boar
-                        currentModel = obj;
+                        //currentModel = obj;
                         foreach (GameObject obj2 in arrayCreature)
                         {
                             if (obj2.name == data.creature_replacer && obj2.TryGetComponent<Humanoid>(out Humanoid piggy2))
                             {
-                                currentModel = obj2;
-                                currentModel.name = data.name;
-                                piggy2.m_name = data.mob_display_name;
-                                break;
+                                obj.SetActive(false); // deactives current mob
+                                var del  = obj.gameObject;
+                                // GameObject.Destroy(del);
+                                replacermodel = WMRecipeCust.Instantiate(obj2, WMRecipeCust.Root.transform, false);
+                                replacermodel.name = data.name;
+
+                                //currentModel.GetComponent<ZNetView>().name = data.name;
+                                var copyznet = obj.GetComponent<ZNetView>();
+                                var repl = replacermodel.GetComponent<ZNetView>();
+                                repl = copyznet;
+
+
+                                var piggy3 = replacermodel.GetComponent<Humanoid>();
+                                piggy3.m_name = data.mob_display_name; // replacer editing
+
+                                ZNetScene znet = ZNetScene.instance;
+                                if (znet)
+                                {
+
+                                    string name = replacermodel.name;
+                                    var hash = replacermodel.name.GetStableHashCode();
+                                    if (znet.m_namedPrefabs.ContainsKey(hash)){
+
+                                        WMRecipeCust.WLog.Dbgl($"Prefab {name} already in ZNetScene");
+
+                                        znet.m_namedPrefabs.Remove(hash);
+                                        znet.m_prefabs.Remove(obj);
+
+                                        znet.m_prefabs.Add(replacermodel);
+                                        znet.m_namedPrefabs.Add(hash, replacermodel);
+                                        WMRecipeCust.Dbgl($"Removed old and Added prefab {name}");
+
+                                    }
+
+                                 }
+                                WMRecipeCust.ClonedCR.Add(data.name);
+                                return; 
                             }
                         }
-                    }
+                    } // end creature replacer
 
-                    WMRecipeCust.Dbgl($"Setting {data.name} ");
+                    // Normal editing
+                    WMRecipeCust.Dbgl($"Setting {data.name} "); // normal edit
+
+                    
                     piggy.m_name = data.mob_display_name;
                     //piggy.m_faction = (Character.Faction)data.faction ?? piggy.m_faction;
 
-                    break;
-                }
+
+                    return; // end loop
+                } // end name match
                 count++;
-            }
-            if (currentModel != null) {
-                arrayCreature[count] = currentModel; // will override everything.
-            }
-            
+            } 
         }
 
     }
