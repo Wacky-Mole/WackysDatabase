@@ -162,7 +162,6 @@ namespace wackydatabase.SetData
 
 
 
-
         #region Recipe
         internal static void SetRecipeData(RecipeData data, ObjectDB Instant)
         {
@@ -428,10 +427,6 @@ namespace wackydatabase.SetData
 
 
         #endregion
-
-
-
-
 
 
 
@@ -1630,6 +1625,7 @@ namespace wackydatabase.SetData
 
         }
 
+
         private static EffectList FindEffect(EffectList current, string[] userlist, string name = "")
         {
             try
@@ -1768,6 +1764,11 @@ namespace wackydatabase.SetData
             catch (System.Exception e) { WMRecipeCust.WLog.LogWarning($"Effect {name} had problems  {e.Message}"); return current; }
         }
 
+        #endregion
+
+
+
+        #region Creatures
 
         internal static void SetCreature(CreatureData data, GameObject[] arrayCreature)
         {
