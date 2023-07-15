@@ -662,7 +662,6 @@ Wackymole
 
 <details><summary>Feedback</summary>
 
-Wacky Git https://github.com/Wacky-Mole/RareMagicPortal
 
 For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus) or my discord at [Wolf Den](https://discord.gg/yPj7xjs3Xf)
 
