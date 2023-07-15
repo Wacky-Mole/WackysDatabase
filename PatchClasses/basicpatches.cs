@@ -123,6 +123,51 @@ namespace wackydatabase.PatchClasses
             */
         }
     }
+    /*
+    [HarmonyPatch(typeof(Player), "HaveRequirementItems")]
+
+    static class HaveRecipeQuality
+    {
+        public static Recipe piecehold;
+        public static bool discoverhold;
+        public static int qualityLevelhold;
+        private static bool Prefix(Recipe piece, bool discover, int qualityLevel)
+        {
+            piecehold = piece;
+            discoverhold = discover;
+            qualityLevelhold = qualityLevel;
+            return true;
+        }
+            private static void Postfix( Player __instance, ref bool __result)
+        {
+            if (__result && WMRecipeCust.QualityRecipeReq.ContainsKey(piecehold.name) && discoverhold)
+            {
+                
+                foreach (var rec in WMRecipeCust.QualityRecipeReq[piecehold.name])
+                {
+                    if (rec.Value == 1) // don't look for default quality
+                        continue;
+
+                   var found = false;
+                   foreach(var slot in __instance.m_inventory.m_inventory)
+                    {
+                        if (slot.m_shared.m_name == rec.Key.m_itemData.m_shared.m_name && slot.m_quality == rec.Value)
+                        {
+                            found = true;
+                           // found do nothing
+                        } 
+                    }
+                    if (!found)
+                    {
+                        __result = false;
+                        return;
+                    }
+
+                }
+            } 
+        }
+    }
+    */
 
     [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
 

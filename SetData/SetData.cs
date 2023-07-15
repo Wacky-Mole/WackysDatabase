@@ -300,7 +300,7 @@ namespace wackydatabase.SetData
                 if (!WMRecipeCust.QualityRecipeReq.ContainsKey(tempname))
                 {
                     alreadyadded = false;
-                    WMRecipeCust.QualityRecipeReq.Add(tempname, new Dictionary<string, int>());
+                    WMRecipeCust.QualityRecipeReq.Add(tempname, new Dictionary<ItemDrop, int>());
                 }
                 foreach (string req in data.reqs)
                 {
@@ -324,7 +324,7 @@ namespace wackydatabase.SetData
                             reqs.Add(item);
 
                             if (!alreadyadded)
-                                WMRecipeCust.QualityRecipeReq[tempname].Add(itemname, quality);
+                                WMRecipeCust.QualityRecipeReq[tempname].Add(Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(), quality);
                         }
                     }
                 }// foreach

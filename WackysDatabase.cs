@@ -153,7 +153,7 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalFX;
         public static Dictionary<string, GameObject> extraEffects;
         public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>();
-        public static Dictionary<string, Dictionary<string, int>> QualityRecipeReq = new Dictionary<string, Dictionary<string, int>>();
+        public static Dictionary<string, Dictionary<ItemDrop, int>> QualityRecipeReq = new Dictionary<string, Dictionary<ItemDrop, int>>();
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
 
         internal static Startupserver startupserver = new Startupserver();
