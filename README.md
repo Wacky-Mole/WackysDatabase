@@ -167,7 +167,7 @@ Some components are multilined where you can actually add your own stuff the yml
 
 </details>
 
-<details><summary> ### Item components</summary>
+<details><summary><b> Item components</b></summary>
 
 
 ## Item Config
