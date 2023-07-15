@@ -39,6 +39,8 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 
 </details>
 
+<details><summary>FAQ</summary>
+
 Frequently Asked Questions
 
     Q: Can I use custom icons for items?
@@ -52,7 +54,7 @@ Frequently Asked Questions
 
     Q: Is the mod future-proof?
         A: Yes, you can add or remove components without much hassle.
-
+</details>
 
 ## Configuration
 
