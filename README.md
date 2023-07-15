@@ -167,7 +167,7 @@ Some components are multilined where you can actually add your own stuff the yml
 
 </details>
 
-<details><summary> Item components</summary>
+<details><summary> ### Item components</summary>
 
 
 ## Item Config
@@ -287,8 +287,8 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `m_EitrRegen` (float): The eitr regeneration modifier.
 
 
-`SE_Equip` (SE_Equip): The special effect data for equipping the item. If you want an Item to have an Effect by itself, put the effect name here
-`SE_SET_Equip` (SE_SET_Equip): All of this should be the same accross all items that have this set
+`SE_Equip` (SE_Equip): The special effect data for equipping the item.</br> If you want an Item to have an Effect by itself, put the effect name here
+</br>`SE_SET_Equip` (SE_SET_Equip): All of this should be the same accross all items that have this set
 </br>You can delete an SE_Equip or SE_SET_Equip from item using EffectName : delete 
 ### SE_Equip 
 
