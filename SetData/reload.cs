@@ -221,7 +221,7 @@ namespace wackydatabase.SetData
                 {
                     try
                     {
-                        SetData.SetItemData(data3, Instant, false);
+                        SetData.SetItemData(data3, Instant, null, false);
 
                     }
                     catch { WMRecipeCust.WLog.LogWarning($"Set Item Data for {data3.name} failed, might get it on second pass"); } // spams just catch any empty
@@ -353,7 +353,7 @@ namespace wackydatabase.SetData
 
             if (reload && (WMRecipeCust.issettoSinglePlayer || WMRecipeCust.recieveServerInfo || WMRecipeCust.LobbyRegistered)) // single player only or recievedServerInfo
             {
-                if (WMRecipeCust.recieveServerInfo && WMRecipeCust.issettoSinglePlayer)
+                if (WMRecipeCust.recieveServerInfo && WMRecipeCust.issettoSinglePlayer) // Might remove this, this check might interfere with my existing checks and is not needed
                 {
                     WMRecipeCust.WLog.LogWarning($" You Loaded into Singleplayer local first and therefore will NOT be allowed to reload Server Configs");
                     yield break; // naughty boy no recipes for you
@@ -363,6 +363,7 @@ namespace wackydatabase.SetData
                     if (!WMRecipeCust.ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
                         yield break;
                     ObjectDB Instant = ObjectDB.instance;
+                    GameObject[] AllObjects = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
 
                     if (slowmode)
                     {
@@ -432,7 +433,7 @@ namespace wackydatabase.SetData
                     {
                         try
                         {
-                            SetData.SetItemData(data, Instant);
+                            SetData.SetItemData(data, Instant, AllObjects,true );
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetItem Data for {data.name} failed"); }
 
@@ -484,12 +485,13 @@ namespace wackydatabase.SetData
                         }
                     }
                     WMRecipeCust.Dbgl($"Setting Creatures ");
-                    GameObject[] arrayCreature = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
+                    
                     foreach ( var data in WMRecipeCust.creatureDatasYml)
                     {
                         try
                         {
-                            SetData.SetCreature(data, arrayCreature);
+                            WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} ");
+                            SetData.SetCreature(data, AllObjects);
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
 

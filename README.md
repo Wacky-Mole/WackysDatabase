@@ -197,6 +197,201 @@ Some components are multilined where you can actually add your own stuff the yml
 
 ![Glowing Red BronzeSword ](https://wackymole.com/hosts/redsword.png)
 
+Certainly! Here's the documentation for the provided C# classes:
+
+## Class: WItemData
+
+### Properties
+
+- `name` (string, required): The name of the item.
+- `m_weight` (float, required): The weight of the item.
+- `m_name` (string): The additional name of the item.
+- `m_description` (string): The description of the item.
+- `clonePrefabName` (string): The name of the prefab to clone.
+- `mockName` (string): The name of the mock object.
+- `customIcon` (string): The custom icon for the item.
+- `material` (string): The material of the item.
+- `customVisual` (CustomVisual): The custom visual data of the item.
+- `sizeMultiplier` (float): The size multiplier of the item.
+- `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
+- `Primary_Attack` (AttackArm): The primary attack data.
+- `Secondary_Attack` (AttackArm): The secondary attack data.
+- `Damage` (WDamages): The damage values of the item.
+- `Damage_Per_Level` (WDamages): The damage values per level of the item.
+- `Armor` (ArmorData): The armor data of the item.
+- `FoodStats` (FoodData): The food-related statistics of the item.
+- `Moddifiers` (StatMods): The stat modifiers of the item.
+- `SE_Equip` (SE_Equip): The special effect data for equipping the item.
+- `SE_SET_Equip` (SE_SET_Equip): The special effect set data for equipping the item.
+- `ShieldStats` (ShieldData): The shield statistics of the item.
+- `m_maxStackSize` (int): The maximum stack size of the item.
+- `m_canBeReparied` (bool): Indicates whether the item can be repaired.
+- `m_destroyBroken` (bool): Indicates whether the item gets destroyed when broken.
+- `m_dodgeable` (bool): Indicates whether the item can be dodged.
+- `Attack_status_effect` (string): The attack status effect of the item.
+- `spawn_on_hit` (string): The spawn-on-hit effect of the item.
+- `spawn_on_terrain_hit` (string): The spawn-on-terrain-hit effect of the item.
+- `m_questItem` (bool): Indicates whether the item is a quest item.
+- `m_teleportable` (bool): Indicates whether the item is teleportable.
+- `m_backstabbonus` (float): The backstab bonus of the item.
+- `m_knockback` (float): The knockback value of the item.
+- `m_useDurability` (bool): Indicates whether the item uses durability.
+- `m_useDurabilityDrain` (float): The durability drain when the item is used.
+- `m_durabilityDrain` (float): The durability drain of the item.
+- `m_maxDurability` (float): The maximum durability of the item.
+- `m_durabilityPerLevel` (float): The durability increase per level of the item.
+- `m_equipDuration` (float): The equip duration of the item.
+- `m_skillType` (Skills.SkillType): The skill type of the item.
+- `m_animationState` (ItemDrop.ItemData.AnimationState): The animation state of the item.
+- `m_itemType` (ItemDrop.ItemData.ItemType): The item type of the item.
+- `m_toolTier` (int): The tool tier of the item.
+- `m_maxQuality` (int): The maximum quality of the item.
+- `m_value` (int): The value of the item.
+- `damageModifiers` (List<string>): The list of damage modifiers for the item.
+- `GEffects` (GEffects): The additional game effects of the item.
+
+## Class: AttackArm
+
+### Properties
+
+- `AttackType` (Attack.AttackType): The type of attack.
+- `Attack_Animation` (string): The animation for the attack.
+- `Attack_Random_Animation` (int): The random animation for the attack.
+- `Chain_Attacks` (int): The number of chain attacks.
+- `Hit_Terrain` (bool): Indicates whether the attack can hit terrain.
+- `Custom_AttackSpeed` (float): The custom attack speed.
+- `m_attackStamina` (float): The stamina cost of the attack.
+- `m_eitrCost` (float): The eitr cost of the attack.
+- `AttackHealthCost` (float): The health cost of the attack.
+- `m_attackHealthPercentage` (float): The health cost percentage of the attack.
+- `SpeedFactor` (float): The speed factor of the attack.
+- `DmgMultiplier` (float): The damage multiplier of the attack.
+- `ForceMultiplier` (float): The force multiplier of the attack.
+- `StaggerMultiplier` (float): The stagger multiplier of the attack.
+- `RecoilMultiplier` (float): The recoil multiplier of the attack.
+- `AttackRange` (float): The range of the attack.
+- `AttackHeight` (float): The height of the attack.
+- `Spawn_On_Trigger` (string): The spawn-on-trigger effect of the attack.
+- `Requires_Reload` (bool): Indicates whether the attack requires reloading.
+- `Reload_Animation` (string): The animation for reloading.
+- `ReloadTime` (float): The time it takes to reload.
+- `Reload_Stamina_Drain` (float): The stamina drain during reloading.
+- `Bow_Draw` (bool): Indicates whether the bow is drawn for the attack.
+- `Bow_Duration_Min` (float): The minimum duration of the bow.
+- `Bow_Stamina_Drain` (float): The stamina drain during bow usage.
+- `Bow_Animation_State` (string): The animation state for the bow.
+- `Attack_Angle` (float): The angle of the attack.
+- `Attack_Ray_Width` (float): The width of the attack ray.
+- `Lower_Dmg_Per_Hit` (bool): Indicates whether the attack lowers damage per hit.
+- `Hit_Through_Walls` (bool): Indicates whether the attack can hit through walls.
+- `Multi_Hit` (bool): Indicates whether the attack can hit multiple times.
+- `Pickaxe_Special` (bool): Indicates whether it is a special pickaxe attack.
+- `Last_Chain_Dmg_Multiplier` (float): The damage multiplier for the last chain attack.
+- `Attack_Projectile` (string): Indicates whether the attack has a projectile.
+- `Projectile_Vel` (float): The velocity of the projectile.
+- `Projectile_Accuraccy` (float): The accuracy of the projectile.
+- `Projectiles` (int): The number of projectiles.
+- `AEffects` (AEffects): The additional effects of the attack.
+
+## Class: CustomVisual
+
+### Properties
+
+- `base_mat` (string): The base material of the custom visual.
+- `chest` (string): The chest visual.
+- `legs` (string): The legs visual.
+- `realtime` (string): The realtime visual.
+
+## Class: AEffects
+
+###
+
+ Properties
+
+- `Hit_Effects` (string[]): The hit effects of the attack.
+- `Hit_Terrain_Effects` (string[]): The effects when hitting terrain.
+- `Start_Effect` (string[]): The starting effect of the attack.
+- `Trigger_Effect` (string[]): The triggered effect of the attack.
+- `Trail_Effect` (string[]): The effect trail of the attack.
+- `Burst_Effect` (string[]): The burst effect of the attack.
+
+## Class: GEffects
+
+### Properties
+
+- `Hit_Effects` (string[]): The hit effects.
+- `Hit_Terrain_Effects` (string[]): The effects when hitting terrain.
+- `Start_Effect` (string[]): The starting effect.
+- `Hold_Start_Effects` (string[]): The hold starting effects.
+- `Trigger_Effect` (string[]): The triggered effect.
+- `Trail_Effect` (string[]): The effect trail.
+
+## Class: FoodData
+
+### Properties
+
+- `m_foodHealth` (float): The health provided by the food.
+- `m_foodStamina` (float): The stamina provided by the food.
+- `m_foodRegen` (float): The regeneration rate of the food.
+- `m_foodBurnTime` (float): The burn time of the food.
+- `m_FoodEitr` (float): The eitr provided by the food.
+
+## Class: StatMods
+
+### Properties
+
+- `m_movementModifier` (float): The movement modifier.
+- `m_EitrRegen` (float): The eitr regeneration modifier.
+
+## Class: SE_Equip
+
+### Properties
+
+- `EffectName` (string): The name of the effect for equipping.
+
+## Class: SE_SET_Equip
+
+### Properties
+
+- `SetName` (string): The name of the set.
+- `Size` (int): The size of the set.
+- `EffectName` (string): The name of the effect for equipping the set.
+
+## Class: ShieldData
+
+### Properties
+
+- `m_blockPower` (float): The block power of the shield.
+- `m_blockPowerPerLevel` (float): The block power per level of the shield.
+- `m_timedBlockBonus` (float): The timed block bonus of the shield.
+- `m_deflectionForce` (float): The deflection force of the shield.
+- `m_deflectionForcePerLevel` (float): The deflection force per level of the shield.
+
+## Class: ArmorData
+
+### Properties
+
+- `armor` (float): The armor value.
+- `armorPerLevel` (float): The armor value per level.
+
+## Class: WDamages
+
+### Properties
+
+- `Blunt` (float): The blunt damage value.
+- `Chop` (float): The chop damage value.
+- `Damage` (float): The general damage value.
+- `Fire` (float): The fire damage value.
+- `Frost` (float): The frost damage value.
+- `Lightning` (float): The lightning damage value.
+- `Pickaxe` (float): The pickaxe damage value.
+- `Pierce` (float): The pierce damage value.
+- `Poison` (float): The poison damage value.
+- `Slash` (float): The slash damage value.
+- `Spirit` (float): The spirit damage value.
+
+Please note that this documentation is automatically generated based on the provided C# classes. It may not be complete or accurate, so further verification and manual documentation may be required.
+
 Hang on to your butts, items got an overhaul.  ONLY 2 components are required for ITEMS, 3 if it is a clone
 
 name: item name in database, has to be unique (REQUIRED)
@@ -222,19 +417,66 @@ scale_weight_by_quality: scales weight by quality or something
 ## Attacks, Primary and Secondary
 Most weapons have two attacks, you can control each independantly now. </br>
 Primary_Attack and Secondary_Attack</br>
- Each one has 30+ things you can change, you can delete the whole section if you don't want to change anything.
 
  <details><summary>Attack Components</summary>
 
-  Probably have to move to wackymole.com due to character count 32,000 - but github has no restriction so post away 
 
 
-  AEffects - VFX,SFX, FX currently in view only mode for only Hit_Effects, </br> There is 
-  Hit_Terrain_Effects, Start_Effect, Hold_Start_Effects, Trigger_Effect,Trail_Effect,Burst_Effect availble for both Primary and Secondary if people show interest.
+Primary_Attack
+Properties
+
+    AttackType (Attack.AttackType): The type of attack.
+    Attack_Animation (string): The animation for the attack.
+    Attack_Random_Animation (int): The random animation for the attack.
+    Chain_Attacks (int): The number of chain attacks.
+    Hit_Terrain (bool): Indicates whether the attack can hit terrain.
+    Custom_AttackSpeed (float): The custom attack speed.
+    m_attackStamina (float): The stamina cost of the attack.
+    m_eitrCost (float): The eitr cost of the attack.
+    AttackHealthCost (float): The health cost of the attack.
+    m_attackHealthPercentage (float): The health cost percentage of the attack.
+    SpeedFactor (float): The speed factor of the attack.
+    DmgMultiplier (float): The damage multiplier of the attack.
+    ForceMultiplier (float): The force multiplier of the attack.
+    StaggerMultiplier (float): The stagger multiplier of the attack.
+    RecoilMultiplier (float): The recoil multiplier of the attack.
+    AttackRange (float): The range of the attack.
+    AttackHeight (float): The height of the attack.
+    Spawn_On_Trigger (string): The spawn-on-trigger effect of the attack.
+    Requires_Reload (bool): Indicates whether the attack requires reloading.
+    Reload_Animation (string): The animation for reloading.
+    ReloadTime (float): The time it takes to reload.
+    Reload_Stamina_Drain (float): The stamina drain during reloading.
+    Bow_Draw (bool): Indicates whether the bow is drawn for the attack.
+    Bow_Duration_Min (float): The minimum duration of the bow.
+    Bow_Stamina_Drain (float): The stamina drain during bow usage.
+    Bow_Animation_State (string): The animation state for the bow.
+    Attack_Angle (float): The angle of the attack.
+    Attack_Ray_Width (float): The width of the attack ray.
+    Lower_Dmg_Per_Hit (bool): Indicates whether the attack lowers damage per hit.
+    Hit_Through_Walls (bool): Indicates whether the attack can hit through walls.
+    Multi_Hit (bool): Indicates whether the attack can hit multiple times.
+    Pickaxe_Special (bool): Indicates whether it is a special pickaxe attack.
+    Last_Chain_Dmg_Multiplier (float): The damage multiplier for the last chain attack.
+    Attack_Projectile (string): Indicates whether the attack has a projectile.
+    Projectile_Vel (float): The velocity of the projectile.
+    Projectile_Accuraccy (float): The accuracy of the projectile.
+    Projectiles (int): The number of projectiles.
+    AEffects (AEffects): The additional effects of the attack.
+        Hit_Effects: Effects on hit.
+        Hit_Terrain_Effects: Effects on hitting terrain.
+        Start_Effect: Starting effect.
+        Trigger_Effect: Triggered effect.
+        Trail_Effect: Effect trail.
+        Burst_Effect: Burst effect.
+
+Secondary_Attack
+    Parameters are similar to Primary_Attack.
+
  </details>
 
- Damage: dmg</br>
- DamagePerLevel: how much extra dmg you get for upgrading item</br> // add brs at end, once done editing
+ Damage (WDamages): The damage values of the item.
+ Damage_Per_Level (WDamages): The damage values per level of the item.
 
  Armor: armor doesn't do much on non clothing items
  ArmorPerLevel:
@@ -260,27 +502,35 @@ Primary_Attack and Secondary_Attack</br>
  m_deflectionForce
  m_deflectionForcePerLevel
 
- m_maxStackSize: how many can you stack in 1 slot
- m_canBeReparied: 
- m_destroyBroken: like tourch
- m_dodgeable: 
- m_questItem: doesn't really do anything now
- m_teleportable: tele or not
- m_knockback:
- m_useDurability: Durability goes down
- m_useDurabilityDrain: drain on use
- m_durabilityDrain: on equip?
- m_maxDurability: actual dura
- m_durabilityPerLevel:
- m_equipDuration: how long to equip item
- m_skillType: what skill this item belongs to
- m_animationState: 
- m_toolTier: what can it break?
- m_maxQuality: how much can you upgrade it
- m_value: if value is >0. Then the object becomes salable at Trader. </br>
- The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
 
-damageModifiers: - 
+    m_maxStackSize (int): The maximum stack size of the item.
+    m_canBeReparied (bool): Indicates whether the item can be repaired.
+    m_destroyBroken (bool): Indicates whether the item gets destroyed when broken.
+    m_dodgeable (bool): Indicates whether the item can be dodged.
+    Attack_status_effect (string): The attack status effect of the item.
+    spawn_on_hit (string): The spawn-on-hit effect of the item.
+    spawn_on_terrain_hit (string): The spawn-on-terrain-hit effect of the item.
+    m_questItem (bool): Indicates whether the item is a quest item.
+    m_teleportable (bool): Indicates whether the item is teleportable.
+    m_backstabbonus (float): The backstab bonus of the item.
+    m_knockback (float): The knockback value of the item.
+    m_useDurability (bool): Indicates whether the item uses durability.
+    m_useDurabilityDrain (float): The durability drain when the item is used.
+    m_durabilityDrain (float): The durability drain of the item.
+    m_maxDurability (float): The maximum durability of the item.
+    m_durabilityPerLevel (float): The durability increase per level of the item.
+    m_equipDuration (float): The equip duration of the item.
+    m_skillType (Skills.SkillType): The skill type of the item.
+    m_animationState (ItemDrop.ItemData.AnimationState): The animation state of the item.
+    m_itemType (ItemDrop.ItemData.ItemType): The item type of the item.
+    m_toolTier (int): The tool tier of the item. What can it break.
+    m_maxQuality (int): The maximum quality of the item.
+    m_value (int): The value of the item. if value is >0. Then the object becomes salable at Trader. 
+        The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
+
+
+
+damageModifiers (List<string>): The list of damage modifiers for the item.
 Damage modifiers etc
 
 The first value is the damage type, the second value is the resistance level.</br>
@@ -295,9 +545,6 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
     VeryWeak - decreases Wet status countdown speed by 2/3
 
 
-GEffects Like Attack Effects above, only showing VFX, SFX and FX effects for Hit_Effects, </br>
-Hit_Terrain_Effects, Start_Effect, Hold_Start_Effects, Trigger_Effect, Trail_Effect
-</br> If there is interest I will allow users to change/remove/add them.
 
 </details>
 

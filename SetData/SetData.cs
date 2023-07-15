@@ -1058,7 +1058,7 @@ namespace wackydatabase.SetData
 
 
 
-        internal static void SetItemData(WItemData data, ObjectDB Instant, bool ZnetNow = true)
+        internal static void SetItemData(WItemData data, ObjectDB Instant, GameObject[] AllObjects = null, bool ZnetNow = true)
         {
             // Dbgl("Loaded SetItemData!");
 
@@ -1377,7 +1377,22 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_attackRange = data.Primary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_attack.m_attackRange;
                         PrimaryItemData.m_shared.m_attack.m_attackHeight = data.Primary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_attack.m_attackHeight;
                         if (!string.IsNullOrEmpty(data.Primary_Attack.Spawn_On_Trigger))
-                            PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = GameObject.Find(data.Primary_Attack.Spawn_On_Trigger) ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
+                        {
+                            GameObject found = null;
+                            foreach (var ob in AllObjects)
+                            {
+                                if (ob.name == data.Primary_Attack.Spawn_On_Trigger)
+                                {
+                                    if (found == null)
+                                        found = ob;
+                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                        found = ob;
+                                    else { }
+                                }
+                            }
+                            PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
+                        }
+                            
 
                         PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
                         PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
@@ -1398,7 +1413,22 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
 
                         if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile))
-                            PrimaryItemData.m_shared.m_attack.m_attackProjectile = GameObject.Find(data.Primary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
+                        {
+                            GameObject found = null;
+                            foreach (var ob in AllObjects)
+                            {
+                                if (ob.name == data.Primary_Attack.Attack_Projectile)
+                                {
+                                    if (found == null)
+                                        found = ob;
+                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                        found = ob;
+                                    else { }
+                                }
+                            }
+                            PrimaryItemData.m_shared.m_attack.m_attackProjectile = found ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
+                        }
+                            
 
                         PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
                         PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
@@ -1442,7 +1472,22 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight = data.Secondary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight;
 
                         if (!string.IsNullOrEmpty(data.Secondary_Attack.Spawn_On_Trigger))
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = GameObject.Find(data.Secondary_Attack.Spawn_On_Trigger) ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
+                        {
+                            GameObject found = null;
+                            foreach (var ob in AllObjects)
+                            {
+                                if (ob.name == data.Secondary_Attack.Spawn_On_Trigger)
+                                {
+                                    if (found == null)
+                                        found = ob;
+                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                        found = ob;
+                                    else { }
+                                }
+                            }
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
+                        }
+                            
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
@@ -1463,7 +1508,22 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
 
                         if (!string.IsNullOrEmpty(data.Secondary_Attack.Attack_Projectile))
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = GameObject.Find(data.Secondary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
+                        {
+                            GameObject found = null;
+                            foreach (var ob in AllObjects)
+                            {
+                                if (ob.name == data.Secondary_Attack.Attack_Projectile)
+                                {
+                                    if (found == null)
+                                        found = ob;
+                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                        found = ob;
+                                    else { }
+                                }
+                            }
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
+                        }
+                            
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel = data.Secondary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
@@ -1563,10 +1623,39 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
 
                     if (!string.IsNullOrEmpty(data.spawn_on_hit))
-                        PrimaryItemData.m_shared.m_spawnOnHit = GameObject.Find(data.spawn_on_hit) ?? PrimaryItemData.m_shared.m_spawnOnHit;
+                    {
+                        GameObject found = null;
+                        foreach (var ob in AllObjects)
+                        {
+                            if(ob.name == data.spawn_on_hit)
+                            {
+                                if (found == null)
+                                    found = ob;
+                                else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                    found = ob;
+                                else { }
+                            }
+                        }
+                        PrimaryItemData.m_shared.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_spawnOnHit;                                          
+                    }
 
                     if (!string.IsNullOrEmpty(data.spawn_on_terrain_hit))
-                        PrimaryItemData.m_shared.m_spawnOnHitTerrain = GameObject.Find(data.spawn_on_terrain_hit) ?? PrimaryItemData.m_shared.m_spawnOnHitTerrain;
+                    {
+                        GameObject found = null;
+                        foreach (var ob in AllObjects)
+                        {
+                            if (ob.name == data.spawn_on_terrain_hit)
+                            {
+                                if (found == null)
+                                    found = ob;
+                                else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                    found = ob;
+                                else { }
+                            }
+                        }
+                        PrimaryItemData.m_shared.m_spawnOnHitTerrain = found ?? PrimaryItemData.m_shared.m_spawnOnHitTerrain;
+                    }
+                        
 
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability ?? PrimaryItemData.m_shared.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain ?? PrimaryItemData.m_shared.m_useDurabilityDrain;
@@ -1794,7 +1883,8 @@ namespace wackydatabase.SetData
             foreach (GameObject obj in arrayCreature)
             {
 
-                if (data.clone_creature != null && !skip && obj.name == data.clone_creature && obj.TryGetComponent<Humanoid>(out Humanoid dontuse))
+                if (data.clone_creature != null && !skip && obj.name == data.clone_creature && (obj.TryGetComponent<Humanoid>(out Humanoid dontuse)
+                    || obj.TryGetComponent<AnimalAI>(out AnimalAI dontuse1) || obj.TryGetComponent<MonsterAI>(out MonsterAI dontuse2)))
                 {
                     clonecreature = WMRecipeCust.Instantiate(obj, WMRecipeCust.Root.transform, false);
                     clonecreature.name = data.name;
@@ -1830,7 +1920,8 @@ namespace wackydatabase.SetData
 
                 } // end clone
 
-                if (obj.name == data.name && obj.TryGetComponent<Humanoid>(out Humanoid piggy) )
+                if (obj.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid high1)
+                    || obj.TryGetComponent<AnimalAI>(out AnimalAI high2) || obj.TryGetComponent<MonsterAI>(out MonsterAI high3)))
                 {
                     if (data.creature_replacer != null && !skipReplacer)
                     {
@@ -1880,8 +1971,8 @@ namespace wackydatabase.SetData
                     // Normal editing
                     WMRecipeCust.Dbgl($"Setting {data.name} "); // normal edit
 
-                    
-                    piggy.m_name = data.mob_display_name;
+
+                    high1.m_name = data.mob_display_name;
                     //piggy.m_faction = (Character.Faction)data.faction ?? piggy.m_faction;
 
 
