@@ -21,9 +21,6 @@ sizeMultiplier! - Make a small or HUGE world
 Future Proof - Can add or remove componets without much fuss
 
 
-Materials is currently disabled in BETA! Future- https://github.com/Rexabit/valheim-visuals-modifier
-
-
 
 <!-- <img src="https://wackymole.com/hosts/lightblue%20Sword.webp" width="248"/> <img src="https://wackymole.com/hosts/1825-1648309710-715635595.png" width="230"/> <img src="https://wackymole.com/hosts/orangeish%20bow.jpg" width="215"/> -->
 
@@ -185,8 +182,9 @@ Some components are multilined where you can actually add your own stuff the yml
 - `m_description` (string): The description of the item.
 - `clonePrefabName` (string): The name of the prefab to clone.
 - `mockName` (string): The name of the mock object.
-- `customIcon` (string): The custom icon for the item. PNG 64x64, Must be in the ICON folder, NOT SYNCED
-- `material` (string): The material of the item.
+- `customIcon` (string): The custom icon for the item. PNG 64x64, Icon needs to be in the Icon folder ( doesn't server sync)
+- `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
+Visit the Material and CustomVisual Section to understand this complex system. 
 - `customVisual` (CustomVisual): The custom visual data of the item.
 - `sizeMultiplier` (float): The size multiplier of the item. You can go from .01 to 1000.5 if you want. Have fun!
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
@@ -249,14 +247,13 @@ Some components are multilined where you can actually add your own stuff the yml
 - `Trail_Effect` (string[]): The effect trail of the attack.
 - `Burst_Effect` (string[]): The burst effect of the attack.
 
-### Secondary_Attack
-  
+### Secondary Attack 
   Is the same as Primary just for the secondary attack. 
 
 
-- `Damage` (WDamages): The damage values of the item.
-- `Damage_Per_Level` (WDamages): The damage values per level of the item.
-###  WDamages
+`Damage` (WDamages): The damage values of the item.
+`Damage_Per_Level` (WDamages): The damage values per level of the item.
+###  Damages
 
 - `Blunt` (float): The blunt damage value.
 - `Chop` (float): The chop damage value.
@@ -270,12 +267,12 @@ Some components are multilined where you can actually add your own stuff the yml
 - `Slash` (float): The slash damage value.
 - `Spirit` (float): The spirit damage value.
 
-- `Armor` (ArmorData): The armor data of the item.
-### ArmorData
+`Armor` (ArmorData): The armor data of the item.
+### Armor
 - `armor` (float): The armor value.
 - `armorPerLevel` (float): The armor value per level. 
 
-- `FoodStats` (FoodData): The food-related statistics of the item.
+`FoodStats` (FoodData): The food-related statistics of the item.
 ### FoodData
 
 - `m_foodHealth` (float): The health provided by the food.
@@ -284,26 +281,27 @@ Some components are multilined where you can actually add your own stuff the yml
 - `m_foodBurnTime` (float): The burn time of the food.
 - `m_FoodEitr` (float): The eitr provided by the food.
 
-- `Moddifiers` (StatMods): The stat modifiers of the item.
+`Moddifiers` (StatMods): The stat modifiers of the item.
 ### StatMods
 - `m_movementModifier` (float): The movement modifier.
 - `m_EitrRegen` (float): The eitr regeneration modifier.
 
 
-- `SE_Equip` (SE_Equip): The special effect data for equipping the item.
-- `SE_SET_Equip` (SE_SET_Equip): The special effect set data for equipping the item.
+`SE_Equip` (SE_Equip): The special effect data for equipping the item. If you want an Item to have an Effect by itself, put the effect name here
+`SE_SET_Equip` (SE_SET_Equip): All of this should be the same accross all items that have this set
+</br>You can delete an SE_Equip or SE_SET_Equip from item using EffectName : delete 
 ### SE_Equip 
-If you want an Item to have an Effect by itself, put the effect name here
+
 - `EffectName` (string): The name of the effect for equipping.
 
-### Class: SE_SET_Equip
+### SE_SET_Equip
 
 - `SetName` (string): The name of the set.
 - `Size` (int): The size of the set.
 - `EffectName` (string): The name of the effect for equipping the set.
 
 
-- `ShieldStats` (ShieldData): The shield statistics of the item.
+`ShieldStats` (ShieldData): The shield statistics of the item.
 - ### Shield
 
 - `m_blockPower` (float): The block power of the shield.
@@ -312,7 +310,7 @@ If you want an Item to have an Effect by itself, put the effect name here
 - `m_deflectionForce` (float): The deflection force of the shield.
 - `m_deflectionForcePerLevel` (float): The deflection force per level of the shield.
 
-
+###  Properties Continued
 - `m_maxStackSize` (int): The maximum stack size of the item.
 - `m_canBeReparied` (bool): Indicates whether the item can be repaired.
 - `m_destroyBroken` (bool): Indicates whether the item gets destroyed when broken.
@@ -335,10 +333,25 @@ If you want an Item to have an Effect by itself, put the effect name here
 - `m_itemType` (ItemDrop.ItemData.ItemType): The item type of the item.
 - `m_toolTier` (int): The tool tier of the item.
 - `m_maxQuality` (int): The maximum quality of the item.
-- `m_value` (int): The value of the item.
+- `m_value` (int): The value of the item. The value of the item. if value is >0. Then the object becomes salable at Trader. 
+        The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
 - `damageModifiers` (List<string>): The list of damage modifiers for the item.
-- `GEffects` (GEffects): The additional game effects of the item.
 
+### DamageModifiers
+The first value is the damage type, the second value is the resistance level.</br>
+Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
+ 
+    Normal - no change
+    Resistant - increases status countdown speed by 100%
+    Weak - Decreases status countdown speed by 1/3
+    Immune - prevents status effect
+    Ignore - prevents status effect
+    VeryResistant - Prevent status effect application except when actively in, and increases status countdown speed by 100%
+    VeryWeak - Decreases status countdown speed by 2/3
+
+
+
+`GEffects` (GEffects): The additional game effects of the item.
 
 ### GEffects
 
@@ -348,166 +361,6 @@ If you want an Item to have an Effect by itself, put the effect name here
 - `Hold_Start_Effects` (string[]): The hold starting effects.
 - `Trigger_Effect` (string[]): The triggered effect.
 - `Trail_Effect` (string[]): The effect trail.
-
-
-
-
-
-
-Please note that this documentation is automatically generated based on the provided C# classes. It may not be complete or accurate, so further verification and manual documentation may be required.
-
-Hang on to your butts, items got an overhaul.  ONLY 2 components are required for ITEMS, 3 if it is a clone
-
-name: item name in database, has to be unique (REQUIRED)
-
-m_weight: weight of item (REQUIRED)
-
-m_name: in game name
-
-m_description: in game description
-
-clonePrefabName: name of the item you want to clone (REQUIRED if clone)
-
-cloneMaterial: You can change the material(colorish) of a cloned object.</br>
-Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
-Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible.
-
-customIcon: You can set a custom icon for this item, use a PNG or Jpeg 64 x 64 px. Icon needs to be in the Icon folder ( doesn't server sync)
-
-sizeMultiplier: Is a float, you can go from .01 to 1000.5 if you want. Have fun!
-
-scale_weight_by_quality: scales weight by quality or something
-
-## Attacks, Primary and Secondary
-Most weapons have two attacks, you can control each independantly now. </br>
-Primary_Attack and Secondary_Attack</br>
-
- <details><summary>Attack Components</summary>
-
-
-
-Primary_Attack
-Properties
-
-    AttackType (Attack.AttackType): The type of attack.
-    Attack_Animation (string): The animation for the attack.
-    Attack_Random_Animation (int): The random animation for the attack.
-    Chain_Attacks (int): The number of chain attacks.
-    Hit_Terrain (bool): Indicates whether the attack can hit terrain.
-    Custom_AttackSpeed (float): The custom attack speed.
-    m_attackStamina (float): The stamina cost of the attack.
-    m_eitrCost (float): The eitr cost of the attack.
-    AttackHealthCost (float): The health cost of the attack.
-    m_attackHealthPercentage (float): The health cost percentage of the attack.
-    SpeedFactor (float): The speed factor of the attack.
-    DmgMultiplier (float): The damage multiplier of the attack.
-    ForceMultiplier (float): The force multiplier of the attack.
-    StaggerMultiplier (float): The stagger multiplier of the attack.
-    RecoilMultiplier (float): The recoil multiplier of the attack.
-    AttackRange (float): The range of the attack.
-    AttackHeight (float): The height of the attack.
-    Spawn_On_Trigger (string): The spawn-on-trigger effect of the attack.
-    Requires_Reload (bool): Indicates whether the attack requires reloading.
-    Reload_Animation (string): The animation for reloading.
-    ReloadTime (float): The time it takes to reload.
-    Reload_Stamina_Drain (float): The stamina drain during reloading.
-    Bow_Draw (bool): Indicates whether the bow is drawn for the attack.
-    Bow_Duration_Min (float): The minimum duration of the bow.
-    Bow_Stamina_Drain (float): The stamina drain during bow usage.
-    Bow_Animation_State (string): The animation state for the bow.
-    Attack_Angle (float): The angle of the attack.
-    Attack_Ray_Width (float): The width of the attack ray.
-    Lower_Dmg_Per_Hit (bool): Indicates whether the attack lowers damage per hit.
-    Hit_Through_Walls (bool): Indicates whether the attack can hit through walls.
-    Multi_Hit (bool): Indicates whether the attack can hit multiple times.
-    Pickaxe_Special (bool): Indicates whether it is a special pickaxe attack.
-    Last_Chain_Dmg_Multiplier (float): The damage multiplier for the last chain attack.
-    Attack_Projectile (string): Indicates whether the attack has a projectile.
-    Projectile_Vel (float): The velocity of the projectile.
-    Projectile_Accuraccy (float): The accuracy of the projectile.
-    Projectiles (int): The number of projectiles.
-    AEffects (AEffects): The additional effects of the attack.
-        Hit_Effects: Effects on hit.
-        Hit_Terrain_Effects: Effects on hitting terrain.
-        Start_Effect: Starting effect.
-        Trigger_Effect: Triggered effect.
-        Trail_Effect: Effect trail.
-        Burst_Effect: Burst effect.
-
-Secondary_Attack
-    Parameters are similar to Primary_Attack.
-
- </details>
-
- Damage (WDamages): The damage values of the item.
- Damage_Per_Level (WDamages): The damage values per level of the item.
-
- Armor: armor doesn't do much on non clothing items
- ArmorPerLevel:
-
- m_foodHealth: health gained from food
- m_foodStamina: stamina gained from food
- m_foodRegen: regen from food tick
- m_foodBurnTime: how long it lasts
- m_FoodEitr: Eitr you get from food
-
- m_movementModifier: equip movement mod, can be neg
- m_EitrRegen: equip eitr regen, extra special stuff
-
- SE_Equip - EffectName: If you want an Item to have an Effect by itself, put the effect name here
- SE_SET_Equip: - Set Effect - All this Should be the same accorss all items that have this set
- SetName: What you call this Set
- Size: how many items share this set
- EffectName: What effect does this give when all items are equipped.
-
- m_blockPower
- m_blockPowerPerLevel
- m_timedBlockBonus: Perfect Parry
- m_deflectionForce
- m_deflectionForcePerLevel
-
-
-    m_maxStackSize (int): The maximum stack size of the item.
-    m_canBeReparied (bool): Indicates whether the item can be repaired.
-    m_destroyBroken (bool): Indicates whether the item gets destroyed when broken.
-    m_dodgeable (bool): Indicates whether the item can be dodged.
-    Attack_status_effect (string): The attack status effect of the item.
-    spawn_on_hit (string): The spawn-on-hit effect of the item.
-    spawn_on_terrain_hit (string): The spawn-on-terrain-hit effect of the item.
-    m_questItem (bool): Indicates whether the item is a quest item.
-    m_teleportable (bool): Indicates whether the item is teleportable.
-    m_backstabbonus (float): The backstab bonus of the item.
-    m_knockback (float): The knockback value of the item.
-    m_useDurability (bool): Indicates whether the item uses durability.
-    m_useDurabilityDrain (float): The durability drain when the item is used.
-    m_durabilityDrain (float): The durability drain of the item.
-    m_maxDurability (float): The maximum durability of the item.
-    m_durabilityPerLevel (float): The durability increase per level of the item.
-    m_equipDuration (float): The equip duration of the item.
-    m_skillType (Skills.SkillType): The skill type of the item.
-    m_animationState (ItemDrop.ItemData.AnimationState): The animation state of the item.
-    m_itemType (ItemDrop.ItemData.ItemType): The item type of the item.
-    m_toolTier (int): The tool tier of the item. What can it break.
-    m_maxQuality (int): The maximum quality of the item.
-    m_value (int): The value of the item. if value is >0. Then the object becomes salable at Trader. 
-        The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
-
-
-
-damageModifiers (List<string>): The list of damage modifiers for the item.
-Damage modifiers etc
-
-The first value is the damage type, the second value is the resistance level.</br>
-Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
- 
-    Normal - no change
-    Resistant - increases Wet status countdown speed by 100%
-    Weak - decreases Wet status countdown speed by 1/3
-    Immune - prevents Wet status effect
-    Ignore - prevents Wet status effect
-    VeryResistant - prevent wet status effect application except when swimming, increases Wet status countdown speed by 100%
-    VeryWeak - decreases Wet status countdown speed by 2/3
-
 
 
 </details>
@@ -642,9 +495,9 @@ reqs: (Required) requirements to build: Item:amount:amountPerLevel:refundable,
 
 </details>
 
-<details><summary> Item Effect Components</summary>
+<details><summary> SE_Effects</summary>
 
-You can delete an Effect or seteffect from item using EffectName : delete 
+
 
 You should be able to delete existing m_mods, by
 </br>m_mods:
