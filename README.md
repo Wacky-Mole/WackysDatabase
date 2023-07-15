@@ -96,10 +96,10 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_help`: Shows a list of commands.
 - `wackydb_clone [recipe/item/piece/creatures] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
 - 
-- <details><summary>optional 4th parameter</summary>
+
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
-</details>
+
 
 - `wackydb_clone_recipeitem [Prefab to clone] [clone name]`: Clones an item and recipe at the same time. The recipe name will be Rname.
 - `wackydb_vfx`: Saves a vfx.txt file with all vfx effects
@@ -660,6 +660,21 @@ Wackymole
 | 2.0.0 | - Release 2.0 <br/>
 
 
+<details><summary>Feedback</summary>
+
+Wacky Git https://github.com/Wacky-Mole/RareMagicPortal
+
+For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus) or my discord at [Wolf Den](https://discord.gg/yPj7xjs3Xf)
+
+Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole
+
+<a href="https://www.buymeacoffee.com/WackyMole" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+<a href='https://ko-fi.com/H2H6LL5GA' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
+<img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
+
+</details> 
 
 
 <details><summary>Credits</summary>
