@@ -23,7 +23,9 @@ Features
 Description
 
 WackysDatabase, or Wackydb, allows you to modify and customize items, pieces, recipes, and effects in Valheim without coding. With this mod, you can clone items, change their colors, create new items, and even translate language. It offers a wide range of possibilities for customization.
-Installation
+
+<details><summary>Installation</summary>
+### Installation
 
     Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins).
     Run Valheim and join a world.
@@ -35,6 +37,7 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
     AzuAntiCheat
     ServerCharacters
 
+</details>
 
 Frequently Asked Questions
 
@@ -71,16 +74,19 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 
 
 
-
 ## Console Commands
+
+You will can reference https://valheim-modding.github.io/Jotunn/data/objects/item-list.html for Prefab names. Thank you JVL team
 
 To use the console commands, press F5 in the game to open the game console. Make sure to enable the console for Valheim by adding "-console" to the launch options.
 
 - `wackydb_reload`: Reloads all the YML files in the wackysDatabase folder.
 - `wackydb_reload_fast`: Fast reload that may cause game stutter.
 - `wackydb_save_recipe [ItemName]`: Saves a recipe YML in the wackysDatabase Recipe folder.
-- `wackydb_save_piece [ItemName]`: Saves a piece YML in the wackysDatabase Piece folder.
+- `wackydb_save_piece [PieceName]`: Saves a piece YML in the wackysDatabase Piece folder.
 - `wackydb_save_item [ItemName]`: Saves an item YML in the wackysDatabase Item folder.
+- `wackydb_save_creature [CreatureName]`: Saves a Creature YML in the wackysDatabase Creature folder.
+- `wackydb_save_material[MaterialName]`: Saves a Material clone YML in the wackysDatabase Material folder. Usually has a _mat at end end. 
 - `wackydb_all_items`: Saves all items in the game into wackyDatabase-BulkYML.
 - `wackydb_all_recipes`: Saves all recipes in the game into wackyDatabase-BulkYML.
 - `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces.
@@ -88,76 +94,34 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_FenringArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
-- `wackydb_clone [recipe/item/piece] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
-- `wackydb_clone_recipeitem [Prefab to clone] [clone name]`: Clones an item and recipe at the same time. The recipe name will be Rname.
-- `wackydb_vfx`: Saves a vfx.txt file with
-
-
-
-- You will need to reference https://valheim-modding.github.io/Jotunn/data/objects/item-list.html for Prefab names. Thank you JVL team
-- While in game press F5 to open the game console then type help for more informations. To enable console for valheim - launch options add "-console"
-
-wackydb_reload  - Primary way to reload all the YML files in wackysDatabase folder.  </br> Can now be done remotely by an admin client
-
-wackydb_reload_fast - No slow reload - will stutter the game
-
-wackydb_save_recipe [ItemName] - saves a Recipe YML in wackysDatabase Recipe Folder
-
-wackydb_save_piece [ItemName] - saves a Piece YML in wackysDatabase Piece Folder
-
-wackydb_save_item [ItemName] - saves a Item YML in wackysDatabase Item Folder
-
-wackydb_all_items - saves all items in game into wackyDatabase-BulkYML
-
-wackydb_all_recipes - saves all recipes in game in wackyDatabase-BulkYML
-
-wackydb_all_pieces [Hammer] [Optionally: Category] - Use 'Hammer' for default, should work with other modded hammers. </br>
-You can optionally set what category to only get like 'Misc' </br>
-- wackydb_all_pieces Hammer Misc
-
-wackydb_se_all - Gets almost all SE_Effects in game, will get modded Effects (be careful) - Will save all into the Effects folder
-
-wackydb_se [effectname] - get a singular effect, will save in Effect folder.
-
-wackydb_se_create - Creates a clone of SetEffect_FenringArmor in Status Folder. You can edit to your liking and it should work.
-You should be able to delete existing m_mods, by
-</br>m_mods:
-</br> -
-
-wackydb_help -- commands
-
-wackydb_clone  [recipe/item/piece] [Prefab to clone] [Unique name for the clone]  - clone an object and change it differently than a base game object. 
-
-- For Example: wackydb_clone item SwordIron WackySword
-
-<details><summary>optional 4th parameter</summary>
+- `wackydb_clone [recipe/item/piece/creatures] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
+- 
+- <details><summary>optional 4th parameter</summary>
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
 </details>
 
-wackydb_clone_recipeitem [Prefab to clone] [clone name](clones item and recipe at same time)( Recipe name will be Rname) - instead of cloning an item and then recipe, do both at once. Saves you the trouble of manually editing recipe name and prefab.
+- `wackydb_clone_recipeitem [Prefab to clone] [clone name]`: Clones an item and recipe at the same time. The recipe name will be Rname.
+- `wackydb_vfx`: Saves a vfx.txt file with all vfx effects
+- `wackydb_sfx`: Saves a sfx.txt file with all sfx effects
+- `wackydb_fx`: Saves a fx.txt file with all fx effects
+- `wackydb_help`: command list
+- `wackydb_describe[ObjectName]`: Saves describe of an object, so you have an idea of the structure of the object for materials and customVisuals
 
-wackydb_vfx - saves a vfx.txt file with all vfx effects of base game
 
-wackydb_sfx - saves a sfx.txt file with all sfx effects of base game
-
-wackydb_fx - saves a FX.txt file with all FX effects of base game
-
-wackydb_material - saves a Materials.txt file in wackysDatabase for the different types of materials in the base game.
-
-</details>
-
-<details><summary> YML Knowledge</summary>
-
-YML is easier to edit and change without getting confused on the syntac. 
-
-You can use https://www.yamllint.com/ to validate any yml code
-
-Almost every componet of items/pieces/recipes/effects can be deleted.
-
-Some components are multilined where you can actually add your own stuff the ymls.
 
 </details>
+
+YML Knowledge
+
+    YML is easier to edit and change without getting confused on the syntac. 
+
+    You can use https://www.yamllint.com/ to validate any yml code
+
+    Almost every component of items/pieces/recipes/effects/creatures can be deleted.
+
+    Some components are multilined where you can actually add your own stuff the ymls.
+
 
 <details><summary><b> Item components</b></summary>
 
@@ -493,6 +457,20 @@ Quality is a requirement of what quality of item you need to be able to use this
 
 </details>
 
+<details><summary> Creatures</summary>
+
+
+## CreatureData
+
+- `name` (string, required): The name of the creature.
+- `mob_display_name` (string, required): The display name of the creature in game.
+- `custom_material` (string): The custom material for the creature.
+- `clone_creature` (string): The name of the creature to clone.
+- `creature_replacer` (string): The creature replacer. This will replace this creature with the one named here. All spawns will be replaced with this creature. 
+
+
+</details>
+
 <details><summary> SE_Effects</summary>
 
 ### Properties
@@ -564,22 +542,6 @@ You should be able to delete existing m_mods, by
 </br> -
 
 Use wackydb_se_create as a "template" to create a new status effect
-
-
-
-
-</details>
-
-<details><summary> Creatures</summary>
-
-
-## CreatureData
-
-- `name` (string, required): The name of the creature.
-- `mob_display_name` (string, required): The display name of the creature in game.
-- `custom_material` (string): The custom material for the creature.
-- `clone_creature` (string): The name of the creature to clone.
-- `creature_replacer` (string): The creature replacer. This will replace this creature with the one named here. All spawns will be replaced with this creature. 
 
 
 </details>
@@ -661,7 +623,7 @@ This mod should load last. It needs to so it can touch all other mods.
 
 > You can make changes to that OP bow and make it more realistic on damage or build requirements. Or even set a build piece to adminonly.
 
-> clone the Item and change the material to make it a more appealing color. 
+> Clone the Item and change the material to make it a more appealing color. 
 
 Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. 
 
@@ -703,13 +665,13 @@ Wackymole
 <details><summary>Credits</summary>
 
 Credits:
-aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
+Aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
 Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
 Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
 Thank you to Azumatt and the Odin team. </br>
-Special Thank you to @KG for Mock System </br>
+Special thank you to @KG for Mock System </br>
 A Huge thank you to Rexabit and his Visual Modifier https://github.com/Rexabit/valheim-visuals-modifier
-Azumatt for Status Editor contributions. 
-Do whatever you want with this mod.</br>
+</br>Azumatt for Status Editor contributions. </br>
+Do whatever you want with this mod.
 </details>
