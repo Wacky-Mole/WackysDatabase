@@ -188,7 +188,9 @@ Some components are multilined where you can actually add your own stuff the yml
 - `customIcon` (string): The custom icon for the item. PNG 64x64, Must be in the ICON folder, NOT SYNCED
 - `material` (string): The material of the item.
 - `customVisual` (CustomVisual): The custom visual data of the item.
-- ### CustomVisual
+- `sizeMultiplier` (float): The size multiplier of the item. You can go from .01 to 1000.5 if you want. Have fun!
+- `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
+### CustomVisual
 
 - `base_mat` (string): The base material of the custom visual.
 - `chest` (string): The chest visual.
@@ -196,10 +198,7 @@ Some components are multilined where you can actually add your own stuff the yml
 - `realtime` (string): The realtime visual.
 
 
-
-- `sizeMultiplier` (float): The size multiplier of the item. You can go from .01 to 1000.5 if you want. Have fun!
-- `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
-- `Primary_Attack` (AttackArm): The primary attack data.
+`Primary_Attack` (AttackArm): The primary attack data.
 ### Primary Attack
 
 - `AttackType` (Attack.AttackType): The type of attack.
@@ -257,7 +256,7 @@ Some components are multilined where you can actually add your own stuff the yml
 
 - `Damage` (WDamages): The damage values of the item.
 - `Damage_Per_Level` (WDamages): The damage values per level of the item.
-- ###  WDamages
+###  WDamages
 
 - `Blunt` (float): The blunt damage value.
 - `Chop` (float): The chop damage value.
@@ -270,7 +269,6 @@ Some components are multilined where you can actually add your own stuff the yml
 - `Poison` (float): The poison damage value.
 - `Slash` (float): The slash damage value.
 - `Spirit` (float): The spirit damage value.
-
 
 - `Armor` (ArmorData): The armor data of the item.
 ### ArmorData
@@ -287,7 +285,7 @@ Some components are multilined where you can actually add your own stuff the yml
 - `m_FoodEitr` (float): The eitr provided by the food.
 
 - `Moddifiers` (StatMods): The stat modifiers of the item.
-- ### StatMods
+### StatMods
 - `m_movementModifier` (float): The movement modifier.
 - `m_EitrRegen` (float): The eitr regeneration modifier.
 
