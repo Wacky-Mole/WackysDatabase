@@ -97,6 +97,8 @@ ExtraSecurity on Servers = true // - You cannot load into singleplayer and then 
 
 FileWatcher for YMLs = true // wackydb_reloads on any changes to the wackydatabase folder on the server
 
+List of Extra Effects, "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
+
 </details>
 
 <details><summary> Console Commands</summary>
@@ -204,7 +206,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `Attack_Random_Animation` (int): The random animation for the attack.
 - `Chain_Attacks` (int): The number of chain attacks.
 - `Hit_Terrain` (bool): Indicates whether the attack can hit terrain.
-- `Custom_AttackSpeed` (float): The custom attack speed.
+- `Custom_AttackSpeed` (float): This mod keeps track of this adjustment 1.0 is normal speed. 2.0 is twice as fast. This will override Wackymmo speeds. Should be compatible with most other mods that increase speed.
 - `m_attackStamina` (float): The stamina cost of the attack.
 - `m_eitrCost` (float): The eitr cost of the attack.
 - `AttackHealthCost` (float): The health cost of the attack.
@@ -369,99 +371,108 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 
 <img src="https://wackymole.com/hosts/red%20walls.png" width="450"/>
 
-Most of these components can be deleted if you don't need them
 
-name: Database name, must be unique per hammer (Required)
+### Pieces
 
-piecehammer: hammer that the piece is located in - Default Hammer (Required)
-
-m_name: in game name
-
-sizeMultiplier: Probably the coolest feature, make a whole world of giant pieces or very small pieces. Float any number range .05 to 100000
-
-m_description: in game:
-
-customIcon: You can set a custom icon for this piece, use a PNG or Jpeg 64 x 64 px. Icon needs to be in the Icon folder ( doesn't server sync)
-
-clonePrefabName: name of the piece you would like to clone (Required if clone)
-
-material:
-
-damagedMaterial: material change of damaged (50% piece)
-
-craftingStation: What craftingstation needs to be near you to build the piece. Default: $piece_workbench
-
-piecehammerCategory: You can change this, but things will be wonky if you add or remove any mods (maybe in future will fix)
-
-minStationLevel: Min crafting station for construction, you could require a lvl 4 forge for example for Portals
-
-amount: Probably best if you don't change this
-
-disabled: disable this piece for everyone, (Can't build new ones)
-
-adminonly: enable this piece only for admins, automically disables for everyone else, 
-
-comfort:
-    confort: amount
-    ComfortGroup: like a category
-    comfortObject:
-
-
-groundPiece: idk
-ground: idk
-waterPiece: idk
-noInWater: cannot be place in water
-notOnFloor: not inside on wood floor
-onlyinTeleportArea: not sure how big a teleport area is, I think those rock formations are teleport zone, could be fun for an advanced Portal
-allowedInDungeons: use wisely
-canBeRemoved: Infinity Hammer go burrr
-wearNTearData:
-    health: 0 or very high health makes stuff invincible due to rounding
-    noRoofWear- no weather wear for roof stuff
-    noSupportWear- idk
-    supports:
-    triggerPrivateArea- can't attack this thing inside bubble
-
-craftingStationData:
-    CraftingStationName: too risky to touch, removed
-    cStationCustomIcon: You can set a custom icon for this piece, use a PNG or Jpeg 64 x 64 px. Icon needs to be in the Icon folder ( doesn't server sync)
-    discoveryRange: range that you discovery the piece for the first time
-    buildRange: how far build radius goes
-    craftRequiresRoof:
-    craftRequiresFire: cooking stations,
-    showBasicRecipes: idk
-    useDistance: how far away you can be while interacting
-    useAnimation:
-
-cSExtensionData: pieces that upgrade craftstations levels
-    MainCraftingStationName: Should be craftingstation name
-    maxStationDistance:
-    continousConnection: animation of dots
-    stack: idk
-
-smelterData:
-    smelterName:
-    addOreTooltip: 
-    emptyOreTooltip:
-    fuelItem: You can change the fuel used to power your furance or whatever
-    maxOre: capacity of ore
-    maxFuel: capacity of fuel
-    fuelPerProduct: how much fuel per product
-    secPerProduct: seconds it takes
-    spawnStack: Spawn stack on completion
-    requiresRoof: 
-    addOreAnimationLength:
-    smelterConversion: You can edit/delete or add conversions here, which in my opionion is realllly cool
-
+- `name` (string, required): The name of the piece.
+- `piecehammer` (string, required): The piece hammer required to build the piece.
+- `m_name` (string): The In Game Piece Name
+- `sizeMultiplier` (float): The size multiplier of the piece. Any float range 1.0 is normal size, 2.0 is v^3
+- `m_description` (string): The description of the piece.
+- `customIcon` (string): The custom icon for the piece. PNG or JPEG, 64 x 64, Must be in Icon Folder (Icons do not Synced)
+- `clonePrefabName` (string): The name of the prefab to clone.
+- `material` (string):  Visit Material Section and Custom Visual Section
+- `damagedMaterial` (string): The material of the piece when damaged.
+- `craftingStation` (string): The crafting station required to craft the piece.
+- `piecehammerCategory` (string): The category of the piece hammer.
+- `minStationLevel` (int): The minimum level of the crafting station required.
+- `amount` (int): The amount of the piece.
+- `disabled` (bool): Indicates whether the piece is disabled.
+- `adminonly` (bool): Indicates whether the piece is admin-only.
+- `comfort` (ComfortData): The comfort data of the piece.
+- `groundPiece` (bool): Indicates whether the piece is a ground piece.
+- `ground` (bool): Indicates whether the piece can be placed on the ground.
+- `waterPiece` (bool): Indicates whether the piece is a water piece.
+- `noInWater` (bool): Indicates whether the piece cannot be placed in water.
+- `notOnFloor` (bool): Indicates whether the piece cannot be placed on the floor.
+- `onlyinTeleportArea` (bool): Indicates whether the piece can only be placed in teleport areas. Stone Groups making a Circle
+- `allowedInDungeons` (bool): Indicates whether the piece is allowed in dungeons.
+- `canBeRemoved` (bool): Indicates whether the piece can be removed.
+- `wearNTearData` (WearNTearData): The wear and tear data of the piece.
+- `craftingStationData` (CraftingStationData): The crafting station data of the piece.
+- `cSExtensionData` (CSExtensionData): The crafting station extension data of the piece.
+- `contData` (ContainerData): The container data of the piece.
+- `smelterData` (SmelterData): The smelter data of the piece.
+- `build` (List<string>): The list of requirement items for the piece.
 
 build: requirements to build: Item:amount:amountPerLevel:refundable,
 
+### ComfortData
 
-Put this somewhere
-cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. 
-- Use wackydb_material to view a list of materials. Probably up to a 1/3 don't work or make the object invisible. "material1,material2" (full,half health)(no spaces)
-- Otherwise "material1", one material results in material being pasted for both full health and half-health. "same_mat" or "no_wear" sets pieces to have no wear material. 
-- Should work for any piece at full health, some pieces change textures and models at 3/4 and 1/2 health, this won't stop them from changing. Maybe in future.
+- `comfort` (int): The comfort value of the piece.
+- `comfortGroup` (Piece.ComfortGroup): The comfort group of the piece.
+- `comfortObject` (GameObject): The comfort object of the piece.
+
+### WearNTearData
+
+- `health` (float): The health of the piece.
+- `damageModifiers` (HitData.DamageModifiers): The damage modifiers for wear and tear.
+- `noRoofWear` (bool): Indicates whether the piece does not wear when under a roof.
+- `noSupportWear` (bool): Indicates whether the piece does not wear when supported.
+- `supports` (bool): Indicates whether the piece provides support.
+- `triggerPrivateArea` (bool): Indicates whether the piece triggers the private area.
+
+### CraftingStationData
+
+- `cStationCustomIcon` (string): The custom icon for the crafting station. May remove - Not really useful
+- `discoveryRange` (float): The discovery range of the crafting station. Range that you discovery the piece for the first time
+- `buildRange` (float): The build range of the crafting station.
+- `craftRequiresRoof` (bool): Indicates whether crafting at the station requires a roof.
+- `craftRequiresFire` (bool): Indicates whether crafting at the station requires a fire.
+- `showBasicRecipes` (bool): Indicates whether to show basic recipes at the station.
+- `useDistance` (float): The use distance of the station.
+- `useAnimation` (int): The animation to use for station usage.
+
+### CSExtensionData
+
+- `MainCraftingStationName` (string): The name of the main crafting station.
+- `maxStationDistance` (float): The maximum distance for the extension to connect to the main station.
+- `continousConnection` (bool): Indicates whether the extension provides continuous connection.
+- `stack` (bool): Indicates whether the extension can stack.
+
+###  ContainerData
+
+- `Width` (int): The width of the container.
+- `Height` (int): The height of the container.
+- `CheckWard` (bool): Indicates whether the container checks for ward placement.
+- `AutoDestoryIfEmpty` (bool): Indicates whether the container auto-destroys if empty.
+
+### SmelterData
+
+
+- `smelterName` (string): The name of the smelter.
+- `addOreTooltip` (string): The tooltip for adding ore to the smelter.
+- `emptyOreTooltip` (string): The tooltip for emptying ore from the smelter.
+- `fuelItem` (fuelItemData): The fuel item for the smelter.
+- `maxOre` (int): The maximum ore capacity of the smelter.
+- `maxFuel` (int): The maximum fuel capacity of the smelter.
+- `fuelPerProduct` (int): The amount of fuel required per product.
+- `secPerProduct` (float): The time taken per product.
+- `spawnStack` (bool): Indicates whether the smelter spawns stacked products.
+- `requiresRoof` (bool): Indicates whether the smelter requires a roof.
+- `addOreAnimationLength` (float): The length of the animation for adding ore.
+- `smelterConversion` (List<SmelterConversionList>): The list of smelter conversions.
+
+### fuelItemData
+
+- `name` (string): The name of the fuel item.
+
+### SmelterConversionList
+
+- `FromName` (string): The name of the item to convert from.
+- `ToName` (string): The name of the item to convert to.
+
+Delete all by using "-"
 
 </details>
 
@@ -470,33 +481,92 @@ cloneMaterial: You can change the material(colorish) of any (1.2.4) object. Imag
 
 <img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
 
-name: (Required must be Unique)
 
-clonePrefabName: (Required if clone)
+## Recipes
 
-craftingStation: "" is hand crafted
+- `name` (string, required): The name of the recipe.
+- `clonePrefabName` (string): The name of the prefab to clone.
+- `craftingStation` (string): The crafting station required to craft the recipe. "" is hand crafted
+- `minStationLevel` (int): The minimum level of the crafting station required.
+- `maxStationLevelCap` (int): The maximum level cap of the crafting station.
+- `repairStation` (string): The repair station required to repair the recipe.
+- `amount` (int): The amount of the recipe.
+- `disabled` (bool): Indicates whether the recipe is disabled.
+- `requireOnlyOneIngredient` (bool): Indicates whether the recipe requires only one ingredient.
+- `reqs` (List<string>, required): The list of required ingredients for the recipe.
+- 
+(Required) requirements to build: Item:amount:amountPerLevel:refundable:quality,
 
-minStationLevel: minstation required
-
-maxStationLevelCap: Caps the station level to stop it from going outside possiblity: not working
-
-repairStation: Where you can repair piece, people should be careful with this one
-
-amount: obvious
-
-disabled: disables recipe for everyone
-
-requireOnlyOneIngredient: Any ingredient listed in reqs can make this recipe, for an example look at FishRaw.
-
-reqs: (Required) requirements to build: Item:amount:amountPerLevel:refundable,
-
-    Arrows x50 will be put above Arrow x20
+Quality is a requirement of what quality of item you need to be able to use this recipe.  Like a 2* Bronze Sword to upgrade to 3*
+ </br>Arrows x50 will be put above Arrow x20
 
 
 </details>
 
 <details><summary> SE_Effects</summary>
 
+### Properties
+
+- `Name` (string): The name of the status effect.
+- `Status_m_name` (string): In Game Name
+- `Category` (string): The category of the status effect.
+- `IconName` (string): The name of the icon for the status effect.
+- `CustomIcon` (string): The custom icon for the status effect. customIcon, jpeg or png. ie wacky.png 64 x 64
+- `FlashIcon` (bool): Indicates whether the icon should flash.
+- `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
+- `Tooltip` (string): The tooltip for the status effect.
+- `Attributes` (StatusEffect.StatusAttribute): The attributes of the status effect.
+- `StartMessageLoc` (MessageHud.MessageType): The localization message type for the start message.
+- `StartMessage` (string): The start message of the status effect.
+- `StopMessageLoc` (MessageHud.MessageType): The localization message type for the stop message.
+- `StopMessage` (string): The stop message of the status effect.
+- `RepeatMessageLoc` (MessageHud.MessageType): The localization message type for the repeat message.
+- `RepeatMessage` (string): The repeat message of the status effect.
+- `RepeatInterval` (float): The repeat interval of the status effect.
+- `TimeToLive` (float): The time to live of the status effect.
+- `StartEffect` (List<string>): The list of start effects for the status effect.
+- `StopEffect` (List<string>): The list of stop effects for the status effect.
+- `Cooldown` (float): The cooldown of the status effect.
+- `ActivationAnimation` (string): The animation for the activation of the status effect.
+- `SeData` (SEdata): The additional data for the status effect.
+
+### Class: SEdata
+
+- `m_tickInterval` (float): The tick interval for the status effect.
+- `m_healthPerTickMinHealthPercentage` (float): The minimum health percentage per tick.
+- `m_healthPerTick` (float): The health per tick.
+- `m_healthOverTime` (float): The health over time value.
+- `m_healthOverTimeDuration` (float): The duration of health over time.
+- `m_healthOverTimeInterval` (float): The time interval for health over time.
+- `m_staminaOverTime` (float): The stamina over time value.
+- `m_staminaOverTimeDuration` (float): The duration of stamina over time.
+- `m_staminaDrainPerSec` (float): The stamina drain per second.
+- `m_runStaminaDrainModifier` (float): The stamina drain modifier for running.
+- `m_jumpStaminaUseModifier` (float): The stamina use modifier for jumping.
+- `m_eitrOverTime` (float): The eitr over time value.
+- `m_eitrOverTimeDuration` (float): The duration of eitr over time.
+- `m_healthRegenMultiplier` (float): The health regeneration multiplier.
+- `m_staminaRegenMultiplier` (float): The stamina regeneration multiplier.
+- `m_eitrRegenMultiplier` (float): The eitr regeneration multiplier.
+- `m_raiseSkill` (Skills.SkillType): The skill type to raise.
+- `m_raiseSkillModifier` (float): The skill modifier to raise.
+- `m_skillLevel` (Skills.SkillType): The skill type to modify the level.
+- `m_skillLevelModifier` (float): The skill level modifier.
+- `m_skillLevel2` (Skills.SkillType): Another skill type to modify the level.
+- `m_skillLevelModifier2` (float): Another skill level modifier.
+- `m_mods` (List<HitData.DamageModPair>): The list of damage modifiers for hit.
+- `m_modifyAttackSkill` (Skills.SkillType): The skill type to modify the attack.
+- `m_damageModifier` (float): The damage modifier for the attack.
+- `m_noiseModifier` (float): The noise modifier for sneaking.
+- `m_stealthModifier` (float): The stealth modifier for sneaking.
+- `m_addMaxCarryWeight` (float): The additional maximum carry weight.
+- `m_speedModifier` (float): The speed modifier.
+- `m_maxMaxFallSpeed` (float): The maximum maximum fall speed.
+- `m_fallDamageModifier` (float): The fall damage modifier.
+- `m_tickTimer` (float): The tick timer.
+- `m_healthOverTimeTimer` (float): The health over time timer.
+- `m_healthOverTimeTicks` (float): The health over time ticks.
+- `m_healthOverTimeTickHP` (float): The health over time tick health points.
 
 
 You should be able to delete existing m_mods, by
@@ -505,7 +575,21 @@ You should be able to delete existing m_mods, by
 
 Use wackydb_se_create as a "template" to create a new status effect
 
-customIcon, jpeg or png. ie wacky.png 64 x 64
+
+
+
+</details>
+
+<details><summary> Creatures</summary>
+
+
+## CreatureData
+
+- `name` (string, required): The name of the creature.
+- `mob_display_name` (string, required): The display name of the creature in game.
+- `custom_material` (string): The custom material for the creature.
+- `clone_creature` (string): The name of the creature to clone.
+- `creature_replacer` (string): The creature replacer. This will replace this creature with the one named here. All spawns will be replaced with this creature. 
 
 
 </details>
