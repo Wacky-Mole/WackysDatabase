@@ -16,8 +16,8 @@ using wackydatabase.Util;
 using wackydatabase.GetData;
 using wackydatabase.Startup;
 using wackydatabase.SetData;
-
-
+using UnityEngine.UI;
+using System.Runtime.CompilerServices;
 
 namespace wackydatabase.PatchClasses
 {
@@ -64,6 +64,119 @@ namespace wackydatabase.PatchClasses
                 }
             }
             return true;
+        }
+
+    }
+
+    [HarmonyPatch(typeof(InventoryGui), "SetupRequirement")]
+    static class HideQuality
+    {
+        private static void Prefix(Transform elementRoot)
+        {
+            Transform component5 = elementRoot.transform.Find("res_quality");
+            if (component5 != null)
+            {
+                component5.GetComponent<Text>().gameObject.SetActive(value: false);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(InventoryGui), "SetupRequirement")]
+    static class ApplyQuality
+    {
+
+        public static Transform root;
+        public static Piece.Requirement reqh;
+        public static Player playerh;
+        public static int qualhold;
+        public static InventoryGui instance;
+        private static bool Prefix(Transform elementRoot, Piece.Requirement req, Player player, bool craft, int quality)
+        {
+            root = elementRoot;
+            reqh = req;
+            playerh = player;
+            qualhold = quality;
+            return true;
+        }
+
+        private static void Postfix( bool __result)
+        {
+            GameObject component5 = null;
+            Transform component5T = root.transform.Find("res_quality");
+            if (component5T == null)
+            {
+                Transform component3Parent = root.transform.Find("res_amount");
+                Text component3 = component3Parent.GetComponent<Text>();
+                component5 = GameObject.Instantiate(component3Parent.gameObject, root);// quality
+                component5.name = "res_quality";
+                component5.GetComponent<RectTransform>().localPosition = new Vector2(0, 0);
+                component5.GetComponent<Text>().text = "☆1";
+                component5.GetComponent<Text>().font = component3.font;
+
+            }
+            else
+                component5 = component5T.gameObject;
+
+            InventoryGui __instance = InventoryGui.m_instance;
+            
+
+            if (reqh.m_resItem != null && __result && WMRecipeCust.QualityRecipeReq.ContainsKey(__instance.m_selectedRecipe.Key.name))
+            {
+                //WMRecipeCust.WLog.LogInfo("Hello " + __instance.m_selectedRecipe.Key);
+                Dictionary<ItemDrop,int> testme = WMRecipeCust.QualityRecipeReq[__instance.m_selectedRecipe.Key.name];
+                if (!testme.ContainsKey(reqh.m_resItem))
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (__instance.m_recipeRequirementList[i].transform.Find("res_quality") && !__instance.m_recipeRequirementList[i].transform.Find("res_amount").gameObject.activeSelf)
+                        {
+                            component5 = __instance.m_recipeRequirementList[i].transform.Find("res_quality").gameObject;
+                            component5.SetActive(false);
+                        }
+                    }
+                    return;
+                }
+                var qual = testme[reqh.m_resItem];
+                if (qual == 1 )
+                {
+                    component5.SetActive(false);
+                    return;
+                }
+                int num = 0;
+                int amount = reqh.GetAmount(qualhold);
+                if (amount <= 0)
+                {
+                    InventoryGui.HideRequirement(root);
+                    return;
+                }
+                component5.SetActive(true);
+                component5.GetComponent<Text>().text = "☆" + qual;
+                foreach (var slot in playerh.m_inventory.m_inventory)
+                {
+                    if (slot.m_shared.m_name == reqh.m_resItem.m_itemData.m_shared.m_name && slot.m_quality == qual)
+                    {
+                        num++;
+                    }
+                }
+                if (num < amount)
+                {
+                    component5.GetComponent<Text>().color = ((Mathf.Sin(Time.time * 10f) > 0f) ? Color.red : Color.white);
+                }else
+                {
+                    component5.GetComponent<Text>().color = Color.white;
+                }
+            } else
+            {
+                for (int i = 0; i< 4; i++)
+                {
+                    if (__instance.m_recipeRequirementList[i].transform.Find("res_quality") && !__instance.m_recipeRequirementList[i].transform.Find("res_amount").gameObject.activeSelf)
+                    {
+                        component5 = __instance.m_recipeRequirementList[i].transform.Find("res_quality").gameObject;
+                        component5.SetActive(false);
+                    }
+                }
+                
+            }
         }
 
     }
@@ -123,7 +236,7 @@ namespace wackydatabase.PatchClasses
             */
         }
     }
-    /*
+    
     [HarmonyPatch(typeof(Player), "HaveRequirementItems")]
 
     static class HaveRecipeQuality
@@ -136,26 +249,27 @@ namespace wackydatabase.PatchClasses
             piecehold = piece;
             discoverhold = discover;
             qualityLevelhold = qualityLevel;
+            //WMRecipeCust.WLog.LogInfo("have item check " + piece.name + " " + piece.m_resources);
             return true;
         }
-            private static void Postfix( Player __instance, ref bool __result)
+        private static void Postfix( Player __instance, ref bool __result)
         {
+            // WMRecipeCust.WLog.LogInfo(__result);
             if (__result && WMRecipeCust.QualityRecipeReq.ContainsKey(piecehold.name) && discoverhold)
             {
-                
                 foreach (var rec in WMRecipeCust.QualityRecipeReq[piecehold.name])
                 {
                     if (rec.Value == 1) // don't look for default quality
                         continue;
 
-                   var found = false;
-                   foreach(var slot in __instance.m_inventory.m_inventory)
+                    var found = false;
+                    foreach (var slot in __instance.m_inventory.m_inventory)
                     {
                         if (slot.m_shared.m_name == rec.Key.m_itemData.m_shared.m_name && slot.m_quality == rec.Value)
                         {
                             found = true;
-                           // found do nothing
-                        } 
+                            // found do nothing
+                        }
                     }
                     if (!found)
                     {
@@ -164,10 +278,38 @@ namespace wackydatabase.PatchClasses
                     }
 
                 }
-            } 
+            }
+            /*
+            else if (__result && WMRecipeCust.QualityRecipeReq.ContainsKey(piecehold.name) && !discoverhold)
+            {
+                var foundall = false;
+                foreach (var rec in WMRecipeCust.QualityRecipeReq[piecehold.name])
+                {
+                    if (rec.Value == 1) // don't look for default quality
+                        continue;
+
+                    var found = false;
+                    foreach (var slot in __instance.m_inventory.m_inventory)
+                    {
+                        if (slot.m_shared.m_name == rec.Key.m_itemData.m_shared.m_name && slot.m_quality == rec.Value)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        __result = false;
+                        return;
+                    }
+                }
+            }
+            */
+            
+            
         }
     }
-    */
+    
 
     [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
 
