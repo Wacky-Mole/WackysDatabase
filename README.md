@@ -453,7 +453,10 @@ Delete all by using "-"
 - 
 (Required) requirements to build: Item:amount:amountPerLevel:refundable:quality,
 
-Quality is a requirement of what quality of item you need to be able to use this recipe.  Like a 2* Bronze Sword to upgrade to 3*
+Quality is a requirement of what quality of item you need to be able to use this recipe.  Like a 2* Bronze Sword to upgrade to Bronze Sword Superd *1
+
+<img src="https://wackymole.com/hosts/qualityrecipe.png" width="700"/>
+
  </br>Arrows x50 will be put above Arrow x20
 
 
