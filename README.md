@@ -82,7 +82,7 @@ You will can reference https://valheim-modding.github.io/Jotunn/data/objects/ite
 
 To use the console commands, press F5 in the game to open the game console. Make sure to enable the console for Valheim by adding "-console" to the launch options.
 
-- `wackydb_reload`: Reloads all the YML files in the wackysDatabase folder.
+- `wackydb_reload`: Reloads all the YML files in the wackysDatabase folder. : This now works for admins on server now. So you could turn off Filewatcher and just do a manual reload on your client and forces all clients to reload. 
 - `wackydb_reload_fast`: Fast reload that may cause game stutter.
 - `wackydb_save_recipe [ItemName]`: Saves a recipe YML in the wackysDatabase Recipe folder.
 - `wackydb_save_piece [PieceName]`: Saves a piece YML in the wackysDatabase Piece folder.
@@ -91,17 +91,15 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_save_material[MaterialName]`: Saves a Material clone YML in the wackysDatabase Material folder. Usually has a _mat at end end. 
 - `wackydb_all_items`: Saves all items in the game into wackyDatabase-BulkYML.
 - `wackydb_all_recipes`: Saves all recipes in the game into wackyDatabase-BulkYML.
-- `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces.
+- `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
 - `wackydb_se_all`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_FenringArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
 - `wackydb_clone [recipe/item/piece/creatures] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
-- 
 
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
-
 
 - `wackydb_clone_recipeitem [Prefab to clone] [clone name]`: Clones an item and recipe at the same time. The recipe name will be Rname.
 - `wackydb_vfx`: Saves a vfx.txt file with all vfx effects
@@ -109,7 +107,9 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_fx`: Saves a fx.txt file with all fx effects
 - `wackydb_help`: command list
 - `wackydb_describe[ObjectName]`: Saves describe of an object, so you have an idea of the structure of the object for materials and customVisuals
-
+- `wackydb_sendtheload` : Experiemental command that will send pngs and objs to clients utilizing ServerSync. I recommend the Network mod to uncap datarates. 
+- `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
+- `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
 
 
 </details>
@@ -475,7 +475,7 @@ Quality is a requirement of what quality of item you need to be able to use this
 
 <details><summary> SE_Effects</summary>
 
-### Properties
+### SE_Effects
 
 - `Name` (string): The name of the status effect.
 - `Status_m_name` (string): In Game Name
@@ -544,6 +544,26 @@ You should be able to delete existing m_mods, by
 </br> -
 
 Use wackydb_se_create as a "template" to create a new status effect
+
+
+</details>
+
+<details><summary> MOCK System </summary>
+
+![Bike Model Import ](https://wackymole.com/hosts/bike.png)
+
+All Credits to @KG for making this incredible system.
+
+In Wackydatabase folder is the Object Folder
+
+Objects can only be items that you can pickup/trade for the moment, but mocks are limitless in the possibilities of what you can add.
+
+Pick an object like bike.obj and bike_albedo.png and put into Object folder.  It should load up the new Gameobject at the start. You can then wackydb_save_item to customize and/or make recipe. 
+
+The object folder matches based on the preceding name so bike_ matches to bike
+
+It looks for pngs   "_albedo" "_metallic" "_normal";
+
 
 
 </details>

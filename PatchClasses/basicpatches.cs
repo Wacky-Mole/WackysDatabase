@@ -236,8 +236,68 @@ namespace wackydatabase.PatchClasses
             */
         }
     }
-    
-    [HarmonyPatch(typeof(Player), "HaveRequirementItems")]
+
+  [HarmonyPatch(typeof(Player), "ConsumeResources")]
+
+    static class ConsumeAdjustmentLevel
+    {
+        private static bool Prefix(Player __instance, Piece.Requirement[] requirements, int qualityLevel, int itemQuality = -1  )
+        {
+            InventoryGui instance = InventoryGui.m_instance;
+            
+            if ( WMRecipeCust.QualityRecipeReq.ContainsKey(instance.m_selectedRecipe.Key.name))
+            {
+                Dictionary<ItemDrop, int> searchme = WMRecipeCust.QualityRecipeReq[instance.m_selectedRecipe.Key.name];
+
+                foreach (Piece.Requirement requirement in requirements)
+                {
+                    if (!searchme.ContainsKey(requirement.m_resItem))
+                    {
+                        if (searchme[requirement.m_resItem] != 1)
+                        {
+                            if ((bool)requirement.m_resItem)
+                            {
+                                int amount = requirement.GetAmount(qualityLevel);
+                                if (amount > 0)
+                                {
+                                    __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, searchme[requirement.m_resItem]);
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            if ((bool)requirement.m_resItem)
+                            {
+                                int amount = requirement.GetAmount(qualityLevel);
+                                if (amount > 0)
+                                {
+                                    __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, itemQuality);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                        if ((bool)requirement.m_resItem)
+                        {
+                            int amount = requirement.GetAmount(qualityLevel);
+                            if (amount > 0)
+                            {
+                                __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, itemQuality);
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+            return true;
+        }
+    }
+
+
+   [HarmonyPatch(typeof(Player), "HaveRequirementItems")]
 
     static class HaveRecipeQuality
     {
@@ -277,10 +337,11 @@ namespace wackydatabase.PatchClasses
                         return;
                     }
 
-                }
+                } 
+                return;
             }
-            /*
-            else if (__result && WMRecipeCust.QualityRecipeReq.ContainsKey(piecehold.name) && !discoverhold)
+            
+            else if (__result && InventoryGui.m_instance.m_selectedRecipe.Key == piecehold && WMRecipeCust.QualityRecipeReq.ContainsKey(piecehold.name) && !discoverhold)
             {
                 var foundall = false;
                 foreach (var rec in WMRecipeCust.QualityRecipeReq[piecehold.name])
@@ -303,9 +364,7 @@ namespace wackydatabase.PatchClasses
                         return;
                     }
                 }
-            }
-            */
-            
+            }                
             
         }
     }

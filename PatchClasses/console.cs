@@ -107,17 +107,29 @@ namespace wackydatabase.PatchClasses
                 new("wackydb", "Display Help ",
                     args =>
                     {
-                        string output = $"wackydb_reload\r\n"
+                        string output = $"wackydb_reload -reloads on client or server\r\n" 
                         // + $"wackydb_reset \r\n"
                         + $"wackydb_save_recipe  [RecipeName](recipe output)\r\n"
                         + $"wackydb_save_piece [PieceName](piece output) \r\n"
                         + $"wackydb_save_item [ItemName](item Output)\r\n"
+                        + $"wackydb_save_creature [CreatureName](Creature Output)\r\n"
+                        + $"wackydb_save_material [MaterialName] Save Material Info - Usually has _mat\r\n"
+                        + $"wackydb_se [SEEffectName] Save SEeffect\r\n"
                         + $"wackydb_help\r\n"
-                        + $"wackydb_clone  [item/recipe/piece] [Prefab to clone] [Unique name for the clone] \r\n"
+                        + $"wackydb_clone  [item/recipe/piece/creatures] [Prefab to clone] [Unique name for the clone] \r\n"
                         + $"4th paramater for recipes - you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit\r\n"
                         + $"wackydb_clone_recipeitem  [Prefab to clone] [Unique name for the clone](Recipe name will be Rname) (clones item and recipe at same time)\r\n"
-                        + $"wackydb_vfx (outputs future Vfx gameobjects available)\r\n"
+                        + $"wackydb_vfx (outputs vfx gameobjects available)\r\n"
+                        + $"wackydb_fx (outputs fx gameobjects available)\r\n"
+                        + $"wackydb_sfx (outputs Sfx gameobjects available)\r\n"
                         + $"wackydb_material (outputs Materials available)\r\n"
+                        + $"wackydb_sendtheload -experimental\r\n"
+                        + $"wackydb_get_piecehammers -Get All Hammer in Game\r\n"
+                        + $"wackydb_all_se -Save All SE Effects to Bulk Folder\r\n"
+                        + $"wackydb_all_items -Save ALL Items to Bulk Folder\r\n"
+                        + $"wackydb_all_recipes -Save all Recipes to Bulk Folder\r\n"
+                        + $"wackydb_all_pieces [Hammer][Optional-Category]-Save all Pieces to Bulk Folder: default hammer, optionally by category\r\n"
+                        + $"wackydb_describe [ObjectName] Describe an Objects Visual Data\r\n"
 
                         ;
 
