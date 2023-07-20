@@ -24,6 +24,17 @@ Description
 
 WackysDatabase, or Wackydb, allows you to modify and customize items, pieces, recipes, and effects in Valheim without coding. With this mod, you can clone items, change their colors, create new items, and even translate language. It offers a wide range of possibilities for customization.
 
+
+YML Knowledge
+
+    YML is easier to edit and change without getting confused on the syntac. 
+
+ You can use https://www.yamllint.com/ to validate any yml code
+
+    Almost every component of items/pieces/recipes/effects/creatures can be deleted.
+
+    Some components are multilined where you can actually add your own stuff the ymls.
+
 <details><summary>Installation</summary>
 ### Installation
 
@@ -56,6 +67,8 @@ Frequently Asked Questions
         A: Yes, you can add or remove components without much hassle.
 </details>
 
+<details><summary>Configuration</summary>
+
 ## Configuration
 
 The configuration file for WackysDatabase is located at BepInEx/config/WackyMole.WackysDatabase.cfg. The available configurations and their default values are as follows:
@@ -71,6 +84,8 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 - FileWatcher for YMLs: true (reloads the mod on any changes to the wackydatabase folder on the server)
 - List of Extra Effects: "lightningAOE" (extra effects to look for from the base game or mods)
 
+
+</details>
 
 <details><summary> Console Commands</summary>
 
@@ -114,18 +129,21 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 </details>
 
-YML Knowledge
 
-    YML is easier to edit and change without getting confused on the syntac. 
+<details><summary>Materials and CustomVisuals </summary>
 
-    You can use https://www.yamllint.com/ to validate any yml code
+### Materials and CustomVisuals
 
-    Almost every component of items/pieces/recipes/effects/creatures can be deleted.
-
-    Some components are multilined where you can actually add your own stuff the ymls.
+This can get complex so wait for INFO
 
 
-<details><summary><b> Item components</b></summary>
+- `material`
+- `customVisual`
+
+
+</details>
+
+<details><summary> Item components</summary>
 
 
 ## Item Config
@@ -435,7 +453,7 @@ Delete all by using "-"
 <details><summary> Recipe Components</summary>
 
 
-<img src="https://wackymole.com/hosts/red%20forge.webp" width="700"/>
+![Recipes] (https://wackymole.com/hosts/red%20forge.png | width=700))
 
 
 ## Recipes
@@ -455,7 +473,7 @@ Delete all by using "-"
 
 Quality is a requirement of what quality of item you need to be able to use this recipe.  Like a 2* Bronze Sword to upgrade to Bronze Sword Superd *1
 
-![Glowing Red BronzeSword] (https://wackymole.com/hosts/qualityrecipe.png)
+![Recipe Quality] (https://wackymole.com/hosts/qualityrecipe.png | width=300))
 
  </br>Arrows x50 will be put above Arrow x20
 
@@ -555,17 +573,17 @@ Use wackydb_se_create as a "template" to create a new status effect
 
 ![Bike Model Import ](https://wackymole.com/hosts/bike.png)
 
-All Credits to @KG for making this incredible system.
+All credits to @KG for making this incredible system.
 
-In Wackydatabase folder is the Object Folder
+In the Wackydatabase folder, there is the Object Folder.
 
-Objects can only be items that you can pickup/trade for the moment, but mocks are limitless in the possibilities of what you can add.
+Objects can only be items that you can pick up/trade at the moment, but mocks are limitless in the possibilities of what you can add.
 
-Pick an object like bike.obj and bike_albedo.png and put into Object folder.  It should load up the new Gameobject at the start. You can then wackydb_save_item to customize and/or make recipe. 
+Pick an object like bike.obj and bike_albedo.png and put them into the Object folder. It should load up the new GameObject at the start. You can then use wackydb_save_item to customize and/or create a recipe.
 
-The object folder matches based on the preceding name so bike_ matches to bike
+The object folder matches based on the preceding name, so bike_ matches to bike.
 
-It looks for pngs   "_albedo" "_metallic" "_normal";
+It looks for PNGs with "_albedo", "_metallic", and "_normal".
 
 
 
