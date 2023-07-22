@@ -93,12 +93,15 @@ namespace wackydatabase.Read
             WMRecipeCust.recipeDatas.Clear();
             WMRecipeCust.ItemDatas.Clear();
             WMRecipeCust.PieceDatas.Clear();
+            WMRecipeCust.armorDatas.Clear();
+
             WMRecipeCust.recipeDatasYml.Clear();
             WMRecipeCust.itemDatasYml.Clear();
             WMRecipeCust.pieceDatasYml.Clear();
-            WMRecipeCust.armorDatas.Clear();
+            WMRecipeCust.creatureDatasYml.Clear();
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
             WMRecipeCust.effectDataYml.Clear();
+
             WMRecipeCust.ymlstring = ""; //clear
 
             WMRecipeCust.CheckModFolder();

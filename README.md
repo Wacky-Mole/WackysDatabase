@@ -455,6 +455,8 @@ Delete all by using "-"
 
 ![Recipes] (https://wackymole.com/hosts/red%20forge.png | width=700))
 
+<img src="https://wackymole.com/hosts/red%20forge.png" width="700"/>
+
 
 ## Recipes
 
@@ -474,6 +476,8 @@ Delete all by using "-"
 Quality is a requirement of what quality of item you need to be able to use this recipe.  Like a 2* Bronze Sword to upgrade to Bronze Sword Superd *1
 
 ![Recipe Quality] (https://wackymole.com/hosts/qualityrecipe.png | width=300))
+
+<img src="https://wackymole.com/hosts/qualityrecipe.png**"** width="300"/>
 
  </br>Arrows x50 will be put above Arrow x20
 

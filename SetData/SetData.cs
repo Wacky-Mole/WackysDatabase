@@ -174,6 +174,7 @@ namespace wackydatabase.SetData
             }
 
             string tempname = data.name;
+            string searchname = data.name;
             if (!string.IsNullOrEmpty(data.clonePrefabName)) // both skip and
             {
                 if (data.clonePrefabName == "NO")
@@ -182,13 +183,13 @@ namespace wackydatabase.SetData
                 }
                 else
                 {
-                    data.name = data.clonePrefabName;
+                    searchname = data.clonePrefabName;
                 }
             }
 
-            GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
+            GameObject go = DataHelpers.CheckforSpecialObjects(searchname);// check for special cases
             if (go == null)
-                go = Instant.GetItemPrefab(data.name);
+                go = Instant.GetItemPrefab(searchname);
 
 
             Recipe ActualR = null;
@@ -196,7 +197,7 @@ namespace wackydatabase.SetData
             {
                 foreach (Recipe recipes in Instant.m_recipes)
                 {
-                    if (!(recipes.m_item == null) && recipes.name == data.name)
+                    if (!(recipes.m_item == null) && recipes.name == searchname)
                     {
                         //WMRecipeCust.Dbgl($"An actual {data.name} has been found!-- Only modification allowed");
                         ActualR = recipes;
@@ -207,7 +208,7 @@ namespace wackydatabase.SetData
 
             if (go == null && ActualR == null)
             {
-                WMRecipeCust.Dbgl(" null " + data.name);
+                WMRecipeCust.Dbgl(" null " + searchname);
                 return;
             }
 
@@ -215,7 +216,7 @@ namespace wackydatabase.SetData
             {
                 if (go.GetComponent<ItemDrop>() == null)
                 {
-                    WMRecipeCust.Dbgl($"Item recipe data for {data.name} not found!");
+                    WMRecipeCust.Dbgl($"Item recipe data for {searchname} not found!");
                     return;
                 } // it is a prefab and it is an item.
             }
@@ -246,7 +247,7 @@ namespace wackydatabase.SetData
                     }
                 } else if (ActualR != null)
                 {
-                    WMRecipeCust.Dbgl($"An actual Recipe for {data.name}");
+                    WMRecipeCust.Dbgl($"An actual Recipe for {searchname}");
                     RecipeR = ActualR;
                     RecipeR.m_enabled = true;
                 }
@@ -263,6 +264,7 @@ namespace wackydatabase.SetData
                         }
                     }
                 }
+
 
                 if (RecipeR == null)
                 {
@@ -387,40 +389,7 @@ namespace wackydatabase.SetData
                         }
                     }
                 }
-            }// end else
-
-            /*
-            else // ingame item that is not a clone
-            {
-                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
-                {
-                    if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
-                    {
-                        // if not clone normal edit
-                        WMRecipeCust.Dbgl("Setting Recipe for " + data.name);
-                        if (data.disabled)
-                        {
-                            WMRecipeCust.Dbgl($"Disabling recipe for {data.name} from the game");
-                            Instant.m_recipes[i].m_enabled = false;
-                           // Instant.m_recipes.RemoveAt(i);
-                            return;
-                        }
-                        Instant.m_recipes[i].m_enabled = true;
-                        Instant.m_recipes[i].m_amount = data.amount;
-                        Instant.m_recipes[i].m_minStationLevel = data.minStationLevel;
-                        Instant.m_recipes[i].m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
-                        //ObjectDB.instance.m_recipes[i].m_repairStation = GetCraftingStation(data.craftingStation); dont mess with maybe? if null repairable by all?
-                        List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-                        foreach (string req in data.reqs)
-                        {
-                            string[] parts = req.Split(':');
-                            reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
-                        }
-                        Instant.m_recipes[i].m_resources = reqs.ToArray();
-                        return;
-                    } // end normal
-                } // checking recipes
-            } */
+            }
         }
 
 

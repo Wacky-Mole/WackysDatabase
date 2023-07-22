@@ -490,7 +490,7 @@ namespace wackydatabase.SetData
                     {
                         try
                         {
-                            WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} ");
+                           // WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} ");
                             SetData.SetCreature(data, AllObjects);
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
