@@ -208,7 +208,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `Multi_Hit` (bool): Indicates whether the attack can hit multiple times.
 - `Pickaxe_Special` (bool): Indicates whether it is a special pickaxe attack.
 - `Last_Chain_Dmg_Multiplier` (float): The damage multiplier for the last chain attack.
-- `Attack_Projectile` (string): Indicates whether the attack has a projectile.
+- `Attack_Projectile` (string): The Gameobject projectile has to have Projectile Componenent. Disabled for now. 
 - `Projectile_Vel` (float): The velocity of the projectile.
 - `Projectile_Accuraccy` (float): The accuracy of the projectile.
 - `Projectiles` (int): The number of projectiles.
