@@ -493,7 +493,7 @@ namespace wackydatabase.SetData
                            // WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} ");
                             SetData.SetCreature(data, AllObjects);
                         }
-                        catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
+                        catch { WMRecipeCust.WLog.LogWarning($"Set Creature for {data.name} failed"); }
 
                         processcount++;
                         if (processcount > WMRecipeCust.ProcessWait && slowmode)
