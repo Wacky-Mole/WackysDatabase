@@ -1,0 +1,7 @@
+name: RedFenringArmor_mat
+original: FenringArmor_mat
+changes:
+  colors:
+    _Color: [1, 0.5, 0.5, 1]
+  textures:
+    _MainTex: Main
