@@ -7,7 +7,7 @@ mockName:
 customIcon: 
 customVisual:
   base_mat: BlueFenringArmor_mat
-  legs: BlueFenringArmorChest_mat
+  chest: BlueFenringArmorChest_mat
 sizeMultiplier: 1
 scale_weight_by_quality: 0
 Primary_Attack: 
