@@ -215,7 +215,7 @@ namespace wackydatabase.SetData
                         // Broken for now
              // This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
             // it failed because it couldn't init after item pickup by player. So spawn in, pickup, drop error on object init. No idea why, but works after teh .1f delay
-            
+            */
             WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
             foreach (var data3 in WMRecipeCust.itemDatasYml)
             {
@@ -249,7 +249,7 @@ namespace wackydatabase.SetData
             }
 /*
 
-            */
+            
 
 
             
