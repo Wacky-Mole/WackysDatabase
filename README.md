@@ -107,7 +107,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_all_items`: Saves all items in the game into wackyDatabase-BulkYML.
 - `wackydb_all_recipes`: Saves all recipes in the game into wackyDatabase-BulkYML.
 - `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
-- `wackydb_se_all`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
+- `wackydb_all_se`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_FenringArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
@@ -730,7 +730,7 @@ Aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods <
 Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
 Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
-Thank you to Azumatt and the Odin team. </br>
+An extra thank you to Azumatt and the Odin team. </br>
 Special thank you to @KG for Mock System </br>
 A Huge thank you to Rexabit and his Visual Modifier https://github.com/Rexabit/valheim-visuals-modifier
 </br>Azumatt for Status Editor contributions. </br>

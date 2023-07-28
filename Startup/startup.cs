@@ -212,8 +212,7 @@ namespace wackydatabase.Startup
             SetData.Reload temp = new SetData.Reload();
             WMRecipeCust.CurrentReload = temp;
 
-            //temp.LoadClonesEarly(); This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
-            // it failed because it couldn't init after item pickup by player. So spawn in, pickup, drop error on object init. No idea why, but works after teh .1f delay
+            temp.LoadClonesEarly(); // only pieces for now - items are broken on early load
 
             yield return new WaitForSeconds(0.1f); 
             WMRecipeCust.ReloadingOkay = true;
