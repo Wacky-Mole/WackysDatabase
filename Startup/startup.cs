@@ -69,8 +69,8 @@ namespace wackydatabase.Startup
         }
 
         [HarmonyPatch(typeof(ZNetScene), "Awake")]
-        [HarmonyPriority(Priority.Last)]
-        //[HarmonyPriority(Priority.VeryLow)]
+        //[HarmonyPriority(Priority.Last)]
+        [HarmonyPriority(Priority.VeryLow)] // might work
         static class ZNetScene_Awake_Patch_LastWackysDatabase
         {
 

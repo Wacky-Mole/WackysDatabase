@@ -203,7 +203,6 @@ namespace wackydatabase.SetData
                     catch { WMRecipeCust.WLog.LogWarning($"SetPiece CraftingStation for {data1.name} failed, might get it on second pass"); } // spams just catch any empty
                 }
             }
-
             WMRecipeCust.WLog.LogInfo($"Loading SEs");
             foreach (var data in WMRecipeCust.effectDataYml) // recipes last
             {
@@ -213,8 +212,8 @@ namespace wackydatabase.SetData
                 }
                 catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
             }
-                        /* Broken for now
-             * This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
+                        // Broken for now
+             // This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
             // it failed because it couldn't init after item pickup by player. So spawn in, pickup, drop error on object init. No idea why, but works after teh .1f delay
             
             WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
@@ -229,14 +228,17 @@ namespace wackydatabase.SetData
                     }
                     catch { WMRecipeCust.WLog.LogWarning($"Set Item Data for {data3.name} failed, might get it on second pass"); } // spams just catch any empty
 
-                    try
+                    if (data3.customVisual != null)
                     {
-                        VisualController.UpdatePrefab(data3.name, data3.customVisual); // load clones early
+                        try
+                        {
+                            VisualController.UpdatePrefab(data3.name, data3.customVisual); // load clones early
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data3.name}"); } // spams just catch any empty
                     }
-                    catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data3.name}"); } // spams just catch any empty
                 }
             }
-
+            
             try
             {
                 Instant.UpdateItemHashes();
@@ -245,7 +247,7 @@ namespace wackydatabase.SetData
             {
                 WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems");
             }
-
+/*
 
             */
 

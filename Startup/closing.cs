@@ -21,7 +21,7 @@ namespace wackydatabase.Startup
         [HarmonyPatch(typeof(ZNet), "Shutdown")]
         class PatchZNetDisconnect
         {
-            private static bool Prefix()
+            private static void Postfix()
             {
                 //WMRecipeCust.WLog.LogWarning("Logoff? So reset - character will look empty if using clone gear"); No More
                 WMRecipeCust.Dbgl("logoff");
@@ -36,7 +36,6 @@ namespace wackydatabase.Startup
                     Closing.DestroyClones();
                 }
                 WMRecipeCust.NoMoreLoading = true;
-                return true;
             }
         }
 

@@ -1179,7 +1179,6 @@ namespace wackydatabase.SetData
                         ZNetScene znet = ZNetScene.instance;
                         if (znet)
                         {
-
                             string name = newItem.name;
                             if (znet.m_namedPrefabs.ContainsKey(hash))
                                 WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
