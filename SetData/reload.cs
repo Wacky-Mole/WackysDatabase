@@ -204,9 +204,6 @@ namespace wackydatabase.SetData
                 }
             }
 
-            /* Broken for now
-             * This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
-            // it failed because it couldn't init after item pickup by player. So spawn in, pickup, drop error on object init. No idea why, but works after teh .1f delay
             WMRecipeCust.WLog.LogInfo($"Loading SEs");
             foreach (var data in WMRecipeCust.effectDataYml) // recipes last
             {
@@ -216,6 +213,9 @@ namespace wackydatabase.SetData
                 }
                 catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
             }
+                        /* Broken for now
+             * This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
+            // it failed because it couldn't init after item pickup by player. So spawn in, pickup, drop error on object init. No idea why, but works after teh .1f delay
             
             WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
             foreach (var data3 in WMRecipeCust.itemDatasYml)
@@ -250,7 +250,7 @@ namespace wackydatabase.SetData
             */
 
 
-            /*
+            
             WMRecipeCust.WLog.LogInfo($"Loading Cloned Pieces");
             foreach (var data2 in WMRecipeCust.pieceDatasYml)
             {
@@ -263,7 +263,7 @@ namespace wackydatabase.SetData
                     catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data2.name} failed, might get it on second pass"); } // spams just catch any empty
                 }
             }
-            */ // NO real reason to run this when it's goin go be run anyway for pieces down the line
+            
             /*
             WMRecipeCust.WLog.LogInfo($"Loading Cloned Recipes");
             foreach (var data4 in WMRecipeCust.recipeDatasYml)
