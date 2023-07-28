@@ -1,0 +1,5 @@
+name: RedFenringArmorChest_mat
+original: FenringArmorChest_mat
+changes:
+  textures:
+    _ChestTex: ChestRed

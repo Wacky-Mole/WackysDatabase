@@ -134,12 +134,24 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 ### Materials and CustomVisuals
 
-This can get complex so wait for INFO
+- `material` (string, optional): The name of the material
+- `customVisual` (CustomVisual, optional): A more specific targetting for materials, generally only useful for player armors.
 
+### Material Definition
+- `name` (string, required): The name of the new material created
+- `original` (string, required): The name of the material to clone from
+- `overwrite` (boolean, optional): True to overwrite the original material.
+- `changes` (MaterialChanges, required): The set of changes to apply to the material
 
-- `material`
-- `customVisual`
+### Material Changes Definition
+- `colors` (Dictionary<MaterialProperty: string, MaterialValue: Array<int>[4]>, optional) : A collection of keys (property names) and their associated value. The value is in array format [RED, GREEN, BLUE, ALPHA]. Values should range from 0 to 1 but can exceed 1.
+- `floats` (Dictionary<MaterialProperty: string, MaterialValue: float>, optional): A collection of keys (property names) and their associated float value. The value can be any float value but it is recommended to stay within the range specified by describing the prefab that has this material.
+- `textures` (Dictionary<MaterialProperty: string, MaterialValue: string>, optional): A collection of keys (property names) and their associated string value. The string value is the name of the texture to be used. The image should be a .png file stores in the 'Textures' section in the configuration folder. Do not include '.png', if the file is `my_texture.png` specify `my_texture` as the value here.
 
+### Custom Visual Definition
+- `base_mat`: (string, optional): The name of the material, generally this applies to the model for the prefab.
+- `chest`: (string, optional): The name of the material, generally this is only useful for chest armor. It will use the texture assigned to the "_ChestTex" property of the material.
+- `legs`: (string. optional): The name of the material, generally this is only useful for leg armor. It will use the texture assigned to the "_LegsTex" property of the material.
 
 </details>
 

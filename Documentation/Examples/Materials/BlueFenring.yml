@@ -1,0 +1,10 @@
+name: BlueFenringArmor_mat
+original: FenringArmor_mat
+changes:
+  colors:
+    _Color: [0.75, 0.75, 0.9, 1]
+  floats:
+    _Cutoff: 0.5
+    _Saturation: 0.5
+  textures:
+    _MainTex: Blue

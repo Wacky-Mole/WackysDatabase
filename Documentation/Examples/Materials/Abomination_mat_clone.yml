@@ -1,0 +1,26 @@
+name: Abomination_mat_clone
+original: Abomination_mat
+overwrite: true
+changes:
+  colors:
+    _Color: [1, 1, 1, 1]
+    _MetalColor: [1, 1, 1, 1]
+    _EmissionColor: [0, 0, 0, 1]
+  floats:
+    _Hue: 0
+    _Saturation: 0
+    _Value: 0
+    _Cutoff: 0.5
+    _Glossiness: 0.1
+    _UseGlossmap: 0
+    _Metallic: 0
+    _MetalGloss: 0
+    _BumpScale: 1
+    _TwoSidedNormals: 0
+    _UseStyles: 0
+    _Style: 0
+    _AddRain: 0
+    _Cull: 2
+  textures:
+    _MainTex: AbominationBase
+    _BumpMap: Rotvalta_n

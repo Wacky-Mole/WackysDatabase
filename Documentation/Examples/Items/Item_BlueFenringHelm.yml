@@ -1,0 +1,63 @@
+name: BlueFenringHelm
+m_weight: 1
+m_name: Blue Fenring Helm
+m_description: $item_helmet_fenris_description
+clonePrefabName: HelmetFenring
+mockName: 
+customIcon: 
+material: BlueFenringArmor_mat
+sizeMultiplier: 1
+scale_weight_by_quality: 0
+Primary_Attack: 
+Secondary_Attack: 
+Damage: 
+Damage_Per_Level: 
+Armor:
+  armor: 10
+  armorPerLevel: 2
+FoodStats: 
+Moddifiers:
+  m_movementModifier: 0.03
+  m_EitrRegen: 0
+SE_Equip: 
+SE_SET_Equip:
+  SetName: fenring_armor
+  Size: 3
+  EffectName: SetEffect_FenringArmor
+ShieldStats:
+  m_blockPower: 10
+  m_blockPowerPerLevel: 0
+  m_timedBlockBonus: 1.5
+  m_deflectionForce: 0
+  m_deflectionForcePerLevel: 0
+m_maxStackSize: 1
+m_canBeReparied: true
+m_destroyBroken: false
+m_dodgeable: false
+Attack_status_effect: 
+spawn_on_hit: 
+spawn_on_terrain_hit: 
+m_questItem: false
+m_teleportable: true
+m_backstabbonus: 4
+m_knockback: 10
+m_useDurability: true
+m_useDurabilityDrain: 1
+m_durabilityDrain: 0
+m_maxDurability: 1000
+m_durabilityPerLevel: 200
+m_equipDuration: 2
+m_skillType: Swords
+m_animationState: OneHanded
+m_itemType: Helmet
+m_toolTier: 0
+m_maxQuality: 4
+m_value: 0
+damageModifiers: []
+GEffects:
+  Hit_Effects: 
+  Hit_Terrain_Effects: 
+  Start_Effect: 
+  Hold_Start_Effects: 
+  Trigger_Effect: 
+  Trail_Effect: 
