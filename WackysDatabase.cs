@@ -101,6 +101,7 @@ namespace wackydatabase
 
 
         public static List<string> ClonedI = new List<string>(); // items
+        public static List<string> ClonedINoZ = new List<string>(); // items No Znet // not used
         public static Dictionary<GameObject, ItemDrop> WaitList = new Dictionary<GameObject, ItemDrop>();
         public static List<string> ClonedP = new List<string>(); // pieces
         public static List<string> ClonedR = new List<string>(); // recipes
@@ -108,7 +109,7 @@ namespace wackydatabase
         public static List<string> ClonedC = new List<string>(); // creatures
         public static Dictionary<string, GameObject> ClonedCC = new Dictionary<string, GameObject>();
         public static List<string> ClonedCR = new List<string>(); // creaturesReplacer
-        public static List<string> MockI = new List<string>();
+        public static List<string> MockI = new List<string>(); // MockItems
         public static List<string> BlacklistClone = new List<string>();
 
         internal static string assetPath;
@@ -366,7 +367,7 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathIcons);
             }
             if (!Directory.Exists(assetPathEffects))
-            {
+            {  
                 Dbgl("Creating Effects folder"); 
                 Directory.CreateDirectory(assetPathEffects);
             }

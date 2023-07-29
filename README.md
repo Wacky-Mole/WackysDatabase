@@ -132,6 +132,10 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 <details><summary>Materials and CustomVisuals </summary>
 
+
+
+![Materials and Custom](https://wackymole.com/hosts/wackyDescribe.png)
+
 ### Materials and CustomVisuals
 
 - `material` (string, optional): The name of the material
