@@ -66,6 +66,64 @@ namespace wackydatabase.PatchClasses
 
     }
 
+    [HarmonyPatch(typeof(Recipe), "GetRequiredStationLevel")]
+    static class RecipeStationPatch
+    {
+        private static void Postfix(Recipe __instance, ref int __result)
+        {
+
+
+            if (__instance == null) return;
+            if (__instance.m_item == null) return;
+            //if (__instance.m_item.name == null) return;
+
+            //var level2 = WMRecipeCust.RecipeMaxStationLvl[__instance.m_item.m_itemData.m_shared.m_name];
+            /*
+            foreach (KeyValuePair<string, int> kvp in WMRecipeCust.RecipeMaxStationLvl)
+            {
+                //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
+                WMRecipeCust.WLog.LogInfo("Key and Value "+ kvp.Key + " "  +kvp.Value);
+            
+            } */
+
+            if (WMRecipeCust.RecipeMaxStationLvl.TryGetValue(__instance.m_item.name, out int level))
+            {
+                if (level == -1)
+                {
+
+                }
+                else
+                {
+                    __result = Math.Min(__result, level);
+
+                }
+
+            }
+
+            /*
+            if (___recipe == null )
+                return;
+            if (___recipe.name == null)
+                return;
+
+            string name = ___recipe.name;
+            if (WMRecipeCust.RecipeMaxStationLvl.ContainsKey(name))
+            {
+                int level = WMRecipeCust.RecipeMaxStationLvl[name];
+                if (level == -1 || level == 0)
+                {
+                    return;
+                }else
+                {
+                    __result = Mathf.Min(__result, level);
+                }
+            }
+            */
+        }
+    }
+
+    
+
     [HarmonyPatch(typeof(InventoryGui), "SetupRequirement")]
     static class HideQuality
     {
@@ -118,9 +176,7 @@ namespace wackydatabase.PatchClasses
                 else
                     component5 = component5T.gameObject;
 
-                
-
-
+              
                 if (reqh.m_resItem != null && __result && WMRecipeCust.QualityRecipeReq.ContainsKey(__instance.m_selectedRecipe.Key.name))
                 {
                     //WMRecipeCust.WLog.LogInfo("Hello " + __instance.m_selectedRecipe.Key);
@@ -182,64 +238,9 @@ namespace wackydatabase.PatchClasses
                 }
             }
         }
-
     }
 
-    [HarmonyPatch(typeof(Recipe), "GetRequiredStationLevel")]
-    static class RecipeStationPatch
-    {
-        private static void Postfix( Recipe __instance, ref int __result)
-        {
 
-
-            if (__instance == null) return;
-            if(__instance.m_item == null) return;
-            //if (__instance.m_item.name == null) return;
-
-            //var level2 = WMRecipeCust.RecipeMaxStationLvl[__instance.m_item.m_itemData.m_shared.m_name];
-            /*
-            foreach (KeyValuePair<string, int> kvp in WMRecipeCust.RecipeMaxStationLvl)
-            {
-                //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
-                WMRecipeCust.WLog.LogInfo("Key and Value "+ kvp.Key + " "  +kvp.Value);
-            
-            } */
-
-            if (WMRecipeCust.RecipeMaxStationLvl.TryGetValue(__instance.m_item.name, out int level))
-            {
-                if (level == -1)
-                {
-
-                }
-                else
-                {
-                    __result = Math.Min(__result, level);
-                    
-                }
-
-            }
-
-            /*
-            if (___recipe == null )
-                return;
-            if (___recipe.name == null)
-                return;
-
-            string name = ___recipe.name;
-            if (WMRecipeCust.RecipeMaxStationLvl.ContainsKey(name))
-            {
-                int level = WMRecipeCust.RecipeMaxStationLvl[name];
-                if (level == -1 || level == 0)
-                {
-                    return;
-                }else
-                {
-                    __result = Mathf.Min(__result, level);
-                }
-            }
-            */
-        }
-    }
 
   [HarmonyPatch(typeof(Player), "ConsumeResources")]
 
@@ -302,7 +303,6 @@ namespace wackydatabase.PatchClasses
             return true;
         }
     }
-
 
    [HarmonyPatch(typeof(Player), "HaveRequirementItems")]
 

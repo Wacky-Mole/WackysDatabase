@@ -116,7 +116,7 @@ namespace wackydatabase.PatchClasses
                         + $"wackydb_save_material [MaterialName] Save Material Info - Usually has _mat\r\n"
                         + $"wackydb_se [SEEffectName] Save SEeffect\r\n"
                         + $"wackydb_help\r\n"
-                        + $"wackydb_clone  [item/recipe/piece/creatures] [Prefab to clone] [Unique name for the clone] \r\n"
+                        + $"wackydb_clone  [item/recipe/piece/creatures/material] [Prefab to clone] [Unique name for the clone] \r\n"
                         + $"4th paramater for recipes - you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit\r\n"
                         + $"wackydb_clone_recipeitem  [Prefab to clone] [Unique name for the clone](Recipe name will be Rname) (clones item and recipe at same time)\r\n"
                         + $"wackydb_vfx (outputs vfx gameobjects available)\r\n"
@@ -725,97 +725,6 @@ namespace wackydatabase.PatchClasses
 
                     });
 
-            /* syntax for cloning
-             * wackydb_clone <item/recipe/piece> <prefab to clone> <nameofclone>(has to be unquie otherwise we would have to check) 
-             * 
-             */
-            /*
-            Terminal.ConsoleCommand WackyDisa_Clone =
-            new("wackydb_disableandclone", "Save an Item or Piece, disable, and clone a new one",
-                args =>
-                {
-                    if (args.Length - 1 < 3)
-                    {
-                        args.Context?.AddString("<color=lime>Not enough arguments</color>");
-
-                    }else
-                    {
-                        string prefab = args[1];
-                        string newname = args[2];
-                        string pieceorItem = args[3];
-                        string file_string = "Not found";
-                        var gameo = ZNetScene.instance.GetPrefab(prefab);
-                        //var GameItem = ZNetScene.instance.GetPrefab("SwordIron");
-                        //var GamePiece = ZNetScene.instance.GetPrefab("woodchest");
-                    
-                        var serializer = new SerializerBuilder()
-                        .Build();
-                        GetDataYML RecipeCheck = new GetDataYML();
-
-
-                        if (pieceorItem == "item")
-                        {
-                            WItemData item = RecipeCheck.GetItemDataByName(prefab, ObjectDB.instance);
-                            if (item == null)
-                                return;
-
-                            var clone = item;
-                            clone.name = newname;
-                            clone.clonePrefabName = prefab;
-                            clone.m_name = newname;
-
-                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + clone.name + ".yml"), serializer.Serialize(clone));
-                            file_string = "cloned Item written as Item_" + clone.name + ".yml ";
-
-                            RecipeData recipe = RecipeCheck.GetRecipeDataByName(prefab, ObjectDB.instance);//  prefab of cloned item
-                            if (recipe != null)
-                            {
-                                var reipeclone = recipe;
-                                recipe.disabled = true;
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipe.name + ".yml"), serializer.Serialize(recipe));
-                                file_string += " Orginal Recipe saved and disabled ";
-
-
-                                reipeclone.name = "R" + newname;
-                                reipeclone.clonePrefabName = item.name; // cloned item
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + reipeclone.name + ".yml"), serializer.Serialize(reipeclone));
-                                file_string += " Clone Recipe saved as " + "Recipe_" + reipeclone.name + ".yml ";
-
-
-                            }
-
-                        }
-                        else if (pieceorItem == "piece")
-                        {
-
-                            PieceData pie = RecipeCheck.GetPieceRecipeByName(prefab, ObjectDB.instance);
-                            if (pie == null)
-                                return;
-                            var clone = pie;
-                            clone.name = newname;
-                            clone.clonePrefabName = prefab;
-
-                            pie.disabled = true;
-                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + pie.name + ".yml"), serializer.Serialize(pie));
-                            File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + clone.name + ".yml"), serializer.Serialize(clone));
-                            file_string = "Piece has been saved and disabled, a clone has been created and saved as " +"Piece_" + clone.name + ".yml ";
-
-                        }
-                        else
-                        {
-                            args.Context?.AddString(file_string);
-                            
-                        }
-
-
-                    }
-
-
-
-
-                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
-
-            */
             Terminal.ConsoleCommand WackyClone =
                 new("wackydb_clone", "Clone an Item/Piece/Recipe with different stats, names, effects ect... ",
                     args =>
@@ -912,9 +821,68 @@ namespace wackydatabase.PatchClasses
                                 file = "Creature_" + clone.name;
 
                             }
-                            args.Context?.AddString($"saved cloned data to {file}.yml");
+
+                            if (commandtype == "material" || commandtype == "Material" || commandtype == "mat")
+                            {
+                                string name = prefab;
+
+                                if (WMRecipeCust.originalMaterials.ContainsKey(name))
+                                {
+                                    var material = WMRecipeCust.originalMaterials[name];
+                                    var loader = new YamlLoader();
+
+                                    MaterialInstance mi = new MaterialInstance()
+                                    {
+                                        Original = name,
+                                        Name = newname,
+                                        Overwrite = false
+                                    };
+
+                                    int propertyCount = material.shader.GetPropertyCount();
+
+                                    for (int k = 0; k < propertyCount; k++)
+                                    {
+                                        ShaderPropertyType type = material.shader.GetPropertyType(k);
+                                        string propertyName = material.shader.GetPropertyName(k);
+
+                                        switch (type)
+                                        {
+                                            case ShaderPropertyType.Color:
+                                                mi.Changes.Colors.Add(propertyName, material.GetColor(propertyName));
+                                                break;
+                                            case ShaderPropertyType.Float:
+                                            case ShaderPropertyType.Range:
+                                            case ShaderPropertyType.Vector:
+                                                mi.Changes.Floats.Add(propertyName, material.GetFloat(propertyName));
+                                                break;
+                                            case ShaderPropertyType.Texture:
+                                                Texture t = material.GetTexture(propertyName);
+
+                                                try
+                                                {
+                                                    if (t != null)
+                                                    {
+                                                        mi.Changes.Textures.Add(propertyName, t.name);
+                                                        TextureDataManager.SaveTexture(t.name, t);
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to write texture for property: {propertyName} - {ex.Message}");
+                                                }
+
+                                                break;
+                                        }
+                                    }
+
+                                    loader.Write(Path.Combine(WMRecipeCust.assetPathMaterials, newname + ".yml"), mi);
+                                    args.Context?.AddString($"Saved in the Material folder, as {newname}.yml");
+
+                                }
+                            }
+                        args.Context?.AddString($"saved cloned data to {file}.yml");
                         }
-                    });
+                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
             Terminal.ConsoleCommand WackyCloneRecipe =
                 new("wackydb_clone_recipeitem", "Clone recipe and item with the orginal prefab ",
                     args =>
@@ -1068,6 +1036,9 @@ namespace wackydatabase.PatchClasses
 
                     loader.Write(Path.Combine(WMRecipeCust.assetPathMaterials, mi.Name + ".yml"), mi);
                     args.Context?.AddString($"Saved in the Material folder, as {name}.yml");
+                } else
+                {
+                    Debug.LogWarning("Not found");
                 }
             }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
         }

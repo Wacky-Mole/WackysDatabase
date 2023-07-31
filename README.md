@@ -132,6 +132,40 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 <details><summary>Materials and CustomVisuals </summary>
 
+</br>
+    Please be patient with this documentation. There is a lot to this one and I am slowly trying to learn from Rexabyte. There may be inaccurate information here. </br>
+
+ ### Useful tools
+
+ https://rgbcolorpicker.com/0-1
+
+ https://github.com/Wacky-Mole/WackysDatabase/tree/yaml2/Documentation - You Are GOING TO NEED TO STUDY THIS!
+
+ ### Structures
+
+
+ Welcome to Rexabyte's Guide on Understanding Material Management by Wacky!
+
+A Material is a powerful combination of a shader, texture, and color. For most items, a single material is sufficient, but more complex things like armors can utilize multiple materials.
+
+To create a basic material, simply use the 'material' section and combine various _mats. Oh, by the way, "mat" or "mats" refer to materials and are often appended at the end of their names.
+
+When describing an item's render using "wackydb_describe," you'll find the materials section with the current name of the mat.
+
+To save or clone a material, employ the functions "wackydb_save_material [mat]" or "wackydb_clone [mat/material] [mat] [clonename]" The newly created material file can be found in the materials folder.
+
+Now, let's get creative with adjustments! Most commonly, you'll be working with colors. Use https://rgbcolorpicker.com/0-1 to find the 0-1 values **RGBA**.
+
+Textures play a vital role, particularly with armors and creatures. Remember, they are saved along with the material in PNG format. However, WackyDB won't automatically sync them, so you'll need to manually color or edit the texture files.
+
+Excitingly, changes to materials automatically update without requiring a reload. Icons, too, reflect these changes unless you opt for a custom icon.
+
+For a shortcut, you can use vanilla materials by selecting one from the generated wackydb_material materials.txt file.
+
+Lastly, a single material YAML (yml) can be applied to multiple items, creatures, or pieces. Keep in mind that some objects might need more information than others for proper display.
+
+Now go forth, and let your creativity run wild with Rex's Material Management!
+
 
 
 ![Materials and Custom](https://wackymole.com/hosts/wackyDescribe.png)
@@ -752,3 +786,6 @@ A Huge thank you to Rexabit and his Visual Modifier https://github.com/Rexabit/v
 </br>Azumatt for Status Editor contributions. </br>
 Do whatever you want with this mod.
 </details>
+
+Known issues: </br>
+  Errors on ItemCache at startup</br> Creature Material is not working </br> 

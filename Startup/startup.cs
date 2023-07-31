@@ -51,7 +51,7 @@ namespace wackydatabase.Startup
             }
 
         }
-
+        /* test only
         [HarmonyPatch(typeof(ZNetScene), "Awake")]
         [HarmonyPriority(Priority.LowerThanNormal)]
 
@@ -66,7 +66,7 @@ namespace wackydatabase.Startup
                     //temp.LoadClonesEarly();
                 }
             }
-        }
+        } */
 
         [HarmonyPatch(typeof(ZNetScene), "Awake")]
         //[HarmonyPriority(Priority.Last)]
@@ -96,6 +96,23 @@ namespace wackydatabase.Startup
                 }
             }
         }
+        /* // idk
+        [HarmonyPatch(typeof(ObjectDB), "Awake")]
+        [HarmonyPriority(Priority.High)]
+        static class testObjPat
+        {
+            private static void Postfix(ObjectDB __instance)
+            {
+               // SetData.Reload temp = new SetData.Reload();
+               // WMRecipeCust.CurrentReload = temp;
+               // WMRecipeCust.WLog.LogWarning("LoadingCloned items early");
+                //temp.LoadClonedItemsOnlyEarly(__instance);
+
+                //__instance.UpdateItemHashes();
+
+            }
+        }
+        */
 
 
         [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.Start))]

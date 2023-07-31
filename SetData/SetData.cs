@@ -1177,7 +1177,7 @@ namespace wackydatabase.SetData
                         
 
                         ZNetScene znet = ZNetScene.instance;
-                        if (znet)
+                        if (znet && ZnetNow)
                         {
                             string name = newItem.name;
                             if (znet.m_namedPrefabs.ContainsKey(hash))
@@ -1194,38 +1194,6 @@ namespace wackydatabase.SetData
                             }
                         }
 
-                        if (!string.IsNullOrEmpty(data.material))
-                        {
-                            WMRecipeCust.Dbgl($"Material name searching for {data.material}");
-                            try
-                            {
-                                renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
-                                if (data.material.Contains(','))
-                                {
-                                    string[] materialstr = data.material.Split(',');
-                                    Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
-                                    Material part = WMRecipeCust.originalMaterials[materialstr[1]];
-
-                                    foreach (Renderer renderitem in renderfinder)
-                                    {
-                                        if (renderitem.receiveShadows && materialstr[0] != "none")
-                                            renderitem.material = mat;
-                                        else if (!renderitem.receiveShadows)
-                                            renderitem.material = part;
-                                    }
-                                }
-                                else
-                                {
-                                    Material mat = WMRecipeCust.originalMaterials[data.material];
-
-                                    foreach (Renderer r in PrefabAssistant.GetRenderers(newItem))
-                                    {
-                                        PrefabAssistant.UpdateMaterialReference(r, mat);
-                                    }
-                                }
-                            }
-                            catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
-                        }
 
 
                         go = Instant.GetItemPrefab(tempname);
@@ -1233,6 +1201,39 @@ namespace wackydatabase.SetData
                         data.name = tempname; // putting back name
 
 
+                    }
+
+                    if (!string.IsNullOrEmpty(data.material))
+                    {
+                        WMRecipeCust.Dbgl($"Material name searching for {data.material}");
+                        try
+                        {
+                            renderfinder = go.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
+                            if (data.material.Contains(','))
+                            {
+                                string[] materialstr = data.material.Split(',');
+                                Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
+                                Material part = WMRecipeCust.originalMaterials[materialstr[1]];
+
+                                foreach (Renderer renderitem in renderfinder)
+                                {
+                                    if (renderitem.receiveShadows && materialstr[0] != "none")
+                                        renderitem.material = mat;
+                                    else if (!renderitem.receiveShadows)
+                                        renderitem.material = part;
+                                }
+                            }
+                            else
+                            {
+                                Material mat = WMRecipeCust.originalMaterials[data.material];
+
+                                foreach (Renderer r in PrefabAssistant.GetRenderers(go))
+                                {
+                                    PrefabAssistant.UpdateMaterialReference(r, mat);
+                                }
+                            }
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
                     }
 
                     var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>();
@@ -1832,9 +1833,11 @@ namespace wackydatabase.SetData
                     skipReplacer = true;
             }
 
-            foreach (GameObject obj in arrayCreature)
-            {
 
+
+            foreach (GameObject obj in arrayCreature) // clone
+            {
+                var currentCreature = obj;
                 if (data.clone_creature != null && !skip && obj.name == data.clone_creature && (obj.TryGetComponent<Humanoid>(out Humanoid dontuse)
                     || obj.TryGetComponent<AnimalAI>(out AnimalAI dontuse1) || obj.TryGetComponent<MonsterAI>(out MonsterAI dontuse2)))
                 {
@@ -1866,23 +1869,24 @@ namespace wackydatabase.SetData
                     clonepiggy.m_name = data.mob_display_name; // clone won't go through normal setting this round, so needs to all be set in here
 
                     WMRecipeCust.ClonedC.Add(data.name);
-                    WMRecipeCust.ClonedCC.Add(data.name,clonecreature);
-                    
-                    return; // end loop
+                    WMRecipeCust.ClonedCC.Add(data.name, clonecreature);
+                    currentCreature = clonecreature;
+
+                    //return; // end loop
 
                 } // end clone
 
-                if (obj.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid high1)
+                if (obj.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid high1) // replacer
                     || obj.TryGetComponent<AnimalAI>(out AnimalAI high2) || obj.TryGetComponent<MonsterAI>(out MonsterAI high3)))
                 {
-                    if (data.creature_replacer != null && !skipReplacer)
+                    if (data.creature_replacer != null && !skipReplacer)// creature replacer
                     {
                         foreach (GameObject obj2 in arrayCreature)
                         {
                             if (obj2.name == data.creature_replacer && obj2.TryGetComponent<Humanoid>(out Humanoid piggy2))
                             {
                                 obj.SetActive(false); // deactives current mob
-                                var del  = obj.gameObject;
+                                var del = obj.gameObject;
                                 replacermodel = WMRecipeCust.Instantiate(obj2, WMRecipeCust.Root.transform, false);
                                 replacermodel.name = data.name;
 
@@ -1900,7 +1904,8 @@ namespace wackydatabase.SetData
 
                                     string name = replacermodel.name;
                                     var hash = replacermodel.name.GetStableHashCode();
-                                    if (znet.m_namedPrefabs.ContainsKey(hash)){
+                                    if (znet.m_namedPrefabs.ContainsKey(hash))
+                                    {
 
                                         WMRecipeCust.Dbgl($"Prefab {name} already in ZNetScene");
 
@@ -1913,23 +1918,56 @@ namespace wackydatabase.SetData
 
                                     }
 
-                                 }
+                                }
                                 WMRecipeCust.ClonedCR.Add(data.name);
-                                return; 
+                                // currentCreature = obj; already set
+                                //return; 
                             }
                         }
                     } // end creature replacer
+                   // return; // end loop
+                } // end name match
 
-                    // Normal editing
+                if (currentCreature.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid mob))){ 
+                // Normal editing
                     WMRecipeCust.Dbgl($"Setting {data.name} "); // normal edit
 
-
-                    high1.m_name = data.mob_display_name;
-                    //piggy.m_faction = (Character.Faction)data.faction ?? piggy.m_faction;
+                    mob.m_name = data.mob_display_name;
 
 
-                    return; // end loop
-                } // end name match
+                    if (!string.IsNullOrEmpty(data.custom_material)) // material changer
+                    {
+                        WMRecipeCust.Dbgl($"Material name searching for {data.custom_material}");
+                        try
+                        {
+                            renderfinder = obj.GetComponentsInChildren<SkinnedMeshRenderer>();// "weapons1_fire" glowing orange
+                            //if (data.custom_material.Contains(','))
+                            {
+                                string[] materialstr = data.custom_material.Split(',');
+                                Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
+                                Material part = WMRecipeCust.originalMaterials[materialstr[1]];
+
+                                foreach (SkinnedMeshRenderer renderitem in renderfinder)
+                                {
+                                    if (renderitem.receiveShadows && materialstr[0] != "none")
+                                        renderitem.material = mat;
+                                    else if (!renderitem.receiveShadows)
+                                        renderitem.material = part;
+                                }
+                            }
+                           // else
+                           // {
+                               // Material mat = WMRecipeCust.originalMaterials[data.custom_material];
+
+                               // foreach (Renderer r in PrefabAssistant.GetRenderers(obj))
+                               // {
+                                //    PrefabAssistant.UpdateMaterialReference(r, mat);
+                               // }
+                           // }
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
+                    }
+                } // nromal edit
                 count++;
             } 
         }

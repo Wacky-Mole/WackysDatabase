@@ -156,6 +156,15 @@ namespace wackydatabase.SetData
                         SetData.SetClonedItemsDataCache(data, Instant);// has issues
                     }
                     catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
+
+                    if (data.customVisual != null)
+                    {
+                        try
+                        {
+                            VisualController.UpdatePrefab(data.name, data.customVisual);
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
+                    }
                 }
             }
             try
@@ -165,6 +174,41 @@ namespace wackydatabase.SetData
             catch { WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems"); }
         }
 
+        internal void LoadClonedItemsOnlyEarly(ObjectDB Instance)
+        {
+            if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
+            {
+                WMRecipeCust.CheckModFolder();
+                WMRecipeCust.GetAllMaterials();
+                DataHelpers.GetPieceStations();
+                DataHelpers.GetPiecesatStart();
+                //WMRecipeCust.Firstrun = false; run again for final pickups
+            }
+
+            WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
+            foreach (var data3 in WMRecipeCust.itemDatasYml)
+            {
+                if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName) && !WMRecipeCust.ClonedI.Contains(data3.name))
+                {
+                    try
+                    {
+                        SetData.SetItemData(data3, Instance, null, false);
+
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning($"Set Item Data for {data3.name} failed, might get it on second pass"); } // spams just catch any empty
+
+                    if (data3.customVisual != null)
+                    {
+                        try
+                        {
+                            VisualController.UpdatePrefab(data3.name, data3.customVisual); // load clones early
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data3.name}"); } // spams just catch any empty
+                    }
+                }
+            }
+
+        }
 
         internal void LoadClonesEarly() // not working
         {
@@ -447,9 +491,7 @@ namespace wackydatabase.SetData
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetItem Data for {data.name} failed"); }
 
-                        if (data.material == null && data.customVisual == null)
-                        { }
-                        else
+                        if (data.customVisual != null)
                         {
                             try
                             {
@@ -536,6 +578,28 @@ namespace wackydatabase.SetData
                             processcount = 0;
                         }
                     }
+                    // textures don't need to be cached because always on player comp
+                    /* future rexabtye caching
+
+                    foreach (var data in WMRecipeCust.assetPathMaterials) //materials
+                    {
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(data.clonePrefabName))
+                            {
+                                var hash = data.GetHashCode(); // rand.Next(501032334)
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
+                            }
+                        }
+                        catch { WMRecipeCust.WLog.LogWarning($"Item Cache save for {data.name} failed"); }
+                        processcount++;
+                        if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                        {
+                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                            processcount = 0;
+                        }
+                    }
+                    */
 
                     try
                     {
