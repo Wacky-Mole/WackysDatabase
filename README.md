@@ -111,7 +111,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_FenringArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
-- `wackydb_clone [recipe/item/piece/creatures] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
+- `wackydb_clone [recipe/item/piece/creatures/mat/materials] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
 
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
@@ -137,7 +137,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 
  ### Useful tools
 
- https://rgbcolorpicker.com/0-1
+ https://rgbcolorpicker.com/0-1 
 
  https://github.com/Wacky-Mole/WackysDatabase/tree/yaml2/Documentation - You Are GOING TO NEED TO STUDY THIS!
 
