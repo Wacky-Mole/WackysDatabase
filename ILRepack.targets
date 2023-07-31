@@ -9,6 +9,7 @@
 			 <InputAssemblies Include="$(OutputPath)\ServerSync.dll" />
 			<InputAssemblies Include="$(OutputPath)\PieceManager.dll" />-->
 			<InputAssemblies Include="$(OutputPath)\YamlDotNet.dll" />
+			<InputAssemblies Include="$(OutputPath)\AnimationSpeedManager.dll" />
         </ItemGroup>
         <ILRepack Parallel="true" DebugInfo="true" Internalize="true" InputAssemblies="@(InputAssemblies)" OutputFile="$(TargetPath)" TargetKind="SameAsPrimaryAssembly" LibraryPath="$(OutputPath)" />
     </Target>

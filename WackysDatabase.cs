@@ -205,6 +205,32 @@ namespace wackydatabase
             // testme(); // function for testing things
 
             // ending files
+
+            AnimationSpeedManager.Add((character, speed) =>
+            {
+                if (character is not Player player || !player.InAttack() || player.m_currentAttack is null)
+                {
+                    return speed;
+                }
+                var skilltype = player.GetCurrentWeapon().m_shared.m_skillType;
+                if (skilltype == Skills.SkillType.Unarmed) return speed; // no unarmed
+
+                GameObject val = player.GetCurrentWeapon()?.m_dropPrefab;
+                if (WMRecipeCust.AttackSpeed.TryGetValue(val.name, out Dictionary<bool, float> Paul))
+                {
+                    if (player.m_currentAttackIsSecondary)
+                    {
+                        return Paul[true];
+                    }
+                    else
+                    {
+                        return Paul[false];
+                    }
+                }
+                return speed;
+            });
+
+
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
 

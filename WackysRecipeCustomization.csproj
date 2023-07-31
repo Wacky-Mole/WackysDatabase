@@ -60,6 +60,10 @@
       <HintPath>$(GamePath)\BepInEx\core\0Harmony.dll</HintPath>
       <HintPath>$(ModPath)\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="AnimationSpeedManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Libs\AnimationSpeedManager.dll</HintPath>
+    </Reference>
     <Reference Include="assembly_utils, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\valheim_Data\Managed\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
     </Reference>
@@ -198,6 +202,9 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="ILRepack.targets" />
+    <Content Include="Libs\AnimationSpeedManager.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Libs\ItemManager.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
