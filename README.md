@@ -156,7 +156,7 @@ To save or clone a material, employ the functions "wackydb_save_material [mat]" 
 
 Now, let's get creative with adjustments! Most commonly, you'll be working with colors. Use https://rgbcolorpicker.com/0-1 to find the 0-1 values **RGBA**.
 
-Textures play a vital role, particularly with armors and creatures. Remember, they are saved along with the material in PNG format. However, WackyDB won't automatically sync them, so you'll need to manually color or edit the texture files.
+Textures play a vital role, particularly with armors and creatures. Remember, they are saved along with the material in PNG format. However, WackyDB won't automatically sync them, so you'll need to manually color or edit the texture files. Textures may use base vanilla ones like Red or Blue
 
 Excitingly, changes to materials automatically update without requiring a reload. Icons, too, reflect these changes unless you opt for a custom icon.
 
