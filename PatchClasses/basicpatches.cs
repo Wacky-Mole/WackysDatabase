@@ -257,7 +257,7 @@ namespace wackydatabase.PatchClasses
 
                     foreach (Piece.Requirement requirement in requirements)
                     {
-                        if (!searchme.ContainsKey(requirement.m_resItem))
+                        if (searchme.ContainsKey(requirement.m_resItem))
                         {
                             if (searchme[requirement.m_resItem] != 1)
                             {

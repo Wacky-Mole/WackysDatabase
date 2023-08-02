@@ -1326,7 +1326,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_attackRange = data.Primary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_attack.m_attackRange;
                         PrimaryItemData.m_shared.m_attack.m_attackHeight = data.Primary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_attack.m_attackHeight;
 
-                        if (!string.IsNullOrEmpty(data.Primary_Attack.Spawn_On_Trigger) && (data.Primary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger.name))
+                        if (!string.IsNullOrEmpty(data.Primary_Attack.Spawn_On_Trigger) && (data.Primary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger?.name))
                         {
                             GameObject found = null;
                             foreach (var ob in AllObjects)
@@ -1422,7 +1422,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange = data.Secondary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight = data.Secondary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight;
 
-                        if (!string.IsNullOrEmpty(data.Secondary_Attack.Spawn_On_Trigger) && (data.Secondary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger.name))
+                        if (!string.IsNullOrEmpty(data.Secondary_Attack.Spawn_On_Trigger) && (data.Secondary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger?.name))
                         {
                             GameObject found = null;
                             foreach (var ob in AllObjects)
@@ -1575,7 +1575,7 @@ namespace wackydatabase.SetData
                     if (data.Attack_status_effect != null)
                         PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
 
-                    if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit.name))
+                    if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
                     {
                         GameObject found = null;
                         foreach (var ob in AllObjects)
@@ -1592,7 +1592,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_spawnOnHit;                                          
                     }
 
-                    if (!string.IsNullOrEmpty(data.spawn_on_terrain_hit) && (data.spawn_on_terrain_hit != PrimaryItemData.m_shared.m_spawnOnHitTerrain.name))
+                    if (!string.IsNullOrEmpty(data.spawn_on_terrain_hit) && (data.spawn_on_terrain_hit != PrimaryItemData.m_shared.m_spawnOnHitTerrain?.name))
                     {
                         GameObject found = null;
                         foreach (var ob in AllObjects)
