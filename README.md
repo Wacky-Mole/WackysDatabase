@@ -65,6 +65,16 @@ Frequently Asked Questions
 
     Q: Is the mod future-proof?
         A: Yes, you can add or remove components without much hassle.
+
+    Q: Does the Water resistant not work on set effect? Like m_mods: m_type: Water
+        A: Water is a DamageModifiers that I added from Aedenthorn mod.  I don't have plans to add it to m_mods.
+        
+    Q: Do you have a Video;
+        A: Not yet, but YOU could make one!
+
+    Q: Is it possible to add a recipe for each upgrade of an item?
+        A: Recipes are at a weird place in wackydb. I might split it out into a submod, but I am not sure yet. 
+
 </details>
 
 <details><summary>Configuration</summary>
@@ -122,7 +132,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_fx`: Saves a fx.txt file with all fx effects
 - `wackydb_help`: command list
 - `wackydb_describe[ObjectName]`: Saves describe of an object, so you have an idea of the structure of the object for materials and customVisuals
-- `wackydb_sendtheload` : Experiemental command that will send pngs and objs to clients utilizing ServerSync. I recommend the Network mod to uncap datarates. 
+- `wackydb_sendtheload` : Experimental  command that will send pngs and objs to clients utilizing ServerSync. I recommend the Network mod to uncap datarates. 
 - `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
 - `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
 
@@ -593,11 +603,11 @@ Quality is a requirement of what quality of item you need to be able to use this
 - `m_healthRegenMultiplier` (float): The health regeneration multiplier.
 - `m_staminaRegenMultiplier` (float): The stamina regeneration multiplier.
 - `m_eitrRegenMultiplier` (float): The eitr regeneration multiplier.
-- `m_raiseSkill` (Skills.SkillType): The skill type to raise.
-- `m_raiseSkillModifier` (float): The skill modifier to raise.
-- `m_skillLevel` (Skills.SkillType): The skill type to modify the level.
+- `m_raiseSkill` (Skills.SkillType): The skill type to raise as a multiplier or %
+- `m_raiseSkillModifier` (float): The skill modifier to raise as a multiplier.
+- `m_skillLevel` (Skills.SkillType): The skill type to modify the level.- Flat Rate
 - `m_skillLevelModifier` (float): The skill level modifier.
-- `m_skillLevel2` (Skills.SkillType): Another skill type to modify the level.
+- `m_skillLevel2` (Skills.SkillType): Another skill type to modify the level.Flat Rate
 - `m_skillLevelModifier2` (float): Another skill level modifier.
 - `m_mods` (List<HitData.DamageModPair>): The list of damage modifiers for hit.
 - `m_modifyAttackSkill` (Skills.SkillType): The skill type to modify the attack.

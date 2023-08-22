@@ -265,8 +265,9 @@ namespace wackydatabase
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
 
             Root = new GameObject("myroot");
-            Root.SetActive(false);
-            DontDestroyOnLoad(Root); // clone magic
+            Root.SetActive(false);   
+            //PrefabContainer.transform.parent = Main.RootObject.transform; ? JVL onto something
+            DontDestroyOnLoad(Root); // clone magic 
 
             // ^^ // starting files
             context = this;
