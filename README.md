@@ -75,6 +75,11 @@ Frequently Asked Questions
     Q: Is it possible to add a recipe for each upgrade of an item?
         A: Recipes are at a weird place in wackydb. I might split it out into a submod, but I am not sure yet. 
 
+    Q: My weapon clones are speedup/speed down. 
+        A: The clones speed can change a little bit from their parents. Custom_AttackSpeed should always be 1 on a save. 
+        If you notice a speed up or down a +- 0.1 should fix it.  
+        FYI reminder that SpeedFactor deals with character movement speed while swinging/attacking and has nothing to do with speed of animation.
+
 </details>
 
 <details><summary>Configuration</summary>
@@ -240,12 +245,12 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `Attack_Random_Animation` (int): The random animation for the attack.
 - `Chain_Attacks` (int): The number of chain attacks.
 - `Hit_Terrain` (bool): Indicates whether the attack can hit terrain.
-- `Custom_AttackSpeed` (float): This mod keeps track of this adjustment 1.0 is normal speed. 2.0 is twice as fast. This will override Wackymmo speeds. Should be compatible with most other mods that increase speed.
+- `Custom_AttackSpeed` (float): This mod keeps track of this adjustment 1.0 is normal speed. 2.0 is twice as fast. Should be compatible with most other mods that increase speed.
 - `m_attackStamina` (float): The stamina cost of the attack.
 - `m_eitrCost` (float): The eitr cost of the attack.
 - `AttackHealthCost` (float): The health cost of the attack.
 - `m_attackHealthPercentage` (float): The health cost percentage of the attack.
-- `SpeedFactor` (float): The speed factor of the attack.
+- `SpeedFactor` (float): The speed up of a character's movements when they are actively attacking.
 - `DmgMultiplier` (float): The damage multiplier of the attack.
 - `ForceMultiplier` (float): The force multiplier of the attack.
 - `StaggerMultiplier` (float): The stagger multiplier of the attack.

@@ -220,11 +220,11 @@ namespace wackydatabase
                 {
                     if (player.m_currentAttackIsSecondary)
                     {
-                        return Paul[true];
+                        return speed * Paul[true];
                     }
                     else
                     {
-                        return Paul[false];
+                        return speed *Paul[false];
                     }
                 }
                 return speed;

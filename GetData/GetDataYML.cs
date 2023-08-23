@@ -762,7 +762,7 @@ namespace wackydatabase.GetData
                     Attack_Random_Animation = data.m_shared.m_attack.m_attackRandomAnimations,
                     Chain_Attacks = data.m_shared.m_attack.m_attackChainLevels,
                     Hit_Terrain = data.m_shared.m_attack.m_hitTerrain,
-                    Custom_AttackSpeed = 1f,
+                    Custom_AttackSpeed = 1,
 
                     m_attackStamina = data.m_shared.m_attack.m_attackStamina,
                     m_eitrCost = data.m_shared.m_attack.m_attackEitr,
@@ -812,7 +812,7 @@ namespace wackydatabase.GetData
                     Attack_Random_Animation = data.m_shared.m_secondaryAttack.m_attackRandomAnimations,
                     Chain_Attacks = data.m_shared.m_secondaryAttack.m_attackChainLevels,
                     Hit_Terrain = data.m_shared.m_secondaryAttack.m_hitTerrain,
-                    Custom_AttackSpeed = 1f,
+                    Custom_AttackSpeed = 1,
 
                     m_attackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
                     m_eitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
