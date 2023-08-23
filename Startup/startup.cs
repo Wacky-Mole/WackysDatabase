@@ -214,12 +214,12 @@ namespace wackydatabase.Startup
             WMRecipeCust.WLog.LogInfo("Load Sync Data");
             if (WMRecipeCust.FirstSessionRun)
             {
-                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); // Dedicated Sync Reload 
+                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
                 WMRecipeCust.FirstSessionRun = false; // reset in a destory patch
             }
             else
             {
-                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); // Dedicated Sync Reload SLOW
+                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); //  Sync Reload SLOW
             }
         }
 
