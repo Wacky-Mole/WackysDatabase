@@ -138,7 +138,7 @@ namespace wackydatabase.GetData
             //stats = Ob.Cast<SEdata>(eff);
 
 
-            return GetStatusData(tod.GetStatusEffect(name));
+            return GetStatusData(tod.GetStatusEffect(name.GetStableHashCode()));
         }
         internal StatusData GetStatusEByNum(int num, ObjectDB tod)
         {

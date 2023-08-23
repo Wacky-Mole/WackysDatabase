@@ -41,17 +41,17 @@ namespace wackydatabase.SetData
         {
 
             var name = data.Name;
-            var go = Instant.GetStatusEffect(name);
+            var go = Instant.GetStatusEffect(name.GetStableHashCode());
             if (go == null) {
                 // create new
-                go = Instant.GetStatusEffect("SetEffect_TrollArmor");// cloned
+                go = Instant.GetStatusEffect("SetEffect_TrollArmor".GetStableHashCode());// cloned
                 //WMRecipeCust.WLog.LogDebug($"Item CLONE DATA in SetItemData for {tempname} from cache ");
                 WMRecipeCust.ClonedE.Add(name);
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
                 StatusEffect newStatus = WMRecipeCust.Instantiate(go, RootT, false);
                 newStatus.name = name;
                 ObjectDB.instance.m_StatusEffects.Add(newStatus);
-                go = Instant.GetStatusEffect(name);
+                go = Instant.GetStatusEffect(name.GetStableHashCode());
 
             }
             go.m_name = data.Status_m_name ?? go.m_name;
@@ -1530,7 +1530,7 @@ namespace wackydatabase.SetData
                         {
 
                             WMRecipeCust.Dbgl($"   {data.name} Item equip effects ");
-                            PrimaryItemData.m_shared.m_equipStatusEffect = Instant.GetStatusEffect(data.SE_Equip.EffectName) ?? PrimaryItemData.m_shared.m_equipStatusEffect;
+                            PrimaryItemData.m_shared.m_equipStatusEffect = Instant.GetStatusEffect(data.SE_Equip.EffectName.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_equipStatusEffect;
                         }
                     }
                     if (data.SE_SET_Equip != null)
@@ -1547,7 +1547,7 @@ namespace wackydatabase.SetData
                             WMRecipeCust.Dbgl($"   {data.name} Item seteffects ");
                             PrimaryItemData.m_shared.m_setName = data.SE_SET_Equip.SetName ?? PrimaryItemData.m_shared.m_setName;
                             PrimaryItemData.m_shared.m_setSize = data.SE_SET_Equip.Size ?? PrimaryItemData.m_shared.m_setSize;
-                            PrimaryItemData.m_shared.m_setStatusEffect = Instant.GetStatusEffect(data.SE_SET_Equip.EffectName) ?? PrimaryItemData.m_shared.m_setStatusEffect;
+                            PrimaryItemData.m_shared.m_setStatusEffect = Instant.GetStatusEffect(data.SE_SET_Equip.EffectName.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_setStatusEffect;
                         }
                     }
 
@@ -1573,7 +1573,7 @@ namespace wackydatabase.SetData
 
 
                     if (data.Attack_status_effect != null)
-                        PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
+                        PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
 
                     if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
                     {
