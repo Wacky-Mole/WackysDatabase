@@ -36,7 +36,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "1.4.6";
+        internal const string ModVersion = "1.4.7";
         internal const string Author = "WackyMole";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -115,7 +115,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "1.4.5" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "1.4.7" }; // it is very picky on version number
 
 
         #endregion
@@ -1465,15 +1465,17 @@ namespace wackydatabase
                                             renderitem.material = mat;
                                     }
                                 }
-                            }
-                            catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
+                                
+                            } catch { WackysRecipeCustomizationLogger.LogWarning("Material was not found or was not set correctly"); }
                         }
+                        data.name = tempname; // putting back name                     
 
-                        PrimaryItemData = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
-                        data.name = tempname; // putting back name
                         try
-                        { 
-                            // ObjectDB.instance.UpdateItemHashes();
+                        {
+                            ObjectDB.instance.UpdateItemHashes();
+                            PrimaryItemData = Instant.GetItemPrefab(tempname).GetComponent<ItemDrop>().m_itemData; // get ready to set stuff                      
+                            // Dbgl($"PrimaryData set ");
+              
                         }
                         catch
                         {
@@ -3186,110 +3188,99 @@ namespace wackydatabase
         }
 
 
-        public static void SnapshotItem(ItemDrop item = null, Piece pieceobj = null, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
+
+        public static void SnapshotItem(ItemDrop item, float lightIntensity = 1.3f, Quaternion? cameraRotation = null, Quaternion? itemRotation = null)
         {
-            const int layer = 30;
-
-            Camera camera = new GameObject("CameraIcon", typeof(Camera)).GetComponent<Camera>();
-            camera.backgroundColor = Color.clear;
-            camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.fieldOfView = 0.5f;
-            camera.farClipPlane = 10000000;
-            camera.cullingMask = 1 << layer;
-            if (item != null)
-                camera.transform.rotation = cameraRotation ?? Quaternion.Euler(90, 0, 45);
-            else
-                camera.transform.rotation = cameraRotation ?? Quaternion.Euler(90, 0, 45);
-
-            Light topLight = new GameObject("LightIcon", typeof(Light)).GetComponent<Light>();
-            topLight.transform.rotation = Quaternion.Euler(150, 0, -5f);
-            topLight.type = LightType.Directional;
-            topLight.cullingMask = 1 << layer;
-            topLight.intensity = lightIntensity;
-
-            Rect rect = new(0, 0, 64, 64);
-            GameObject visualSnapshot;
-            if (item != null)
+            void Do()
             {
-                WackysRecipeCustomizationLogger.LogInfo("Object is an Item for snapshot clone");
-                visualSnapshot = UnityEngine.Object.Instantiate(item.transform.Find("attach").gameObject);
-                foreach (Transform child in visualSnapshot.GetComponentsInChildren<Transform>())
+                const int layer = 30;
+
+                Camera camera = new GameObject("Camera", typeof(Camera)).GetComponent<Camera>();
+                camera.backgroundColor = Color.clear;
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.fieldOfView = 0.5f;
+                camera.farClipPlane = 10000000;
+                camera.cullingMask = 1 << layer;
+                camera.transform.rotation = cameraRotation ?? Quaternion.Euler(90, 0, 45);
+
+                Light topLight = new GameObject("Light", typeof(Light)).GetComponent<Light>();
+                topLight.transform.rotation = Quaternion.Euler(150, 0, -5f);
+                topLight.type = LightType.Directional;
+                topLight.cullingMask = 1 << layer;
+                topLight.intensity = lightIntensity;
+
+                Rect rect = new(0, 0, 64, 64);
+
+                GameObject visual;
+                if (item.transform.Find("attach") is { } attach)
+                {
+                    visual = UnityEngine.Object.Instantiate(attach.gameObject);
+                }
+                else
+                {
+                    ZNetView.m_forceDisableInit = true;
+                    visual = UnityEngine.Object.Instantiate(item.gameObject);
+                    ZNetView.m_forceDisableInit = false;
+                }
+                if (itemRotation is not null)
+                {
+                    visual.transform.rotation = itemRotation.Value;
+                }
+
+                foreach (Transform child in visual.GetComponentsInChildren<Transform>())
                 {
                     child.gameObject.layer = layer;
                 }
-            }
-            else
-            {
-                WackysRecipeCustomizationLogger.LogInfo("Object is an Piece for snapshot clone"); // broken right now
-                visualSnapshot = UnityEngine.Object.Instantiate(pieceobj.gameObject);
-                visualSnapshot.GetComponent<Piece>().enabled = false;
-                visualSnapshot.GetComponent<ZNetView>().enabled = false;
-                foreach (Transform child in visualSnapshot.GetComponentsInChildren<Transform>())
-                {
-                    child.gameObject.layer = layer; 
-                }
-               // visualSnapshot.transform.position = new Vector3(-135, 90, 135);
-            }
-          
-            Renderer[] renderers = visualSnapshot.GetComponentsInChildren<Renderer>();
-            Vector3 min = renderers.Aggregate(Vector3.positiveInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Min(cur, renderer.bounds.min));
-            Vector3 max = renderers.Aggregate(Vector3.negativeInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Max(cur, renderer.bounds.max));
-            Vector3 size = max - min;
- 
-            camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
-            float maxDim = Mathf.Max(size.x, size.z);
-            float minDim = Mathf.Min(size.x, size.z);
-            float yDist = (maxDim + minDim) / Mathf.Sqrt(2) / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad);
-            Transform transform = camera.transform;
-            if (item != null)
-             transform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
-            else
-                transform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
 
-            topLight.transform.position = transform.position + new Vector3(-2, 0, 0.2f) / 3 * -yDist;
+                Renderer[] renderers = visual.GetComponentsInChildren<Renderer>();
+                Vector3 min = renderers.Aggregate(Vector3.positiveInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Min(cur, renderer.bounds.min));
+                Vector3 max = renderers.Aggregate(Vector3.negativeInfinity, (cur, renderer) => renderer is ParticleSystemRenderer ? cur : Vector3.Max(cur, renderer.bounds.max));
+                Vector3 size = max - min;
 
-            camera.Render();
- 
-            RenderTexture currentRenderTexture = RenderTexture.active;
-            RenderTexture.active = camera.targetTexture;
+                camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
+                float maxDim = Mathf.Max(size.x, size.z);
+                float minDim = Mathf.Min(size.x, size.z);
+                float yDist = (maxDim + minDim) / Mathf.Sqrt(2) / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad);
+                Transform cameraTransform = camera.transform;
+                cameraTransform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
+                topLight.transform.position = cameraTransform.position + new Vector3(-2, 0, 0.2f) / 3 * -yDist;
 
-            Texture2D texture = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
-            texture.ReadPixels(rect, 0, 0);
-            texture.Apply();
+                camera.Render();
 
-            RenderTexture.active = currentRenderTexture;
+                RenderTexture currentRenderTexture = RenderTexture.active;
+                RenderTexture.active = camera.targetTexture;
 
-            if (item != null)
+                Texture2D texture = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+                texture.ReadPixels(rect, 0, 0);
+                texture.Apply();
+
+                RenderTexture.active = currentRenderTexture;
+
                 item.m_itemData.m_shared.m_icons = new[] { Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f)) };
+
+                UnityEngine.Object.DestroyImmediate(visual);
+                camera.targetTexture.Release();
+
+                UnityEngine.Object.Destroy(camera);
+                UnityEngine.Object.Destroy(topLight);
+            }
+            IEnumerator Delay()
+            {
+                yield return null;
+                Do();
+            }
+            if (ObjectDB.instance)
+            {
+                Do();
+            }
             else
             {
-                pieceobj.m_icon =  Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f)) ;
+                context.StartCoroutine(Delay());
             }
-            
-            topLight.gameObject.SetActive(false);
-            camera.targetTexture.Release();
-            camera.gameObject.SetActive(false);
-
-            if (item != null)
-            {
-                UnityEngine.Object.DestroyImmediate(visualSnapshot);
-            }else
-            {
-                visualSnapshot.gameObject.SetActive(false);
-                visualSnapshot = null;
-                //Destroy(visualSnapshot, 10);
-               // Destroy();
-            }
-       
-            UnityEngine.Object.Destroy(camera);
-            UnityEngine.Object.Destroy(topLight);
-            UnityEngine.Object.Destroy(camera.gameObject);
-            UnityEngine.Object.Destroy(topLight.gameObject);
-    
-
         }
 
-       public static void FindandDestoryCamerasandLights()
+
+        public static void FindandDestoryCamerasandLights()
         {
            foreach (var cam in Resources.FindObjectsOfTypeAll<Camera>().Where(c => c.GetComponent<Camera>().enabled).ToList())
             {
