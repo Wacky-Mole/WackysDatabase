@@ -12,6 +12,7 @@ using ServerSync;
 using BepInEx;
 using System;
 using wackydatabase.Datas;
+using System.Security.Policy;
 
 namespace wackydatabase
 {
@@ -101,10 +102,14 @@ namespace wackydatabase
                 OnSync?.Invoke(this, new EventArgs());
 
                 // Update the local files if we received the changes from the server
+                // Changes from Server shouldn't be saved to Client Folder, instead saved to cache\
+                
                 if (!WMRecipeCust.ConfigSync.IsSourceOfTruth)
                 {
-                    Save(YamlData.Value);
+                    // Save(YamlData.Value);
+                    SaveCache(YamlData.Value);
                 }
+
             } catch (Exception e)
             {
                 Debug.LogError($"Detected {Name} sync, but importing failed with an error.\n{e.Message + (e.InnerException != null ? ": " + e.InnerException.Message : "")}");
@@ -151,6 +156,16 @@ namespace wackydatabase
             foreach (KeyValuePair<string, string> d in data)
             {
                 File.WriteAllText(Path.Combine(Storage, d.Key), d.Value);
+            }
+        }
+
+        public void SaveCache(Dictionary<string, string> data) //Materials Only
+        {
+            WMRecipeCust.WLog.LogInfo("Mat SaveCache");
+            foreach (KeyValuePair<string, string> d in data)
+            {
+                int hash = d.Key.GetStableHashCode();
+                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".mat"), d.Value);
             }
         }
 
@@ -204,7 +219,9 @@ namespace wackydatabase
                     {
                         map[key] = File.ReadAllText(file);
                     }
-                    
+                    WMRecipeCust.WLog.LogInfo("Mat Cache Reload");
+                    int hash = key.GetStableHashCode(); // write cache
+                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".mat"), file);                                    
                 }
                 catch (System.Exception e)
                 {

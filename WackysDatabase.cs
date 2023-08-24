@@ -98,6 +98,7 @@ namespace wackydatabase
         public static List<StatusData> effectDataYml = new List<StatusData>();
         public static List<CreatureData> creatureDatasYml = new List<CreatureData>();
         public static List<WItemData> cacheDataYML = new List<WItemData>();// cacheonly
+        public static List<MaterialInstance> cacheMaterials = new List<MaterialInstance>();// cacheonly
 
 
         public static List<string> ClonedI = new List<string>(); // items

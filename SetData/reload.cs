@@ -138,6 +138,14 @@ namespace wackydatabase.SetData
         {
             if (WMRecipeCust.IsServer && WMRecipeCust.isDedServer) return;
             ObjectDB Instant = ObjectDB.instance;
+
+            //load material cache .mats here
+            
+            foreach (var mat in WMRecipeCust.cacheMaterials) // materials last
+            {
+
+            }
+
             foreach (var data in WMRecipeCust.cacheDataYML) // recipes last
             {
                 bool alreadyexist = false;
@@ -172,6 +180,7 @@ namespace wackydatabase.SetData
                 Instant.UpdateItemHashes();
             }
             catch { WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems"); }
+
         }
 
         internal void LoadClonedItemsOnlyEarly(ObjectDB Instance)
@@ -566,7 +575,7 @@ namespace wackydatabase.SetData
                         {
                             if (!string.IsNullOrEmpty(data.clonePrefabName))
                             {
-                                var hash = data.GetHashCode(); // rand.Next(501032334)
+                                int hash = data.name.GetStableHashCode(); // hash for the name now
                                 File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
                             }
                         }
