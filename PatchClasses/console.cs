@@ -833,9 +833,9 @@ namespace wackydatabase.PatchClasses
 
                                     MaterialInstance mi = new MaterialInstance()
                                     {
-                                        Original = name,
-                                        Name = newname,
-                                        Overwrite = false
+                                        original = name,
+                                        name = newname,
+                                        overwrite = false
                                     };
 
                                     int propertyCount = material.shader.GetPropertyCount();
@@ -848,12 +848,12 @@ namespace wackydatabase.PatchClasses
                                         switch (type)
                                         {
                                             case ShaderPropertyType.Color:
-                                                mi.Changes.Colors.Add(propertyName, material.GetColor(propertyName));
+                                                mi.changes.colors.Add(propertyName, material.GetColor(propertyName));
                                                 break;
                                             case ShaderPropertyType.Float:
                                             case ShaderPropertyType.Range:
                                             case ShaderPropertyType.Vector:
-                                                mi.Changes.Floats.Add(propertyName, material.GetFloat(propertyName));
+                                                mi.changes.floats.Add(propertyName, material.GetFloat(propertyName));
                                                 break;
                                             case ShaderPropertyType.Texture:
                                                 Texture t = material.GetTexture(propertyName);
@@ -862,7 +862,7 @@ namespace wackydatabase.PatchClasses
                                                 {
                                                     if (t != null)
                                                     {
-                                                        mi.Changes.Textures.Add(propertyName, t.name);
+                                                        mi.changes.textures.Add(propertyName, t.name);
                                                         TextureDataManager.SaveTexture(t.name, t);
                                                     }
                                                 }
@@ -992,9 +992,9 @@ namespace wackydatabase.PatchClasses
 
                     MaterialInstance mi = new MaterialInstance()
                     {
-                        Original = name,
-                        Name = name + "_clone",
-                        Overwrite = false
+                        original = name,
+                        name = name + "_clone",
+                        overwrite = false
                     };
 
                     int propertyCount = material.shader.GetPropertyCount();
@@ -1007,12 +1007,12 @@ namespace wackydatabase.PatchClasses
                         switch (type)
                         {
                             case ShaderPropertyType.Color:
-                                mi.Changes.Colors.Add(propertyName, material.GetColor(propertyName));
+                                mi.changes.colors.Add(propertyName, material.GetColor(propertyName));
                                 break;
                             case ShaderPropertyType.Float:
                             case ShaderPropertyType.Range:
                             case ShaderPropertyType.Vector:
-                                mi.Changes.Floats.Add(propertyName, material.GetFloat(propertyName));
+                                mi.changes.floats.Add(propertyName, material.GetFloat(propertyName));
                                 break;
                             case ShaderPropertyType.Texture:
                                 Texture t = material.GetTexture(propertyName);
@@ -1021,7 +1021,7 @@ namespace wackydatabase.PatchClasses
                                 {
                                     if (t != null)
                                     {
-                                        mi.Changes.Textures.Add(propertyName, t.name);
+                                        mi.changes.textures.Add(propertyName, t.name);
                                         TextureDataManager.SaveTexture(t.name, t);
                                     }
                                 }
@@ -1034,7 +1034,7 @@ namespace wackydatabase.PatchClasses
                         }
                     }
 
-                    loader.Write(Path.Combine(WMRecipeCust.assetPathMaterials, mi.Name + ".yml"), mi);
+                    loader.Write(Path.Combine(WMRecipeCust.assetPathMaterials, mi.name + ".yml"), mi);
                     args.Context?.AddString($"Saved in the Material folder, as {name}.yml");
                 } else
                 {

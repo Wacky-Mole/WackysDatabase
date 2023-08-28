@@ -71,7 +71,9 @@ namespace wackydatabase
         }
     }
 
-    public class TextureEventArgs : EventArgs
+}
+
+public class TextureEventArgs : EventArgs
     {
         public Texture2D Texture { get; private set; }
 
@@ -80,4 +82,4 @@ namespace wackydatabase
             Texture = t;
         }
     }
-}
+

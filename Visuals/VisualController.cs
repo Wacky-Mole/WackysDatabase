@@ -27,7 +27,7 @@ namespace wackydatabase
 
         private static void DataManager_OnMaterialChange(object sender, MaterialEventArgs e)
         {
-            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.Changes);
+            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.changes);
 
             mm.Invoke(e.Material, null);
         }
@@ -36,14 +36,14 @@ namespace wackydatabase
         {
             Debug.Log($"[{WMRecipeCust.ModName}]: Setting material properties for: {e.Material.name}");
 
-            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.Changes);
+            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.changes);
 
             mm.Invoke(e.Material, null);
         }
 
         private static void DataManager_OnMaterialOverwrite(object sender, MaterialEventArgs e)
         {
-            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.Changes);
+            MaterialManipulator mm = new MaterialManipulator(e.MaterialInstance.changes);
 
             mm.Invoke(e.Material, null);
         }

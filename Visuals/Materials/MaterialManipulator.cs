@@ -3,36 +3,38 @@
  */
 
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using wackydatabase.Datas;
 
 namespace wackydatabase
 {
+
     class MaterialManipulator
     {
         List<IMaterialEffect> properties = new List<IMaterialEffect>();
 
         public MaterialManipulator(MaterialData data)
         {
-            if (data.Colors != null)
+            if (data.colors != null)
             {
-                foreach (KeyValuePair<string, Color> entry in data.Colors)
+                foreach (KeyValuePair<string, Color> entry in data.colors)
                 {
                     AddValue(new MaterialColorEffect(entry.Key, entry.Value));
                 }
             }
  
-            if (data.Floats != null)
+            if (data.floats != null)
             {
-                foreach (KeyValuePair<string, float> entry in data.Floats)
+                foreach (KeyValuePair<string, float> entry in data.floats)
                 {
                     AddValue(new MaterialFloatEffect(entry.Key, entry.Value));
                 }
             }
 
-            if (data.Textures != null)
+            if (data.textures != null)
             {
-                Dictionary<string, Texture2D> textures = TextureDataManager.GetTextures(data.Textures);
+                Dictionary<string, Texture2D> textures = TextureDataManager.GetTextures(data.textures);
 
                 foreach (KeyValuePair<string, Texture2D> entry in textures)
                 {
@@ -40,6 +42,16 @@ namespace wackydatabase
                 }
             }
         }
+
+        public void ForceTextures(MaterialData data)
+        {
+            foreach (KeyValuePair<string, string> entry in data.textures)
+            {
+                AddValue(new MaterialTextureEffect(entry.Key, TextureDataManager.GetTexture(entry.Key)));
+            }
+            
+        }
+
 
         public void Invoke(Renderer smr, GameObject prefab)
         {

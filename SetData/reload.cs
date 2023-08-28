@@ -140,12 +140,19 @@ namespace wackydatabase.SetData
             ObjectDB Instant = ObjectDB.instance;
 
             //load material cache .mats here
-            
-            foreach (var mat in WMRecipeCust.cacheMaterials) // materials last
+
+            if (WMRecipeCust.AwakeHasRun)
             {
+                WMRecipeCust.CheckModFolder();
+                WMRecipeCust.GetAllMaterials();
 
             }
 
+            foreach (var mat in WMRecipeCust.cacheMaterials)
+            {
+                MaterialDataManager.WackyForce(mat);
+            }
+            
             foreach (var data in WMRecipeCust.cacheDataYML) // recipes last
             {
                 bool alreadyexist = false;
@@ -165,7 +172,7 @@ namespace wackydatabase.SetData
                     }
                     catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
 
-                    if (data.customVisual != null)
+                    if (data.customVisual != null )
                     {
                         try
                         {
@@ -175,6 +182,7 @@ namespace wackydatabase.SetData
                     }
                 }
             }
+ 
             try
             {
                 Instant.UpdateItemHashes();

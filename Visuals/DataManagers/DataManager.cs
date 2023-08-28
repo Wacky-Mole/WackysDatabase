@@ -62,6 +62,7 @@ namespace wackydatabase
         }
 
         public abstract void Cache(T item);
+       // public abstract void WackyForce(T item);
 
         #region Event Handlers
         private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs evt)
@@ -205,8 +206,9 @@ namespace wackydatabase
         protected Dictionary<string, string> Reload()
         {
             Dictionary<string, string> map = new Dictionary<string, string>();
+            WMRecipeCust.WLog.LogInfo("Mat Cache Save");
 
-            foreach (string file in Directory.GetFiles(Storage, "*.yml", SearchOption.AllDirectories))
+            foreach (string file in Directory.GetFiles(Storage, "*.yml", SearchOption.AllDirectories))  
             {
                 try
                 {
@@ -219,9 +221,9 @@ namespace wackydatabase
                     {
                         map[key] = File.ReadAllText(file);
                     }
-                    WMRecipeCust.WLog.LogInfo("Mat Cache Reload");
-                    int hash = key.GetStableHashCode(); // write cache
-                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".mat"), file);                                    
+                    
+                    int hash = map[key].GetStableHashCode(); // write cache
+                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".mat"), map[key]);                                    
                 }
                 catch (System.Exception e)
                 {
@@ -243,7 +245,10 @@ namespace wackydatabase
             {
                 T data = Deserializer.Deserialize<T>(yaml);
 
+                WMRecipeCust.WLog.LogInfo("hello from beyond");
                 Cache(data);
+
+
 
                 return data;
             }

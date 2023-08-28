@@ -23,61 +23,84 @@ namespace wackydatabase
         {
             try
             {
-                if (mi.Overwrite)
+                if (mi.overwrite)
                 {
-                    if (WMRecipeCust.originalMaterials.ContainsKey(mi.Original))
+                    if (WMRecipeCust.originalMaterials.ContainsKey(mi.original))
                     {
                         // Due to the threading that occurs, this will not actually fire the event on the correct thread
                         //OnMaterialOverwrite?.Invoke(this, new MaterialEventArgs(WMRecipeCust.originalMaterials[mi.Original], mi));
 
                         // Do the material changes here so that it occurs on the thread that reads the files
-                        MaterialManipulator mm = new MaterialManipulator(mi.Changes);
+                        MaterialManipulator mm = new MaterialManipulator(mi.changes);
 
-                        mm.Invoke(WMRecipeCust.originalMaterials[mi.Original], null);
+                        mm.Invoke(WMRecipeCust.originalMaterials[mi.original], null);
 
                         return;
                     }
 
-                    Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to pull material from cache: {mi.Original}");
+                    Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to pull material from cache: {mi.original }");
                 }
 
-                if (!WMRecipeCust.originalMaterials.ContainsKey(mi.Original))
-                {
-                    Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to get material from cache: {mi.Original}");
+                if (!WMRecipeCust.originalMaterials.ContainsKey(mi.original)) { 
+                    
+                    Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to get material from cache: {mi.original}");
                 }
-                else if (!materials.ContainsKey(mi.Name))
+                else if (!materials.ContainsKey(mi.name))
                 {
-                    Debug.Log($"[{WMRecipeCust.ModName}]: Adding Material: {mi.Name}");
+                    Debug.Log($"[{WMRecipeCust.ModName}]: Adding Material: {mi.name}");
 
-                    Material m = Material.Instantiate(WMRecipeCust.originalMaterials[mi.Original]);
-                    m.name = mi.Name;
+                    Material m = Material.Instantiate(WMRecipeCust.originalMaterials[mi.original]);
+                   // m.name = mi.name;
 
                     // Add the material into the material cache
-                    if (!WMRecipeCust.originalMaterials.ContainsKey(mi.Name))
+                    if (!WMRecipeCust.originalMaterials.ContainsKey(mi.name))
                     {
-                        WMRecipeCust.originalMaterials.Add(mi.Name, m);
+                        WMRecipeCust.originalMaterials.Add(mi.name, m);
                     } else
                     {
-                        WMRecipeCust.originalMaterials[mi.Name] = m;
+                        WMRecipeCust.originalMaterials[mi.name] = m;
                     }
 
-                    materials.Add(mi.Name, m);
+                    materials.Add(mi.name, m);
 
                     // Due to the threading that occurs, this will not actually fire the event on the correct thread
                     //OnMaterialAdd?.Invoke(this, new MaterialEventArgs(m, mi));
 
                     // Do the material changes here so that it occurs on the thread that reads the files
-                    MaterialManipulator mm = new MaterialManipulator(mi.Changes);
+                    MaterialManipulator mm = new MaterialManipulator(mi.changes);
 
                     mm.Invoke(m, null);
                 }
-                else if (materials.ContainsKey(mi.Name))
+                else if (materials.ContainsKey(mi.name))
                 {
-                    OnMaterialChange?.Invoke(this, new MaterialEventArgs(materials[mi.Name], mi));
+                    OnMaterialChange?.Invoke(this, new MaterialEventArgs(materials[mi.name], mi));
                 }
             } catch (Exception e)
             {
-                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to cache material: {mi.Name} - {e.Message} - {e.StackTrace}");
+                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to cache material: {mi.name} - {e.Message} - {e.StackTrace}");
+            }
+        }
+        public static void WackyForce(MaterialInstance mi)
+        {
+            try
+            {
+
+                    if (WMRecipeCust.originalMaterials.ContainsKey(mi.original))
+                    {
+
+                        MaterialManipulator mm = new MaterialManipulator(mi.changes);
+
+                        mm.ForceTextures(mi.changes);
+
+                        return;
+                    }
+
+                   // Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to pull material from cache: {mi.original}");
+                
+
+            } catch (Exception e)
+            {
+                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to cache material: {mi.name} - {e.Message} - {e.StackTrace}");
             }
         }
 

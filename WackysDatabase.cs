@@ -112,6 +112,7 @@ namespace wackydatabase
         public static List<string> ClonedCR = new List<string>(); // creaturesReplacer
         public static List<string> MockI = new List<string>(); // MockItems
         public static List<string> BlacklistClone = new List<string>();
+       // internal static Dictionary<string, Texture2D> mainTextures = new Dictionary<string, Texture2D>(); // cached Textures for fun
 
         internal static string assetPath;
         internal static string assetPathconfig;
@@ -469,7 +470,7 @@ namespace wackydatabase
             
         }
 
-        public static void GetAllMaterials() // Get all Materials, SFX, VFX, FX
+        public static void GetAllMaterials(bool skipMD = false) // Get all Materials, SFX, VFX, FX
         {
             Material[] array = Resources.FindObjectsOfTypeAll<Material>();
             GameObject[] array3 = Resources.FindObjectsOfTypeAll<GameObject>();
@@ -504,8 +505,11 @@ namespace wackydatabase
                 }
 
             }
+            if (!skipMD)
+            {
+                MaterialDataManager.Instance.LoadFiles();
 
-            MaterialDataManager.Instance.LoadFiles();
+            }
         }
 
         /*

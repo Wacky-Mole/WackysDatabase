@@ -19,6 +19,7 @@ using wackydatabase.OBJimporter;
 
 
 
+
 namespace wackydatabase.Read
 {
     public class ReadFiles 
@@ -192,6 +193,21 @@ namespace wackydatabase.Read
                     processcount = 0;
                 }
             }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathCache, "*.mat", SearchOption.AllDirectories))
+            {
+                cache.Load<Datas.MaterialInstance>(file, WMRecipeCust.cacheMaterials);
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            GetAllTextures();
+
             WMRecipeCust.LockReload = false;
             if (slowmode)
             {
@@ -203,5 +219,16 @@ namespace wackydatabase.Read
                 WMRecipeCust.WLog.LogInfo(WMRecipeCust.ymlstring);
             }
         }
+
+        public void GetAllTextures()
+        {
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathTextures, "*.png", SearchOption.AllDirectories))
+            {
+                var bits = new FileInfo(file);
+                TextureDataManager.GetTexture(bits.Name); 
+               
+            }
+        }
+
     }
 }
