@@ -169,6 +169,7 @@ namespace wackydatabase.Startup
             }
             WMRecipeCust.Dbgl($"Destroyed cloned items used in startup ");
             WMRecipeCust.ClonedI.Clear();
+            delObj.UpdateItemHashes();
         }
 
         public static bool SinglePlayerchecker
@@ -230,6 +231,8 @@ namespace wackydatabase.Startup
             WMRecipeCust.CurrentReload = temp;
 
             temp.LoadClonesEarly(); // only pieces for now - items are broken on early load
+            //var hello = ObjectDB.instance;
+            //temp.LoadClonedItemsOnlyEarly(hello);
 
             yield return new WaitForSeconds(0.1f); 
             WMRecipeCust.ReloadingOkay = true;

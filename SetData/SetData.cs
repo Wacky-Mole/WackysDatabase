@@ -1173,7 +1173,7 @@ namespace wackydatabase.SetData
                         NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
                         var hash = newItem.name.GetStableHashCode();
                         Instant.m_items.Add(newItem);
-                        Instant.m_itemByHash.Add(newItem.name.GetStableHashCode(), newItem);
+                        Instant.m_itemByHash.Add(hash, newItem);
                         
 
                         ZNetScene znet = ZNetScene.instance;
