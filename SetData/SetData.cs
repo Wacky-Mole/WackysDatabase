@@ -979,12 +979,13 @@ namespace wackydatabase.SetData
                             newItem.name = tempname; // resets the orginal name- needs to be unquie
                             NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
                             var hash = newItem.name.GetStableHashCode();
-                            ObjectDB.instance.m_items.Add(newItem);
+                            Instant.m_items.Add(newItem);
+                            Instant.m_itemByHash.Add(hash, newItem);
 
 
                             if (!string.IsNullOrEmpty(data.material))
                             {
-                                WMRecipeCust.Dbgl($"Material name searching for {data.material}");
+                                WMRecipeCust.Dbgl($"Item {tempname} searching for mat {data.material}");
                                 try
                                 {
                                     
@@ -1017,8 +1018,8 @@ namespace wackydatabase.SetData
                             }
 
 
-                            go = Instant.GetItemPrefab(tempname);
-                            PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
+                            //go = Instant.GetItemPrefab(tempname);
+                            //PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                             data.name = tempname; // putting back name
 
                         }
@@ -1206,7 +1207,7 @@ namespace wackydatabase.SetData
 
                     if (!string.IsNullOrEmpty(data.material))
                     {
-                        WMRecipeCust.Dbgl($"Material name searching for {data.material}");
+                        WMRecipeCust.Dbgl($"Item {data.name} searching for {data.material}");
                         try
                         {
                             renderfinder = go.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
