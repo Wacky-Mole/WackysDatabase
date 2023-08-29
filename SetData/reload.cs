@@ -141,17 +141,17 @@ namespace wackydatabase.SetData
 
             //load material cache .mats here
 
-            if (WMRecipeCust.AwakeHasRun)
+            if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {
                 WMRecipeCust.CheckModFolder();
                 WMRecipeCust.GetAllMaterials();
 
             }
 
-            foreach (var mat in WMRecipeCust.cacheMaterials)
-            {
-                MaterialDataManager.WackyForce(mat);
-            }
+            //foreach (var mat in WMRecipeCust.cacheMaterials)
+            //{
+            //    MaterialDataManager.WackyForce(mat);
+            //}
             
             foreach (var data in WMRecipeCust.cacheDataYML) // recipes last
             {
@@ -161,6 +161,7 @@ namespace wackydatabase.SetData
                     if (citem == data.name)
                     {
                         alreadyexist = true;
+                        WMRecipeCust.WLog.LogInfo($"Another item named {data.name} has all ready loaded for mainmenu");
                     }
                                               
                 }

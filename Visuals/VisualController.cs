@@ -68,7 +68,7 @@ namespace wackydatabase
                 return;
             }
 
-            Debug.Log($"Base: {visual.base_mat}, Legs: {visual.legs}, Chest: {visual.chest}");
+            Debug.Log($"{name}: Base: {visual.base_mat}, Legs: {visual.legs}, Chest: {visual.chest}");
 
             try
             {
@@ -84,7 +84,7 @@ namespace wackydatabase
                         PrefabAssistant.UpdateItemMaterialReference(item, m);   
                     } else
                     {
-                        Debug.LogWarning($"[{WMRecipeCust.ModName}]: Failed to get leg material {visual.chest}");
+                        Debug.LogWarning($"[{WMRecipeCust.ModName}]: Failed to get chest material {visual.chest}");
                     }
                 }
 

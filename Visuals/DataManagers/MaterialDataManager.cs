@@ -45,12 +45,13 @@ namespace wackydatabase
                     
                     Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to get material from cache: {mi.original}");
                 }
+                
                 else if (!materials.ContainsKey(mi.name))
                 {
                     Debug.Log($"[{WMRecipeCust.ModName}]: Adding Material: {mi.name}");
 
                     Material m = Material.Instantiate(WMRecipeCust.originalMaterials[mi.original]);
-                   // m.name = mi.name;
+                    m.name = mi.name;
 
                     // Add the material into the material cache
                     if (!WMRecipeCust.originalMaterials.ContainsKey(mi.name))

@@ -987,9 +987,10 @@ namespace wackydatabase.SetData
                                 WMRecipeCust.Dbgl($"Material name searching for {data.material}");
                                 try
                                 {
-                                    renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
+                                    
                                     if (data.material.Contains(','))
                                     {
+                                        renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
                                         string[] materialstr = data.material.Split(',');
                                         Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
                                         Material part = WMRecipeCust.originalMaterials[materialstr[1]];
@@ -1225,11 +1226,16 @@ namespace wackydatabase.SetData
                             }
                             else
                             {
-                                Material mat = WMRecipeCust.originalMaterials[data.material];
-
-                                foreach (Renderer r in PrefabAssistant.GetRenderers(go))
+                                if (WMRecipeCust.originalMaterials.TryGetValue(data.material, out Material mat))
                                 {
-                                    PrefabAssistant.UpdateMaterialReference(r, mat);
+
+                                    foreach (Renderer r in PrefabAssistant.GetRenderers(go))
+                                    {
+                                        PrefabAssistant.UpdateMaterialReference(r, mat);
+                                    }
+                                }else
+                                {
+                                    WMRecipeCust.WLog.LogWarning(data.material + " was not found");
                                 }
                             }
                         }
