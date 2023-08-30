@@ -17,6 +17,7 @@ using YamlDotNet.Serialization;
 using static ItemSets;
 using System.Security.Policy;
 using static ItemDrop;
+using System.CodeDom.Compiler;
 
 namespace wackydatabase.SetData
 {
@@ -73,7 +74,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.itemDatasYml.Clear();
                 WMRecipeCust.pieceDatasYml.Clear();
                 WMRecipeCust.effectDataYml.Clear();
-                WMRecipeCust.cacheDataYML.Clear();
+                WMRecipeCust.cacheItemsYML.Clear();
                 WMRecipeCust.creatureDatasYml.Clear();
 
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
@@ -133,8 +134,35 @@ namespace wackydatabase.SetData
             }
         }
 
+        public void LoadZDOsForClones()
+        {
+            ZNetScene znet = ZNetScene.instance;
+            if (znet) {
 
-        public void LoadClonedCachedItems(bool WithZdo =false) // cached items for main menu only // don't load znets obviously 
+                WMRecipeCust.WLog.LogInfo($"Setting Cloned ZDO Data");
+                foreach (var item in WMRecipeCust.WaitListZDO)
+                {
+                    string name = item.Key;
+                    int hash = name.GetStableHashCode();
+                    if (znet.m_namedPrefabs.ContainsKey(hash))
+                        WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
+                    else
+                    {
+                        if (item.Value.GetComponent<ZNetView>() != null)
+                            znet.m_prefabs.Add(item.Value);
+                        else
+                            znet.m_nonNetViewPrefabs.Add(item.Value);
+
+                        znet.m_namedPrefabs.Add(hash, item.Value);
+                        WMRecipeCust.Dbgl($"Added prefab {name}");
+                    }
+                    znet.m_namedPrefabs[hash].gameObject.SetActive(false);
+                    
+                }         
+            }
+        }
+
+        public void LoadClonedCachedItems(bool WithZdo =false) // cached items and item mocks for main menu
         {
             if (WMRecipeCust.IsServer && WMRecipeCust.isDedServer) return;
             ObjectDB Instant = ObjectDB.instance;
@@ -147,13 +175,8 @@ namespace wackydatabase.SetData
                 WMRecipeCust.GetAllMaterials();
 
             }
-
-            //foreach (var mat in WMRecipeCust.cacheMaterials)
-            //{
-            //    MaterialDataManager.WackyForce(mat);
-            //}
-            
-            foreach (var data in WMRecipeCust.cacheDataYML) // recipes last
+       
+            foreach (var data in WMRecipeCust.cacheItemsYML) 
             {
                 bool alreadyexist = false;
                 foreach (var citem in WMRecipeCust.ClonedI)
@@ -162,14 +185,28 @@ namespace wackydatabase.SetData
                     {
                         alreadyexist = true;
                         WMRecipeCust.WLog.LogInfo($"Another item named {data.name} has all ready loaded for mainmenu");
+                    }                                             
+                }
+                foreach (var citem in WMRecipeCust.MockI)
+                {
+                    if (citem == data.name)
+                    {
+                        alreadyexist = true;
+                        WMRecipeCust.WLog.LogInfo($"Another Item for this Mock named {data.name} has all ready loaded for mainmenu");
                     }
-                                              
                 }
                 if (!alreadyexist)
                 {
                     try
                     {
-                        SetData.SetClonedItemsDataCache(data, Instant, true);// has issues
+                        GameObject thing = SetData.SetClonedItemsDataCache(data, Instant, false);
+                        if (thing != null)
+                        {
+                            WMRecipeCust.WaitListZDO.Add(data.name, thing);
+                        }else
+                        {
+                            WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} was null");
+                        }
                     }
                     catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
 
@@ -189,7 +226,6 @@ namespace wackydatabase.SetData
                 Instant.UpdateItemHashes();
             }
             catch { WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems"); }
-
         }
 
         internal void LoadClonedItemsOnlyEarly(ObjectDB Instance)
@@ -228,7 +264,7 @@ namespace wackydatabase.SetData
 
         }
 
-        internal void LoadClonesEarly() // not working
+        internal void LoadClonesEarly() // not working // not needed
         {
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {
@@ -412,7 +448,6 @@ namespace wackydatabase.SetData
             }
 
             
-
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {
                 WMRecipeCust.CheckModFolder();
@@ -454,7 +489,6 @@ namespace wackydatabase.SetData
                     // effects first
                     foreach (var data in WMRecipeCust.effectDataYml) // recipes last
                     {
-
                         try
                         {
                             SetData.SetStatusData(data, Instant);// has issues
@@ -574,7 +608,7 @@ namespace wackydatabase.SetData
                     }
 
                     //string currentplayer = Player.m_localPlayer.name;// save item cache
-                    WMRecipeCust.Dbgl($"Building Cache for Player ");
+                    WMRecipeCust.Dbgl($"Building Cloned Cache for Player Items/Mock");
                     var serializer = new SerializerBuilder()
                                 .Build();
                     var rand = new System.Random();
@@ -583,6 +617,12 @@ namespace wackydatabase.SetData
                         try
                         {
                             if (!string.IsNullOrEmpty(data.clonePrefabName))
+                            {
+                                int hash = data.name.GetStableHashCode(); // hash for the name now
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
+                            }
+
+                            if (!string.IsNullOrEmpty(data.mockName))
                             {
                                 int hash = data.name.GetStableHashCode(); // hash for the name now
                                 File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));

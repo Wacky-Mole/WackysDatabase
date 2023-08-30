@@ -83,7 +83,7 @@ namespace wackydatabase
         internal static string ConnectionError = "";
         internal static bool Firstrun = true;
         internal static bool AwakeHasRun = false;
-        internal static bool FirstSessionRun = true;
+        internal static bool FirstSessionRun = false;
         internal static bool ObjectDBTwice = false;
 
 
@@ -98,18 +98,18 @@ namespace wackydatabase
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
         public static List<StatusData> effectDataYml = new List<StatusData>();
         public static List<CreatureData> creatureDatasYml = new List<CreatureData>();
-        public static List<WItemData> cacheDataYML = new List<WItemData>();// cacheonly
+        public static List<WItemData> cacheItemsYML = new List<WItemData>();// cacheonly
         public static List<MaterialInstance> cacheMaterials = new List<MaterialInstance>();// cacheonly
 
 
         public static List<string> ClonedI = new List<string>(); // items
         public static List<string> ClonedINoZ = new List<string>(); // items No Znet // not used
-        public static Dictionary<GameObject, ItemDrop> WaitList = new Dictionary<GameObject, ItemDrop>();
+        public static Dictionary<string, GameObject> WaitListZDO = new Dictionary<string, GameObject>();
         public static List<string> ClonedP = new List<string>(); // pieces
         public static List<string> ClonedR = new List<string>(); // recipes
         public static List<string> ClonedE = new List<string>(); // effects
         public static List<string> ClonedC = new List<string>(); // creatures
-        public static Dictionary<string, GameObject> ClonedCC = new Dictionary<string, GameObject>();
+        public static Dictionary<string, GameObject> ClonedCC = new Dictionary<string, GameObject>(); //Cloned creatureDick
         public static List<string> ClonedCR = new List<string>(); // creaturesReplacer
         public static List<string> MockI = new List<string>(); // MockItems
         public static List<string> BlacklistClone = new List<string>();

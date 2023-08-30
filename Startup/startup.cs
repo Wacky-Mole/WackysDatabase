@@ -28,16 +28,16 @@ namespace wackydatabase.Startup
         {
             static void Postfix()
             {
-                if (WMRecipeCust.clonedcache.Value)
+
+                //if (WMRecipeCust.clonedcache.Value)
                 {
-                    WMRecipeCust.Dbgl("Loading Cloned items for Menu");
+                    WMRecipeCust.Dbgl("Checking Cache Folder and Loading Any Item/Mock Clones");
                     ReadFiles clones = new ReadFiles();
                     clones.GetCacheClonesOnly();
                     SetData.Reload Startup = new SetData.Reload();
                     Startup.LoadClonedCachedItems();
-                    
+
                 }
-                WMRecipeCust.FirstSessionRun = true;
             }
 
         }
@@ -47,8 +47,8 @@ namespace wackydatabase.Startup
         {
             static void Prefix()
             {
-                DestroyStartupItems(); // destory old item clones
-                WMRecipeCust.Dbgl("Unloading Cloned Items from MainMenu");
+                //DestroyStartupItems(); // destory old item clones
+                //WMRecipeCust.Dbgl("Unloading Cloned Items from MainMenu");
                 
             }
 
@@ -60,30 +60,33 @@ namespace wackydatabase.Startup
         {
             static void Postfix()
             {
-                if (!WMRecipeCust.modEnabled.Value || !WMRecipeCust.ObjectDBTwice)
-                {                
+                if (!WMRecipeCust.modEnabled.Value)
+                    return;
+
+
+
+
+                if (!WMRecipeCust.FirstSessionRun)
+                {
+                    WMRecipeCust.FirstSessionRun = true;
                     return;
                 }
-                WMRecipeCust.ObjectDBTwice = !WMRecipeCust.ObjectDBTwice; // mainmenu->game->mainmenu->game
 
-                WMRecipeCust.WLog.LogInfo("ObjectDB Awake Load");
+                WMRecipeCust.WLog.LogInfo("ObjectDB 2nd Awake Load");
+
+                ReadFiles clones2 = new ReadFiles();
+                clones2.GetCacheClonesOnly();
+                SetData.Reload Startup2 = new SetData.Reload();
+                Startup2.LoadClonedCachedItems();
 
 
-                if (ZNet.instance.IsServer() )
+                if (ZNet.instance.IsServer())
                 { 
                     // Only Load if Singleplayer or COOP Server -otherwise need to wait for client
-                  // WMRecipeCust.context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
                     PrepareLoadData();
 
                 }
-                else
-                {
-                    SetData.Reload temp = new SetData.Reload();
-                    WMRecipeCust.CurrentReload = temp;
-                    //temp.LoadClonesEarly();
-                    // load cache clones because mods need them. 
 
-                }
 
                 if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied) // is client now
                 {
@@ -97,39 +100,25 @@ namespace wackydatabase.Startup
                     }
                 }
             }
-        } 
+        }
 
 
         [HarmonyPatch(typeof(ZNetScene), "Awake")]
         //[HarmonyPriority(Priority.Last)]
-        [HarmonyPriority(Priority.VeryLow)] // might work
+        //[HarmonyPriority(Priority.VeryLow)] // might work
         static class ZNetScene_Awake_Patch_LastWackysDatabase
         {
             static void Postfix()
             {
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
-                WMRecipeCust.WLog.LogWarning("Znet Awakle");
+
+                WMRecipeCust.CurrentReload.LoadZDOsForClones();
+                WMRecipeCust.WLog.LogWarning("Znet Awake");
 
             }
-        }
-        /* // idk
-        [HarmonyPatch(typeof(ObjectDB), "Awake")]
-        [HarmonyPriority(Priority.High)]
-        static class testObjPat
-        {
-            private static void Postfix(ObjectDB __instance)
-            {
-               // SetData.Reload temp = new SetData.Reload();
-               // WMRecipeCust.CurrentReload = temp;
-               // WMRecipeCust.WLog.LogWarning("LoadingCloned items early");
-                //temp.LoadClonedItemsOnlyEarly(__instance);
 
-                //__instance.UpdateItemHashes();
-
-            }
         }
-        */
 
 
         [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.Start))]
@@ -266,10 +255,6 @@ namespace wackydatabase.Startup
                 WMRecipeCust.WLog.LogError("You should Now Exit, but wackyDB will continue anyways, please remove any jsons leftover from wackydatabase");
             }
 
-            if (ZNet.instance.IsDedicated())
-            {
-
-            }
             SetData.Reload temp = new SetData.Reload();
             WMRecipeCust.CurrentReload = temp;
             WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload

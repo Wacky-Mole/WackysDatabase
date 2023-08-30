@@ -71,12 +71,12 @@ namespace wackydatabase.Read
         }
         public void GetCacheClonesOnly()
         {
-            WMRecipeCust.cacheDataYML.Clear();
+            WMRecipeCust.cacheItemsYML.Clear();
             YamlLoader cache = new YamlLoader(); // cache Only
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathCache, "*.zz", SearchOption.AllDirectories))
             {
-                cache.Load<WItemData>(file, WMRecipeCust.cacheDataYML);
+                cache.Load<WItemData>(file, WMRecipeCust.cacheItemsYML);
             }
         }
         internal IEnumerator StartReloadingTimer()
@@ -184,7 +184,7 @@ namespace wackydatabase.Read
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathCache, "*.zz", SearchOption.AllDirectories))
             {
-                cache.Load<WItemData>(file, WMRecipeCust.cacheDataYML);
+                cache.Load<WItemData>(file, WMRecipeCust.cacheItemsYML);
 
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
