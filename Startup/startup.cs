@@ -15,6 +15,7 @@ using wackydatabase.Read;
 using System.Security.Policy;
 using wackydatabase.SetData.SetOldData;
 using System.Reflection;
+using static CharacterAnimEvent;
 
 namespace wackydatabase.Startup
 {
@@ -48,40 +49,41 @@ namespace wackydatabase.Startup
             {
                 DestroyStartupItems(); // destory old item clones
                 WMRecipeCust.Dbgl("Unloading Cloned Items from MainMenu");
+                
             }
 
-        }
-        /* test only
-        [HarmonyPatch(typeof(ZNetScene), "Awake")]
-        [HarmonyPriority(Priority.LowerThanNormal)]
+        }  
 
-        static class ZNetScene_Awake_Patch_Middle_WackysDatabase
+        [HarmonyPatch(typeof(ObjectDB), "Awake")]
+
+        static class ObjectAwake
         {
             static void Postfix()
             {
-                if (ZNet.instance.IsServer()) // singleplayer or COOP Server
+                if (!WMRecipeCust.modEnabled.Value || !WMRecipeCust.ObjectDBTwice)
+                {                
+                    return;
+                }
+                WMRecipeCust.ObjectDBTwice = !WMRecipeCust.ObjectDBTwice; // mainmenu->game->mainmenu->game
+
+                WMRecipeCust.WLog.LogInfo("ObjectDB Awake Load");
+
+
+                if (ZNet.instance.IsServer() )
+                { 
+                    // Only Load if Singleplayer or COOP Server -otherwise need to wait for client
+                  // WMRecipeCust.context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
+                    PrepareLoadData();
+
+                }
+                else
                 {
                     SetData.Reload temp = new SetData.Reload();
                     WMRecipeCust.CurrentReload = temp;
                     //temp.LoadClonesEarly();
+                    // load cache clones because mods need them. 
+
                 }
-            }
-        } */
-
-        [HarmonyPatch(typeof(ZNetScene), "Awake")]
-        //[HarmonyPriority(Priority.Last)]
-        [HarmonyPriority(Priority.VeryLow)] // might work
-        static class ZNetScene_Awake_Patch_LastWackysDatabase
-        {
-
-            static void Postfix()
-            {
-                if (!WMRecipeCust.modEnabled.Value)
-                    return;
-
-                
-                if (ZNet.instance.IsServer() && !ZNet.instance.IsDedicated()) // Only Load if Singleplayer or COOP Server -otherwise need to wait for client
-                    WMRecipeCust.context.StartCoroutine(DelayedLoadRecipes());// very importrant for last sec load
 
                 if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied) // is client now
                 {
@@ -94,6 +96,21 @@ namespace wackydatabase.Startup
                         WMRecipeCust.WLog.LogWarning("You hosted a COOP game before trying to connect to a server - LOCKOUT - 0.0.1 - Restart Game " + WMRecipeCust.ConfigSync.CurrentVersion);
                     }
                 }
+            }
+        } 
+
+
+        [HarmonyPatch(typeof(ZNetScene), "Awake")]
+        //[HarmonyPriority(Priority.Last)]
+        [HarmonyPriority(Priority.VeryLow)] // might work
+        static class ZNetScene_Awake_Patch_LastWackysDatabase
+        {
+            static void Postfix()
+            {
+                if (!WMRecipeCust.modEnabled.Value)
+                    return;
+                WMRecipeCust.WLog.LogWarning("Znet Awakle");
+
             }
         }
         /* // idk
@@ -224,17 +241,52 @@ namespace wackydatabase.Startup
             }
         }
 
+
+        public static void PrepareLoadData()
+        {
+
+            WMRecipeCust.ReloadingOkay = true;
+            if (WMRecipeCust.jsonsFound)
+            {
+                OldReloadSet oldset = new OldReloadSet();
+
+                WMRecipeCust.WLog.LogWarning("Jsons Found, loading jsons for conversion");
+
+                oldset.OldGetJsons();
+
+                WMRecipeCust.WLog.LogWarning("Jsons Loading into Database, Please stand by");
+                oldset.OldReload();
+
+                WMRecipeCust.WLog.LogWarning("Jsons being converted, Please stand by");
+
+                WMRecipeCust.startupserver.SaveYMLBasedONJsons(WMRecipeCust.jsonfiles);
+
+                WMRecipeCust.WLog.LogWarning("Jsons found have been moved to wackysDatabase-OldJsons, any left over should be recreated using console commands");
+
+                WMRecipeCust.WLog.LogError("You should Now Exit, but wackyDB will continue anyways, please remove any jsons leftover from wackydatabase");
+            }
+
+            if (ZNet.instance.IsDedicated())
+            {
+
+            }
+            SetData.Reload temp = new SetData.Reload();
+            WMRecipeCust.CurrentReload = temp;
+            WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
+        }
+
+
         public static IEnumerator DelayedLoadRecipes()
         {
 
             SetData.Reload temp = new SetData.Reload();
             WMRecipeCust.CurrentReload = temp;
 
-            temp.LoadClonesEarly(); // only pieces for now - items are broken on early load
+            //temp.LoadClonesEarly(); // only pieces for now - items are broken on early load
             //var hello = ObjectDB.instance;
             //temp.LoadClonedItemsOnlyEarly(hello);
 
-            yield return new WaitForSeconds(0.1f); 
+            //yield return new WaitForSeconds(0.1f); 
             WMRecipeCust.ReloadingOkay = true;
           
             OldReloadSet oldset = new OldReloadSet();
@@ -257,10 +309,6 @@ namespace wackydatabase.Startup
                 WMRecipeCust.WLog.LogWarning("Jsons found have been moved to wackysDatabase-OldJsons, any left over should be recreated using console commands");
 
                 WMRecipeCust.WLog.LogError("You should Now Exit, please remove any jsons leftover from wackydatabase");
-
-
-                //Application.Quit();
-
             }
             WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
             yield break;

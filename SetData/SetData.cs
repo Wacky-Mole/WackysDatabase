@@ -919,7 +919,7 @@ namespace wackydatabase.SetData
 
         #region Items
 
-        internal static void SetClonedItemsDataCache(WItemData data, ObjectDB Instant) // need to add mock items as well I guess
+        internal static void SetClonedItemsDataCache(WItemData data, ObjectDB Instant, bool WithZDO =false) // need to add mock items as well I guess
         {
 
             bool skip = false;
@@ -981,6 +981,7 @@ namespace wackydatabase.SetData
                             var hash = newItem.name.GetStableHashCode();
                             Instant.m_items.Add(newItem);
                             Instant.m_itemByHash.Add(hash, newItem);
+                           
 
 
                             if (!string.IsNullOrEmpty(data.material))
@@ -1135,6 +1136,7 @@ namespace wackydatabase.SetData
             if (go == null)
             {
                 WMRecipeCust.Dbgl(" item in SetItemData null " + data.name);
+                WMRecipeCust.Dbgl("hash " + data.name.GetStableHashCode());
                 return;
             }
             if (go.GetComponent<ItemDrop>() == null)
@@ -1174,9 +1176,9 @@ namespace wackydatabase.SetData
                         newItem.name = tempname; // resets the orginal name- needs to be unquie
                         NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
                         var hash = newItem.name.GetStableHashCode();
-                        Instant.m_items.Add(newItem);
-                        Instant.m_itemByHash.Add(hash, newItem);
-                        
+                        ObjectDB.instance.m_items.Add(newItem);
+                        ObjectDB.instance.m_itemByHash.Add(hash, newItem);
+                        WMRecipeCust.Dbgl("hash " + hash);
 
                         ZNetScene znet = ZNetScene.instance;
                         if (znet && ZnetNow)
@@ -1196,10 +1198,11 @@ namespace wackydatabase.SetData
                             }
                         }
 
-
+                        //ObjectDB.instance.UpdateItemHashes();
 
                         go = Instant.GetItemPrefab(tempname);
                         PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
+                        PrimaryItemData.m_dropPrefab = go;
                         data.name = tempname; // putting back name
 
 

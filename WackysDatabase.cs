@@ -84,6 +84,7 @@ namespace wackydatabase
         internal static bool Firstrun = true;
         internal static bool AwakeHasRun = false;
         internal static bool FirstSessionRun = true;
+        internal static bool ObjectDBTwice = false;
 
 
         public static List<RecipeData_json> recipeDatas = new List<RecipeData_json>();
@@ -266,10 +267,11 @@ namespace wackydatabase
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
 
-            Root = new GameObject("myroot");
-            Root.SetActive(false);   
             //PrefabContainer.transform.parent = Main.RootObject.transform; ? JVL onto something
-            DontDestroyOnLoad(Root); // clone magic 
+
+            WMRecipeCust.Root = new GameObject("myroot");
+            WMRecipeCust.Root.SetActive(false);
+            WMRecipeCust.DontDestroyOnLoad(WMRecipeCust.Root); // clone magic 
 
             // ^^ // starting files
             context = this;

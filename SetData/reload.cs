@@ -134,7 +134,7 @@ namespace wackydatabase.SetData
         }
 
 
-        public void LoadClonedCachedItems() // cached items for main menu only // don't load znets obviously 
+        public void LoadClonedCachedItems(bool WithZdo =false) // cached items for main menu only // don't load znets obviously 
         {
             if (WMRecipeCust.IsServer && WMRecipeCust.isDedServer) return;
             ObjectDB Instant = ObjectDB.instance;
@@ -169,7 +169,7 @@ namespace wackydatabase.SetData
                 {
                     try
                     {
-                        SetData.SetClonedItemsDataCache(data, Instant);// has issues
+                        SetData.SetClonedItemsDataCache(data, Instant, true);// has issues
                     }
                     catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
 
@@ -277,7 +277,7 @@ namespace wackydatabase.SetData
                         // Broken for now
              // This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
             // it failed because it couldn't init after item pickup by player. So spawn in, pickup, drop error on object init. No idea why, but works after teh .1f delay
-         /*   
+           /*
             WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
             foreach (var data3 in WMRecipeCust.itemDatasYml)
             {
