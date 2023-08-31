@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Reflection;
 using UnityEngine;
 using System.Collections;
+using BepInEx;
 
 namespace wackydatabase.Util
 {
@@ -235,6 +236,30 @@ namespace wackydatabase.Util
                 Debug.Log((pref ? WMRecipeCust.ModName + " " : "") + str);
         }
 
+
+        private static BaseUnityPlugin? _plugin;
+
+        private static BaseUnityPlugin plugin
+        {
+            get
+            {
+                if (_plugin is null)
+                {
+                    IEnumerable<TypeInfo> types;
+                    try
+                    {
+                        types = Assembly.GetExecutingAssembly().DefinedTypes.ToList();
+                    }
+                    catch (ReflectionTypeLoadException e)
+                    {
+                        types = e.Types.Where(t => t != null).Select(t => t.GetTypeInfo());
+                    }
+                    _plugin = (BaseUnityPlugin)BepInEx.Bootstrap.Chainloader.ManagerObject.GetComponent(types.First(t => t.IsClass && typeof(BaseUnityPlugin).IsAssignableFrom(t)));
+                }
+                return _plugin;
+            }
+        }
+
         public static void SnapshotItem(ItemDrop item, float lightIntensity = 1.3f, Quaternion? cameraRotation = null, Quaternion? itemRotation = null)
         {
             void Do()
@@ -315,13 +340,19 @@ namespace wackydatabase.Util
                 yield return null;
                 Do();
             }
-            if (ObjectDB.instance)
+            IEnumerator WackyDelay()
             {
+                yield return 1f;
                 Do();
             }
-            else
+            if (ObjectDB.instance)
             {
-                WMRecipeCust.context.StartCoroutine(Delay());
+                WMRecipeCust.context.StartCoroutine(WackyDelay());
+                // Do();
+            }
+            else
+            {            
+                plugin.StartCoroutine(Delay());
             }
         }
     }
