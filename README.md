@@ -433,8 +433,8 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 
 ### GEffects
 
+![Ice Video](https://wackymole.com/hosts/icevideo.gif))
 
-<img src="https://wackymole.com/hosts/icevideo.gif" width="450"/>
 
 - `Hit_Effects` (string[]): The hit effects.
 - `Hit_Terrain_Effects` (string[]): The effects when hitting terrain.
