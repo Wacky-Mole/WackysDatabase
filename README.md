@@ -2,6 +2,8 @@ WackysDatabase
 
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 
+<img src="https://wackymole.com/hosts/Blueman.png'.png" />
+
 Version: 2.0
 Features
 
@@ -80,6 +82,9 @@ Frequently Asked Questions
         If you notice a speed up or down a +- 0.1 should fix it.  
         FYI reminder that SpeedFactor deals with character movement speed while swinging/attacking and has nothing to do with speed of animation.
 
+    Q: What Folders do I need to give to my users?
+        A: Textures, Objects, Icons will NOT SYNC. I also recommend including the cache folder. Cache keeps track of Item/mock clones and materials
+
 </details>
 
 <details><summary>Configuration</summary>
@@ -98,6 +103,14 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 - ExtraSecurity on Servers: true (prevents loading into singleplayer and then loading into multiplayer)
 - FileWatcher for YMLs: true (reloads the mod on any changes to the wackydatabase folder on the server)
 - List of Extra Effects: "lightningAOE" (extra effects to look for from the base game or mods)
+
+
+</details>
+
+<details><summary>Crazy Videos</summary>
+<img src="https://wackymole.com/hosts/crazypower.gif" />
+
+<img src="https://wackymole.com/hosts/fastattack.gif" />
 
 
 </details>
@@ -140,6 +153,30 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_sendtheload` : Experimental  command that will send pngs and objs to clients utilizing ServerSync. I recommend the Network mod to uncap datarates. 
 - `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
 - `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
+
+
+</details>
+
+
+<details><summary> Cache System </summary>
+
+
+<img src="https://wackymole.com/hosts/MainMenu.png" />
+
+## Cache Folder
+
+
+The cache system is very important for Item/mock clones. 
+
+It allows material colors to show up on main menu and allows cloned items to be touched by other mods and treated like normal items.
+
+It is so important now that I recommend including your cache folder on updates to your modpack, along with Textures, Objects, Icons
+
+If a cloned is not cached for the first run, errors may appear for users as other mods try to touch a item that wasn't created until very late.
+
+The next load logon should fix the issues. 
+
+</br>
 
 
 </details>
@@ -227,7 +264,7 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 
 - `customVisual` (CustomVisual): The custom visual data of the item.
-- `sizeMultiplier` (float): The size multiplier of the item. You can go from .01 to 1000.5 if you want. Have fun!
+- `sizeMultiplier` (float): The size multiplier of the item. You can go from .01 to 1000.5 if you want. Have fun!****
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
 ### CustomVisual
 
@@ -396,6 +433,9 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 
 ### GEffects
 
+
+<img src="https://wackymole.com/hosts/icevideo.gif" width="450"/>
+
 - `Hit_Effects` (string[]): The hit effects.
 - `Hit_Terrain_Effects` (string[]): The effects when hitting terrain.
 - `Start_Effect` (string[]): The starting effect.
@@ -408,7 +448,7 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 
 <details><summary> Piece components</summary>
 
-<img src="https://wackymole.com/hosts/red%20walls.png" width="450"/>
+<img src="https://wackymole.com/hosts/redforge.webp" width="450"/>
 
 
 ### Pieces
