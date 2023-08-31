@@ -286,8 +286,8 @@ namespace wackydatabase.SetData
                 ZNet Net = new ZNet();
                 Startup.Startup.IsLocalInstance(Net);
             }
+            WMRecipeCust.WLog.LogWarning($"Beginning LoadAllRecipeData");
 
-            
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {
                 WMRecipeCust.CheckModFolder();
@@ -298,259 +298,235 @@ namespace wackydatabase.SetData
             }
 
 
-            if (reload && (WMRecipeCust.issettoSinglePlayer || WMRecipeCust.recieveServerInfo || WMRecipeCust.LobbyRegistered)) // single player only or recievedServerInfo
+            if (!WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
+                yield break;
+
+            ObjectDB Instant = ObjectDB.instance;
+            GameObject[] AllObjects = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
+
+            if (slowmode)
             {
-                if (WMRecipeCust.recieveServerInfo && WMRecipeCust.issettoSinglePlayer) // Might remove this, this check might interfere with my existing checks and is not needed
+                while (WMRecipeCust.LockReload)
                 {
-                    WMRecipeCust.WLog.LogWarning($" You Loaded into Singleplayer local first and therefore will NOT be allowed to reload Server Configs");
-                    yield break; // naughty boy no recipes for you
+                    yield return new WaitForSeconds(1f);
                 }
-                else
-                {
-                    if (!WMRecipeCust.ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
-                        yield break;
 
-                    ObjectDB Instant = ObjectDB.instance;
-                    GameObject[] AllObjects = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
-
-                    if (slowmode)
-                    {
-                        while (WMRecipeCust.LockReload)
-                        {
-                            yield return new WaitForSeconds(1f);
-                        }
-
-                        WMRecipeCust.WLog.LogInfo($"Beginning SLOW Update");
-
-                    }
-                    else
-                        WMRecipeCust.WLog.LogInfo($"Beginning Update");
-
-                    int processcount = 0;
-                    // effects first
-                    foreach (var data in WMRecipeCust.effectDataYml) // recipes last
-                    {
-                        try
-                        {
-                            SetData.SetStatusData(data, Instant);// has issues
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
-
-                        processcount++;
-                        if (processcount > WMRecipeCust.ProcessWait && slowmode)
-                        {
-                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                            processcount = 0;
-                        }
-                    }
-
-                    WMRecipeCust.WLog.LogInfo($" Set Effects Loaded");
-                    // CLONE PASS FIRST - only for craftingStation
-                    foreach (var data3 in WMRecipeCust.pieceDatasYml)
-                    {
-                        if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName))
-                        {
-                            try
-                            {
-                                CraftingStation checkifStation = null;
-                                GameObject go = DataHelpers.FindPieceObjectName(data3.clonePrefabName);
-                                string tempnam = null;
-                                tempnam = go.GetComponent<CraftingStation>()?.m_name;
-                                if (tempnam != null)
-                                {
-                                    checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
-                                    if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
-                                    {
-                                        SetData.SetPieceRecipeData(data3, Instant);
-                                    }
-                                }
-                            }
-                            catch { } // spams just catch any empty
-                        }
-                        processcount++;
-                        if (processcount > WMRecipeCust.ProcessWait && slowmode)
-                        {
-                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                            processcount = 0;
-                        }
-                    }
-                    // END CLONE PASS
-                    // Real PASS NOW
-                    foreach (var data in WMRecipeCust.itemDatasYml) // call items first
-                    {
-                        try
-                        {
-                            SetData.SetItemData(data, Instant, AllObjects,true );
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"SetItem Data for {data.name} failed"); }
-
-                        if(!string.IsNullOrEmpty(data.clonePrefabName) || !string.IsNullOrEmpty(data.mockName))
-                        {
-                            WMRecipeCust.MultiplayerApproved.Add(data.name);
-                        }
-
-                        if (data.customVisual != null)
-                        {
-                            try
-                            {
-                                VisualController.UpdatePrefab(data.name, data.customVisual);
-
-                                if (DataHelpers.ECheck(data.customIcon))
-                                {
-                                    Functions.SnapshotItem(lastItemSet); // snapshot go
-                                }
-   
-                            }
-                            catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
-                        }
-
-                            processcount++;
-                        if (processcount > WMRecipeCust.ProcessWait && slowmode)
-                        {
-                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                            processcount = 0;
-                        }
-                    }
-                    Instant.UpdateItemHashes();
-                    foreach (var data in WMRecipeCust.pieceDatasYml)
-                    {
-                        try
-                        {
-                            SetData.SetPieceRecipeData(data, Instant);
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data.name} failed"); }
-                        processcount++;
-                        if (processcount > WMRecipeCust.ProcessWait && slowmode )
-                        {
-                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                            processcount = 0;
-                        }
-                    }
-                    foreach (var data in WMRecipeCust.recipeDatasYml) // recipes last
-                    {
-                        try
-                        {
-                            SetData.SetRecipeData(data, Instant);
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
-                        processcount++;
-                        if (processcount > WMRecipeCust.ProcessWait && slowmode)
-                        {
-                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                            processcount = 0;
-                        }
-                    }
-                    WMRecipeCust.Dbgl($"Setting Creatures ");
-                    
-                    foreach ( var data in WMRecipeCust.creatureDatasYml)
-                    {
-                        try
-                        {
-                           // WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} ");
-                            SetData.SetCreature(data, AllObjects);
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"Set Creature for {data.name} failed"); }
-
-                        processcount++;
-                        if (processcount > WMRecipeCust.ProcessWait && slowmode)
-                        {
-                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                            processcount = 0;
-                        }
-                    }
-
-                    //string currentplayer = Player.m_localPlayer.name;// save item cache
-                    WMRecipeCust.Dbgl($"Building Cloned Cache for Player Items/Mock");
-                    var serializer = new SerializerBuilder()
-                                .Build();
-                    var rand = new System.Random();
-                    foreach (var data in WMRecipeCust.itemDatasYml)
-                    {
-                        try
-                        {
-                            if (!string.IsNullOrEmpty(data.clonePrefabName))
-                            {
-                                int hash = data.name.GetStableHashCode(); // hash for the name now
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
-                            }
-
-                            if (!string.IsNullOrEmpty(data.mockName))
-                            {
-                                int hash = data.name.GetStableHashCode(); // hash for the name now
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
-                            }
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"Item Cache save for {data.name} failed"); }
-                        processcount++;
-                        if (processcount > WMRecipeCust.ProcessWait && slowmode )
-                        {
-                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                            processcount = 0;
-                        }
-                    }
-                    // textures don't need to be cached because always on player comp
-                    /* future rexabtye caching
-
-                    foreach (var data in WMRecipeCust.assetPathMaterials) //materials
-                    {
-                        try
-                        {
-                            if (!string.IsNullOrEmpty(data.clonePrefabName))
-                            {
-                                var hash = data.GetHashCode(); // rand.Next(501032334)
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
-                            }
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"Item Cache save for {data.name} failed"); }
-                        processcount++;
-                        if (processcount > WMRecipeCust.ProcessWait && slowmode)
-                        {
-                            yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                            processcount = 0;
-                        }
-                    }
-                    */
-
-                    removeLocalData();
-
-                    try
-                    {
-                        ObjectDB.instance.UpdateItemHashes();
-                    }
-                    catch
-                    {
-                        WMRecipeCust.Dbgl($"failed to update Hashes- probably error in files");
-                    }
-
-                    WMRecipeCust.Dbgl($" You finished wackydb reload");
-
-                    OnAllReloaded?.Invoke();
-
-                    //FinishZnetObjects();
-                    //reloadDropPrefab();
-
-                    if (OtherApi.Marketplace_API.IsInstalled())
-                    {
-                        OtherApi.Marketplace_API.ResetTraderItems();
-                    }
-                }
+                WMRecipeCust.WLog.LogInfo($"Beginning SLOW Update");
 
             }
             else
+                WMRecipeCust.WLog.LogInfo($"Beginning Update");
+
+            int processcount = 0;
+            // effects first
+            foreach (var data in WMRecipeCust.effectDataYml) // recipes last
             {
-                if (WMRecipeCust.issettoSinglePlayer)
+                try
                 {
-                    WMRecipeCust.Dbgl($" You did NOT reload Files. You probably should have.");
+                    SetData.SetStatusData(data, Instant);// has issues
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
                 }
             }
-                      
 
-        }
+            WMRecipeCust.WLog.LogInfo($" Set Effects Loaded");
+            // CLONE PASS FIRST - only for craftingStation
+            foreach (var data3 in WMRecipeCust.pieceDatasYml)
+            {
+                if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName))
+                {
+                    try
+                    {
+                        CraftingStation checkifStation = null;
+                        GameObject go = DataHelpers.FindPieceObjectName(data3.clonePrefabName);
+                        string tempnam = null;
+                        tempnam = go.GetComponent<CraftingStation>()?.m_name;
+                        if (tempnam != null)
+                        {
+                            checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                            if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
+                            {
+                                SetData.SetPieceRecipeData(data3, Instant);
+                            }
+                        }
+                    }
+                    catch { } // spams just catch any empty
+                }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            // END CLONE PASS
+            // Real PASS NOW
+            foreach (var data in WMRecipeCust.itemDatasYml) // call items first
+            {
+                try
+                {
+                    SetData.SetItemData(data, Instant, AllObjects,true );
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"SetItem Data for {data.name} failed"); }
 
-        
+                if(!string.IsNullOrEmpty(data.clonePrefabName) || !string.IsNullOrEmpty(data.mockName))
+                {
+                    WMRecipeCust.MultiplayerApproved.Add(data.name);
+                }
 
+                if (data.customVisual != null)
+                {
+                    try
+                    {
+                        VisualController.UpdatePrefab(data.name, data.customVisual);
+
+                        if (DataHelpers.ECheck(data.customIcon))
+                        {
+                            Functions.SnapshotItem(lastItemSet); // snapshot go
+                        }
+   
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
+                }
+
+                    processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            Instant.UpdateItemHashes();
+            foreach (var data in WMRecipeCust.pieceDatasYml)
+            {
+                try
+                {
+                    SetData.SetPieceRecipeData(data, Instant);
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data.name} failed"); }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode )
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            foreach (var data in WMRecipeCust.recipeDatasYml) // recipes last
+            {
+                try
+                {
+                    SetData.SetRecipeData(data, Instant);
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            WMRecipeCust.Dbgl($"Setting Creatures ");
+                    
+            foreach ( var data in WMRecipeCust.creatureDatasYml)
+            {
+                try
+                {
+                    // WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} ");
+                    SetData.SetCreature(data, AllObjects);
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"Set Creature for {data.name} failed"); }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            //string currentplayer = Player.m_localPlayer.name;// save item cache
+            WMRecipeCust.Dbgl($"Building Cloned Cache for Player Items/Mock");
+            var serializer = new SerializerBuilder()
+                        .Build();
+            var rand = new System.Random();
+            foreach (var data in WMRecipeCust.itemDatasYml)
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(data.clonePrefabName))
+                    {
+                        int hash = data.name.GetStableHashCode(); // hash for the name now
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
+                    }
+
+                    if (!string.IsNullOrEmpty(data.mockName))
+                    {
+                        int hash = data.name.GetStableHashCode(); // hash for the name now
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
+                    }
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"Item Cache save for {data.name} failed"); }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode )
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            // textures don't need to be cached because always on player comp
+            /* future rexabtye caching
+
+            foreach (var data in WMRecipeCust.assetPathMaterials) //materials
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(data.clonePrefabName))
+                    {
+                        var hash = data.GetHashCode(); // rand.Next(501032334)
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".zz"), serializer.Serialize(data));
+                    }
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"Item Cache save for {data.name} failed"); }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            */
+
+            removeLocalData();
+
+            try
+            {
+                ObjectDB.instance.UpdateItemHashes();
+            }
+            catch
+            {
+                WMRecipeCust.Dbgl($"failed to update Hashes- probably error in files");
+            }
+
+            WMRecipeCust.Dbgl($" You finished wackydb reload");
+
+            OnAllReloaded?.Invoke();
+
+            //FinishZnetObjects();
+            //reloadDropPrefab();
+
+            if (OtherApi.Marketplace_API.IsInstalled())
+            {
+                OtherApi.Marketplace_API.ResetTraderItems();
+            }
+                                 
+        }      
         public static event Action OnAllReloaded;
-
 
     }
 }

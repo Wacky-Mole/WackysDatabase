@@ -91,6 +91,8 @@ namespace wackydatabase.Startup
 
                 WMRecipeCust.WLog.LogWarning("objectDB Awake");
 
+                if (WMRecipeCust.dedLoad) // only for dedicatedservers
+                    PrepareLoadData();
 
                 if (!WMRecipeCust.FirstSessionRun)
                 {
@@ -116,7 +118,6 @@ namespace wackydatabase.Startup
                         PrepareLoadData();
 
                     }
-
 
                     if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied) // is client now
                     {
@@ -146,6 +147,9 @@ namespace wackydatabase.Startup
 
                 WMRecipeCust.CurrentReload.LoadZDOsForClones();
                 WMRecipeCust.WLog.LogWarning("Znet Awake");
+
+                if (WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
+                    WMRecipeCust.dedLoad = true;
 
             }
 
@@ -292,46 +296,6 @@ namespace wackydatabase.Startup
             WMRecipeCust.CurrentReload = temp;
             WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
         }
-
-
-        public static IEnumerator DelayedLoadRecipes()
-        {
-
-            SetData.Reload temp = new SetData.Reload();
-            WMRecipeCust.CurrentReload = temp;
-
-            //temp.LoadClonesEarly(); // only pieces for now - items are broken on early load
-            //var hello = ObjectDB.instance;
-            //temp.LoadClonedItemsOnlyEarly(hello);
-
-            //yield return new WaitForSeconds(0.1f); 
-            WMRecipeCust.ReloadingOkay = true;
-          
-            OldReloadSet oldset = new OldReloadSet();
-
-
-
-            if (WMRecipeCust.jsonsFound) 
-            {
-                WMRecipeCust.WLog.LogWarning("Jsons Found, loading jsons for conversion");
-
-                oldset.OldGetJsons();
-
-                WMRecipeCust.WLog.LogWarning("Jsons Loading into Database, Please stand by");
-                oldset.OldReload();
-
-                WMRecipeCust.WLog.LogWarning("Jsons being converted, Please stand by");
-
-                WMRecipeCust.startupserver.SaveYMLBasedONJsons(WMRecipeCust.jsonfiles);
-
-                WMRecipeCust.WLog.LogWarning("Jsons found have been moved to wackysDatabase-OldJsons, any left over should be recreated using console commands");
-
-                WMRecipeCust.WLog.LogError("You should Now Exit, please remove any jsons leftover from wackydatabase");
-            }
-            WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
-            yield break;
-        }
-
 
     }
 }
