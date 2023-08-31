@@ -89,7 +89,7 @@ namespace wackydatabase.Startup
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
 
-                WMRecipeCust.WLog.LogWarning("objectDB Awake");
+                //WMRecipeCust.WLog.LogWarning("objectDB Awake");
 
                 if (WMRecipeCust.dedLoad) // only for dedicatedservers
                     PrepareLoadData();
@@ -145,8 +145,9 @@ namespace wackydatabase.Startup
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
 
+                WMRecipeCust.WLog.LogInfo("Znet Awake");
                 WMRecipeCust.CurrentReload.LoadZDOsForClones();
-                WMRecipeCust.WLog.LogWarning("Znet Awake");
+                
 
                 if (WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
                     WMRecipeCust.dedLoad = true;

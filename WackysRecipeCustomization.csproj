@@ -64,6 +64,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\AnimationSpeedManager.dll</HintPath>
     </Reference>
+    <Reference Include="assembly_guiutils_publicized">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
+    </Reference>
     <Reference Include="assembly_utils, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\valheim_Data\Managed\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
     </Reference>
@@ -79,13 +82,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\MagicPortalFluid\MagicPortalFluid\Libs\ItemManager.dll</HintPath>
     </Reference>
+    <Reference Include="LocalizationManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Libs\LocalizationManager.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\unstripped_corlib\Microsoft.CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="PieceManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libs\PieceManager.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -144,6 +147,7 @@
     <Compile Include="GetData\GetDataYML.cs" />
     <Compile Include="GetData\GetDataOld\GetData.cs" />
     <Compile Include="GetData\YamlLoader.cs" />
+    <Compile Include="Libs\PieceManager.cs" />
     <Compile Include="OBJimporter\HandleData.cs" />
     <Compile Include="OBJimporter\Lib\BinaryExtensions.cs" />
     <Compile Include="OBJimporter\Lib\BMPLoader.cs" />
@@ -208,7 +212,7 @@
     <Content Include="Libs\ItemManager.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Libs\PieceManager.dll">
+    <Content Include="Libs\LocalizationManager.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Libs\YamlDotNet.dll">

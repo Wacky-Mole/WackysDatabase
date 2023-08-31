@@ -157,7 +157,7 @@ namespace wackydatabase.SetData
                             znet.m_nonNetViewPrefabs.Add(item.Value);
 
                         znet.m_namedPrefabs.Add(hash, item.Value);
-                        WMRecipeCust.Dbgl($"Added prefab {name}");
+                        WMRecipeCust.WLog.LogDebug($"Added prefab {name}");
                     }
                     znet.m_namedPrefabs[hash].gameObject.SetActive(false);
                     
@@ -172,7 +172,7 @@ namespace wackydatabase.SetData
             foreach (var citem in WMRecipeCust.ClonedI)
             {
                 if (WMRecipeCust.MasterCloneList.ContainsKey(citem)){
-                    WMRecipeCust.WLog.LogInfo($"Adding {citem} to ObjectDB");
+                    WMRecipeCust.Dbgl($"Adding {citem} to ObjectDB");
                     Instant.m_items.Add(WMRecipeCust.MasterCloneList[citem]);
                     Instant.m_itemByHash.Add(citem.GetStableHashCode(), WMRecipeCust.MasterCloneList[citem]);
                     WMRecipeCust.MasterCloneList[citem].SetActive(true);
@@ -184,7 +184,7 @@ namespace wackydatabase.SetData
             {
                 if (WMRecipeCust.MasterCloneList.ContainsKey(citem))
                 {
-                    WMRecipeCust.WLog.LogInfo($"Adding {citem} to ObjectDB");
+                    WMRecipeCust.Dbgl($"Adding {citem} to ObjectDB");
                     Instant.m_items.Add(WMRecipeCust.MasterCloneList[citem]);
                     Instant.m_itemByHash.Add(citem.GetStableHashCode(), WMRecipeCust.MasterCloneList[citem]);
                     WMRecipeCust.MasterCloneList[citem].SetActive(true);
@@ -293,7 +293,6 @@ namespace wackydatabase.SetData
                 ZNet Net = new ZNet();
                 Startup.Startup.IsLocalInstance(Net);
             }
-            WMRecipeCust.WLog.LogWarning($"Beginning LoadAllRecipeData");
 
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {

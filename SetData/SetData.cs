@@ -1212,7 +1212,6 @@ namespace wackydatabase.SetData
             if (go == null)
             {
                 WMRecipeCust.Dbgl(" item in SetItemData null " + data.name);
-                WMRecipeCust.Dbgl("hash " + data.name.GetStableHashCode());
                 return;
             }
             if (go.GetComponent<ItemDrop>() == null)

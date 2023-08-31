@@ -13,6 +13,7 @@ using BepInEx;
 using System;
 using wackydatabase.Datas;
 using System.Security.Policy;
+using System.Linq;
 
 namespace wackydatabase
 {
@@ -127,7 +128,9 @@ namespace wackydatabase
 
             foreach (string file in Directory.GetFiles(Storage, "*.yml", SearchOption.AllDirectories))
             {
-                Debug.Log($"[{WMRecipeCust.ModName}]: Loading {Name}: {file}");
+                var lastPart = file.Split('\\').Last();
+                Debug.Log($"[{WMRecipeCust.ModName}]: Loading {Name}: {lastPart}");
+                
 
                 LoadFile(file);
             }
