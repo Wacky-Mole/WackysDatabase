@@ -1173,6 +1173,7 @@ namespace wackydatabase.SetData
                             Instant.m_items.Add(newObj);
                             ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
+                            go2.SetActive(true);
 
                             if (string.IsNullOrEmpty(data.customIcon))
                             {
@@ -1281,6 +1282,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         PrimaryItemData.m_dropPrefab = go;
                         data.name = tempname; // putting back name
+                        go.SetActive(true);
 
                     } // end clone creation
                     if (skip || mockskip)

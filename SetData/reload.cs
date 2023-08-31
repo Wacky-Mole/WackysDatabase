@@ -123,7 +123,7 @@ namespace wackydatabase.SetData
                         return;
                     }
 
-                    Startup.Startup.CleartoReload();
+                    WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReload());
 
                     //if (firstsyncreload)
                     //  LoadClonesEarly(); // trying to load clones first pass

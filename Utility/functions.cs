@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Globalization;
 using System.Reflection;
 using UnityEngine;
+using System.Collections;
 
 namespace wackydatabase.Util
 {
@@ -234,36 +235,44 @@ namespace wackydatabase.Util
                 Debug.Log((pref ? WMRecipeCust.ModName + " " : "") + str);
         }
 
-        public static void SnapshotItem(ItemDrop item, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
+        public static void SnapshotItem(ItemDrop item, float lightIntensity = 1.3f, Quaternion? cameraRotation = null, Quaternion? itemRotation = null)
         {
-            const int layer = 30;
-
-            Camera camera = new GameObject("Camera", typeof(Camera)).GetComponent<Camera>();
-            camera.backgroundColor = Color.clear;
-            camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.fieldOfView = 0.5f;
-            camera.farClipPlane = 10000000;
-            camera.cullingMask = 1 << layer;
-            camera.transform.rotation = cameraRotation ?? Quaternion.Euler(90, 0, 45);
-
-            Light topLight = new GameObject("Light", typeof(Light)).GetComponent<Light>();
-            topLight.transform.rotation = Quaternion.Euler(150, 0, -5f);
-            topLight.type = LightType.Directional;
-            topLight.cullingMask = 1 << layer;
-            topLight.intensity = lightIntensity;
-
-            try
+            void Do()
             {
+                const int layer = 30;
+
+                Camera camera = new GameObject("Camera", typeof(Camera)).GetComponent<Camera>();
+                camera.backgroundColor = Color.clear;
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.fieldOfView = 0.5f;
+                camera.farClipPlane = 10000000;
+                camera.cullingMask = 1 << layer;
+                camera.transform.rotation = cameraRotation ?? Quaternion.Euler(90, 0, 45);
+
+                Light topLight = new GameObject("Light", typeof(Light)).GetComponent<Light>();
+                topLight.transform.rotation = Quaternion.Euler(150, 0, -5f);
+                topLight.type = LightType.Directional;
+                topLight.cullingMask = 1 << layer;
+                topLight.intensity = lightIntensity;
+
                 Rect rect = new(0, 0, 64, 64);
 
-                Transform target = item.transform.Find("attach"); // ?? item.transform.Find("attach_skin");
-
-                if (!target)
+                GameObject visual;
+                if (item.transform.Find("attach") is { } attach)
                 {
-                    target = PrefabAssistant.GetDropChild(item.gameObject);
+                    visual = UnityEngine.Object.Instantiate(attach.gameObject);
+                }
+                else
+                {
+                    ZNetView.m_forceDisableInit = true;
+                    visual = UnityEngine.Object.Instantiate(item.gameObject);
+                    ZNetView.m_forceDisableInit = false;
+                }
+                if (itemRotation is not null)
+                {
+                    visual.transform.rotation = itemRotation.Value;
                 }
 
-                GameObject visual = UnityEngine.Object.Instantiate(target.gameObject);
                 foreach (Transform child in visual.GetComponentsInChildren<Transform>())
                 {
                     child.gameObject.layer = layer;
@@ -278,9 +287,9 @@ namespace wackydatabase.Util
                 float maxDim = Mathf.Max(size.x, size.z);
                 float minDim = Mathf.Min(size.x, size.z);
                 float yDist = (maxDim + minDim) / Mathf.Sqrt(2) / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad);
-                Transform transform = camera.transform;
-                transform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
-                topLight.transform.position = transform.position + new Vector3(-2, 0, 0.2f) / 3 * -yDist;
+                Transform cameraTransform = camera.transform;
+                cameraTransform.position = ((min + max) / 2) with { y = max.y } + new Vector3(0, yDist, 0);
+                topLight.transform.position = cameraTransform.position + new Vector3(-2, 0, 0.2f) / 3 * -yDist;
 
                 camera.Render();
 
@@ -297,16 +306,22 @@ namespace wackydatabase.Util
 
                 UnityEngine.Object.DestroyImmediate(visual);
                 camera.targetTexture.Release();
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"[{WMRecipeCust.ModName}]: Failed to update icon - {ex.Message}");
-            }
-            finally
-            {
-                // Guarantee the deletion of these objects
+
                 UnityEngine.Object.Destroy(camera);
                 UnityEngine.Object.Destroy(topLight);
+            }
+            IEnumerator Delay()
+            {
+                yield return null;
+                Do();
+            }
+            if (ObjectDB.instance)
+            {
+                Do();
+            }
+            else
+            {
+                WMRecipeCust.context.StartCoroutine(Delay());
             }
         }
     }

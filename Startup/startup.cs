@@ -56,7 +56,7 @@ namespace wackydatabase.Startup
         }
 
         [HarmonyPatch(typeof(ObjectDB), "Awake")]
-
+        [HarmonyPriority(Priority.VeryLow)]
         static class ObjectAwake
         {
             static void Postfix()
@@ -228,7 +228,28 @@ namespace wackydatabase.Startup
             return WMRecipeCust.issettoSinglePlayer;
         }
 
-        public static void CleartoReload()
+        public static IEnumerator CleartoReload()
+        {
+            if (!WMRecipeCust.ReloadingOkay)
+            {
+                WMRecipeCust.WLog.LogInfo("Waiting...");
+                WMRecipeCust.ReloadingOkay = true; // Only going to wait .2f for other Syncs to fire off and load, makes sure other mods finish their syncing
+                yield return new WaitForSeconds(0.2f);
+            }
+            WMRecipeCust.WLog.LogInfo("Load Sync Data");
+            if (WMRecipeCust.FirstSessionRun)
+            {
+                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
+                WMRecipeCust.FirstSessionRun = false; // reset in a destory patch
+            }
+            else
+            {
+                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); //  Sync Reload SLOW
+            }
+        }
+
+
+        public static void CleartoReloadOld()
         {
 
             WMRecipeCust.WLog.LogInfo("Load Sync Data");
