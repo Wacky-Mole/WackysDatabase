@@ -55,31 +55,6 @@ namespace wackydatabase.Startup
 
         }
 
-        [HarmonyPatch(typeof(DungeonDB), "Awake")]
-        static class FejdEndClone
-        {
-            static void Prefix()
-            {
-                //DestroyStartupItems(); // destory old item clones
-               // WMRecipeCust.WLog.LogWarning("Leaving MainMenu");
-                
-            }
-
-        }
-
-        [HarmonyPatch(typeof(Game), "SpawnPlayer")]
-        static class ConnectedToGameWorld
-        {
-            static void Prefix()
-            {
-                //DestroyStartupItems(); // destory old item clones
-                // WMRecipeCust.WLog.LogWarning("Leaving MainMenu");
-               //WMRecipeCust.spawnedinWorld = 2;
-
-            }
-
-        }
-
         [HarmonyPatch(typeof(ObjectDB), "Awake")]
 
         static class ObjectAwake
