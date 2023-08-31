@@ -2,7 +2,7 @@ WackysDatabase
 
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 
-![BlueMan](https://wackymole.com/hosts/Blueman.png'.png))
+![BlueMan](https://wackymole.com/hosts/Blueman.png) ![RedandBlue](https://wackymole.com/hosts/RedandBlueVik2.png)
 
 Version: 2.0
 Features
@@ -107,10 +107,12 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 
 </details>
 
-<details><summary>Crazy Videos</summary>
-<img src="https://wackymole.com/hosts/crazypower.gif" />
+<details><summary>Get Wacky</summary>
 
-<img src="https://wackymole.com/hosts/fastattack.gif" />
+![Crazy Power](https://wackymole.com/hosts/crazypower.mov) 
+<video src="https://wackymole.com/hosts/crazypower.mov" />
+
+<video src="https://wackymole.com/hosts/fastattack.mov" />
 
 
 </details>

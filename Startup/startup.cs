@@ -230,7 +230,7 @@ namespace wackydatabase.Startup
         }
 
         
-        public static IEnumerator CleartoReloadWait()
+        public static IEnumerator CleartoReloadWait() // waiting for other mods to finish their sync
         {
                 yield return new WaitForSeconds(0.2f);          
                 WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
