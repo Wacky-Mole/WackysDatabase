@@ -3,6 +3,7 @@ WackysDatabase
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 
 <img src="https://wackymole.com/hosts/Blueman.png'.png" />
+![Glowing Red BronzeSword ](https://wackymole.com/hosts/Blueman.png'.png))
 
 Version: 2.0
 Features
