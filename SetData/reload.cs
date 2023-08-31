@@ -261,20 +261,27 @@ namespace wackydatabase.SetData
 
         internal void removeLocalData()
         {
-            if (!ZNet.instance.IsServer()) // for everyone not the server
-            foreach (var item in WMRecipeCust.MasterCloneList)
+            if (!ZNet.instance.IsServer())// for everyone not the server
             {
-                if (!WMRecipeCust.MultiplayerApproved.Contains(item.Key))
+                if (WMRecipeCust.extraSecurity.Value)
+                {
+                    WMRecipeCust.WLog.LogInfo("Removing SinglePlayer Clones not in Multiplayer Server");
+                    foreach (var item in WMRecipeCust.MasterCloneList)
                     {
-                        ObjectDB Instant = ObjectDB.instance;
-                        ZNetScene znet = ZNetScene.instance;
-                        Instant.m_items.Remove(item.Value);
-                        var hash = item.Key.GetStableHashCode();
-                        znet.m_prefabs.Remove(item.Value); // removing znets
-                        znet.m_namedPrefabs.Remove(hash);
-                        //GameObject.Destroy(item.Value);
-                        //WMRecipeCust.MasterCloneList.Remove(item.Key);
+                        if (!WMRecipeCust.MultiplayerApproved.Contains(item.Key))
+                        {
+                            ObjectDB Instant = ObjectDB.instance;
+                            ZNetScene znet = ZNetScene.instance;
+                            Instant.m_items.Remove(item.Value);
+                            var hash = item.Key.GetStableHashCode();
+                            znet.m_prefabs.Remove(item.Value); // removing znets
+                            znet.m_namedPrefabs.Remove(hash);
+                            //GameObject.Destroy(item.Value);
+                            //WMRecipeCust.MasterCloneList.Remove(item.Key);
+                        }
                     }
+                }
+                { }
             }
         }
 
