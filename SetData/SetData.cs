@@ -506,6 +506,7 @@ namespace wackydatabase.SetData
                     {
                         if (!string.IsNullOrEmpty(data.piecehammerCategory))
                         {
+           
                             try
                             { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
                             catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }

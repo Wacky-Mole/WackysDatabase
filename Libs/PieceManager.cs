@@ -256,6 +256,28 @@ public class BuildPiece
 
     private static object? configManager;
 
+    /*
+    public void BuildTableConfigChangedWacky()
+    {
+
+        if (cfg.category.Value is BuildPieceCategory.Custom)
+        {
+            piecePrefab.m_category = PiecePrefabManager.GetCategory(cfg.customCategory.Value);
+        }
+        else
+        {
+            piecePrefab.m_category = (Piece.PieceCategory)cfg.category.Value;
+        }
+
+        if (Hud.instance)
+        {
+            PiecePrefabManager.CreateCategoryTabs();
+        }
+        
+        customTableAttributes.Browsable = cfg.category.Value == BuildPieceCategory.Custom;
+        ReloadConfigDisplay();
+    }
+    */
     internal static void Patch_FejdStartup(FejdStartup __instance)
     {
         Assembly? bepinexConfigManager = AppDomain.CurrentDomain.GetAssemblies()
