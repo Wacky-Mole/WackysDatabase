@@ -2,7 +2,7 @@ WackysDatabase
 
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 
-![BlueMan](https://wackymole.com/hosts/Blueman.png) ![RedandBlue](https://wackymole.com/hosts/RedandBlueVik2.png)
+![BlueMan](https://wackymole.com/hosts/Blueman.png)  2nd Picture Reserved for Something Awesome (Give me something)
 
 Version: 2.0
 Features
@@ -51,6 +51,8 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
     ServerCharacters
 
 </details>
+
+
 
 <details><summary>FAQ</summary>
 
@@ -107,19 +109,8 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 
 </details>
 
-<details><summary>Get Wacky</summary>
 
-![Crazy Power](https://wackymole.com/hosts/crazypower.mov) 
-<video src="https://wackymole.com/hosts/crazypower.mov" />
-
-<video src="https://wackymole.com/hosts/fastattack.mov" />
-
-
-</details>
-
-<details><summary> Console Commands</summary>
-
-
+<details> <summary> Console Commands</summary>
 
 ## Console Commands
 
@@ -159,6 +150,31 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 </details>
 
+<details><summary>Get Wacky </summary>
+
+
+![LongSwordBlueRed](https://wackymole.com/hosts/LongSwordBlueRed.png)
+
+Changing the SwordSilver to Blue and Increasing the size to 3
+
+![JustMaterials](https://wackymole.com/hosts/JustMaterials.png)
+
+This is just chaning the materials, not messing with CustomVisuals
+
+<a href="https://wackymole.com/hosts/crazypower.mov"> Crazy Power </a>
+
+Setting the Class: AEffects and GEffects. This YML   Spawn_On_Trigger: Boar spawn_on_hit: Neck spawn_on_terrain_hit: Deer -     Trigger_Effect: - sfx_dragon_death
+
+<a href="https://wackymole.com/hosts/Item_SwordIron.yml" download> SwordIron YML</a>
+
+
+<a href="https://wackymole.com/hosts/fastattack.mov"> Fast attack </a>
+
+Custom_AttackSpeed: 5 . 500% faster goes brrr 
+
+
+</br>
+</details>
 
 <details><summary> Cache System </summary>
 
@@ -268,6 +284,10 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `customVisual` (CustomVisual): The custom visual data of the item.
 - `sizeMultiplier` (float): The size multiplier of the item. You can go from .01 to 1000.5 if you want. Have fun!****
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
+
+![LongSwordBlueRed](https://wackymole.com/hosts/snapshotGoes.png)
+
+Changing material or CustomVisual automatically calls snapshot to generate a new Icon or give it a customIcon
 ### CustomVisual
 
 - `base_mat` (string): The base material of the custom visual.
@@ -435,7 +455,7 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 
 ### GEffects
 
-![Ice Video](https://wackymole.com/hosts/icevideo.gif))
+![Ice Video](https://wackymole.com/hosts/icevideo.gif)
 
 
 - `Hit_Effects` (string[]): The hit effects.
@@ -811,7 +831,8 @@ Wackymole
 
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.0.0 | - Release 2.0 <br/>
+| 2.0.0 | - 2.0.0 - Lots of betas <br/>
+| 2.0.1 | - First Release of 2.0 <br/>
 
 
 <details><summary>Feedback</summary>
