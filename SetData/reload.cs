@@ -123,7 +123,9 @@ namespace wackydatabase.SetData
                         return;
                     }
 
-                    WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReload());
+                    if (WMRecipeCust.FirstSS)
+                        WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReloadWait());
+                    else WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); // slow mode
 
                     //if (firstsyncreload)
                     //  LoadClonesEarly(); // trying to load clones first pass
