@@ -28,16 +28,29 @@ namespace wackydatabase.Startup
         {
             static void Postfix()
             {
+                if (WMRecipeCust.IsDedServer) return; // dedicated servers don't have to load clones // can load  later
 
                 //if (WMRecipeCust.clonedcache.Value)
-                {
-                    WMRecipeCust.Dbgl("Checking Cache Folder and Loading Any Item/Mock Clones");
-                    ReadFiles clones = new ReadFiles();
-                    clones.GetCacheClonesOnly();
-                    SetData.Reload Startup = new SetData.Reload();
-                    Startup.LoadClonedCachedItems();
+                
+                WMRecipeCust.Dbgl("Checking Cache Folder and Loading Any Item/Mock Clones");
+                ReadFiles clones = new ReadFiles();
+                clones.GetCacheClonesOnly();
+                SetData.Reload Startup = new SetData.Reload();
+                Startup.LoadClonedCachedItems();
+
+
+                if (WMRecipeCust.FirstSessionRun) {
+ 
+                    SetData.Reload Startup2 = new SetData.Reload();
+                    Startup2.AddClonedItemstoObjectDB();
 
                 }
+
+                if (!WMRecipeCust.FirstSessionRun)
+                {
+                    WMRecipeCust.FirstSessionRun = true;
+                }
+                          
             }
 
         }
@@ -48,11 +61,24 @@ namespace wackydatabase.Startup
             static void Prefix()
             {
                 //DestroyStartupItems(); // destory old item clones
-                //WMRecipeCust.Dbgl("Unloading Cloned Items from MainMenu");
+               // WMRecipeCust.WLog.LogWarning("Leaving MainMenu");
                 
             }
 
-        }  
+        }
+
+        [HarmonyPatch(typeof(Game), "SpawnPlayer")]
+        static class ConnectedToGameWorld
+        {
+            static void Prefix()
+            {
+                //DestroyStartupItems(); // destory old item clones
+                // WMRecipeCust.WLog.LogWarning("Leaving MainMenu");
+               //WMRecipeCust.spawnedinWorld = 2;
+
+            }
+
+        }
 
         [HarmonyPatch(typeof(ObjectDB), "Awake")]
 
@@ -63,40 +89,45 @@ namespace wackydatabase.Startup
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
 
-
+                WMRecipeCust.WLog.LogWarning("objectDB Awake");
 
 
                 if (!WMRecipeCust.FirstSessionRun)
                 {
-                    WMRecipeCust.FirstSessionRun = true;
                     return;
                 }
 
-                WMRecipeCust.WLog.LogInfo("ObjectDB 2nd Awake Load");
+                WMRecipeCust.WLog.LogInfo("ObjectDB 2nd Awake Load"); // Only adds Gameobjects to ObjectDB
 
-                ReadFiles clones2 = new ReadFiles();
-                clones2.GetCacheClonesOnly();
-                SetData.Reload Startup2 = new SetData.Reload();
-                Startup2.LoadClonedCachedItems();
-
-
-                if (ZNet.instance.IsServer())
-                { 
-                    // Only Load if Singleplayer or COOP Server -otherwise need to wait for client
-                    PrepareLoadData();
-
-                }
-
-
-                if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied) // is client now
+                if (ZNet.instance != null) // for loading from a game to back to main menu
                 {
-                    WMRecipeCust.ForceLogout = true;
-                    // Has Lobbied in Past and could try to use this to get around lockout. 
-                    // issettoSinglePlayer = true;
-                    if (WMRecipeCust.extraSecurity.Value)
+                    WMRecipeCust.WLog.LogInfo("ZnetActive in ObjectDB Awake ");
+                    if (WMRecipeCust.IsDedServer) { } // dedicated servers don't have to load clones // can load later
+                    else
                     {
-                        WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                        WMRecipeCust.WLog.LogWarning("You hosted a COOP game before trying to connect to a server - LOCKOUT - 0.0.1 - Restart Game " + WMRecipeCust.ConfigSync.CurrentVersion);
+                        SetData.Reload Startup2 = new SetData.Reload();
+                        Startup2.AddClonedItemstoObjectDB();
+                       // WMRecipeCust.spawnedinWorld = 1;
+                    }
+
+                    if (ZNet.instance.IsServer())
+                    {
+                        // Only Load if Singleplayer or COOP Server -otherwise need to wait for client
+                        PrepareLoadData();
+
+                    }
+
+
+                    if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied) // is client now
+                    {
+                        WMRecipeCust.ForceLogout = true;
+                        // Has Lobbied in Past and could try to use this to get around lockout. 
+                        // issettoSinglePlayer = true;
+                        if (WMRecipeCust.extraSecurity.Value)
+                        {
+                            WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+                            WMRecipeCust.WLog.LogWarning("You hosted a COOP game before trying to connect to a server - LOCKOUT - 0.0.1 - Restart Game " + WMRecipeCust.ConfigSync.CurrentVersion);
+                        }
                     }
                 }
             }
@@ -126,6 +157,12 @@ namespace wackydatabase.Startup
         {
             static void Postfix(FejdStartup __instance)
             {
+                if (!WMRecipeCust.IsDedServer) // everyone except ded
+                {
+                    WMRecipeCust.WLog.LogInfo("extra YML read");
+                    WMRecipeCust.context.StartCoroutine(WMRecipeCust.readFiles.GetDataFromFiles(false, true));
+                }
+
                 if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
                 {
 
@@ -211,18 +248,14 @@ namespace wackydatabase.Startup
             return WMRecipeCust.issettoSinglePlayer;
         }
 
-        public static IEnumerator CleartoReload()
+        public static void CleartoReload()
         {
-            if (!WMRecipeCust.ReloadingOkay)
-            {
-                WMRecipeCust.WLog.LogInfo("Waiting...");
-                yield return new WaitForSeconds(0.2f);
-            }
+
             WMRecipeCust.WLog.LogInfo("Load Sync Data");
-            if (WMRecipeCust.FirstSessionRun)
+            if (WMRecipeCust.FirstSS)
             {
                 WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
-                WMRecipeCust.FirstSessionRun = false; // reset in a destory patch
+                WMRecipeCust.FirstSS = false; // reset in a destory patch
             }
             else
             {

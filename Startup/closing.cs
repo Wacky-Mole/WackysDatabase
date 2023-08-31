@@ -21,19 +21,20 @@ namespace wackydatabase.Startup
         [HarmonyPatch(typeof(ZNet), "Shutdown")]
         class PatchZNetDisconnect
         {
-            private static void Postfix()
+            private static void Prefix()
             {
                 //WMRecipeCust.WLog.LogWarning("Logoff? So reset - character will look empty if using clone gear"); No More
                 WMRecipeCust.Dbgl("logoff");
                 WMRecipeCust.LobbyRegistered = false;
+                WMRecipeCust.FirstSS = true;// Reset for next SS connection
                 if (WMRecipeCust.issettoSinglePlayer)
                 {
-                    Closing.DestroyClones();
+                   // Closing.DestroyClones();
 
                 }
                 else
                 {
-                    Closing.DestroyClones();
+                   // Closing.DestroyClones();
                 }
                 WMRecipeCust.NoMoreLoading = true;
             }

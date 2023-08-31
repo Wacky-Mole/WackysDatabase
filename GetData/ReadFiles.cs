@@ -87,7 +87,7 @@ namespace wackydatabase.Read
             
 
         }
-       internal IEnumerator GetDataFromFiles(bool slowmode = false)
+        internal IEnumerator GetDataFromFiles(bool slowmode = false, bool singleplayeronly = false)
         {
             //wackydatabase.WMRecipeCust.WLog.LogWarning("Running Get DataFromFiles");
 
@@ -178,7 +178,8 @@ namespace wackydatabase.Read
             }
 
             WMRecipeCust.ymlstring = yaml.ToString();//(WMRecipeCust.itemDatasYml.ToString() + WMRecipeCust.pieceDatasYml.ToString() + WMRecipeCust.recipeDatasYml + WMRecipeCust.visualDatasYml + WMRecipeCust.effectDataYml).ToString();
-
+            if (singleplayeronly == false)
+                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; // Shouldn't matter - maybe...
 
             YamlLoader cache = new YamlLoader(); // cache Only
 
@@ -213,7 +214,7 @@ namespace wackydatabase.Read
             {
                 WMRecipeCust.WLog.LogInfo($"Finished SLOW Reading");
             }
-            WMRecipeCust.WLog.LogDebug("Loaded YML files in ReadFiles");
+            WMRecipeCust.WLog.LogInfo("Finished reading YML files");
             if (WMRecipeCust.isDebugString.Value)
             {
                 WMRecipeCust.WLog.LogInfo(WMRecipeCust.ymlstring);

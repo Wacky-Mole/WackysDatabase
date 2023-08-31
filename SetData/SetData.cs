@@ -970,7 +970,7 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl("New Mock failed for some reason" + data.name);
                         return null;
                     }
-                    ObjectDB.instance.m_items.Add(newObj);
+                    Instant.m_items.Add(newObj);
                     WMRecipeCust.MockI.Add(data.name);
 
                     if (!string.IsNullOrEmpty(data.material))
@@ -1047,70 +1047,58 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($"Item cloned name is empty!");
                     return null;
                 }
+             
+                ItemDrop.ItemData PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData;
 
-                
-                for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
-                {
-                    if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
-                    {
-                        ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
-                        if (!string.IsNullOrEmpty(data.clonePrefabName)) // object is a clone do clonethings
-                        {
-                            WMRecipeCust.WLog.LogDebug($"Item CLONE DATA in SetItemData for {tempname} from cache ");
-                            WMRecipeCust.ClonedI.Add(tempname);
-                            Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
-                            GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
-                            ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
+                WMRecipeCust.Dbgl($"Item CLONE DATA in SetItemData for {tempname} from cache ");
+                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
+                GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
+                ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
 
-                            NewItemComp.name = tempname; // added and seems to be the issue
-                            newItem.name = tempname; // resets the orginal name- needs to be unquie
-                            NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
-                            var hash = newItem.name.GetStableHashCode();
-                            Instant.m_items.Add(newItem);
-                            Instant.m_itemByHash.Add(hash, newItem);
+                NewItemComp.name = tempname; // added and seems to be the issue
+                newItem.name = tempname; // resets the orginal name- needs to be unquie
+                NewItemComp.m_itemData.m_shared.m_name = DataHelpers.ECheck(data.m_name) ? PrimaryItemData.m_shared.m_name : data.m_name; // ingame name
+                var hash = newItem.name.GetStableHashCode();
+                Instant.m_items.Add(newItem);
+                Instant.m_itemByHash.Add(hash, newItem);
                            
 
-                            if (!string.IsNullOrEmpty(data.material))
-                            {
-                                WMRecipeCust.Dbgl($"Item {tempname} searching for mat {data.material}");
-                                try
-                                {
+                if (!string.IsNullOrEmpty(data.material))
+                {
+                    WMRecipeCust.Dbgl($"Item {tempname} searching for mat {data.material}");
+                    try
+                    {
                                     
-                                    if (data.material.Contains(','))
-                                    {
-                                        renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
-                                        string[] materialstr = data.material.Split(',');
-                                        Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
-                                        Material part = WMRecipeCust.originalMaterials[materialstr[1]];
+                        if (data.material.Contains(','))
+                        {
+                            renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
+                            string[] materialstr = data.material.Split(',');
+                            Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
+                            Material part = WMRecipeCust.originalMaterials[materialstr[1]];
 
-                                        foreach (Renderer renderitem in renderfinder)
-                                        {
-                                            if (renderitem.receiveShadows && materialstr[0] != "none")
-                                                renderitem.sharedMaterial = mat;
-                                            else if (!renderitem.receiveShadows)
-                                                renderitem.sharedMaterial = part;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Material mat = WMRecipeCust.originalMaterials[data.material];
-
-                                        foreach (Renderer r in PrefabAssistant.GetRenderers(newItem))
-                                        {
-                                            PrefabAssistant.UpdateMaterialReference(r, mat);
-                                        }
-                                    }
-                                }
-                                catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
+                            foreach (Renderer renderitem in renderfinder)
+                            {
+                                if (renderitem.receiveShadows && materialstr[0] != "none")
+                                    renderitem.sharedMaterial = mat;
+                                else if (!renderitem.receiveShadows)
+                                    renderitem.sharedMaterial = part;
                             }
-                            WMRecipeCust.ClonedI.Add(tempname); 
-                            data.name = tempname; // putting back name
-                            return newItem;
+                        }
+                        else
+                        {
+                            Material mat = WMRecipeCust.originalMaterials[data.material];
 
+                            foreach (Renderer r in PrefabAssistant.GetRenderers(newItem))
+                            {
+                                PrefabAssistant.UpdateMaterialReference(r, mat);
+                            }
                         }
                     }
+                    catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
                 }
-                WMRecipeCust.Dbgl("item was not found in loop " + data.name);
+                WMRecipeCust.ClonedI.Add(tempname); 
+                data.name = tempname; // putting back name
+                return newItem;                   
             }
             return null;
         }
@@ -1122,6 +1110,7 @@ namespace wackydatabase.SetData
             // Dbgl("Loaded SetItemData!");
 
             bool skip = false;
+            bool mockskip = false;
 
             foreach (var citem in WMRecipeCust.ClonedI)
             {
@@ -1136,7 +1125,7 @@ namespace wackydatabase.SetData
                 {
                     WMRecipeCust.Dbgl("Mock Model is loaded" + data.name);
                     mock = true;
-                    bool mockskip = false;
+                    
                     foreach (var citem in WMRecipeCust.MockI)
                     {
                         if (citem == data.name)
@@ -1180,7 +1169,7 @@ namespace wackydatabase.SetData
                             go2 = Instant.GetItemPrefab(data.name); // normal check
                         if (go2 == null)
                         {
-                            ObjectDB.instance.m_items.Add(newObj);
+                            Instant.m_items.Add(newObj);
                             ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
 
@@ -1240,10 +1229,10 @@ namespace wackydatabase.SetData
 
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
-                if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) //if (ObjectDB.instance.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) // Not sure why I am doing this, New Items with the Same name wouldn't make sense in Object DB Should Probably Just change it to GetItemPrefab
                 {
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
-                    if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
+                    if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // clone setup for new clones
                     {
                         if (WMRecipeCust.BlacklistClone.Contains(data.clonePrefabName))
                         {
@@ -1293,7 +1282,10 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_dropPrefab = go;
                         data.name = tempname; // putting back name
 
-
+                    } // end clone creation
+                    if (skip || mockskip)
+                    {
+                        go.SetActive(true); // for clones and mocks // They are false to make sure non approved cache gameobjects don't get added to Networked Game
                     }
 
                     if (!string.IsNullOrEmpty(data.material))
@@ -1334,7 +1326,9 @@ namespace wackydatabase.SetData
                         catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
                     }
 
-                    var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>();
+                    var ItemDr = Instant.GetItemPrefab(data.name).GetComponent<ItemDrop>(); // like what is the poitn of the loop
+                    Reload.lastItemSet = ItemDr;
+
                     bool usecustom = false;
                     if (!DataHelpers.ECheck(data.customIcon))
                     {

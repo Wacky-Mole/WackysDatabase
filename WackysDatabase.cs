@@ -77,14 +77,14 @@ namespace wackydatabase
         internal static bool issettoSinglePlayer = false;
         internal static bool isSettoAutoReload = false;
         internal static bool recieveServerInfo = false;
-        internal static bool isDedServer = false;
         internal static bool NoMoreLoading = false; // for shutdown from Server
         internal static bool LoadinMultiplayerFirst = false; // forces multiplayer sync to wait for first time
         internal static string ConnectionError = "";
         internal static bool Firstrun = true;
         internal static bool AwakeHasRun = false;
         internal static bool FirstSessionRun = false;
-        internal static bool ObjectDBTwice = false;
+        internal static bool FirstSS = true;
+        internal static int spawnedinWorld = 0;
 
 
         public static List<RecipeData_json> recipeDatas = new List<RecipeData_json>();
@@ -104,7 +104,7 @@ namespace wackydatabase
 
         public static List<string> ClonedI = new List<string>(); // items
         public static List<string> ClonedINoZ = new List<string>(); // items No Znet // not used
-        public static Dictionary<string, GameObject> WaitListZDO = new Dictionary<string, GameObject>();
+        public static Dictionary<string, GameObject> MasterCloneList = new Dictionary<string, GameObject>();
         public static List<string> ClonedP = new List<string>(); // pieces
         public static List<string> ClonedR = new List<string>(); // recipes
         public static List<string> ClonedE = new List<string>(); // effects
@@ -113,6 +113,7 @@ namespace wackydatabase
         public static List<string> ClonedCR = new List<string>(); // creaturesReplacer
         public static List<string> MockI = new List<string>(); // MockItems
         public static List<string> BlacklistClone = new List<string>();
+        public static List<string> MultiplayerApproved = new List<string>();
        // internal static Dictionary<string, Texture2D> mainTextures = new Dictionary<string, Texture2D>(); // cached Textures for fun
 
         internal static string assetPath;
@@ -178,7 +179,7 @@ namespace wackydatabase
         internal static float WaitTime = .3f;
         internal static bool LockReload = false;
         internal static bool Reloading = false;
-        internal static bool IsServer => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
+        internal static bool IsDedServer => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
 
 
@@ -244,8 +245,7 @@ namespace wackydatabase
                 //startupserver.BeginConvertingJsons(jsoncount);
             }
             WMRecipeCust.context.StartCoroutine(readFiles.GetDataFromFiles()); // YML get
-            AwakeHasRun = true;
-            skillConfigData.Value = ymlstring; // Shouldn't matter - maybe...
+            AwakeHasRun = true;    
 
             readFiles.SetupWatcher();
 
@@ -281,10 +281,10 @@ namespace wackydatabase
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false })); // not browseable and can only be set before launch
             WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
-            ServerDedLoad = config<bool>("General", "DedServer load Memory", false, "Dedicated Servers will load wackydb files as a client would, this is usually not needed");
+            ServerDedLoad = config<bool>("General", "DedServer load Memory", true, "Dedicated Servers will load wackydb files as a client would");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
-            clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
+           // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
             extraEffectList = config<string>("Effects","List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
             ConfigSync.CurrentVersion = ModVersion;
 
@@ -299,8 +299,7 @@ namespace wackydatabase
         private void OnDestroy()
         {
             Config.Save();
-            WLog.LogInfo("Calling the Destroyer of Worlds -End Game");
-            //need to unload cloned objects
+            //WLog.LogInfo("Calling the Destroyer of Worlds -End Game"); past its time :(
         }
 
 
@@ -355,15 +354,10 @@ namespace wackydatabase
 
         private void CustomSyncEventDetected()
         {
-            if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
-            {
-                isDedServer = true;
-            }
-            //  else
-            {
-                CurrentReload.SyncEventDetected();
-              
-            }// end is not the server
+            if (WMRecipeCust.NoMoreLoading)
+                return;
+
+          CurrentReload.SyncEventDetected();           
         }
 
         private void LargeTransferDetected()
@@ -428,6 +422,7 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathCreatures);
             }
 
+            /*
             var versionpath = Path.Combine(assetPathCache, $"Last_Cleared.txt");
             if (File.Exists(versionpath))
             {
@@ -442,7 +437,7 @@ namespace wackydatabase
             {
                 File.WriteAllText(versionpath, ModVersion);
             }
-
+            */
         }
 
         public static void DeleteCache()

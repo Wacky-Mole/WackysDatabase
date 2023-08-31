@@ -18,12 +18,13 @@ using static ItemSets;
 using System.Security.Policy;
 using static ItemDrop;
 using System.CodeDom.Compiler;
+using ItemManager;
 
 namespace wackydatabase.SetData
 {
     public class Reload 
     {
-
+        internal static ItemDrop lastItemSet = null;
         public void SyncEventDetected()
         {
             // WMRecipeCust.WLog.LogInfo($"Dedicated Sync Detected - remove before release");
@@ -77,6 +78,8 @@ namespace wackydatabase.SetData
                 WMRecipeCust.cacheItemsYML.Clear();
                 WMRecipeCust.creatureDatasYml.Clear();
 
+                WMRecipeCust.MultiplayerApproved.Clear();
+
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
                 {
@@ -120,16 +123,16 @@ namespace wackydatabase.SetData
                         return;
                     }
 
-                    WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReload());
+                    Startup.Startup.CleartoReload();
 
                     //if (firstsyncreload)
-                      //  LoadClonesEarly(); // trying to load clones first pass
+                    //  LoadClonesEarly(); // trying to load clones first pass
 
                     WMRecipeCust.WLog.LogDebug("done with customSyncEvent");
                 }
                 else
                 {
-                    WMRecipeCust.WLog.LogDebug("Synced String was blank " + SyncedString);
+                    WMRecipeCust.WLog.LogWarning("Synced String was blank " + SyncedString);
                 }
             }
         }
@@ -140,7 +143,7 @@ namespace wackydatabase.SetData
             if (znet) {
 
                 WMRecipeCust.WLog.LogInfo($"Setting Cloned ZDO Data");
-                foreach (var item in WMRecipeCust.WaitListZDO)
+                foreach (var item in WMRecipeCust.MasterCloneList)
                 {
                     string name = item.Key;
                     int hash = name.GetStableHashCode();
@@ -162,9 +165,37 @@ namespace wackydatabase.SetData
             }
         }
 
+        public void AddClonedItemstoObjectDB()
+        {
+
+            ObjectDB Instant = ObjectDB.instance;
+            foreach (var citem in WMRecipeCust.ClonedI)
+            {
+                if (WMRecipeCust.MasterCloneList.ContainsKey(citem)){
+                    WMRecipeCust.WLog.LogInfo($"Adding {citem} to ObjectDB");
+                    Instant.m_items.Add(WMRecipeCust.MasterCloneList[citem]);
+                    Instant.m_itemByHash.Add(citem.GetStableHashCode(), WMRecipeCust.MasterCloneList[citem]);
+                    WMRecipeCust.MasterCloneList[citem].SetActive(true);
+
+
+                }
+            }
+            foreach (var citem in WMRecipeCust.MockI)
+            {
+                if (WMRecipeCust.MasterCloneList.ContainsKey(citem))
+                {
+                    WMRecipeCust.WLog.LogInfo($"Adding {citem} to ObjectDB");
+                    Instant.m_items.Add(WMRecipeCust.MasterCloneList[citem]);
+                    Instant.m_itemByHash.Add(citem.GetStableHashCode(), WMRecipeCust.MasterCloneList[citem]);
+                    WMRecipeCust.MasterCloneList[citem].SetActive(true);
+                }
+            }
+
+        }
+
         public void LoadClonedCachedItems(bool WithZdo =false) // cached items and item mocks for main menu
         {
-            if (WMRecipeCust.IsServer && WMRecipeCust.isDedServer) return;
+             
             ObjectDB Instant = ObjectDB.instance;
 
             //load material cache .mats here
@@ -202,7 +233,7 @@ namespace wackydatabase.SetData
                         GameObject thing = SetData.SetClonedItemsDataCache(data, Instant, false);
                         if (thing != null)
                         {
-                            WMRecipeCust.WaitListZDO.Add(data.name, thing);
+                            WMRecipeCust.MasterCloneList.Add(data.name, thing);
                         }else
                         {
                             WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} was null");
@@ -228,216 +259,25 @@ namespace wackydatabase.SetData
             catch { WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems"); }
         }
 
-        internal void LoadClonedItemsOnlyEarly(ObjectDB Instance)
+        internal void removeLocalData()
         {
-            if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
+            if (!ZNet.instance.IsServer()) // for everyone not the server
+            foreach (var item in WMRecipeCust.MasterCloneList)
             {
-                WMRecipeCust.CheckModFolder();
-                WMRecipeCust.GetAllMaterials();
-                DataHelpers.GetPieceStations();
-                DataHelpers.GetPiecesatStart();
-                //WMRecipeCust.Firstrun = false; run again for final pickups
-            }
-
-            WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
-            foreach (var data3 in WMRecipeCust.itemDatasYml)
-            {
-                if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName) && !WMRecipeCust.ClonedI.Contains(data3.name))
-                {
-                    try
+                if (!WMRecipeCust.MultiplayerApproved.Contains(item.Key))
                     {
-                        SetData.SetItemData(data3, Instance, null, false);
-
+                        ObjectDB Instant = ObjectDB.instance;
+                        ZNetScene znet = ZNetScene.instance;
+                        Instant.m_items.Remove(item.Value);
+                        var hash = item.Key.GetStableHashCode();
+                        znet.m_prefabs.Remove(item.Value); // removing znets
+                        znet.m_namedPrefabs.Remove(hash);
+                        //GameObject.Destroy(item.Value);
+                        //WMRecipeCust.MasterCloneList.Remove(item.Key);
                     }
-                    catch { WMRecipeCust.WLog.LogWarning($"Set Item Data for {data3.name} failed, might get it on second pass"); } // spams just catch any empty
-
-                    if (data3.customVisual != null)
-                    {
-                        try
-                        {
-                            VisualController.UpdatePrefab(data3.name, data3.customVisual); // load clones early
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data3.name}"); } // spams just catch any empty
-                    }
-                }
             }
-
         }
 
-        internal void LoadClonesEarly() // not working // not needed
-        {
-            if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
-            {
-                WMRecipeCust.CheckModFolder();
-                WMRecipeCust.GetAllMaterials();
-                DataHelpers.GetPieceStations();
-                DataHelpers.GetPiecesatStart();
-                //WMRecipeCust.Firstrun = false; run again for final pickups
-            }
-
-            ObjectDB Instant = ObjectDB.instance;
-            
-            WMRecipeCust.WLog.LogInfo($"Loading Cloned CraftingStation");
-
-            foreach (var data1 in WMRecipeCust.pieceDatasYml)
-            {
-                if (data1 != null && !string.IsNullOrEmpty(data1.clonePrefabName))
-                {
-                    try
-                    {
-                        CraftingStation checkifStation = null;
-                        GameObject go = DataHelpers.FindPieceObjectName(data1.clonePrefabName);
-                        string tempnam = null;
-                        tempnam = go.GetComponent<CraftingStation>()?.m_name;
-                        if (tempnam != null)
-                        {
-                            checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
-                            if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
-                            {
-                                SetData.SetPieceRecipeData(data1, Instant);
-                            }
-                        }
-                    }
-                    catch { WMRecipeCust.WLog.LogWarning($"SetPiece CraftingStation for {data1.name} failed, might get it on second pass"); } // spams just catch any empty
-                }
-            }
-            WMRecipeCust.WLog.LogInfo($"Loading SEs");
-            foreach (var data in WMRecipeCust.effectDataYml) // recipes last
-            {
-                try
-                {
-                    SetData.SetStatusData(data, Instant);// has issues
-                }
-                catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
-            }
-                        // Broken for now
-             // This was a failed project to get cloned items in earlier so other mods could touch them easier, but failed
-            // it failed because it couldn't init after item pickup by player. So spawn in, pickup, drop error on object init. No idea why, but works after teh .1f delay
-           /*
-            WMRecipeCust.WLog.LogInfo($"Loading Cloned Items");
-            foreach (var data3 in WMRecipeCust.itemDatasYml)
-            {
-                if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName) && !WMRecipeCust.ClonedI.Contains(data3.name))
-                {
-                    try
-                    {
-                        SetData.SetItemData(data3, Instant, null, false);
-
-                    }
-                    catch { WMRecipeCust.WLog.LogWarning($"Set Item Data for {data3.name} failed, might get it on second pass"); } // spams just catch any empty
-
-                    if (data3.customVisual != null)
-                    {
-                        try
-                        {
-                            VisualController.UpdatePrefab(data3.name, data3.customVisual); // load clones early
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data3.name}"); } // spams just catch any empty
-                    }
-                }
-            }
-            
-            try
-            {
-                Instant.UpdateItemHashes();
-            }
-            catch
-            {
-                WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems");
-            }
-
-
-            
-
-
-            
-            WMRecipeCust.WLog.LogInfo($"Loading Cloned Pieces");
-            foreach (var data2 in WMRecipeCust.pieceDatasYml)
-            {
-                if (data2 != null && !string.IsNullOrEmpty(data2.clonePrefabName) && !WMRecipeCust.ClonedP.Contains(data2.name))
-                {
-                    try
-                    {
-                      SetData.SetPieceRecipeData(data2, Instant);                                      
-                    }
-                    catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data2.name} failed, might get it on second pass"); } // spams just catch any empty
-                }
-            }
-            
-            /*
-            WMRecipeCust.WLog.LogInfo($"Loading Cloned Recipes");
-            foreach (var data4 in WMRecipeCust.recipeDatasYml)
-            {
-                if (data4 != null && !string.IsNullOrEmpty(data4.clonePrefabName) && !WMRecipeCust.ClonedR.Contains(data4.name))
-                {
-                    try
-                    {
-                        SetData.SetRecipeData(data4, Instant);
-                    }
-                    catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data4.name} failed, might get it on second pass"); } // spams just catch any empty
-                }
-            } */ // No reason to do recipes early
-        }
-
-        /*
-        internal void reloadDropPrefab()
-        {
-            if (WMRecipeCust.WaitList.Count > 0)
-            {
-                WMRecipeCust.WLog.LogInfo("Reloading DropPrefabs for early clones");
-
-                foreach (var obj in WMRecipeCust.WaitList)
-                {
-                    if (obj.Key != null)
-                    {
-                        if ( obj.Key.GetComponent<ItemDrop>() != null)
-                        {
-                            var wa = obj.Key;
-                            var wac = wa.GetComponent<ItemDrop>();
-                            wac = obj.Value;
-
-                        }else
-                        {
-                            WMRecipeCust.WLog.LogWarning("itemdrop is null");
-                        }
-                    }
-                    
-                }
-                WMRecipeCust.WaitList.Clear();
-            }
-
-        }
-       
-        internal void FinishZnetObjects()
-        {
-            ZNetScene znet = ZNetScene.instance;
-            if (WMRecipeCust.WaitList.Count > 0)
-            {
-                WMRecipeCust.WLog.LogInfo("Adding Znets from ZnetWaitlists");
-
-                foreach (var obj in WMRecipeCust.WaitList)
-                {
-                    string name = obj.name;
-                    var hash = name.GetStableHashCode();
-
-                    if (znet.m_namedPrefabs.ContainsKey(hash))
-                        WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
-                    else
-                    {
-                        if (obj.GetComponent<ZNetView>() != null)
-                            znet.m_prefabs.Add(obj);
-                        else
-                            znet.m_nonNetViewPrefabs.Add(obj);
-
-                        znet.m_namedPrefabs.Add(hash, obj);
-                        WMRecipeCust.Dbgl($"Added prefab {name}");
-                    }
-
-                }
-                WMRecipeCust.WaitList.Clear();
-            }
-        }
-        */
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
         {
 
@@ -469,6 +309,7 @@ namespace wackydatabase.SetData
                 {
                     if (!WMRecipeCust.ServerDedLoad.Value && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
                         yield break;
+
                     ObjectDB Instant = ObjectDB.instance;
                     GameObject[] AllObjects = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
 
@@ -543,11 +384,22 @@ namespace wackydatabase.SetData
                         }
                         catch { WMRecipeCust.WLog.LogWarning($"SetItem Data for {data.name} failed"); }
 
+                        if(!string.IsNullOrEmpty(data.clonePrefabName) || !string.IsNullOrEmpty(data.mockName))
+                        {
+                            WMRecipeCust.MultiplayerApproved.Add(data.name);
+                        }
+
                         if (data.customVisual != null)
                         {
                             try
                             {
                                 VisualController.UpdatePrefab(data.name, data.customVisual);
+
+                                if (DataHelpers.ECheck(data.customIcon))
+                                {
+                                    Functions.SnapshotItem(lastItemSet); // snapshot go
+                                }
+   
                             }
                             catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
                         }
@@ -658,6 +510,8 @@ namespace wackydatabase.SetData
                         }
                     }
                     */
+
+                    removeLocalData();
 
                     try
                     {
