@@ -2,7 +2,8 @@ WackysDatabase
 
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 
-![BlueMan](https://wackymole.com/hosts/Blueman.png)  2nd Picture Reserved for Something Awesome (Give me something)
+![BlueMan](https://wackymole.com/hosts/Blueman.png)
+![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
 Version: 2.0
 Features
@@ -17,6 +18,7 @@ Features
     Slow Reload!
     Visuals Modifier by Rexabit!
     Seteffect by Azu!
+    Basic Creature cloning or replacing/renaming
     Most components can be removed from YAML
     sizeMultiplier: Make a small or HUGE world
     Future Proof: Can add or remove components without much fuss
@@ -24,7 +26,7 @@ Features
 <!-- ![WackysDatabase](https://wackymole.com/hosts/lightblue%20Sword.webp) ![WackysDatabase](https://wackymole.com/hosts/1825-1648309710-715635595.png) ![WackysDatabase](https://wackymole.com/hosts/orangeish%20bow.jpg) -->
 Description
 
-WackysDatabase, or Wackydb, allows you to modify and customize items, pieces, recipes, and effects in Valheim without coding. With this mod, you can clone items, change their colors, create new items, and even translate language. It offers a wide range of possibilities for customization.
+WackysDatabase, or Wackydb, allows you to modify and customize items, pieces, recipes, effects, materials and creatures in Valheim without coding. With this mod, you can clone items, change their colors, create new items, and even translate language. It offers a wide range of possibilities for customization.
 
 
 YML Knowledge
@@ -203,7 +205,10 @@ The next load logon should fix the issues.
 <details><summary>Materials and CustomVisuals </summary>
 
 </br>
-    Please be patient with this documentation. There is a lot to this one and I am slowly trying to learn from Rexabyte. There may be inaccurate information here. </br>
+
+![Materials and Custom](https://wackymole.com/hosts/FenringLiveChanging.gif)
+
+  Please be patient with this documentation. There is a lot to this one and I am slowly trying to learn from Rexabyte. There may be inaccurate information here. </br>
 
  ### Useful tools
 
@@ -240,6 +245,7 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 
 ![Materials and Custom](https://wackymole.com/hosts/wackyDescribe.png)
 
+
 ### Materials and CustomVisuals
 
 - `material` (string, optional): The name of the material
@@ -261,6 +267,12 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 - `chest`: (string, optional): The name of the material, generally this is only useful for chest armor. It will use the texture assigned to the "_ChestTex" property of the material.
 - `legs`: (string. optional): The name of the material, generally this is only useful for leg armor. It will use the texture assigned to the "_LegsTex" property of the material.
 
+
+![Materials and Custom](https://wackymole.com/hosts/chestchanges4.png)
+
+![Materials and Custom](https://wackymole.com/hosts/rexExplain.png)
+
+</br>
 </details>
 
 <details><summary> Item components</summary>
@@ -575,14 +587,14 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 
 Delete all by using "-"
 
+
+![Marble Sizes](https://wackymole.com/hosts/Marblesizes.png)
+
+Change the size of any Piece, make adminonly and build HUGE or TINY structures.
+
 </details>
 
 <details><summary> Recipe Components</summary>
-
-
-![Recipes] (https://wackymole.com/hosts/red%20forge.png | width=700))
-
-<img src="https://wackymole.com/hosts/red%20forge.png" width="700"/>
 
 
 ## Recipes
@@ -602,12 +614,10 @@ Delete all by using "-"
 
 Quality is a requirement of what quality of item you need to be able to use this recipe.  Like a 2* Bronze Sword to upgrade to Bronze Sword Superd *1
 
-![Recipe Quality] (https://wackymole.com/hosts/qualityrecipe.png | width=300))
-
-<img src="https://wackymole.com/hosts/qualityrecipe.png**"** width="300"/>
+![Recipe Quality](https://wackymole.com/hosts/qualityrecipe.png)
 
  </br>Arrows x50 will be put above Arrow x20
-
+ </br>
 
 </details>
 
@@ -616,6 +626,11 @@ Quality is a requirement of what quality of item you need to be able to use this
 
 ## CreatureData
 
+![Materials and Custom](https://wackymole.com/hosts/wackyBoar.png)
+
+You can replace all Boars in the game with this Dude.
+
+</br>
 - `name` (string, required): The name of the creature.
 - `mob_display_name` (string, required): The display name of the creature in game.
 - `custom_material` (string): The custom material for the creature.
