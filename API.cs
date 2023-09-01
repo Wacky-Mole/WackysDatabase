@@ -21,8 +21,8 @@ public class WackyDatabase_API
 
     static WackyDatabase_API()
     {
-        if (Type.GetType("API.WackyAPI, WackysDatabase") == null)
-        {
+            if (Type.GetType("API.WackyAPI, WackysDatabase") == null)
+            {
             _IsInstalled = false;
             return;
         }
@@ -35,7 +35,7 @@ public class WackyDatabase_API
 // don't use
 public static class WackyAPI
 {
-    public static void AddBlacklistClone(string value)
+   public static void AddBlacklistClone(string value)
     {
         //WMRecipeCust.WLog.LogInfo("Added to blacklist "+ value);
 

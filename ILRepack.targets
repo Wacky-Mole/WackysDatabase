@@ -5,11 +5,21 @@
             <InputAssemblies Include="$(TargetPath)" />
             <!-- Only use the line below if you choose to use the DLL and not the class. If you choose the DLL, be sure to reference and 
              tell it to copy to output directory-->
-           <!-- <InputAssemblies Include="$(OutputPath)\ItemManager.dll" />-->
-			<!--<InputAssemblies Include="$(OutputPath)\ServerSync.dll" />
+          <!-- <InputAssemblies Include="$(OutputPath)\ItemManager.dll" />
+			 <InputAssemblies Include="$(OutputPath)\ServerSync.dll" />
 			<InputAssemblies Include="$(OutputPath)\PieceManager.dll" />-->
 			<InputAssemblies Include="$(OutputPath)\YamlDotNet.dll" />
+			<InputAssemblies Include="$(OutputPath)\AnimationSpeedManager.dll" />
         </ItemGroup>
         <ILRepack Parallel="true" DebugInfo="true" Internalize="true" InputAssemblies="@(InputAssemblies)" OutputFile="$(TargetPath)" TargetKind="SameAsPrimaryAssembly" LibraryPath="$(OutputPath)" />
     </Target>
+	<Target Name="DEBUGAFTER" AfterTargets="ILRepack" Condition=" '$(Configuration)' == 'Debug'">
+		<!-- <Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).pdb&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\plugins\$(AssemblyName).pdb&quot;" /> -->
+		<Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).dll&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\plugins\$(AssemblyName).dll&quot;" />
+		<Exec Command="pdb2mdb.exe &quot;$(TargetDir)$(AssemblyName).dll&quot;" />
+		<Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).dll.mdb&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\plugins\$(AssemblyName).dll.mdb&quot;" />
+	</Target>
+	<Target Name="Release" AfterTargets="ILRepack" Condition=" '$(Configuration)' == 'Release'">
+		<Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).dll&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\plugins\$(AssemblyName).dll&quot;" />
+	</Target>
 </Project>

@@ -1,0 +1,69 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Material",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "original": {
+        "type": "string"
+      },
+      "overwrite": {
+        "type": "boolean",
+        "default": true
+      },
+      "changes": {
+        "$ref": "#/definitions/material"
+      }
+    },
+    "required": [
+      "name",
+      "original",
+      "changes"
+    ],
+    "definitions": {
+      "color": {
+        "description": "A color in array format [R, G, B, A]",
+        "default": "[1, 1, 1, 1]",
+        "type": "array",
+        "maxLength": 4,
+        "minLength": 4
+      },
+      "time": {
+        "description": "A time in array format [Hour, Minute, Second]",
+        "type": "array",
+        "maxLength": 3,
+        "minLength": 3
+      },
+      "material": {
+        "type": "object",
+        "properties": {
+          "colors": {
+            "description": "Material property names and color values",
+            "type": "object",
+            "default": {
+              "_Color": "[1, 1, 1, 1]"
+            },
+            "additionalProperties": {
+              "$ref": "#/definitions/color"
+            }
+          },
+          "floats": {
+            "description": "Material property names and number values",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "textures": {
+            "description": "Material property names and their string values",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }

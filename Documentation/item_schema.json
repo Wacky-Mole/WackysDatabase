@@ -1,0 +1,213 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Item",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" },
+      "m_weight": {"type": "number" },
+      "m_name": { "$ref" : "#/definitions/string_or_null" },
+      "m_description": { "$ref" : "#/definitions/string_or_null" },
+      "clonePrefabName ": { "$ref" : "#/definitions/string_or_null" },
+      "mockName": { "$ref" : "#/definitions/string_or_null" },
+      "customIcon": { "$ref" : "#/definitions/string_or_null" },
+      "material ": { "$ref" : "#/definitions/string_or_null" },
+      "customVisual": { "$ref" : "#/definitions/visual" },
+      "sizeMultiplier": { "$ref" : "#/definitions/number_or_null" },
+      "scale_weight_by_quality": {"$ref" : "#/definitions/number_or_null" },
+      "Primary_Attack": { "anyOf": [{ "$ref": "#/definitions/attack" }, {"type": "null"}] },
+      "Secondary_Attack": { "anyOf": [{ "$ref": "#/definitions/attack" }, {"type": "null"}] },
+      "Damage": { "anyOf": [{ "$ref": "#/definitions/damage" }, {"type": "null"}] },
+      "Damage_Per_Level": { "anyOf": [{ "$ref": "#/definitions/damage" }, {"type": "null"}] },
+      "Armor": { "$ref": "#/definitions/armor" },
+      "FoodStats": { "$ref" : "#/definitions/string_or_null" },
+      "Moddifiers": { "$ref": "#/definitions/modifiers" },
+      "ShieldStats": { "$ref": "#/definitions/shield_stats" },
+      "SE_Equip": { "$ref": "#/definitions/se_equip" },
+      "SE_SET_Equip": { "$ref": "#/definitions/se_set_equip" },
+      "m_maxStackSize": { "$ref": "#/definitions/integer_or_null" },
+      "m_canBeReparied": { "$ref": "#/definitions/boolean_or_null" },
+      "m_destroyBroken": { "$ref": "#/definitions/boolean_or_null" },
+      "m_dodgeable": { "$ref": "#/definitions/boolean_or_null" },
+      "Attack_status_effect": { "$ref" : "#/definitions/string_or_null" }, 
+      "spawn_on_hit": { "$ref" : "#/definitions/string_or_null" }, 
+      "spawn_on_terrain_hit": { "$ref" : "#/definitions/string_or_null" }, 
+      "m_questItem": { "$ref": "#/definitions/boolean_or_null" },
+      "m_teleportable": { "$ref": "#/definitions/boolean_or_null" },
+      "m_backstabbonus": { "$ref" : "#/definitions/number_or_null" },
+      "m_knockback": { "$ref" : "#/definitions/number_or_null" },
+      "m_useDurability": { "$ref": "#/definitions/boolean_or_null" },
+      "m_useDurabilityDrain": { "$ref" : "#/definitions/number_or_null" },
+      "m_durabilityDrain": { "$ref" : "#/definitions/number_or_null" },
+      "m_maxDurability": { "$ref" : "#/definitions/number_or_null" },
+      "m_durabilityPerLevel": { "$ref" : "#/definitions/number_or_null" },
+      "m_equipDuration": { "$ref" : "#/definitions/number_or_null" },
+      "m_skillType": { "$ref": "#/definitions/skill_type" },
+      "m_animationState": { "$ref": "#/definitions/animation_state" },
+      "m_itemType": { "$ref": "#/definitions/item_type" },
+      "m_toolTier": { "$ref": "#/definitions/integer_or_null" },
+      "m_maxQuality": { "$ref": "#/definitions/integer_or_null" },
+      "m_value": { "$ref": "#/definitions/integer_or_null" },
+      "damageModifiers": { "type": "array", "items": { "type": "string" }},
+      "GEffects": { "$ref": "#/definitions/g_effects" }
+    },
+    "required": [
+      "name", "m_weight"
+    ],
+    "definitions": {
+      "visual": {
+        "type": "object",
+        "properties": {
+          "base_mat": { "type": "string" },
+          "chest": { "type": "string" },
+          "legs": { "type": "string" }
+        },
+        "additionalProperties": true
+      },
+      "attack": {
+        "type": "object",
+        "properties": {
+          "AttackType": { "$ref": "#/definitions/attack_type" },
+          "Attack_Animation": { "type": "string" },
+          "Attack_Random_Animation": { "$ref" : "#/definitions/number_or_null" },
+          "AttackHealthCost": { "$ref" : "#/definitions/number_or_null" },
+          "Chain_Attacks": { "$ref" : "#/definitions/number_or_null" },
+          "Hit_Terrain": { "$ref": "#/definitions/boolean_or_null" },
+          "Custom_AttackSpeed": { "$ref" : "#/definitions/number_or_null" },
+          "SpeedFactor": { "$ref" : "#/definitions/number_or_null" },
+          "DmgMultiplier": { "$ref" : "#/definitions/number_or_null" },
+          "ForceMultiplier": { "$ref" : "#/definitions/number_or_null" },
+          "StaggerMultiplier": { "$ref" : "#/definitions/number_or_null" },
+          "RecoilMultiplier": { "$ref" : "#/definitions/number_or_null" },
+          "AttackRange": { "$ref" : "#/definitions/number_or_null" },
+          "AttackHeight": { "$ref" : "#/definitions/number_or_null" },
+          "m_attackStamina": { "$ref" : "#/definitions/number_or_null" },
+          "m_eitrCost": { "$ref" : "#/definitions/number_or_null" },
+          "m_attackHealthPercentage": { "$ref" : "#/definitions/number_or_null" },
+          "Spawn_On_Trigger": { "$ref": "#/definitions/boolean_or_null" },
+          "Requires_Reload": { "$ref": "#/definitions/boolean_or_null" },
+          "Reload_Animation": { "$ref": "#/definitions/string_or_null" },
+          "ReloadTime": { "$ref" : "#/definitions/number_or_null" },
+          "Reload_Stamina_Drain": { "$ref" : "#/definitions/number_or_null" },
+          "Bow_Draw": { "$ref": "#/definitions/boolean_or_null" },
+          "Bow_Duration_Min": { "$ref" : "#/definitions/number_or_null" },
+          "Bow_Stamina_Drain": { "$ref" : "#/definitions/number_or_null" },
+          "Bow_Animation_State": { "$ref": "#/definitions/string_or_null" },
+          "Attack_Angle": { "$ref" : "#/definitions/number_or_null" },
+          "Attack_Ray_Width": { "$ref" : "#/definitions/number_or_null" },
+          "Lower_Dmg_Per_Hit": { "$ref": "#/definitions/boolean_or_null" },
+          "Hit_Through_Walls": { "$ref": "#/definitions/boolean_or_null" },
+          "Multi_Hit": { "$ref": "#/definitions/boolean_or_null" },
+          "Pickaxe_Special": { "$ref": "#/definitions/boolean_or_null" },
+          "Last_Chain_Dmg_Multiplier": { "$ref" : "#/definitions/number_or_null" },
+          "Attack_Projectile": { "$ref": "#/definitions/string_or_null" },
+          "Projectile_Vel": { "$ref" : "#/definitions/number_or_null" },
+          "Projectile_Accuraccy": { "$ref" : "#/definitions/number_or_null"},
+          "Projectiles": { "$ref" : "#/definitions/number_or_null" },
+          "AEffects": { "$ref": "#/definitions/a_effects"}
+        } 
+      },
+      "attack_type": {
+        "enum": ["Horizontal", "Vertical", "Projectile", "None", "Area", "TriggerProjectile"]
+      },
+      "hit_type": {
+        "enum": ["Closest", "Average", "First"]
+      },
+      "skill_type": {
+        "enum": [
+          "None", "Swords", "Knives", "Clubs", "Polearms", "Spears", "Blocking", "Axes", "Bows", "ElementalMagic", "BloodMagic", "Unarmed",
+          "Pickaxes", "WoodCutting", "Crossbows", "Jump", "Sneak", "Run", "Swim", "Fishing", "Ride", "All"
+        ]
+      },
+      "animation_state": {
+        "enum": [
+          "Unarmed", "OneHanded", "TwoHandedClub", "Bow", "Shield", "Torch", "LeftTorch", "Atgeir", "TwoHandedAxe",
+          "FishingRod", "Crossbow", "Knives", "Staves", "Greatsword", "MagicItem"
+        ]    
+      },
+      "item_type": {
+        "enum": [
+          "None", "Material", "Consumable", "OneHandedWeapon", "Bow", "Shield", "Helmet", "Chest", "Ammo", "Customization", "Legs", "Hands",
+          "Trophy", "TwoHandedWeapon", "Torch", "Misc", "Shoulder", "Utility", "Tool", "Attach_Atgeir", "Fish", "TwoHandedWeaponLeft", "AmmoNonEquipable"
+        ]
+      },
+      "armor": {
+        "armor": {"$ref" : "#/definitions/number_or_null"},
+        "armorPerLevel": {"$ref" : "#/definitions/number_or_null"}
+      },
+      "modifiers": {
+        "m_movementModifier": { "$ref" : "#/definitions/number_or_null"},
+        "m_EitrRegen": { "$ref" : "#/definitions/number_or_null"}
+      },
+      "a_effects": {
+        "type": "object",
+        "properties": {
+          "Hit_Effects": { "$ref": "#/definitions/stringarray_or_null" },
+          "Hit_Terrain_Effects": { "$ref": "#/definitions/stringarray_or_null" },
+          "Start_Effect": { "$ref": "#/definitions/stringarray_or_null" },
+          "Trigger_Effect": { "$ref": "#/definitions/stringarray_or_null" },
+          "Trail_Effect": { "$ref": "#/definitions/stringarray_or_null" },
+          "Burst_Effect": { "$ref": "#/definitions/stringarray_or_null" }
+        }
+      },
+      "g_effects": {
+        "Hit_Effects": { "$ref": "#/definitions/stringarray_or_null" },
+        "Hit_Terrain_Effects": { "$ref": "#/definitions/stringarray_or_null" },
+        "Start_Effect": { "$ref": "#/definitions/stringarray_or_null" },
+        "Hold_Start_Effects": { "$ref": "#/definitions/stringarray_or_null" },
+        "Trigger_Effect": { "$ref": "#/definitions/stringarray_or_null" },
+        "Trail_Effect": { "$ref": "#/definitions/stringarray_or_null" }
+      },
+      "damage": {
+        "type": "object",
+        "properties": {
+          "Blunt": { "$ref" : "#/definitions/number_or_null"},
+          "Chop": { "$ref" : "#/definitions/number_or_null"},
+          "Damage": { "$ref" : "#/definitions/number_or_null"},
+          "Fire": { "$ref" : "#/definitions/number_or_null"},
+          "Frost": { "$ref" : "#/definitions/number_or_null"},
+          "Lightning": { "$ref" : "#/definitions/number_or_null"},
+          "Pickaxe": { "$ref" : "#/definitions/number_or_null"},
+          "Pierce": { "$ref" : "#/definitions/number_or_null"},
+          "Poison": { "$ref" : "#/definitions/number_or_null"},
+          "Slash": { "$ref" : "#/definitions/number_or_null"},
+          "Spirit": { "$ref" : "#/definitions/number_or_null"}
+        }
+      },
+      "shield_stats": {
+        "properties": {
+          "m_blockPower": {"$ref" : "#/definitions/number_or_null"},
+          "m_blockPowerPerLevel": {"$ref" : "#/definitions/number_or_null"},
+          "m_timedBlockBonus": {"$ref" : "#/definitions/number_or_null"},
+          "m_deflectionForce": {"$ref" : "#/definitions/number_or_null"},
+          "m_deflectionForcePerLevel": {"$ref" : "#/definitions/number_or_null"}
+        }
+      },
+      "se_equip": {
+        "properties": {
+          "EffectName": { "$ref": "#/definitions/string_or_null"}
+        }
+      },
+      "se_set_equip": {
+        "properties": {
+          "SetName": { "$ref": "#/definitions/string_or_null"},
+          "Size": { "$ref": "#/definitions/integer_or_null"},
+          "EffectName": { "$ref": "#/definitions/string_or_null"}
+        }
+      },
+      "string_or_null": {
+        "anyOf": [{ "type": "string" }, { "type": "null" }]
+      },
+      "stringarray_or_null": {
+        "anyOf": [{ "type": "array", "items": { "type": "string" } }, { "type": "null" }]
+      },
+      "integer_or_null": {
+        "anyOf": [{ "type": "integer" }, { "type": "null" }]
+      },
+      "number_or_null": {
+        "anyOf": [{ "type": "number" }, { "type": "null" }]
+      },
+      "boolean_or_null": {
+        "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+      }
+    }
+  }

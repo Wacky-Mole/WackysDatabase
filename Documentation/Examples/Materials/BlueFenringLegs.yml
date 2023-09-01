@@ -1,0 +1,5 @@
+name: BlueFenringArmorLegs_mat
+original: FenringArmorLegs_mat
+changes:
+  textures:
+    _LegsTex: LegsBlue
