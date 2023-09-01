@@ -233,7 +233,7 @@ The next load logon should fix the issues.
 
  https://rgbcolorpicker.com/0-1 
 
- https://github.com/Wacky-Mole/WackysDatabase/tree/yaml2/Documentation - You Are GOING TO NEED TO STUDY THIS!
+https://github.com/Wacky-Mole/WackysDatabase/tree/master/Documentation - You Are GOING TO NEED TO STUDY THIS!
 
  ### Structures
 
