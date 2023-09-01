@@ -508,7 +508,7 @@ namespace wackydatabase.SetData
                         {
            
                             try
-                            { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                            { PieceManager.BuildPiece.BuildTableConfigChangedWacky(NewItemComp, data.piecehammerCategory); }
                             catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                         }
                         WMRecipeCust.selectedPiecehammer.m_pieces.Add(newItem); // adding item to PiceTable
@@ -519,7 +519,7 @@ namespace wackydatabase.SetData
                     if (!string.IsNullOrEmpty(data.piecehammerCategory))
                     {
                         try
-                        { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                        { PieceManager.BuildPiece.BuildTableConfigChangedWacky(NewItemComp, data.piecehammerCategory); }
                         catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                     }
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
@@ -654,7 +654,7 @@ namespace wackydatabase.SetData
                                 if (!string.IsNullOrEmpty(data.piecehammerCategory))
                                 {
                                     try
-                                    { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                                    { PieceManager.BuildPiece.BuildTableConfigChangedWacky(ItemComp, data.piecehammerCategory); }
                                     catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                                 }
                                 WMRecipeCust.selectedPiecehammer.m_pieces.Add(go); // adding item to PiceTable
@@ -665,7 +665,7 @@ namespace wackydatabase.SetData
                             if (!string.IsNullOrEmpty(data.piecehammerCategory))
                             {
                                 try
-                                { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                                { PieceManager.BuildPiece.BuildTableConfigChangedWacky(ItemComp, data.piecehammerCategory); }
                                 catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                             }
                             piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go); // if piecehammer is the actual item and not the PieceTable
@@ -2027,7 +2027,7 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($"Setting {data.name} "); // normal edit
 
                     mob.m_name = data.mob_display_name;
-
+                    /*
 
                     if (!string.IsNullOrEmpty(data.custom_material)) // material changer
                     {
@@ -2060,7 +2060,7 @@ namespace wackydatabase.SetData
                            // }
                         }
                         catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
-                    }
+                    } */
                 } // nromal edit
                 count++;
             } 

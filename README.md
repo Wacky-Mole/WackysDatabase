@@ -1,4 +1,4 @@
-WackysDatabase
+# WackysDatabase
 
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 
@@ -145,7 +145,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_fx`: Saves a fx.txt file with all fx effects
 - `wackydb_help`: command list
 - `wackydb_describe[ObjectName]`: Saves describe of an object, so you have an idea of the structure of the object for materials and customVisuals
-- `wackydb_sendtheload` : Experimental  command that will send pngs and objs to clients utilizing ServerSync. I recommend the Network mod to uncap datarates. 
+- `wackydb_sendtheload` : Experimental command that will send pngs and objs to clients utilizing ServerSync. I recommend the Network mod to uncap datarates. 
 - `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
 - `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
 
@@ -633,9 +633,10 @@ Quality is a requirement of what quality of item you need to be able to use this
 You can replace all Boars in the game with this Dude.
 
 </br>
+
 - `name` (string, required): The name of the creature.
 - `mob_display_name` (string, required): The display name of the creature in game.
-- `custom_material` (string): The custom material for the creature.
+- `custom_material` (string): The custom material for the creature. - Disabled for now - Will not work
 - `clone_creature` (string): The name of the creature to clone.
 - `creature_replacer` (string): The creature replacer. This will replace this creature with the one named here. All spawns will be replaced with this creature. 
 
@@ -732,6 +733,8 @@ Pick an object like bike.obj and bike_albedo.png and put them into the Object fo
 The object folder matches based on the preceding name, so bike_ matches to bike.
 
 It looks for PNGs with "_albedo", "_metallic", and "_normal".
+
+This system is not well tested, so please give me feedback and submit bug reports for any bugs. 
 
 
 
@@ -873,14 +876,16 @@ Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wacky
 Credits:
 Aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
 Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
+Also thanks to Blaxx and Azu for code like Snapshot and Piece Categories. </br>
 Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
 An extra thank you to Azumatt and the Odin team. </br>
 Special thank you to @KG for Mock System </br>
 A Huge thank you to Rexabit and his Visual Modifier https://github.com/Rexabit/valheim-visuals-modifier
 </br>Azumatt for Status Editor contributions. </br>
+This mod was the culmination of hundreds of hours. 
 Do whatever you want with this mod.
 </details>
 
 Known issues: </br>
-  Errors on ItemCache at startup</br> Creature Material is not working </br> 
+ 

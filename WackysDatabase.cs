@@ -387,6 +387,24 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathMaterials);
             }
 
+            if (!Directory.Exists(assetPathItems))
+            {
+                Dbgl("Creating Items Folder");
+                Directory.CreateDirectory(assetPathItems);
+            }
+
+            if (!Directory.Exists(assetPathPieces))
+            {
+                Dbgl("Creating Pieces Folder");
+                Directory.CreateDirectory(assetPathPieces);
+            }
+
+            if (!Directory.Exists(assetPathRecipes))
+            {
+                Dbgl("Creating Recipes Folder");
+                Directory.CreateDirectory(assetPathRecipes);
+            }
+
             if (!Directory.Exists(assetPathIcons))
             {
                 Dbgl("Creating Icons Folder");
