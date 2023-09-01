@@ -19,9 +19,7 @@ using System.Collections.Generic;
 using BepInEx.Bootstrap;
 using System.Linq;
 using PieceManager;
-//using System.Security.Cryptography;
 using System.Text;
-//using UnityEngine.SceneManagement;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -141,9 +139,6 @@ namespace wackydatabase
 
         internal static bool Admin = true; // for single player, sets to false for multiplayer on connect
         public static List<string> pieceWithLvl = new List<string>();
-
-        //bool admin = !ConfigSync.IsLocked;
-        // bool admin2 = ConfigSync.IsAdmin;
 
         internal static GameObject Root;
         internal static GameObject MockItemBase;
