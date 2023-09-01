@@ -54,6 +54,25 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 
 </details>
 
+<details><summary>General Knowledge</summary>
+
+
+    There are five (6) Objects that WackyDB touches. Items, Recipes, Pieces, Creatures,  Materials and Textures
+
+    Items are things in your inventory, you can pickup and maybe equip them.
+
+    Recipes are used to construct items, CraftingStations can be workbench, forge, or hand crafted (craftingStation": "")
+
+    Pieces are what you use in your hammer and hoe to construct or plant. piecehammers
+
+    Creatures are mobs, bosses ect.
+
+    Materials are the basic "colors" in the game, but hold a lot more than just RBG, can they can be tricky to get just right.
+
+    Textures are .pngs that hold the feel, appearance, or consistency of a surface or substance.
+
+
+</details>
 
 
 <details><summary>FAQ</summary>
