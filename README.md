@@ -470,6 +470,7 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 ![Ice Video](https://wackymole.com/hosts/icevideo.gif)
 
 
+
 - `Hit_Effects` (string[]): The hit effects.
 - `Hit_Terrain_Effects` (string[]): The effects when hitting terrain.
 - `Start_Effect` (string[]): The starting effect.
@@ -482,7 +483,8 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 
 <details><summary> Piece components</summary>
 
-<img src="https://wackymole.com/hosts/redforge.webp" width="450"/>
+![Glowing Red BronzeSword ](https://wackymole.com/hosts/redforge.webp)
+
 
 
 ### Pieces
