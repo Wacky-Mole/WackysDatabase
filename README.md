@@ -483,7 +483,7 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
 
 <details><summary> Piece components</summary>
 
-![Glowing Red BronzeSword ](https://wackymole.com/hosts/redforge.webp)
+![Glowing Red BronzeSword ](https://wackymole.com/hosts/redforge.png)
 
 
 
