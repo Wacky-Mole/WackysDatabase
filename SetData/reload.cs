@@ -272,18 +272,21 @@ namespace wackydatabase.SetData
                     {
                         if (!WMRecipeCust.MultiplayerApproved.Contains(item.Key))
                         {
+
+                            item.Value.SetActive(false);
                             ObjectDB Instant = ObjectDB.instance;
                             ZNetScene znet = ZNetScene.instance;
                             Instant.m_items.Remove(item.Value);
+                            //Instant.m_items.Find(x => x.name == item.Key).SetActive(false);
                             var hash = item.Key.GetStableHashCode();
                             znet.m_prefabs.Remove(item.Value); // removing znets
                             znet.m_namedPrefabs.Remove(hash);
-                            //GameObject.Destroy(item.Value);
+                            //znet.m_prefabs[item.Value].SetActive(false);
+                            //
                             //WMRecipeCust.MasterCloneList.Remove(item.Key);
                         }
                     }
-                }
-                { }
+                }             
             }
         }
 

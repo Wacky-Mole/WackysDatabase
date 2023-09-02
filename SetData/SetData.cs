@@ -1255,7 +1255,7 @@ namespace wackydatabase.SetData
                         var hash = newItem.name.GetStableHashCode();
                         ObjectDB.instance.m_items.Add(newItem);
                         ObjectDB.instance.m_itemByHash.Add(hash, newItem);
-                        WMRecipeCust.Dbgl("hash " + hash);
+                        WMRecipeCust.WLog.LogDebug("hash " + hash);
 
                         ZNetScene znet = ZNetScene.instance;
                         if (znet && ZnetNow)
@@ -1273,7 +1273,7 @@ namespace wackydatabase.SetData
                                 znet.m_namedPrefabs.Add(hash, newItem);
                                 WMRecipeCust.Dbgl($"Added prefab {name}");
                             }
-                            znet.m_namedPrefabs[hash].gameObject.SetActive( false );
+                            znet.m_namedPrefabs[hash].gameObject.SetActive( false ); //why?
                         }
 
                         //ObjectDB.instance.UpdateItemHashes();
