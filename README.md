@@ -108,6 +108,10 @@ Frequently Asked Questions
     Q: What Folders do I need to give to my users?
         A: Textures, Objects, Icons will NOT SYNC. I also recommend including the cache folder. Cache keeps track of Item/mock clones and materials
 
+    Q: How can I export material without _mat suffix ? I succeeded to export draugr_mat, but how for goblin or greydwarves ? 
+        A: It's is unfortunely not possible right now to get all of the mats because of how the devs named and made different things.
+            If you have access to Unity you could look at the files themselves. 
+
 </details>
 
 <details><summary>Configuration</summary>

@@ -357,6 +357,7 @@ namespace wackydatabase.GetData
 
         internal PieceData GetPiece (ItemDrop HammerID,string Hammername, GameObject PieceID, ObjectDB tod)
         {
+            Dictionary<Piece.PieceCategory, string> currentmap = PieceManager.PiecePrefabManager.GetPieceCategoriesMap();
 
             Piece piece = PieceID.GetComponent<Piece>();
             WMRecipeCust.WLog.LogInfo($"Piece {PieceID.name} in {Hammername}");
@@ -371,7 +372,7 @@ namespace wackydatabase.GetData
                 adminonly = false,
                 m_name = piece.m_name,
                 m_description = piece.m_description,
-                piecehammerCategory = piece.m_category.ToString(),
+                piecehammerCategory = currentmap[piece.m_category],//piece.m_category.ToString(),
                 sizeMultiplier = 1,
                 customIcon = null,
                 clonePrefabName = null,

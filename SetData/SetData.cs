@@ -29,11 +29,32 @@ using System.Diagnostics.Eventing.Reader;
 
 namespace wackydatabase.SetData
 {
-    public class SetData
+
+    [HarmonyPatch(typeof(Player), "OnSpawned")]
+    static class OverrideItemMangerOrVanil
+    {
+        static void Postfix()
+        {
+            foreach (var pies in SetData.DisabledPieceandHam)
+            {
+                var pi = pies.Key.GetComponent<Piece>();
+                pi.m_enabled = false;
+                WMRecipeCust.Dbgl($"Forcing PieceManger or Vanilla to Disable Piece {pies.Key}");
+
+                if (pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(pies.Key))
+                {
+                    pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(pies.Key);
+                }
+            }
+        }
+    }
+
+     public class SetData
     {
 
         public static Component[] renderfinder;
         internal static Renderer[] renderfinder2;
+        internal static Dictionary<GameObject , GameObject> DisabledPieceandHam = new Dictionary<GameObject , GameObject>();
 
 
         #region Effects
@@ -624,7 +645,7 @@ namespace wackydatabase.SetData
                                                                                   // Can't check the hammer easily, so checking the PieceCategory, hopefully someone doesn't make two Misc
                 if (data.piecehammerCategory != null && data.piecehammer != null) // check that category and hammer is actually set
                 {
-                    if (ItemComp.m_category != (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory))
+                    if (ItemComp.m_category != PieceManager.PiecePrefabManager.GetCategory(data.piecehammerCategory))// (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory))
                     { // now disable old 
                         WMRecipeCust.Dbgl($"Category change has been detected for {data.name}, disabling old piece and setting new piece location");
                         if (piecehammer == null)
@@ -701,11 +722,34 @@ namespace wackydatabase.SetData
 
             if (data.disabled ?? false)
             {
+                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
+                if (piecehammer == null)
+                    piecehammer = WMRecipeCust.selectedPiecehammer.gameObject;
                 WMRecipeCust.Dbgl($"Disabling Piece {data.name}");
+
                 go.GetComponent<Piece>().m_enabled = false;
-            } else
+
+                if (piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                {
+                    WMRecipeCust.Dbgl($"Force removing from selectedPiecehammer Piece {data.name}");
+                    piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                    if (!DisabledPieceandHam.ContainsKey(go))
+                        DisabledPieceandHam.Add(go, piecehammer);
+                }
+            }
+            else
             {
+                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
+                if (piecehammer == null)
+                    piecehammer = WMRecipeCust.selectedPiecehammer.gameObject;
+
                 go.GetComponent<Piece>().m_enabled = true;
+
+                if (!piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                {
+                    WMRecipeCust.Dbgl($"Force adding to selectedPiecehammer Piece {data.name}");
+                    piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                }
             }
             WMRecipeCust.Dbgl("Setting Piece data for " + data.name);
 
