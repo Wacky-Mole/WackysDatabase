@@ -53,10 +53,17 @@ namespace wackydatabase.SetData
             }
             else
             {
+                if (WMRecipeCust.ssLock)
+                {
+                    WMRecipeCust.Dbgl($" You recieved SERVER files again before finishing current ones");
+                    return;
+                }
                 WMRecipeCust.WLog.LogDebug("CustomSyncEventDetected was called ");
                 WMRecipeCust.Dbgl($" You recieved SERVER Files, so reloading");
                 WMRecipeCust.Admin = WMRecipeCust.ConfigSync.IsAdmin;
                 WMRecipeCust.recieveServerInfo = true;
+                WMRecipeCust.ssLock = true;
+
                 if (WMRecipeCust.Admin)
                 {
                     WMRecipeCust.Dbgl($" You are an Admin");
@@ -535,7 +542,9 @@ namespace wackydatabase.SetData
             {
                 OtherApi.Marketplace_API.ResetTraderItems();
             }
-                                 
+            WMRecipeCust.ssLock = false;
+
+
         }      
         public static event Action OnAllReloaded;
 

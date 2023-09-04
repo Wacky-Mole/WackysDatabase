@@ -84,6 +84,7 @@ namespace wackydatabase
         internal static bool FirstSS = true;
         internal static int spawnedinWorld = 0;
         internal static bool dedLoad = false;
+        internal static bool ssLock = false;
 
 
         public static List<RecipeData_json> recipeDatas = new List<RecipeData_json>();
