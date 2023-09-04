@@ -260,12 +260,28 @@ namespace wackydatabase.SetData
                     }
                 }
             }
- 
+
+            UPdateItemHashesWacky(Instant);
+
+        }
+        internal void UPdateItemHashesWacky(ObjectDB Instant, bool notclones = false)
+        {
+            GameObject problem = null;
             try
             {
-                Instant.UpdateItemHashes();
+                Instant.m_itemByHash.Clear();
+                
+                foreach (GameObject item in Instant.m_items)
+                {
+                    problem = item;
+                    Instant.m_itemByHash.Add(item.name.GetStableHashCode(), item);
+                }
             }
-            catch { WMRecipeCust.WLog.LogWarning($"Wackydb Update ItemHashes on cloned items failed, this could cause problems"); }
+            catch {
+                Instant.m_items.Remove(problem);
+                WMRecipeCust.WLog.LogWarning($"Wackydb {problem.name} failed hashes, Please fix yaml or Bug, removing from ObjectDB, rerunning");
+                UPdateItemHashesWacky(Instant);
+            }
         }
 
         internal void removeLocalData()
@@ -420,7 +436,8 @@ namespace wackydatabase.SetData
                     processcount = 0;
                 }
             }
-            Instant.UpdateItemHashes();
+            UPdateItemHashesWacky(Instant);
+            //Instant.UpdateItemHashes();
             foreach (var data in WMRecipeCust.pieceDatasYml)
             {
                 try
@@ -522,14 +539,8 @@ namespace wackydatabase.SetData
 
             removeLocalData();
 
-            try
-            {
-                ObjectDB.instance.UpdateItemHashes();
-            }
-            catch
-            {
-                WMRecipeCust.Dbgl($"failed to update Hashes- probably error in files");
-            }
+            UPdateItemHashesWacky(ObjectDB.instance);
+
 
             WMRecipeCust.Dbgl($" You finished wackydb reload");
 
