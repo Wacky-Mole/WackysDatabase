@@ -1850,7 +1850,7 @@ namespace wackydatabase.SetData
             {
                 if (current != null && current.m_effectPrefabs != null) // has existing effectlist
                 {
-                    if (userlist[0] == "-" || userlist[0] == " -" || userlist[0] == "delete" || userlist[0] == "") {
+                    if (userlist[0] == null) {
                         EffectList paul = new EffectList();
                         return paul;
                     }

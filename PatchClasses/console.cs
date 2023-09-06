@@ -94,6 +94,13 @@ namespace wackydatabase.PatchClasses
              {
                  WMRecipeCust.WLog.LogWarning(" deleteing Cache");
                  WMRecipeCust.DeleteCache();
+
+                 //WMRecipeCust.Dbgl("Checking Cache Folder and Loading Any Item/Mock Clones");
+                 // ReadFiles clones = new ReadFiles();
+                 //clones.GetCacheClonesOnly();
+                 MaterialDataManager.Instance.materials.Clear();
+                 TextureDataManager.textureCache.Clear();
+
                  args.Context?.AddString(" deleteing Cache");
 
              });

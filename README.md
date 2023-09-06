@@ -397,6 +397,11 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `Trail_Effect` (string[]): The effect trail of the attack.
 - `Burst_Effect` (string[]): The burst effect of the attack.
 
+![Delete](https://wackymole.com/hosts/Effects_delete.png)
+To delete existing Effects
+
+</br>
+
 ### Secondary Attack 
   Is the same as Primary just for the secondary attack. 
 
