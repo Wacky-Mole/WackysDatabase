@@ -1818,6 +1818,8 @@ namespace wackydatabase.SetData
                     {
                         PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
                         if (data.damageModifiers[0] == "-" || data.damageModifiers[0] == "delete" || data.damageModifiers[0] == " -" ) { // clear it
+                            WMRecipeCust.Dbgl("     clearing dmg Modifiers");
+                            //PrimaryItemData.m_shared.m_damageModifiers.Clear();
                         }
                         else
                         {

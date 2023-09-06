@@ -127,6 +127,15 @@ Frequently Asked Questions
     Q: How do I make custom Icons?
         A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename. ie. wacky.png
 
+    Q: Will there be even MORE features and can I edit effects?
+        A: No, probably not. 
+
+    Q: Why are some of the SE Effects empty? Like SeData?
+        A: Well its complicated, I am having to grab them in a weird way, and not all SEs have SeData. Nothing to be done about it. 
+
+    Q: What about Attack Projectile?
+        A: I need to look at projectiles in the future, for now they are disabled.
+
 </details>
 
 <details><summary>Configuration</summary>
@@ -512,7 +521,10 @@ Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison S
     VeryResistant - Prevent status effect application except when actively in, and increases status countdown speed by 100%
     VeryWeak - Decreases status countdown speed by 2/3
 
-
+![Delete all Damage Mod](https://wackymole.com/hosts/damagemod_delete.png)
+To delete all existing Damage modifiers
+</br>
+</br>
 
 `GEffects` (GEffects): The additional game effects of the item.
 
