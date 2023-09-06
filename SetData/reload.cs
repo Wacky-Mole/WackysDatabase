@@ -224,7 +224,7 @@ namespace wackydatabase.SetData
                     if (citem == data.name)
                     {
                         alreadyexist = true;
-                        WMRecipeCust.WLog.LogInfo($"Another item named {data.name} has all ready loaded for mainmenu");
+                        WMRecipeCust.WLog.LogDebug($"Another item named {data.name} has all ready loaded for mainmenu");
                     }                                             
                 }
                 foreach (var citem in WMRecipeCust.MockI)
@@ -232,7 +232,7 @@ namespace wackydatabase.SetData
                     if (citem == data.name)
                     {
                         alreadyexist = true;
-                        WMRecipeCust.WLog.LogInfo($"Another Item for this Mock named {data.name} has all ready loaded for mainmenu");
+                        WMRecipeCust.WLog.LogDebug($"Another Item for this Mock named {data.name} has all ready loaded for mainmenu");
                     }
                 }
                 if (!alreadyexist)
@@ -542,7 +542,7 @@ namespace wackydatabase.SetData
             UPdateItemHashesWacky(ObjectDB.instance);
 
 
-            WMRecipeCust.Dbgl($" You finished wackydb reload");
+            WMRecipeCust.WLog.LogInfo($" You finished wackydb reload");
 
             OnAllReloaded?.Invoke();
 

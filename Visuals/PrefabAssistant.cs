@@ -232,7 +232,7 @@ namespace wackydatabase
                 return;
             }
 
-            Debug.Log($"[{WMRecipeCust.ModName}]: Updating material to: {m.name}");
+            WMRecipeCust.Dbgl($"[{WMRecipeCust.ModName}]: Updating material to: {m.name}");
 
             if (r.sharedMaterials.Length > 1)
             {

@@ -106,21 +106,12 @@ namespace wackydatabase.SetData
             go.m_repeatMessageType = data.RepeatMessageLoc ?? go.m_repeatMessageType;
             go.m_repeatMessage = data.RepeatMessage ?? go.m_repeatMessage;
             go.m_ttl = data.TimeToLive ?? go.m_ttl;
-            if (data.StartEffect != null)
-            {
-                var count = 0;
-                foreach (var Seff in data.StartEffect)
-                {
-                    //EffectList.EffectData
-                    // Instant.GetPrefabHash
-                    //go.m_startEffects.m_effectPrefabs[count] = go. data.StartEffect[count];
-                    count++;
-                }
-                //go.m_startEffects.m_effectPrefabs.c
-            }
+            if (data.StartEffect_ != null)
+                go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_);
 
-            //go.m_startEffects = data.StartEffect ?? go.m_startEffects;
-            //go.m_stopEffects = data.StopEffect ?? go.m_stopEffects;
+            if (data.StopEffect_ != null)
+                go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_);
+            
             go.m_cooldown = data.Cooldown ?? go.m_cooldown;
             go.m_activationAnimation = data.ActivationAnimation ?? go.m_activationAnimation;
 
@@ -515,7 +506,18 @@ namespace wackydatabase.SetData
                 skip = true;
                 if (piecehammer == null)
                 {
-                    if (WMRecipeCust.selectedPiecehammer == null)
+                    if (data.piecehammer == "Hoe" || data.piecehammer == "_CultivatorPieceTable") // Hoe and Cultivator
+                    {
+                        if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                        {
+                            try
+                            { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                            catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                        }
+                       // piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
+                        WMRecipeCust.selectedPiecehammer.m_pieces.Add(newItem);
+                    }
+                    else if (WMRecipeCust.selectedPiecehammer == null)
                     {
                         WMRecipeCust.Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
                         piecehammer = Instant.GetItemPrefab("Hammer");
@@ -645,7 +647,17 @@ namespace wackydatabase.SetData
                                                                                   // Can't check the hammer easily, so checking the PieceCategory, hopefully someone doesn't make two Misc
                 if (data.piecehammerCategory != null && data.piecehammer != null) // check that category and hammer is actually set
                 {
-                    if (ItemComp.m_category != PieceManager.PiecePrefabManager.GetCategory(data.piecehammerCategory))// (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory))
+                    if (data.piecehammer == "Hoe" || data.piecehammer == "_CultivatorPieceTable") // Hoe and Cultivator
+                    {
+                        if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                        {
+                            try
+                            { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
+                            catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                        }
+                        piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go); // if piecehammer is the actual item and not the PieceTable
+                    }
+                    else if (ItemComp.m_category != PieceManager.PiecePrefabManager.GetCategory(data.piecehammerCategory))// (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory))
                     { // now disable old 
                         WMRecipeCust.Dbgl($"Category change has been detected for {data.name}, disabling old piece and setting new piece location");
                         if (piecehammer == null)
@@ -745,10 +757,16 @@ namespace wackydatabase.SetData
 
                 go.GetComponent<Piece>().m_enabled = true;
 
-                if (!piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                if (piecehammer == null || data.piecehammer == "_CultivatorPieceTable") { 
+                
+                } // no change?
+                else
                 {
-                    WMRecipeCust.Dbgl($"Force adding to selectedPiecehammer Piece {data.name}");
-                    piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                    if (!piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                    {
+                        WMRecipeCust.Dbgl($"Force adding to selectedPiecehammer Piece {data.name}");
+                        piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                    }
                 }
             }
             WMRecipeCust.Dbgl("Setting Piece data for " + data.name);
@@ -1379,20 +1397,26 @@ namespace wackydatabase.SetData
                     if (!DataHelpers.ECheck(data.customIcon))
                     {
                         var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.customIcon);
-                        var nullcheck = File.ReadAllBytes(pathI);
-                        if (nullcheck != null)
+                        if (File.Exists(pathI))
                         {
-                            try
+                            var nullcheck = File.ReadAllBytes(pathI);
+                            if (nullcheck != null)
                             {
+                                try
+                                {
 
-                                var Spri = SpriteTools.LoadNewSprite(pathI);
-                                ItemDr.m_itemData.m_shared.m_icons[0] = Spri;
-                                usecustom = true;
+                                    var Spri = SpriteTools.LoadNewSprite(pathI);
+                                    ItemDr.m_itemData.m_shared.m_icons[0] = Spri;
+                                    usecustom = true;
 
+                                }
+                                catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
                             }
-                            catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
-                        }
-                        else
+                            else
+                            {
+                                WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
+                            }
+                        } else
                         {
                             WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
                         }
@@ -1466,6 +1490,10 @@ namespace wackydatabase.SetData
 
                         if (!string.IsNullOrEmpty(data.Primary_Attack.Spawn_On_Trigger) && (data.Primary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger?.name))
                         {
+                            if (data.Primary_Attack.Spawn_On_Trigger == "delete" || data.Primary_Attack.Spawn_On_Trigger == "-")
+                            {
+                                PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = null;
+                            }
                             GameObject found = null;
                             foreach (var ob in AllObjects)
                             {
@@ -1562,6 +1590,10 @@ namespace wackydatabase.SetData
 
                         if (!string.IsNullOrEmpty(data.Secondary_Attack.Spawn_On_Trigger) && (data.Secondary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger?.name))
                         {
+                            if (data.Secondary_Attack.Spawn_On_Trigger == "delete" || data.Secondary_Attack.Spawn_On_Trigger == "-")
+                            {
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = null;
+                            }
                             GameObject found = null;
                             foreach (var ob in AllObjects)
                             {
@@ -1659,7 +1691,7 @@ namespace wackydatabase.SetData
                     }
                     if (data.SE_Equip != null)
                     {
-                        if (data.SE_Equip.EffectName == "delete")
+                        if (data.SE_Equip.EffectName == "delete" || data.SE_Equip.EffectName == "-")
                         {
                             PrimaryItemData.m_shared.m_equipStatusEffect = null;
                             WMRecipeCust.Dbgl($"   {data.name} Item equip effects removed");
@@ -1673,7 +1705,7 @@ namespace wackydatabase.SetData
                     }
                     if (data.SE_SET_Equip != null)
                     {
-                        if (data.SE_SET_Equip.EffectName == "delete")
+                        if (data.SE_SET_Equip.EffectName == "delete" || data.SE_SET_Equip.EffectName == "-")
                         {
                             PrimaryItemData.m_shared.m_setName = null;
                             PrimaryItemData.m_shared.m_setSize = 0;
@@ -1785,11 +1817,17 @@ namespace wackydatabase.SetData
                     if (!DataHelpers.ECheck(data.damageModifiers))
                     {
                         PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
-                        foreach (string modString in data.damageModifiers)
+                        if (data.damageModifiers[0] == "-" || data.damageModifiers[0] == "delete" || data.damageModifiers[0] == " -" ) { // clear it
+                        }
+                        else
                         {
-                            string[] mod = modString.Split(':');
-                            int modType = Enum.TryParse<ArmorHelpers.NewDamageTypes>(mod[0], out ArmorHelpers.NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
-                            PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
+
+                            foreach (string modString in data.damageModifiers)
+                            {
+                                string[] mod = modString.Split(':');
+                                int modType = Enum.TryParse<ArmorHelpers.NewDamageTypes>(mod[0], out ArmorHelpers.NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
+                                PrimaryItemData.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) }); // end aedenthorn code
+                            }
                         }
                     }
                     if (PrimaryItemData.m_shared.m_value > 0)
@@ -1812,6 +1850,10 @@ namespace wackydatabase.SetData
             {
                 if (current != null && current.m_effectPrefabs != null) // has existing effectlist
                 {
+                    if (userlist[0] == "-" || userlist[0] == " -" || userlist[0] == "delete" || userlist[0] == "") {
+                        EffectList paul = new EffectList();
+                        return paul;
+                    }
 
                     var copy = current;
                     var count = 0;

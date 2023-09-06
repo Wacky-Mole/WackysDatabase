@@ -74,11 +74,11 @@ namespace wackydatabase.Startup
                     return;
                 }
 
-                WMRecipeCust.WLog.LogInfo("ObjectDB 2nd Awake Load"); // Only adds Gameobjects to ObjectDB
+                WMRecipeCust.Dbgl("ObjectDB 2nd Awake Load"); // Only adds Gameobjects to ObjectDB
 
                 if (ZNet.instance != null) // for loading from a game to back to main menu
                 {
-                    WMRecipeCust.WLog.LogInfo("ZnetActive in ObjectDB Awake ");
+                    WMRecipeCust.Dbgl("ZnetActive in ObjectDB Awake ");
                     if (WMRecipeCust.IsDedServer) { } // dedicated servers don't have to load clones // can load later
                     else
                     {
@@ -120,7 +120,7 @@ namespace wackydatabase.Startup
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
 
-                WMRecipeCust.WLog.LogInfo("Znet Awake");
+                //WMRecipeCust.Dbgl("Znet Awake");
                 WMRecipeCust.CurrentReload.LoadZDOsForClones();
                 
 

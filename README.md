@@ -71,6 +71,14 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 
     Textures are .pngs that hold the feel, appearance, or consistency of a surface or substance.
 
+    Nost lines in the YAMLS can be deleted. Only the required ones need to be in the files, when the line is deleted the computer interprets that as a null value.
+
+    Null is like I don't know, so I don't care, use the orginal values. 
+    
+    To delete the existing values you will use either '' for strings, "delete" for SE Effects or "-" for multiliners. 
+
+    jpeg or png. 64 x 64 px - name like wacky.png, Must be in Icon Folder (Not ServerSynced)
+
 
 </details>
 
@@ -111,6 +119,13 @@ Frequently Asked Questions
     Q: How can I export material without _mat suffix ? I succeeded to export draugr_mat, but how for goblin or greydwarves ? 
         A: It's is unfortunely not possible right now to get all of the mats because of how the devs named and made different things.
             If you have access to Unity you could look at the files themselves. 
+
+    Q: What lines can I delete or how can I make somethings empty?
+        A: This is a long answer, but most lines in the YAMLS can be deleted. Only the required ones need to be in the files, when the line is deleted the computer interprets that as a null value.
+            Null is like I don't know, so I don't care, use the orginal values. To delete the existing values you will use either '' for strings, "delete" for SE Effects or "-" for multiliners. 
+
+    Q: How do I make custom Icons?
+        A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename. ie. wacky.png
 
 </details>
 
@@ -436,6 +451,14 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `EffectName` (string): The name of the effect for equipping the set.
 
 
+![Delete](https://wackymole.com/hosts/Se_Set_delete.png)
+To delete existing
+
+![Delete](https://wackymole.com/hosts/SE_delete.png)
+To delete existing
+
+</br>
+
 `ShieldStats` (ShieldData): The shield statistics of the item.
 - ### Shield
 
@@ -687,8 +710,8 @@ You can replace all Boars in the game with this Dude.
 - `RepeatMessage` (string): The repeat message of the status effect.
 - `RepeatInterval` (float): The repeat interval of the status effect.
 - `TimeToLive` (float): The time to live of the status effect.
-- `StartEffect` (List<string>): The list of start effects for the status effect.
-- `StopEffect` (List<string>): The list of stop effects for the status effect.
+- `StartEffect_` (string[]): The string of start effects for the status effect.
+- `StopEffect_` (string[]): The string of stop effects for the status effect.
 - `Cooldown` (float): The cooldown of the status effect.
 - `ActivationAnimation` (string): The animation for the activation of the status effect.
 - `SeData` (SEdata): The additional data for the status effect.
@@ -735,6 +758,8 @@ You can replace all Boars in the game with this Dude.
 You should be able to delete existing m_mods, by
 </br>m_mods:
 </br> -
+
+![Delete all m_mods](https://wackymole.com/hosts/m_mods_delete.png)
 
 Use wackydb_se_create as a "template" to create a new status effect
 

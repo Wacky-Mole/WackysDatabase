@@ -222,16 +222,6 @@ namespace wackydatabase.GetData
 
 
 
-            List<string> StartEeffect = new List<string>();
-            foreach (var som in effect.m_startEffects.m_effectPrefabs)
-            {
-                StartEeffect.Add(som.m_prefab.name);
-            }
-            List<string> StopEeffect = new List<string>();
-            foreach (var som in effect.m_stopEffects.m_effectPrefabs)
-            {
-                StopEeffect.Add(som.m_prefab.name);
-            }
 
             StatusData statusData = new StatusData
             {
@@ -253,8 +243,8 @@ namespace wackydatabase.GetData
                 RepeatMessage = effect.m_repeatMessage ?? "",
                 RepeatInterval = effect.m_repeatInterval,
                 TimeToLive = effect.m_ttl,
-                StartEffect = StartEeffect,
-                StopEffect = StopEeffect,
+                StartEffect_ = CheckEffectsArray(effect.m_startEffects?.m_effectPrefabs) ?? null,
+                StopEffect_ = CheckEffectsArray(effect.m_stopEffects?.m_effectPrefabs) ?? null,
                 Cooldown = effect.m_cooldown,
                 ActivationAnimation = effect.m_activationAnimation ?? "",
                 SeData = stats,
