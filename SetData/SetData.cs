@@ -922,6 +922,52 @@ namespace wackydatabase.SetData
 
             }
 
+            if (data.cookingStationData != null)
+            {
+                go.TryGetComponent<CookingStation>(out var cook);
+
+                //cook.name = data.cookingStationData.stationName ?? cook.name;
+                //cook.m_name = data.cookingStationData.displayName ?? cook.m_name;
+                cook.m_addItemTooltip = data.cookingStationData.addItemTooltip ?? cook.m_addItemTooltip;
+
+                if (data.cookingStationData.overcookedItem != null)
+                {
+                    cook.m_overCookedItem = Instant.GetItemPrefab(data.cookingStationData.overcookedItem).GetComponent<ItemDrop>();
+                }
+                if (data.cookingStationData.fuelItem != null)
+                {
+                    cook.m_fuelItem = Instant.GetItemPrefab(data.cookingStationData.fuelItem).GetComponent<ItemDrop>();
+                }
+                cook.m_requireFire = data.cookingStationData.requireFire ?? cook.m_requireFire;
+                cook.m_maxFuel = data.cookingStationData.maxFuel ?? cook.m_maxFuel;
+                cook.m_secPerFuel = data.cookingStationData.secPerFuel ?? cook.m_secPerFuel;
+
+                if (data.cookingStationData.cookConversion != null)
+                {
+                    cook.m_conversion.Clear();
+                    foreach (var list in data.cookingStationData.cookConversion)
+                    {
+                        CookingStation.ItemConversion paul = new CookingStation.ItemConversion();
+
+                        //smelt.m_conversion[0].; // has to have 1 set before 
+                        if (list != null)
+                        {
+                            if (list.FromName != null)
+                            {
+                                paul.m_from = Instant.GetItemPrefab(list.FromName).GetComponent<ItemDrop>();
+                            }
+
+                            if (list.ToName != null)
+                            {
+                                paul.m_to = Instant.GetItemPrefab(list.ToName).GetComponent<ItemDrop>();
+                            }
+                            paul.m_cookTime = list.CookTime ?? 10;// overwise 10 secs
+                        }
+                        cook.m_conversion.Add(paul);
+                    }
+                }
+            }
+
             Type type = go.GetType();
             if (data.smelterData != null && go.TryGetComponent<Smelter>(out var smelt))
             {

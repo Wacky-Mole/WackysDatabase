@@ -459,6 +459,43 @@ namespace wackydatabase.GetData
                 data.contData = ContData;
             }
 
+            if (PieceID.TryGetComponent<CookingStation>(out var cook))
+            {
+                List<CookStationConversionList> CookConversionList = new List<CookStationConversionList>();
+                foreach (var Item in cook.m_conversion)
+                {
+                    CookStationConversionList cookl = new CookStationConversionList();
+                    cookl.FromName = Item.m_from.name;
+                    cookl.ToName = Item.m_to.name;
+                    cookl.CookTime = Item.m_cookTime;
+                    CookConversionList.Add(cookl);
+                } 
+                CookingStationData CookData2 = new CookingStationData();
+
+                if (cook.name == "piece_oven")
+                {                
+                    CookData2.addItemTooltip = cook.m_addItemTooltip;
+                    CookData2.overcookedItem = cook.m_overCookedItem.name;
+                    CookData2.fuelItem = cook.m_fuelItem.name;
+                    CookData2.requireFire = cook.m_requireFire;
+                    CookData2.maxFuel = cook.m_maxFuel;
+                    CookData2.secPerFuel = cook.m_secPerFuel;
+                    CookData2.cookConversion = CookConversionList;
+                    data.cookingStationData = CookData2;
+                }
+                else
+                {                
+                    CookData2.addItemTooltip = cook.m_addItemTooltip;
+                    CookData2.overcookedItem = cook.m_overCookedItem.name;
+                    CookData2.requireFire = cook.m_requireFire;
+                    CookData2.cookConversion = CookConversionList;
+                    data.cookingStationData = CookData2;
+
+                }
+
+            }
+
+
             try {
                 if (PieceID.TryGetComponent<Smelter>(out var smelt))
                 {

@@ -26,7 +26,7 @@ Features
 <!-- ![WackysDatabase](https://wackymole.com/hosts/lightblue%20Sword.webp) ![WackysDatabase](https://wackymole.com/hosts/1825-1648309710-715635595.png) ![WackysDatabase](https://wackymole.com/hosts/orangeish%20bow.jpg) -->
 Description
 
-WackysDatabase, or Wackydb, allows you to modify and customize items, pieces, recipes, effects, materials and creatures in Valheim without coding. With this mod, you can clone items, change their colors, create new items, and even translate language. It offers a wide range of possibilities for customization.
+WackysDatabase, or Wackydb, allows you to modify and customize items, pieces, recipes, effects, materials and creatures in Valheim without coding. With this mod, you can **clone** items, change their colors, create new items, and even translate language. It offers a wide range of possibilities for customization.
 
 
 YML Knowledge
@@ -40,7 +40,7 @@ YML Knowledge
     Some components are multilined where you can actually add your own stuff the ymls.
 
 <details><summary>Installation</summary>
-### Installation
+### Installation****
 
     Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins).
     Run Valheim and join a world.
@@ -135,6 +135,10 @@ Frequently Asked Questions
 
     Q: What about Attack Projectile?
         A: I need to look at projectiles in the future, for now they are disabled.
+
+    Q: Would it be possible to have one item take 2+ different item slots ? (say weapon + pants)
+        A: No, but you can edit two parts and one effect, which is effective when combined!
+        If one of them is missing, then the two pieces of equipment have no effect, which can be regarded as a limitation
 
 </details>
 
@@ -640,6 +644,23 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 - `requiresRoof` (bool): Indicates whether the smelter requires a roof.
 - `addOreAnimationLength` (float): The length of the animation for adding ore.
 - `smelterConversion` (List<SmelterConversionList>): The list of smelter conversions.
+
+
+### CookingStationData
+
+- `addItemTooltip` (string): The tooltip for adding items to the cooking station.
+- `overcookedItem` (string): The item produced when cooking is overdone.
+- `fuelItem` (string): The fuel item used in the cooking station.
+- `requireFire` (bool): Indicates whether the cooking station requires fire.
+- `maxFuel` (int): The maximum fuel capacity of the cooking station.
+- `secPerFuel` (int): The time, in seconds, per unit of fuel.
+- `cookConversion` (List<CookStationConversionList>): A list of cooking conversions.
+
+### CookStationConversionList
+
+- `FromName` (string): The name of the item to convert from.
+- `ToName` (string): The name of the item to convert to.
+- `CookTime` (float): The cooking time for the conversion.
 
 ### fuelItemData
 

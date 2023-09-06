@@ -48,6 +48,8 @@ namespace wackydatabase.Datas
 
         public SmelterData? smelterData;
 
+        public CookingStationData? cookingStationData;
+
         public List<string>? build = new List<string>();
 
     }
@@ -130,6 +132,23 @@ namespace wackydatabase.Datas
         public List<SmelterConversionList>? smelterConversion;
     }
 
+    public class CookingStationData
+    {
+        //Cooking Script
+       // public string? stationName;
+       // public string? displayName;
+
+        public string? addItemTooltip;
+
+        public string? overcookedItem;
+        public string? fuelItem;
+        public bool? requireFire;
+        public int? maxFuel;
+        public int? secPerFuel;
+
+        public List<CookStationConversionList>? cookConversion;
+    }
+
     public class fuelItemData
     {
         public string? name;
@@ -139,6 +158,14 @@ namespace wackydatabase.Datas
     {
         public string? FromName;
         public string? ToName;
+
+    }
+
+    public class CookStationConversionList
+    {
+        public string? FromName;
+        public string? ToName;
+        public float? CookTime;
 
     }
 
