@@ -134,9 +134,7 @@ namespace wackydatabase.Datas
 
     public class CookingStationData
     {
-        //Cooking Script
-       // public string? stationName;
-       // public string? displayName;
+
 
         public string? addItemTooltip;
 

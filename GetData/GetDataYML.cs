@@ -492,9 +492,7 @@ namespace wackydatabase.GetData
                     data.cookingStationData = CookData2;
 
                 }
-
             }
-
 
             try {
                 if (PieceID.TryGetComponent<Smelter>(out var smelt))
