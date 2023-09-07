@@ -1319,6 +1319,18 @@ namespace wackydatabase.SetData
             if (go == null)
                 go = Instant.GetItemPrefab(data.name); // normal check
 
+            if(go == null && !string.IsNullOrEmpty(data.clonePrefabName))
+            {            
+                go = Instant.GetItemPrefab(data.clonePrefabName);
+                if(go != null)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Last ditch effort to catch {data.name} worked, restoring clone");
+                    skip = false;
+                    WMRecipeCust.ClonedI.Remove(data.name);
+                    data.name = data.clonePrefabName;                  
+                }
+            }
+
             if (go == null)
             {
                 WMRecipeCust.Dbgl(" item in SetItemData null " + data.name);

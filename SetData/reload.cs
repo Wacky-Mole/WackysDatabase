@@ -206,6 +206,7 @@ namespace wackydatabase.SetData
         {
              
             ObjectDB Instant = ObjectDB.instance;
+            Instant.UpdateItemHashes();
 
             //load material cache .mats here
 
@@ -219,20 +220,23 @@ namespace wackydatabase.SetData
             foreach (var data in WMRecipeCust.cacheItemsYML) 
             {
                 bool alreadyexist = false;
-                foreach (var citem in WMRecipeCust.ClonedI)
+                var copy = WMRecipeCust.ClonedI;
+                foreach (var citem in copy)
                 {
                     if (citem == data.name)
                     {
                         alreadyexist = true;
-                        WMRecipeCust.WLog.LogDebug($"Another item named {data.name} has all ready loaded for mainmenu");
+                        WMRecipeCust.WLog.LogInfo($"Another item named {data.name} has all ready loaded for mainmenu");                       
                     }                                             
                 }
                 foreach (var citem in WMRecipeCust.MockI)
                 {
                     if (citem == data.name)
                     {
+
                         alreadyexist = true;
-                        WMRecipeCust.WLog.LogDebug($"Another Item for this Mock named {data.name} has all ready loaded for mainmenu");
+                        WMRecipeCust.WLog.LogInfo($"Another Item for this Mock named {data.name} has all ready loaded for mainmenu");
+                        
                     }
                 }
                 if (!alreadyexist)
@@ -242,7 +246,10 @@ namespace wackydatabase.SetData
                         GameObject thing = SetData.SetClonedItemsDataCache(data, Instant, false);
                         if (thing != null)
                         {
-                            WMRecipeCust.MasterCloneList.Add(data.name, thing);
+                            if (WMRecipeCust.MasterCloneList.ContainsKey(data.name))
+                                WMRecipeCust.MasterCloneList[data.name] = thing;
+                            else
+                                WMRecipeCust.MasterCloneList.Add(data.name, thing);
                         }else
                         {
                             WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} was null");
