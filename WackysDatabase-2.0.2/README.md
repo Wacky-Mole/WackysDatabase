@@ -5,8 +5,9 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.0
+Version: 2.0.2 
 Features
+
 
     SetEffects: All of them!
     4x more item configurations for Primary and Secondary Attacks
@@ -939,6 +940,7 @@ Wackymole
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 2.0.0 | - 2.0.0 - Lots of betas <br/>
 | 2.0.1 | - First Release of 2.0 <br/>
+| 2.0.2 | - Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 
 
 <details><summary>Feedback</summary>

@@ -29,12 +29,12 @@ namespace wackydatabase.Startup
                 WMRecipeCust.FirstSS = true;// Reset for next SS connection
                 if (WMRecipeCust.issettoSinglePlayer)
                 {
-                   // Closing.DestroyClones();
+                    Closing.DestroyClones();
 
                 }
                 else
                 {
-                   // Closing.DestroyClones();
+                    Closing.DestroyClones();
                 }
                 WMRecipeCust.NoMoreLoading = true;
             }
@@ -74,6 +74,7 @@ namespace wackydatabase.Startup
                 catch { WMRecipeCust.Dbgl($"Error Disabling recipe {citem}"); }
             }
             
+            /*
             foreach (var citem in WMRecipeCust.ClonedI)
             {
                 try
@@ -89,7 +90,7 @@ namespace wackydatabase.Startup
                 }
                 catch { WMRecipeCust.Dbgl($"Error Destorying item {citem}"); }
 
-            }
+            } */ // maybe
 
             foreach (var citem in WMRecipeCust.ClonedCC)
             {
@@ -129,15 +130,15 @@ namespace wackydatabase.Startup
                 }
                 catch { WMRecipeCust.Dbgl($"Error Destorying piece {citem}"); }
             }
-            WMRecipeCust.ClonedI.Clear();
+            //WMRecipeCust.ClonedI.Clear();
             WMRecipeCust.ClonedR.Clear();
             WMRecipeCust.ClonedP.Clear();
             WMRecipeCust.ClonedC.Clear();
             WMRecipeCust.ClonedCC.Clear();// clear dictonary
             WMRecipeCust.ClonedCR.Clear();
-            ObjectDB.instance.UpdateItemHashes();
+           // ObjectDB.instance.UpdateItemHashes();
 
-            WMRecipeCust.Dbgl("All cloned Objects Destroyed");
+            WMRecipeCust.Dbgl("All cloned objects, except items, Destroyed");
         }
     }
 }

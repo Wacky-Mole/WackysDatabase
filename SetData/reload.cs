@@ -537,7 +537,7 @@ namespace wackydatabase.SetData
             }
             */
 
-            removeLocalData();
+             removeLocalData();
 
             UPdateItemHashesWacky(ObjectDB.instance);
 
