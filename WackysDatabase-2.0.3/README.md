@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.0.2 
+Version: 2.0.3 
 Features
 
 
@@ -200,6 +200,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_sendtheload` : Experimental command that will send pngs and objs to clients utilizing ServerSync. I recommend the Network mod to uncap datarates. 
 - `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
 - `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
+- `wackydb_clearcache`: Clears the current cache, materials and textures. Only do this after big yaml changes, cache is important - This command works on menu screen
 
 
 </details>
@@ -247,6 +248,8 @@ It is so important now that I recommend including your cache folder on updates t
 If a cloned is not cached for the first run, errors may appear for users as other mods try to touch a item that wasn't created until very late.
 
 The next load logon should fix the issues. 
+
+Feel free to removed the cache folder for big changes, but try to leave it for normal usage
 
 </br>
 
@@ -649,6 +652,8 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ### CookingStationData
 
+#### Warning changing to new CookConversions items can trigger minor errors as well as food items not appearing in oven
+
 - `addItemTooltip` (string): The tooltip for adding items to the cooking station.
 - `overcookedItem` (string): The item produced when cooking is overdone.
 - `fuelItem` (string): The fuel item used in the cooking station.
@@ -941,6 +946,7 @@ Wackymole
 | 2.0.0 | - 2.0.0 - Lots of betas <br/>
 | 2.0.1 | - First Release of 2.0 <br/>
 | 2.0.2 | - Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
+| 2.0.3 | Bug fix for cloned items being deleted for some people. | Fix for piece disabling, disabling already placed pieces - whoops  <br/>
 
 
 <details><summary>Feedback</summary>

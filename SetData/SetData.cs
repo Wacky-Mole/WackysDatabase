@@ -37,8 +37,8 @@ namespace wackydatabase.SetData
         {
             foreach (var pies in SetData.DisabledPieceandHam)
             {
-                var pi = pies.Key.GetComponent<Piece>();
-                pi.m_enabled = false;
+                //var pi = pies.Key.GetComponent<Piece>(); // disables the pieces visability, whoops
+                //pi.m_enabled = false;
                 WMRecipeCust.Dbgl($"Forcing PieceManger or Vanilla to Disable Piece {pies.Key}");
 
                 if (pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(pies.Key))
@@ -710,19 +710,6 @@ namespace wackydatabase.SetData
             {
                 if (WMRecipeCust.Admin)
                 {
-                    // do nothing, but search if it has been disabled before
-                    /*
-                    foreach(GameObject searc in AdminPiecesOnly.Keys)
-                    {
-                        if (searc == go)
-                        { // found object so need to add it back because it was disabled previously
-
-                           GameObject newhammer = AdminPiecesOnly[searc];
-                           newhammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(searc);
-                           Dbgl($"Congrats on your new promotion. Enabling previously disabled piece.");
-                           AdminPiecesOnly.Remove(searc); // delete so it is not found again
-                        }
-                    } */
                     WMRecipeCust.Dbgl($"{data.name} is set for Adminonly, and you are admin, enjoy this exclusive Piece");
                 }
                 else
@@ -739,11 +726,11 @@ namespace wackydatabase.SetData
                     piecehammer = WMRecipeCust.selectedPiecehammer.gameObject;
                 WMRecipeCust.Dbgl($"Disabling Piece {data.name}");
 
-                go.GetComponent<Piece>().m_enabled = false;
+                //go.GetComponent<Piece>().m_enabled = false; // bad wacky
 
                 if (piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
                 {
-                    WMRecipeCust.Dbgl($"Force removing from selectedPiecehammer Piece {data.name}");
+                    WMRecipeCust.Dbgl($"removing from {piecehammer.name} Piece {data.name}");
                     piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
                     if (!DisabledPieceandHam.ContainsKey(go))
                         DisabledPieceandHam.Add(go, piecehammer);
@@ -764,9 +751,11 @@ namespace wackydatabase.SetData
                 {
                     if (!piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
                     {
-                        WMRecipeCust.Dbgl($"Force adding to selectedPiecehammer Piece {data.name}");
+                        //WMRecipeCust.Dbgl($"Force adding to selectedPiecehammer Piece {data.name}");
                         piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
                     }
+                    if (DisabledPieceandHam.ContainsKey(go))
+                        DisabledPieceandHam.Remove(go);
                 }
             }
             WMRecipeCust.Dbgl("Setting Piece data for " + data.name);
@@ -812,16 +801,9 @@ namespace wackydatabase.SetData
             }
             var pi = go.GetComponent<Piece>();
 
-            // commented out sections should already be set above. 
-            //name = PieceID.name, // required
-            // piecehammer = Hammername, // required
-            //amount = 1,
-            //craftingStation = piece.m_craftingStation?.m_name ?? "",
-            //minStationLevel = 1,
-            //adminonly = false,
             pi.m_name = data.m_name ?? pi.m_name;
             pi.m_description = data.m_description ?? pi.m_description;
-            // piecehammerCategory = piece.m_category.ToString(),
+
             if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
             {
                 Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
@@ -849,11 +831,7 @@ namespace wackydatabase.SetData
                     WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
                 }
             }
-            //clonePrefabName = null,
-            // material = null,
-            // damagedMaterial = null,
-            //disabled = !piece.enabled,
-            //cloneEffects
+
             pi.m_groundPiece = data.groundPiece ?? pi.m_groundPiece;
             pi.m_groundOnly = data.ground ?? pi.m_groundOnly;
             pi.m_waterPiece = data.waterPiece ?? pi.m_waterPiece;
