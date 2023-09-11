@@ -629,10 +629,51 @@ namespace wackydatabase.SetData
                 }
                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
 
-                //SnapshotPiece(go); // piece snapshot doesn't work without instancing
-                //SnapshotItem(null, go.GetComponent<Piece>());
 
+            } // mats
+
+            bool usecustom = false;
+            if (!DataHelpers.ECheck(data.customIcon))
+            {
+                var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.customIcon);
+                if (File.Exists(pathI))
+                {
+                    var nullcheck = File.ReadAllBytes(pathI);
+                    if (nullcheck != null)
+                    {
+                        try
+                        {
+
+                            var Spri = SpriteTools.LoadNewSprite(pathI);
+                            go.GetComponent<Piece>().m_icon = Spri;
+                            usecustom = true;
+
+                        }
+                        catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                    }
+                    else
+                    {
+                        WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
+                    }
+                }
+                else
+                {
+                    WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
+                }
             }
+
+
+            if (!DataHelpers.ECheck(data.material) && !usecustom)
+            {
+
+                try
+                {
+                    Functions.SnapshotPiece(go); // snapshot go
+                }
+                catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
+            }
+
+
             if (data.craftingStation != null)
             {
                 CraftingStation craft = DataHelpers.GetCraftingStation(data.craftingStation);
@@ -803,33 +844,13 @@ namespace wackydatabase.SetData
 
             pi.m_name = data.m_name ?? pi.m_name;
             pi.m_description = data.m_description ?? pi.m_description;
+            if (pi.gameObject.TryGetComponent<Door>(out Door wpoo))
+                wpoo.m_name += pi.m_name;
 
             if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
             {
                 Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
                 go.transform.localScale = NewScale;
-            }
-            bool usecustom = false;
-            if (!DataHelpers.ECheck(data.customIcon))
-            {
-                var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.customIcon);
-                var nullcheck = File.ReadAllBytes(pathI);
-                if (nullcheck != null)
-                {
-                    try
-                    {
-
-                        var Spri = SpriteTools.LoadNewSprite(pathI);
-                        pi.m_icon = Spri;
-                        usecustom = true;
-
-                    }
-                    catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
-                }
-                else
-                {
-                    WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
-                }
             }
 
             pi.m_groundPiece = data.groundPiece ?? pi.m_groundPiece;
