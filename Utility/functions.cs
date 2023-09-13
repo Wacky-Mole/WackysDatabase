@@ -263,7 +263,7 @@ namespace wackydatabase.Util
 
         public static void SnapshotPiece(GameObject prefab, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
         {
-            void Do()
+            void Do2()
             {
                 const int layer = 3;
                 if (prefab == null) return;
@@ -343,15 +343,15 @@ namespace wackydatabase.Util
                 Object.Destroy(camera.gameObject);
                 Object.Destroy(sideLight.gameObject);
             }
-            IEnumerator Delay()
+            IEnumerator Delay2()
             {
                 yield return null;
-                Do();
+                Do2();
             }
             IEnumerator WackyDelay()
             {
                 yield return 1f;
-                Do();
+                Do2();
             }
             if (ObjectDB.instance)
             {
@@ -360,7 +360,7 @@ namespace wackydatabase.Util
             }
             else
             {
-                plugin.StartCoroutine(Delay());
+                plugin.StartCoroutine(Delay2());
             }
         }
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System;
 using wackydatabase.Util;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 
 namespace wackydatabase.GetData
 {
@@ -494,74 +495,108 @@ namespace wackydatabase.GetData
                 }
             }
 
-            try {
-                if (PieceID.TryGetComponent<Smelter>(out var smelt))
+            if (PieceID.TryGetComponent<Fermenter>(out var ferm))
+            {
+                List<FermenterConversionList> fermenterConversionLists = new List<FermenterConversionList>();
+                foreach ( var ferms in ferm.m_conversion)
                 {
-                    // WMRecipeCust.WLog.LogWarning("Piece Smelter");
-                    // var smelt = PieceID.GetComponent<Smelter>();
-                    if (smelt.name == "charcoal_kiln" || smelt.name == "windmill" || smelt.name == "piece_spinningwheel")
+                    FermenterConversionList temp1 = new FermenterConversionList();
+                    temp1.FromName = ferms.m_from.gameObject.name;
+                    temp1.ToName = ferms.m_to.gameObject.name;
+                    temp1.Amount = ferms.m_producedItems;
+                }
+                FermenterData fermdata = new FermenterData();
+
+                fermdata.fermDuration = ferm.m_fermentationDuration;
+                fermdata.fermConversion = fermenterConversionLists;
+
+            }
+
+            if (PieceID.TryGetComponent<SapCollector>(out var sap))
+            {
+                SapData sapdata = new SapData();
+                sapdata.secPerUnit = sap.m_secPerUnit;
+                sapdata.maxLevel = sap.m_maxLevel;
+                sapdata.producedItem = sap.m_spawnItem.gameObject.name;
+                sapdata.connectedToWhat = sap.m_connectedObject.gameObject.name;
+
+                sapdata.extractText = sap.m_extractText;
+                sapdata.drainingText = sap.m_drainingText;
+                sapdata.drainingSlowText = sap.m_drainingSlowText;
+                sapdata.notConnectedText = sap.m_notConnectedText;
+                sapdata.fullText = sap.m_fullText;
+
+
+            }
+
+                try {
+            if (PieceID.TryGetComponent<Smelter>(out var smelt))
+            {
+                // WMRecipeCust.WLog.LogWarning("Piece Smelter");
+                // var smelt = PieceID.GetComponent<Smelter>();
+                if (smelt.name == "charcoal_kiln" || smelt.name == "windmill" || smelt.name == "piece_spinningwheel")
+                {
+
+                    List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
+                    foreach (var Item in smelt.m_conversion)
                     {
-
-                        List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
-                        foreach (var Item in smelt.m_conversion)
-                        {
-                            SmelterConversionList smell = new SmelterConversionList();
-                            smell.FromName = Item.m_from.name;
-                            smell.ToName = Item.m_to.name;
-                            smelterConversionList.Add(smell);
-                        }
-
-                        SmelterData smelterData2 = new SmelterData
-                        {
-                            smelterName = smelt.name,
-                            smelterConversion = smelterConversionList,
-                            emptyOreTooltip = smelt.m_emptyOreTooltip,
-                            addOreTooltip = smelt.m_addOreTooltip,
-                            maxOre = smelt.m_maxOre,
-                            secPerProduct = smelt.m_secPerProduct,
-                        };
-                        data.smelterData = smelterData2;
+                        SmelterConversionList smell = new SmelterConversionList();
+                        smell.FromName = Item.m_from.name;
+                        smell.ToName = Item.m_to.name;
+                        smelterConversionList.Add(smell);
                     }
-                    else
+
+                    SmelterData smelterData2 = new SmelterData
                     {
-                        fuelItemData fuelItemData = new fuelItemData
-                        {
-                            name = smelt.m_fuelItem.name,
-                            // ItemNameShared = smelt.m_fuelItem.m_itemData.m_shared.m_name,
-                        };
+                        smelterName = smelt.name,
+                        smelterConversion = smelterConversionList,
+                        emptyOreTooltip = smelt.m_emptyOreTooltip,
+                        addOreTooltip = smelt.m_addOreTooltip,
+                        maxOre = smelt.m_maxOre,
+                        secPerProduct = smelt.m_secPerProduct,
+                    };
+                    data.smelterData = smelterData2;
+                }
+                else
+                {
+                    fuelItemData fuelItemData = new fuelItemData
+                    {
+                        name = smelt.m_fuelItem.name,
+                        // ItemNameShared = smelt.m_fuelItem.m_itemData.m_shared.m_name,
+                    };
 
-                        List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
-                        foreach (var Item in smelt.m_conversion)
-                        {
-                            SmelterConversionList smell = new SmelterConversionList();
-                            smell.FromName = Item.m_from.name;
-                            smell.ToName = Item.m_to.name;
-                            smelterConversionList.Add(smell);
-                        }
-
-
-                        SmelterData smelterData = new SmelterData
-                        {
-                            smelterName = smelt.name,
-                            addOreTooltip = smelt.m_addOreTooltip,
-                            emptyOreTooltip = smelt.m_emptyOreTooltip,
-                            //addFuelSwitch = smelt.m_addWoodSwitch,
-                            // addOreSwitch = smelt.m_addOreSwitch,
-                            //emptyOreSwitch = smelt.m_emptyOreSwitch,
-                            //fuelItem = smelt.m_fuelItem,
-                            fuelItem = fuelItemData,
-                            maxOre = smelt.m_maxOre,
-                            maxFuel = smelt.m_maxFuel,
-                            fuelPerProduct = smelt.m_fuelPerProduct,
-                            secPerProduct = smelt.m_secPerProduct,
-                            spawnStack = smelt.m_spawnStack,
-                            requiresRoof = smelt.m_requiresRoof,
-                            addOreAnimationLength = smelt.m_addOreAnimationDuration,
-                            smelterConversion = smelterConversionList,
-                        };
-                        data.smelterData = smelterData;
+                    List<SmelterConversionList> smelterConversionList = new List<SmelterConversionList>();
+                    foreach (var Item in smelt.m_conversion)
+                    {
+                        SmelterConversionList smell = new SmelterConversionList();
+                        smell.FromName = Item.m_from.name;
+                        smell.ToName = Item.m_to.name;
+                        smelterConversionList.Add(smell);
                     }
-                } 
+
+
+                    SmelterData smelterData = new SmelterData
+                    {
+                        smelterName = smelt.name,
+                        addOreTooltip = smelt.m_addOreTooltip,
+                        emptyOreTooltip = smelt.m_emptyOreTooltip,
+                        //addFuelSwitch = smelt.m_addWoodSwitch,
+                        // addOreSwitch = smelt.m_addOreSwitch,
+                        //emptyOreSwitch = smelt.m_emptyOreSwitch,
+                        //fuelItem = smelt.m_fuelItem,
+                        fuelItem = fuelItemData,
+                        maxOre = smelt.m_maxOre,
+                        maxFuel = smelt.m_maxFuel,
+                        fuelPerProduct = smelt.m_fuelPerProduct,
+                        secPerProduct = smelt.m_secPerProduct,
+                        spawnStack = smelt.m_spawnStack,
+                        requiresRoof = smelt.m_requiresRoof,
+                        addOreAnimationLength = smelt.m_addOreAnimationDuration,
+                        smelterConversion = smelterConversionList,
+                    };
+                    data.smelterData = smelterData;
+                }
+            } 
             } catch  { }
 
     

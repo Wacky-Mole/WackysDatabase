@@ -50,6 +50,10 @@ namespace wackydatabase.Datas
 
         public CookingStationData? cookingStationData;
 
+        public FermenterData? fermStationData;
+
+        public SapData? sapData;
+
         public List<string>? build = new List<string>();
 
     }
@@ -69,7 +73,6 @@ namespace wackydatabase.Datas
         public bool? noSupportWear;
         public bool? supports;
         public bool? triggerPrivateArea;
-
 
     }
 
@@ -146,6 +149,27 @@ namespace wackydatabase.Datas
 
         public List<CookStationConversionList>? cookConversion;
     }
+    
+    public class FermenterData
+    {
+        public float? fermDuration;
+        public List<FermenterConversionList>? fermConversion;
+    }
+
+    public class SapData
+    {
+        public float? secPerUnit;
+        public int? maxLevel;
+        public string? producedItem;
+        public string? connectedToWhat;
+
+        public string? extractText;
+        public string? drainingText;
+        public string? drainingSlowText;
+        public string? notConnectedText;
+        public string? fullText;
+
+    }
 
     public class fuelItemData
     {
@@ -165,6 +189,13 @@ namespace wackydatabase.Datas
         public string? ToName;
         public float? CookTime;
 
+    }
+
+    public class FermenterConversionList 
+    {
+        public string? FromName;
+        public string? ToName;
+        public int? Amount;
     }
 
 }

@@ -393,7 +393,7 @@ namespace wackydatabase.SetData
                             checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
                             if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
                             {
-                                SetData.SetPieceRecipeData(data3, Instant);
+                                SetData.SetPieceRecipeData(data3, Instant, AllObjects);
                             }
                         }
                     }
@@ -449,7 +449,7 @@ namespace wackydatabase.SetData
             {
                 try
                 {
-                    SetData.SetPieceRecipeData(data, Instant);
+                    SetData.SetPieceRecipeData(data, Instant, AllObjects);
                 }
                 catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data.name} failed"); }
                 processcount++;

@@ -911,7 +911,7 @@ This mod should load last. It needs to so it can touch all other mods.
 
 > Clone the Item and change the material to make it a more appealing color. 
 
-Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. 
+Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. ****
 
 A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wrong can break Azu show container contents
 
@@ -920,7 +920,7 @@ A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wro
 
 </details>
 
-
+****
 <details><summary>Full Features</summary>
 
 Planned features
@@ -928,7 +928,7 @@ Planned features
 - [x] Able to modify recipes.
 - [x] Able to modify pieces.
 - [x] Able to modify materials on clones
-- [x] Custom items/pieces
+- [x] Custom items/pieces****
 - [x] Custom recipes
 - [x] Able to modify Set effects 
 - [x] Cloned Items show up on MainScreen
@@ -941,12 +941,13 @@ Wackymole
 
 <summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
 
-| Version | Changes                                                                                                                                                                                                                                                                                                                                |
+| Version | Changes                                                                                                                                                                                                        ****                                                                                                                        |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 2.0.0 | 2.0.0 - Lots of betas <br/>
 | 2.0.1 | First Release of 2.0 <br/>
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
+| 2.0.4 | Snapshot for Pieces added - Hovernames for cloned doors - Added Sap and Fermentor Section to pieces
 
 
 <details><summary>Feedback</summary>

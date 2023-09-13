@@ -418,7 +418,7 @@ namespace wackydatabase.SetData
 
 
 
-        internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant, bool cloneonly = false)
+        internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant, GameObject[] AllObjects = null, bool cloneonly = false)
         {
             bool skip = false;
             foreach (var citem in WMRecipeCust.ClonedP)
@@ -668,9 +668,9 @@ namespace wackydatabase.SetData
 
                 try
                 {
-                    Functions.SnapshotPiece(go); // snapshot go
+                  //  Functions.SnapshotPiece(go); // snapshot go
                 }
-                catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
+                catch { WMRecipeCust.WLog.LogInfo("Piece snapshot  failed"); }
             }
 
 
@@ -844,8 +844,9 @@ namespace wackydatabase.SetData
 
             pi.m_name = data.m_name ?? pi.m_name;
             pi.m_description = data.m_description ?? pi.m_description;
+
             if (pi.gameObject.TryGetComponent<Door>(out Door wpoo))
-                wpoo.m_name += pi.m_name;
+                wpoo.m_name = pi.m_name;
 
             if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
             {
@@ -918,6 +919,66 @@ namespace wackydatabase.SetData
                 cont.m_autoDestroyEmpty = data.contData.AutoDestoryIfEmpty ?? cont.m_autoDestroyEmpty;
                 cont.m_height = data.contData.Height ?? cont.m_height;
                 cont.m_width = data.contData.Width ?? cont.m_width;
+
+            }
+
+            if (data.sapData != null)
+            {
+                go.TryGetComponent<SapCollector>(out var sap);
+                sap.m_secPerUnit = data.sapData.secPerUnit ?? sap.m_secPerUnit;
+                sap.m_maxLevel = data.sapData.maxLevel ?? sap.m_maxLevel;
+
+                if (data.sapData.producedItem != null)
+                {
+                    sap.m_spawnItem = Instant.GetItemPrefab(data.sapData.producedItem).GetComponent<ItemDrop>();
+                }
+                if (data.sapData.connectedToWhat != null)
+                {
+                    foreach (var pie in AllObjects)
+                    {
+                        if (pie.GetComponent<Piece>() != null && pie.name == data.sapData.connectedToWhat)
+                        {
+                            sap.m_mustConnectTo = pie.GetComponent<ZNetView>();
+                            break;
+                        }
+                    }
+                }
+                sap.m_extractText = data.sapData.extractText;
+                sap.m_drainingText = data.sapData.drainingText;
+                sap.m_drainingSlowText = data.sapData.drainingSlowText;
+                sap.m_notConnectedText = data.sapData.notConnectedText;
+                sap.m_fullText = data.sapData.fullText;
+
+            }
+
+            if (data.fermStationData  != null)
+            {
+                go.TryGetComponent<Fermenter>(out var ferm);
+
+                ferm.m_fermentationDuration = data.fermStationData.fermDuration ?? ferm.m_fermentationDuration;
+
+                if (data.fermStationData.fermConversion != null)
+                {
+                    ferm.m_conversion.Clear();
+                    List<FermenterConversionList> list = new List<FermenterConversionList>();
+                    foreach (var conv in data.fermStationData.fermConversion)
+                    {
+                        Fermenter.ItemConversion conversion = new Fermenter.ItemConversion();
+                        if (conv != null)
+                        {
+                            if (conv.FromName != null)
+                                conversion.m_from = Instant.GetItemPrefab(conv.FromName).GetComponent<ItemDrop>();
+
+                            if (conv.ToName != null)
+                                conversion.m_to = Instant.GetItemPrefab(conv.ToName).GetComponent<ItemDrop>();
+
+                            conversion.m_producedItems = conv.Amount ?? conversion.m_producedItems;
+
+                        }
+                        ferm.m_conversion.Add(conversion);
+                    }
+                }
+                
 
             }
 
