@@ -1358,10 +1358,37 @@ namespace wackydatabase.SetData
                         if (go2 == null)
                         {
                             WMRecipeCust.Dbgl("Mock Model is loaded 4 " + data.name);
+                            //if (Instant.m_items.Contains(newObj))
+                            //   Instant.m_items.Remove(newObj);
+                            WMRecipeCust.Dbgl("Mock Model is loaded 4.5 " + data.name);
                             Instant.m_items.Add(newObj);
-                            ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
+
+                            /*
+                            ZNetScene znet = ZNetScene.instance;
+                            if (znet && ZnetNow)
+                            {
+                                string name = itemDrop.name;
+                                int hash = name.GetStableHashCode();
+                                if (znet.m_namedPrefabs.ContainsKey(hash))
+                                    WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
+                                else
+                                {
+                                    if (itemDrop.GetComponent<ZNetView>() != null)
+                                        znet.m_prefabs.Add(go2);
+                                    else
+                                        znet.m_nonNetViewPrefabs.Add(go2);
+
+                                    znet.m_namedPrefabs.Add(hash, go2);
+                                    WMRecipeCust.Dbgl($"Added prefab {name}");
+                                }
+                                znet.m_namedPrefabs[hash].gameObject.SetActive(false); //why?
+                            }
+                            */
+                            WMRecipeCust.Dbgl("Mock Model is loaded 4.6 " + data.name);
+                            //ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
                             go2.SetActive(true);
+                            /*
 
                             if (string.IsNullOrEmpty(data.customIcon))
                             {
@@ -1370,7 +1397,7 @@ namespace wackydatabase.SetData
                                     Functions.SnapshotItem(newObj.GetComponent<ItemDrop>()); // snapshot go
                                 }
                                 catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
-                            }
+                            }*/
                             WMRecipeCust.Dbgl("New Mock Model with New Gameobject, loaded " + data.name);
                         }
                         else
@@ -1386,6 +1413,7 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl("Mock Model is not loaded, please redownload file or rename or goodluck! " + data.name);
                     return;
                 }
+                WMRecipeCust.Dbgl("Mock Model is loaded 5 " + data.name);
             }
 
             string tempname = data.name;

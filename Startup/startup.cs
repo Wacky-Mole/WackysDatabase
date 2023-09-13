@@ -229,10 +229,10 @@ namespace wackydatabase.Startup
             return WMRecipeCust.issettoSinglePlayer;
         }
 
-        [HarmonyPatch(typeof(Game), nameof(Game._RequestRespawn))]
+        [HarmonyPatch(typeof(DungeonDB), nameof(DungeonDB.Start))]
         public static class MainReloadStart
         {
-            static void Prefix(Game __instance)
+            static void Prefix(DungeonDB __instance)
             {
                 if (WMRecipeCust.waitingforFirstLoad)
                 {

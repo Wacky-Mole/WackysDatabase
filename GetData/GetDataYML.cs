@@ -504,11 +504,13 @@ namespace wackydatabase.GetData
                     temp1.FromName = ferms.m_from.gameObject.name;
                     temp1.ToName = ferms.m_to.gameObject.name;
                     temp1.Amount = ferms.m_producedItems;
+                    fermenterConversionLists.Add(temp1);
                 }
                 FermenterData fermdata = new FermenterData();
 
                 fermdata.fermDuration = ferm.m_fermentationDuration;
                 fermdata.fermConversion = fermenterConversionLists;
+                data.fermStationData = fermdata;
 
             }
 
@@ -518,7 +520,7 @@ namespace wackydatabase.GetData
                 sapdata.secPerUnit = sap.m_secPerUnit;
                 sapdata.maxLevel = sap.m_maxLevel;
                 sapdata.producedItem = sap.m_spawnItem.gameObject.name;
-                sapdata.connectedToWhat = sap.m_connectedObject.gameObject.name;
+                sapdata.connectedToWhat = sap.m_mustConnectTo.gameObject.name;
 
                 sapdata.extractText = sap.m_extractText;
                 sapdata.drainingText = sap.m_drainingText;
@@ -526,6 +528,7 @@ namespace wackydatabase.GetData
                 sapdata.notConnectedText = sap.m_notConnectedText;
                 sapdata.fullText = sap.m_fullText;
 
+                data.sapData = sapdata;
 
             }
 

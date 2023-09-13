@@ -633,8 +633,61 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 - `CheckWard` (bool): Indicates whether the container checks for ward placement.
 - `AutoDestoryIfEmpty` (bool): Indicates whether the container auto-destroys if empty.
 
-### SmelterData
 
+
+### SapData 
+
+- `secPerUnit` (float): Secs per unit
+- `maxLevel` (int): Max level of the extractor
+- `producedItem` (string): What spawns when you extract
+- `connectedToWhat` (string): What do you need to put this piece on to get extraction
+
+#### Warning - Changing this won't really do anything, the other piece/object needs to have a Resource Root script on it.
+- `extractText` (string): Extraction Text
+- `drainingText` (string): Draining Text
+- `drainingSlowText` (string): idk, slow draining text
+- `notConnectedText` (string): Not connected text
+- `fullText` (float): FullText
+
+
+</br>
+
+### FermentorData 
+
+- `fermDuration` (float): How long it takes to make a batch
+- `fermConversion` (List<FermenterConversionList>): A list of ferm conversions.
+
+#### FermenterConversionList
+
+- `FromName` (string): The name of the item to convert from.
+- `ToName` (string): The name of the item to convert to.
+- `Amount` (int): The amount to spawn when batch is done.
+
+
+</br>
+
+### CookingStationData
+
+#### Warning changing to new CookConversions items can trigger minor errors as well as food items not appearing in oven
+
+- `addItemTooltip` (string): The tooltip for adding items to the cooking station.
+- `overcookedItem` (string): The item produced when cooking is overdone.
+- `fuelItem` (string): The fuel item used in the cooking station.
+- `requireFire` (bool): Indicates whether the cooking station requires fire.
+- `maxFuel` (int): The maximum fuel capacity of the cooking station.
+- `secPerFuel` (int): The time, in seconds, per unit of fuel.
+- `cookConversion` (List<CookStationConversionList>): A list of cooking conversions.
+
+#### CookStationConversionList
+
+- `FromName` (string): The name of the item to convert from.
+- `ToName` (string): The name of the item to convert to.
+- `CookTime` (float): The cooking time for the conversion.
+
+</br>
+
+
+### SmelterData
 
 - `smelterName` (string): The name of the smelter.
 - `addOreTooltip` (string): The tooltip for adding ore to the smelter.
@@ -649,24 +702,6 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 - `addOreAnimationLength` (float): The length of the animation for adding ore.
 - `smelterConversion` (List<SmelterConversionList>): The list of smelter conversions.
 
-
-### CookingStationData
-
-#### Warning changing to new CookConversions items can trigger minor errors as well as food items not appearing in oven
-
-- `addItemTooltip` (string): The tooltip for adding items to the cooking station.
-- `overcookedItem` (string): The item produced when cooking is overdone.
-- `fuelItem` (string): The fuel item used in the cooking station.
-- `requireFire` (bool): Indicates whether the cooking station requires fire.
-- `maxFuel` (int): The maximum fuel capacity of the cooking station.
-- `secPerFuel` (int): The time, in seconds, per unit of fuel.
-- `cookConversion` (List<CookStationConversionList>): A list of cooking conversions.
-
-### CookStationConversionList
-
-- `FromName` (string): The name of the item to convert from.
-- `ToName` (string): The name of the item to convert to.
-- `CookTime` (float): The cooking time for the conversion.
 
 ### fuelItemData
 
@@ -947,7 +982,7 @@ Wackymole
 | 2.0.1 | First Release of 2.0 <br/>
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
-| 2.0.4 | Snapshot for Pieces added - Hovernames for cloned doors - Added Sap and Fermentor Section to pieces
+| 2.0.4 | Snapshot for Pieces added - Hovernames for cloned doors - Added Sap and Fermentor Section to pieces - Moved main loading to a later point for more pieces to be found
 
 
 <details><summary>Feedback</summary>
