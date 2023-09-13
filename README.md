@@ -453,6 +453,11 @@ To delete existing Effects
 - `m_foodBurnTime` (float): The burn time of the food.
 - `m_FoodEitr` (float): The eitr provided by the food.
 
+</br>
+
+- `ConsumableStatusEffect` (string): On consumption (eating), give this status effect.  - Doesn't make things Edible 
+</br>
+
 `Moddifiers` (StatMods): The stat modifiers of the item.
 ### StatMods
 - `m_movementModifier` (float): The movement modifier.
@@ -982,7 +987,7 @@ Wackymole
 | 2.0.1 | First Release of 2.0 <br/>
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
-| 2.0.4 | Snapshot for Pieces added - Hovernames for cloned doors - Added Sap and Fermentor Section to pieces - Moved main loading to a later point for more pieces to be found
+| 2.0.4 | Added ConsumableStatusEffect to items  - Hovernames for cloned doors - Added Sap and Fermentor Section to pieces - Moved main loading to a later point for more pieces to be found. - Reduced Bug count with disabling pieces - Moving from one hammer to another hammer - might require disabling orginal and cloning
 
 
 <details><summary>Feedback</summary>
@@ -1018,4 +1023,6 @@ Do whatever you want with this mod.
 </details>
 
 Known issues: </br>
- 
+ Bug on moving stuff from one hammer to another - disable orginal and make a clone for now
+ </br> 
+ Snapshot pieces still messed up

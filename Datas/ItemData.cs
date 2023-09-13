@@ -105,6 +105,8 @@ namespace wackydatabase.Datas
 
         public int? m_value;
 
+        public string? ConsumableStatusEffect;
+
         public List<string>? damageModifiers = new List<string>();
 
         public GEffects? GEffects;

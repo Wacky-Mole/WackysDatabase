@@ -2003,6 +2003,11 @@ namespace wackydatabase.SetData
                         string valu = "              <color=#edd221>Valuable</color>";
                         PrimaryItemData.m_shared.m_description = data.m_description + valu;
                     }
+
+                    if (data.ConsumableStatusEffect != null)
+                    {
+                        PrimaryItemData.m_shared.m_consumeStatusEffect = Instant.GetStatusEffect(data.ConsumableStatusEffect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_consumeStatusEffect;
+                    }
                     return;
                 }
 

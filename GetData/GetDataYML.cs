@@ -974,7 +974,7 @@ namespace wackydatabase.GetData
             if (data.m_shared.m_spawnOnHitTerrain != null)
                 ItemData.spawn_on_terrain_hit = data.m_shared.m_spawnOnHitTerrain?.name;
 
-
+            ItemData.ConsumableStatusEffect = data.m_shared.m_consumeStatusEffect?.name ?? null;
 
             return ItemData;
 
