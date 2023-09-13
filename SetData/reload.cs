@@ -131,7 +131,7 @@ namespace wackydatabase.SetData
                     }
 
                     if (WMRecipeCust.FirstSS)
-                        WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReloadWait());
+                        WMRecipeCust.waitingforFirstLoad = true; // WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReloadWait());
                     else WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); // slow mode
 
                     //if (firstsyncreload)
@@ -445,6 +445,23 @@ namespace wackydatabase.SetData
             }
             UPdateItemHashesWacky(Instant);
             //Instant.UpdateItemHashes();
+
+            foreach (var data in WMRecipeCust.pieceDatasYml) // clones only first
+            {
+                if (string.IsNullOrEmpty(data.clonePrefabName))
+                    continue;
+                try
+                {
+                    SetData.SetPieceRecipeData(data, Instant, AllObjects);
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"SetPiece Clone for {data.name} failed"); }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
             foreach (var data in WMRecipeCust.pieceDatasYml)
             {
                 try

@@ -229,16 +229,37 @@ namespace wackydatabase.Startup
             return WMRecipeCust.issettoSinglePlayer;
         }
 
-        
-        public static IEnumerator CleartoReloadWait() // waiting for other mods to finish their sync
+        [HarmonyPatch(typeof(Game), nameof(Game._RequestRespawn))]
+        public static class MainReloadStart
         {
-                yield return new WaitForSeconds(0.2f);
-                WMRecipeCust.Dbgl($" Now  reloading SERVER Files");
-                WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
-                WMRecipeCust.FirstSS = false; // reset in a destory patch
-                //WMRecipeCust.FirstSessionRun = false;                           
-                yield break;
+            static void Prefix(Game __instance)
+            {
+                if (WMRecipeCust.waitingforFirstLoad)
+                {
+                    WMRecipeCust.waitingforFirstLoad = false;
+
+                    if (ZNet.instance.IsServer())
+                        WMRecipeCust.Dbgl($" Now Loading Files");
+                    else
+                        WMRecipeCust.Dbgl($" Now loading SERVER Files");
+                    WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
+                    WMRecipeCust.FirstSS = false; // reset in a destory patch
+                }
+            }
         }
+
+        public static IEnumerator CleartoReloadWait(bool firstplayer = false) // waiting for other mods to finish their sync
+        {
+            yield return new WaitForSeconds(0.2f);
+            if (firstplayer )
+                WMRecipeCust.Dbgl($" Now Loading Files");
+            else 
+                WMRecipeCust.Dbgl($" Now loading SERVER Files");
+            WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
+            WMRecipeCust.FirstSS = false; // reset in a destory patch
+            //WMRecipeCust.FirstSessionRun = false;                           
+            yield break;
+         }
 
 
         public static void PrepareLoadData()
@@ -265,9 +286,11 @@ namespace wackydatabase.Startup
                 WMRecipeCust.WLog.LogError("You should Now Exit, but wackyDB will continue anyways, please remove any jsons leftover from wackydatabase");
             }
 
-            SetData.Reload temp = new SetData.Reload();
-            WMRecipeCust.CurrentReload = temp;
-            WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
+            WMRecipeCust.waitingforFirstLoad = true;
+            //WMRecipeCust.context.StartCoroutine(Startup.CleartoReloadWait(true));
+            //SetData.Reload temp = new SetData.Reload();
+            //WMRecipeCust.CurrentReload = temp;
+            // WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
         }
 
     }

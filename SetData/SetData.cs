@@ -37,13 +37,18 @@ namespace wackydatabase.SetData
         {
             foreach (var pies in SetData.DisabledPieceandHam)
             {
-                //var pi = pies.Key.GetComponent<Piece>(); // disables the pieces visability, whoops
-                //pi.m_enabled = false;
-                WMRecipeCust.Dbgl($"Forcing PieceManger or Vanilla to Disable Piece {pies.Key}");
-
-                if (pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(pies.Key))
+                if (pies.Value.TryGetComponent<PieceTable>(out var table))
                 {
-                    pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(pies.Key);
+                    WMRecipeCust.Dbgl($"Forcing PieceManger or Vanilla to Disable Piece {pies.Key}");
+                    table.m_pieces.Remove(pies.Key);
+                }
+                else
+                {
+                    if (pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(pies.Key))
+                    {
+                        
+                        pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(pies.Key);
+                    }
                 }
             }
         }
@@ -765,16 +770,26 @@ namespace wackydatabase.SetData
                 GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
                 if (piecehammer == null)
                     piecehammer = WMRecipeCust.selectedPiecehammer.gameObject;
-                WMRecipeCust.Dbgl($"Disabling Piece {data.name}");
+                WMRecipeCust.Dbgl($"Disabling Piece {data.name} with hammer {piecehammer}");
 
-                //go.GetComponent<Piece>().m_enabled = false; // bad wacky
-
-                if (piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                if (piecehammer.TryGetComponent<PieceTable>(out var table))
                 {
-                    WMRecipeCust.Dbgl($"removing from {piecehammer.name} Piece {data.name}");
-                    piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                    table.m_pieces.Remove(go);
+
                     if (!DisabledPieceandHam.ContainsKey(go))
                         DisabledPieceandHam.Add(go, piecehammer);
+                }
+                else
+                {
+
+                    if (piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                    {
+                        WMRecipeCust.Dbgl($"removing from {piecehammer.name} Piece {data.name}");
+                        piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+
+                        if (!DisabledPieceandHam.ContainsKey(go))
+                            DisabledPieceandHam.Add(go, piecehammer);
+                    }
                 }
             }
             else
@@ -790,13 +805,16 @@ namespace wackydatabase.SetData
                 } // no change?
                 else
                 {
-                    if (!piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
-                    {
-                        //WMRecipeCust.Dbgl($"Force adding to selectedPiecehammer Piece {data.name}");
-                        piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
-                    }
                     if (DisabledPieceandHam.ContainsKey(go))
+                    {
+                        if (!piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                        {
+                            //WMRecipeCust.Dbgl($"Force adding to selectedPiecehammer Piece {data.name}");
+                            piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                        }
+
                         DisabledPieceandHam.Remove(go);
+                    }
                 }
             }
             WMRecipeCust.Dbgl("Setting Piece data for " + data.name);
@@ -1302,7 +1320,7 @@ namespace wackydatabase.SetData
                     }
                     if (!mockskip)
                     {
-                        WMRecipeCust.Dbgl("Mock Model is loaded 1" + data.name);
+                        WMRecipeCust.Dbgl("Mock Model is loaded 1 " + data.name);
                         LayerMask itemLayer = LayerMask.NameToLayer("item");
                         GameObject inactive = new GameObject("Inactive_MockerBase");
                         inactive.SetActive(false);
@@ -1315,7 +1333,7 @@ namespace wackydatabase.SetData
 
                         if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
-                            WMRecipeCust.Dbgl("Mock Model is loaded 2" + data.name);
+                            WMRecipeCust.Dbgl("Mock Model is loaded 2 " + data.name);
                             newObj.transform.Find("Cube").gameObject.SetActive(false);
                             var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
                             newModel.SetActive(true);
@@ -1333,11 +1351,13 @@ namespace wackydatabase.SetData
                             WMRecipeCust.Dbgl("New Mock failed for some reason" + data.name);
                             return;
                         }
+                        WMRecipeCust.Dbgl("Mock Model is loaded 3 " + data.name);
                         GameObject go2 = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
                         if (go2 == null)
                             go2 = Instant.GetItemPrefab(data.name); // normal check
                         if (go2 == null)
                         {
+                            WMRecipeCust.Dbgl("Mock Model is loaded 4 " + data.name);
                             Instant.m_items.Add(newObj);
                             ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
