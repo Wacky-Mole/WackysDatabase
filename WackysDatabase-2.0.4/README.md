@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.0.3 
+Version: 2.0.4 
 Features
 
 
@@ -453,6 +453,11 @@ To delete existing Effects
 - `m_foodBurnTime` (float): The burn time of the food.
 - `m_FoodEitr` (float): The eitr provided by the food.
 
+</br>
+
+- `ConsumableStatusEffect` (string): On consumption (eating), give this status effect.  - Doesn't make things Edible 
+</br>
+
 `Moddifiers` (StatMods): The stat modifiers of the item.
 ### StatMods
 - `m_movementModifier` (float): The movement modifier.
@@ -633,8 +638,61 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 - `CheckWard` (bool): Indicates whether the container checks for ward placement.
 - `AutoDestoryIfEmpty` (bool): Indicates whether the container auto-destroys if empty.
 
-### SmelterData
 
+
+### SapData 
+
+- `secPerUnit` (float): Secs per unit
+- `maxLevel` (int): Max level of the extractor
+- `producedItem` (string): What spawns when you extract
+- `connectedToWhat` (string): What do you need to put this piece on to get extraction
+
+#### Warning - Changing this won't really do anything, the other piece/object needs to have a Resource Root script on it.
+- `extractText` (string): Extraction Text
+- `drainingText` (string): Draining Text
+- `drainingSlowText` (string): idk, slow draining text
+- `notConnectedText` (string): Not connected text
+- `fullText` (float): FullText
+
+
+</br>
+
+### FermentorData 
+
+- `fermDuration` (float): How long it takes to make a batch
+- `fermConversion` (List<FermenterConversionList>): A list of ferm conversions.
+
+#### FermenterConversionList
+
+- `FromName` (string): The name of the item to convert from.
+- `ToName` (string): The name of the item to convert to.
+- `Amount` (int): The amount to spawn when batch is done.
+
+
+</br>
+
+### CookingStationData
+
+#### Warning changing to new CookConversions items can trigger minor errors as well as food items not appearing in oven
+
+- `addItemTooltip` (string): The tooltip for adding items to the cooking station.
+- `overcookedItem` (string): The item produced when cooking is overdone.
+- `fuelItem` (string): The fuel item used in the cooking station.
+- `requireFire` (bool): Indicates whether the cooking station requires fire.
+- `maxFuel` (int): The maximum fuel capacity of the cooking station.
+- `secPerFuel` (int): The time, in seconds, per unit of fuel.
+- `cookConversion` (List<CookStationConversionList>): A list of cooking conversions.
+
+#### CookStationConversionList
+
+- `FromName` (string): The name of the item to convert from.
+- `ToName` (string): The name of the item to convert to.
+- `CookTime` (float): The cooking time for the conversion.
+
+</br>
+
+
+### SmelterData
 
 - `smelterName` (string): The name of the smelter.
 - `addOreTooltip` (string): The tooltip for adding ore to the smelter.
@@ -649,24 +707,6 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 - `addOreAnimationLength` (float): The length of the animation for adding ore.
 - `smelterConversion` (List<SmelterConversionList>): The list of smelter conversions.
 
-
-### CookingStationData
-
-#### Warning changing to new CookConversions items can trigger minor errors as well as food items not appearing in oven
-
-- `addItemTooltip` (string): The tooltip for adding items to the cooking station.
-- `overcookedItem` (string): The item produced when cooking is overdone.
-- `fuelItem` (string): The fuel item used in the cooking station.
-- `requireFire` (bool): Indicates whether the cooking station requires fire.
-- `maxFuel` (int): The maximum fuel capacity of the cooking station.
-- `secPerFuel` (int): The time, in seconds, per unit of fuel.
-- `cookConversion` (List<CookStationConversionList>): A list of cooking conversions.
-
-### CookStationConversionList
-
-- `FromName` (string): The name of the item to convert from.
-- `ToName` (string): The name of the item to convert to.
-- `CookTime` (float): The cooking time for the conversion.
 
 ### fuelItemData
 
@@ -814,6 +854,10 @@ Use wackydb_se_create as a "template" to create a new status effect
 
 ![Bike Model Import ](https://wackymole.com/hosts/bike.png)
 
+https://github.com/Wacky-Mole/WackysDatabase/tree/master/Documentation/Mock%20Examples
+
+Example Files and Item Yaml for Bike
+
 All credits to @KG for making this incredible system.
 
 In the Wackydatabase folder, there is the Object Folder.
@@ -825,6 +869,8 @@ Pick an object like bike.obj and bike_albedo.png and put them into the Object fo
 The object folder matches based on the preceding name, so bike_ matches to bike.
 
 It looks for PNGs with "_albedo", "_metallic", and "_normal".
+
+Auto Gens Icon
 
 This system is not well tested, so please give me feedback and submit bug reports for any bugs. 
 
@@ -911,7 +957,7 @@ This mod should load last. It needs to so it can touch all other mods.
 
 > Clone the Item and change the material to make it a more appealing color. 
 
-Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. 
+Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. ****
 
 A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wrong can break Azu show container contents
 
@@ -920,17 +966,17 @@ A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wro
 
 </details>
 
-
+****
 <details><summary>Full Features</summary>
 
 Planned features
 - [x] Able to modify item data.
 - [x] Able to modify recipes.
 - [x] Able to modify pieces.
-- [x] Able to modify materials on clones
-- [x] Custom items/pieces
-- [x] Custom recipes
-- [x] Able to modify Set effects 
+- [x] Able to modify materials on clones****
+- [x] Custom items/pieces****
+- [x] Custom recipes**
+- [x] Able to modify Set effects **
 - [x] Cloned Items show up on MainScreen
 - [x] Adjust attack values of items
 - [x] Able to add or remove conversions on smelter pieces
@@ -941,12 +987,13 @@ Wackymole
 
 <summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
 
-| Version | Changes                                                                                                                                                                                                                                                                                                                                |
+| Version | Changes                                                                                                                                                                                                        ****                                                                                                                        |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.0.0 | - 2.0.0 - Lots of betas <br/>
-| 2.0.1 | - First Release of 2.0 <br/>
-| 2.0.2 | - Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
-| 2.0.3 | Bug fix for cloned items being deleted for some people. | Fix for piece disabling, disabling already placed pieces - whoops  <br/>
+| 2.0.0 | 2.0.0 - Lots of betas <br/>
+| 2.0.1 | First Release of 2.0 <br/>
+| 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
+| 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
+| 2.0.4 | Added ConsumableStatusEffect to items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
 
 
 <details><summary>Feedback</summary>
@@ -982,4 +1029,6 @@ Do whatever you want with this mod.
 </details>
 
 Known issues: </br>
- 
+ Bug on moving stuff from one hammer to another - disable orginal and make a clone for now
+ </br> 
+ Snapshot pieces still disabled

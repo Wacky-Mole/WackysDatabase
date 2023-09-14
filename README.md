@@ -854,6 +854,10 @@ Use wackydb_se_create as a "template" to create a new status effect
 
 ![Bike Model Import ](https://wackymole.com/hosts/bike.png)
 
+https://github.com/Wacky-Mole/WackysDatabase/tree/master/Documentation/Mock%20Examples
+
+Example Files and Item Yaml for Bike
+
 All credits to @KG for making this incredible system.
 
 In the Wackydatabase folder, there is the Object Folder.
@@ -865,6 +869,8 @@ Pick an object like bike.obj and bike_albedo.png and put them into the Object fo
 The object folder matches based on the preceding name, so bike_ matches to bike.
 
 It looks for PNGs with "_albedo", "_metallic", and "_normal".
+
+Auto Gens Icon
 
 This system is not well tested, so please give me feedback and submit bug reports for any bugs. 
 
@@ -967,10 +973,10 @@ Planned features
 - [x] Able to modify item data.
 - [x] Able to modify recipes.
 - [x] Able to modify pieces.
-- [x] Able to modify materials on clones
+- [x] Able to modify materials on clones****
 - [x] Custom items/pieces****
-- [x] Custom recipes
-- [x] Able to modify Set effects 
+- [x] Custom recipes**
+- [x] Able to modify Set effects **
 - [x] Cloned Items show up on MainScreen
 - [x] Adjust attack values of items
 - [x] Able to add or remove conversions on smelter pieces
@@ -987,7 +993,7 @@ Wackymole
 | 2.0.1 | First Release of 2.0 <br/>
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
-| 2.0.4 | Added ConsumableStatusEffect to items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br>  Moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
+| 2.0.4 | Added ConsumableStatusEffect to items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
 
 
 <details><summary>Feedback</summary>
