@@ -221,6 +221,7 @@ namespace wackydatabase.SetData
             {
                 bool alreadyexist = false;
                 var copy = WMRecipeCust.ClonedI;
+
                 foreach (var citem in copy)
                 {
                     if (citem == data.name)
@@ -233,12 +234,15 @@ namespace wackydatabase.SetData
                 {
                     if (citem == data.name)
                     {
-
-                        alreadyexist = true;
-                        WMRecipeCust.WLog.LogInfo($"Another Item for this Mock named {data.name} has all ready loaded for mainmenu");
-                        
+                        var testmock = Instant.GetItemPrefab(data.name);
+                        if (testmock != null)
+                        {
+                            alreadyexist = true;
+                            WMRecipeCust.WLog.LogInfo($"Another Mock named {data.name} has all ready loaded for mainmenu");
+                        }                     
                     }
                 }
+
                 if (!alreadyexist)
                 {
                     try
@@ -252,7 +256,9 @@ namespace wackydatabase.SetData
                                 WMRecipeCust.MasterCloneList.Add(data.name, thing);
                         }else
                         {
-                            WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} was null");
+                            WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} was null, so removing from List");
+                            WMRecipeCust.MockI.Remove(data.name);
+
                         }
                     }
                     catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }

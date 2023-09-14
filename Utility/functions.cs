@@ -350,7 +350,7 @@ namespace wackydatabase.Util
             }
             IEnumerator WackyDelay()
             {
-                yield return 1f;
+                yield return 30f;
                 Do2();
             }
             if (ObjectDB.instance)
@@ -360,7 +360,8 @@ namespace wackydatabase.Util
             }
             else
             {
-                plugin.StartCoroutine(Delay2());
+                WMRecipeCust.context.StartCoroutine(WackyDelay());
+                //plugin.StartCoroutine(Delay2());
             }
         }
 

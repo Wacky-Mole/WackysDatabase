@@ -1320,7 +1320,7 @@ namespace wackydatabase.SetData
                     }
                     if (!mockskip)
                     {
-                        WMRecipeCust.Dbgl("Mock Model is loaded 1 " + data.name);
+                        WMRecipeCust.Dbgl("Mock Model is loading part 1 " + data.name);
                         LayerMask itemLayer = LayerMask.NameToLayer("item");
                         GameObject inactive = new GameObject("Inactive_MockerBase");
                         inactive.SetActive(false);
@@ -1333,7 +1333,7 @@ namespace wackydatabase.SetData
 
                         if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
-                            WMRecipeCust.Dbgl("Mock Model is loaded 2 " + data.name);
+                            WMRecipeCust.Dbgl("Mock Model is loading part 2 " + data.name);
                             newObj.transform.Find("Cube").gameObject.SetActive(false);
                             var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
                             newModel.SetActive(true);
@@ -1385,10 +1385,10 @@ namespace wackydatabase.SetData
                             }
                             */
                             WMRecipeCust.Dbgl("Mock Model is loaded 4.6 " + data.name);
-                            //ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
+                            ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
-                            go2.SetActive(true);
-                            /*
+                            newObj.SetActive(true);
+                            
 
                             if (string.IsNullOrEmpty(data.customIcon))
                             {
@@ -1397,7 +1397,7 @@ namespace wackydatabase.SetData
                                     Functions.SnapshotItem(newObj.GetComponent<ItemDrop>()); // snapshot go
                                 }
                                 catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
-                            }*/
+                            }
                             WMRecipeCust.Dbgl("New Mock Model with New Gameobject, loaded " + data.name);
                         }
                         else

@@ -987,7 +987,7 @@ Wackymole
 | 2.0.1 | First Release of 2.0 <br/>
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
-| 2.0.4 | Added ConsumableStatusEffect to items  - Hovernames for cloned doors - Added Sap and Fermentor Section to pieces - Moved main loading to a later point for more pieces to be found. - Reduced Bug count with disabling pieces. - Moving from one hammer to another hammer, might require disabling orginal and cloning
+| 2.0.4 | Added ConsumableStatusEffect to items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br>  Moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
 
 
 <details><summary>Feedback</summary>
@@ -1025,4 +1025,4 @@ Do whatever you want with this mod.
 Known issues: </br>
  Bug on moving stuff from one hammer to another - disable orginal and make a clone for now
  </br> 
- Snapshot pieces still messed up
+ Snapshot pieces still disabled
