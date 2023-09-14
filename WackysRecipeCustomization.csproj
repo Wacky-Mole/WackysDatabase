@@ -219,16 +219,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="LICENSE.txt" />
-    <Content Include="WackysDatabase-2.0.4\icon.png" />
-    <Content Include="WackysDatabase-2.0.4\plugins\WackysDatabase.dll" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="OBJimporter\rootcube" />
     <None Include="packages.config" />
     <None Include="README.md" />
-    <None Include="WackysDatabase-2.0.4\manifest.json" />
-    <None Include="WackysDatabase-2.0.4\README.md" />
-    <None Include="WackysDatabase-2.0.4\WackysDatabase-1.4.7.zip" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cache\" />

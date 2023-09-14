@@ -1203,6 +1203,7 @@ namespace wackydatabase.SetData
             }
 
 
+
             if (!skip)
             {
                 string tempname = data.name;
@@ -1248,7 +1249,12 @@ namespace wackydatabase.SetData
                 var hash = newItem.name.GetStableHashCode();
                 Instant.m_items.Add(newItem);
                 Instant.m_itemByHash.Add(hash, newItem);
-                           
+
+                if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
+                {
+                    Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
+                    newItem.transform.GetChild(0).localScale = NewScale;
+                }
 
                 if (!string.IsNullOrEmpty(data.material))
                 {

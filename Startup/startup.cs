@@ -230,7 +230,7 @@ namespace wackydatabase.Startup
             return WMRecipeCust.issettoSinglePlayer;
         }
 
-        [HarmonyPatch(typeof(DungeonDB), nameof(DungeonDB.Start))]
+        [HarmonyPatch(typeof(Game), nameof(Game._RequestRespawn))]
         public static class MainReloadStart
         {
             static void Prefix(DungeonDB __instance)
