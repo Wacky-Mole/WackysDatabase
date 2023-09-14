@@ -192,7 +192,8 @@ namespace wackydatabase.Startup
             }
             WMRecipeCust.Dbgl($"Destroyed cloned items used in startup ");
             WMRecipeCust.ClonedI.Clear();
-            delObj.UpdateItemHashes();
+            WMRecipeCust.CurrentReload.UPdateItemHashesWacky(delObj);
+            //delObj.UpdateItemHashes();
         }
 
         public static bool SinglePlayerchecker

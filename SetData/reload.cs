@@ -206,7 +206,7 @@ namespace wackydatabase.SetData
         {
              
             ObjectDB Instant = ObjectDB.instance;
-            Instant.UpdateItemHashes();
+            UPdateItemHashesWacky(Instant);
 
             //load material cache .mats here
 

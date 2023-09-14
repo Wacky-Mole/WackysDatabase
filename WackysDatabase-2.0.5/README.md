@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.0.4 
+Version: 2.0.5 
 Features
 
 
@@ -994,7 +994,7 @@ Wackymole
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
 | 2.0.4 | Added ConsumableStatusEffect to items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
-
+| 2.0.5 | Bug fix for a cache item error on updateitemhash. 
 
 <details><summary>Feedback</summary>
 
@@ -1004,7 +1004,7 @@ For questions or suggestions please join discord channel: [Odin Plus Team](https
 Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole
 
 <a href="https://www.buymeacoffee.com/WackyMole" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
+****
 <a href='https://ko-fi.com/H2H6LL5GA' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 <img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
