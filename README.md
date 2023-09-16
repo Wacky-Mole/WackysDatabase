@@ -128,6 +128,9 @@ Frequently Asked Questions
     Q: How do I make custom Icons?
         A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename. ie. wacky.png
 
+![Custom Icon Gif](https://wackymole.com/hosts/customicon.gif)
+
+
     Q: Will there be even MORE features and can I edit effects?
         A: No, probably not. 
 
@@ -142,7 +145,7 @@ Frequently Asked Questions
         If one of them is missing, then the two pieces of equipment have no effect, which can be regarded as a limitation
 
     Q:  On an item "name" is the prefab name, "m_name" is the in game name? Then on recipes, "name" is the name of the prefab item name?
-        A: Correct on both
+        A: Correct on both. For cloned recipes, it looks at cloneprefabname, recipe name needs to be unique
 
 </details>
 
