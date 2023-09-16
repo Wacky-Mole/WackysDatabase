@@ -38,7 +38,7 @@ YML Knowledge
 
     Almost every component of items/pieces/recipes/effects/creatures can be deleted.
 
-    Some components are multilined where you can actually add your own stuff the ymls.
+    Some components are multilined where you can actually add your own stuff the ymls.********
 
 <details><summary>Installation</summary>
 ### Installation****
@@ -140,6 +140,9 @@ Frequently Asked Questions
     Q: Would it be possible to have one item take 2+ different item slots ? (say weapon + pants)
         A: No, but you can edit two parts and one effect, which is effective when combined!
         If one of them is missing, then the two pieces of equipment have no effect, which can be regarded as a limitation
+
+    Q:  On an item "name" is the prefab name, "m_name" is the in game name? Then on recipes, "name" is the name of the prefab item name?
+        A: Correct on both
 
 </details>
 
