@@ -234,7 +234,7 @@ namespace wackydatabase.SetData
             {
                 if (go.GetComponent<ItemDrop>() == null)
                 {
-                    WMRecipeCust.Dbgl($"Item recipe data for {searchname} not found!");
+                    WMRecipeCust.WLog.LogWarning($"Item recipe data for {searchname} not found!");
                     return;
                 } // it is a prefab and it is an item.
             }
@@ -448,7 +448,7 @@ namespace wackydatabase.SetData
                     go = DataHelpers.GetModdedPieces(data.name); // known modded Hammer search
                     if (go == null)
                     {
-                        WMRecipeCust.Dbgl($"Piece {data.name} not found! 3 layer search");
+                        WMRecipeCust.WLog.LogWarning($"Piece {data.name} not found! 3 layer search");
                         return;
                     }
                     else // 2nd layer
@@ -1222,7 +1222,7 @@ namespace wackydatabase.SetData
 
                 if (go == null)
                 {
-                    WMRecipeCust.Dbgl(" item in SetItemData null " + data.name);
+                    WMRecipeCust.WLog.LogWarning(" item in SetItemData null " + data.name);
                     return null;
                 }
                 if (go.GetComponent<ItemDrop>() == null)
@@ -1232,7 +1232,7 @@ namespace wackydatabase.SetData
                 } // it is a prefab and it is an item.
                 if (string.IsNullOrEmpty(tempname) && !string.IsNullOrEmpty(data.clonePrefabName))
                 {
-                    WMRecipeCust.Dbgl($"Item cloned name is empty!");
+                    WMRecipeCust.WLog.LogWarning($"Item cloned name is empty!");
                     return null;
                 }
              
