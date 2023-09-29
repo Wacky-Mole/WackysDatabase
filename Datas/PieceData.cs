@@ -50,6 +50,8 @@ namespace wackydatabase.Datas
 
         public CookingStationData? cookingStationData;
 
+        public BeehiveData? beehiveData;
+
         public FermenterData? fermStationData;
 
         public SapData? sapData;
@@ -169,6 +171,25 @@ namespace wackydatabase.Datas
         public string? notConnectedText;
         public string? fullText;
 
+    }
+
+    public class BeehiveData
+    {
+        public bool? effectOnlyInDaylight;
+        public float? maxCover;
+        public Heightmap.Biome? biomes;
+        public float? secPerUnit;
+        public int? maxAmount;
+        public string? dropItem;
+
+        public string[]? effects;
+
+        public string? extractText;
+        public string? checkText;
+        public string? areaText;
+        public string? freespaceText;
+        public string? sleepText;
+        public string? happyText;
     }
 
     public class fuelItemData

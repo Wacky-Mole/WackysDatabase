@@ -460,6 +460,27 @@ namespace wackydatabase.GetData
                 data.contData = ContData;
             }
 
+            if (PieceID.TryGetComponent<Beehive>(out var Bee))
+            {
+                BeehiveData BeeData = new BeehiveData
+                {
+                    effectOnlyInDaylight = Bee.m_effectOnlyInDaylight,
+                    maxCover = Bee.m_maxCover,
+                    biomes = Bee.m_biome,
+                    secPerUnit = Bee.m_secPerUnit,
+                    maxAmount = Bee.m_maxHoney,
+                    dropItem = Bee.m_honeyItem.name,
+                    effects =  CheckEffectsArray(Bee.m_spawnEffect.m_effectPrefabs) ?? null,
+                    extractText = Bee.m_extractText,
+                    checkText = Bee.m_checkText,
+                    areaText = Bee.m_areaText,
+                    freespaceText = Bee.m_freespaceText,
+                    sleepText = Bee.m_sleepText,
+                    happyText = Bee.m_happyText,
+                };
+                data.beehiveData = BeeData;
+            }
+
             if (PieceID.TryGetComponent<CookingStation>(out var cook))
             {
                 List<CookStationConversionList> CookConversionList = new List<CookStationConversionList>();
@@ -950,7 +971,6 @@ namespace wackydatabase.GetData
             }
 
 
-            //WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " shield "); Maybe everything deflects a bit
             if (data.m_shared.m_blockPower != 0)
             {
                 ShieldData ShieldData = new ShieldData

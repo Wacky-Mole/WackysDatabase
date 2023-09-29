@@ -995,8 +995,32 @@ namespace wackydatabase.SetData
                         }
                         ferm.m_conversion.Add(conversion);
                     }
-                }
-                
+                }              
+            }
+
+            if (data.beehiveData != null)
+            {
+                go.TryGetComponent<Beehive>(out var Bee);
+
+                Bee.m_effectOnlyInDaylight = data.beehiveData.effectOnlyInDaylight ?? Bee.m_effectOnlyInDaylight;
+                Bee.m_maxCover = data.beehiveData.maxCover ?? Bee.m_maxCover;
+                Bee.m_biome = data.beehiveData.biomes ?? Bee.m_biome;
+                Bee.m_secPerUnit = data.beehiveData.secPerUnit ?? Bee.m_secPerUnit;
+                Bee.m_maxHoney = data.beehiveData.maxAmount ?? Bee.m_maxHoney;
+                if (data.beehiveData.dropItem != null)
+                    Bee.m_honeyItem = Instant.GetItemPrefab(data.beehiveData.dropItem).GetComponent<ItemDrop>();
+
+                Bee.m_spawnEffect = Bee.m_spawnEffect ?? Bee.m_spawnEffect;
+
+                if (data.beehiveData.effects != null)
+                    Bee.m_spawnEffect = FindEffect(Bee.m_spawnEffect, data.beehiveData.effects);
+
+                Bee.m_extractText = data.beehiveData.extractText ?? Bee.m_extractText;
+                Bee.m_checkText = data.beehiveData.checkText ?? Bee.m_checkText;
+                Bee.m_areaText = data.beehiveData.areaText ?? Bee.m_areaText;
+                Bee.m_freespaceText = data.beehiveData.freespaceText ?? Bee.m_freespaceText;
+                Bee.m_sleepText = data.beehiveData.sleepText ?? Bee.m_sleepText;
+                Bee.m_happyText = data.beehiveData.happyText ?? Bee.m_happyText;
 
             }
 
@@ -2078,6 +2102,7 @@ namespace wackydatabase.SetData
                             effectDataone.m_prefab = list1;
                             effectDataone.m_enabled = true;
                             effectDataone.m_childTransform = "";
+                            effectDataone.m_follow = true;
                             newEffectData[count] = effectDataone;
                             count++;
 
@@ -2087,6 +2112,7 @@ namespace wackydatabase.SetData
                             effectDataone.m_prefab = list2;
                             effectDataone.m_enabled = true;
                             effectDataone.m_childTransform = "";
+                            effectDataone.m_follow = true;
                             newEffectData[count] = effectDataone;
                             count++;
 
@@ -2096,6 +2122,7 @@ namespace wackydatabase.SetData
                             effectDataone.m_prefab = list3;
                             effectDataone.m_enabled = true;
                             effectDataone.m_childTransform = "";
+                            effectDataone.m_follow = true;
                             newEffectData[count] = effectDataone;
                             count++;
 
@@ -2105,6 +2132,7 @@ namespace wackydatabase.SetData
                             effectDataone.m_prefab = list4;
                             effectDataone.m_enabled = true;
                             effectDataone.m_childTransform = "";
+                            effectDataone.m_follow = true;
                             newEffectData[count] = effectDataone;
                             count++;
                         }
@@ -2131,6 +2159,7 @@ namespace wackydatabase.SetData
                         {
                             effectData[count].m_prefab = list1;
                             effectData[count].m_enabled = true;
+                            effectData[count].m_follow = true;
 
                             count++;
                         }
@@ -2138,17 +2167,20 @@ namespace wackydatabase.SetData
                         {
                             effectData[count].m_prefab = list2;
                             effectData[count].m_enabled = true;
+                            effectData[count].m_follow = true;
                             count++;
                         }
                         else if (WMRecipeCust.originalFX.TryGetValue(userEffe, out GameObject list3))
                         {
                             effectData[count].m_prefab = list3;
                             effectData[count].m_enabled = true;
+                            effectData[count].m_follow = true;
                             count++;
                         }else if (WMRecipeCust.extraEffects.TryGetValue(userEffe, out GameObject list4))
                         {
                             effectData[count].m_prefab = list4;
                             effectData[count].m_enabled = true;
+                            effectData[count].m_follow = true;
                             count++;
                         }
                         else
