@@ -181,22 +181,28 @@ namespace wackydatabase.SetData
             foreach (var citem in WMRecipeCust.ClonedI)
             {
                 if (WMRecipeCust.MasterCloneList.ContainsKey(citem)){
-                    WMRecipeCust.Dbgl($"Adding {citem} to ObjectDB");
-                    Instant.m_items.Add(WMRecipeCust.MasterCloneList[citem]);
-                    Instant.m_itemByHash.Add(citem.GetStableHashCode(), WMRecipeCust.MasterCloneList[citem]);
-                    WMRecipeCust.MasterCloneList[citem].SetActive(true);
+                    if (!Instant.m_itemByHash.TryGetValue(citem.GetStableHashCode(), out var ign))
+                    {
+                        WMRecipeCust.Dbgl($"Adding {citem} to ObjectDB");
+                        Instant.m_items.Add(WMRecipeCust.MasterCloneList[citem]);
+                        Instant.m_itemByHash.Add(citem.GetStableHashCode(), WMRecipeCust.MasterCloneList[citem]);
+                        WMRecipeCust.MasterCloneList[citem].SetActive(true);
 
+                    }
 
                 }
             }
             foreach (var citem in WMRecipeCust.MockI)
             {
                 if (WMRecipeCust.MasterCloneList.ContainsKey(citem))
-                {
-                    WMRecipeCust.Dbgl($"Adding {citem} to ObjectDB");
-                    Instant.m_items.Add(WMRecipeCust.MasterCloneList[citem]);
-                    Instant.m_itemByHash.Add(citem.GetStableHashCode(), WMRecipeCust.MasterCloneList[citem]);
-                    WMRecipeCust.MasterCloneList[citem].SetActive(true);
+                 {
+                    if (!Instant.m_itemByHash.TryGetValue(citem.GetStableHashCode(), out var ign))
+                    {
+                        WMRecipeCust.Dbgl($"Adding {citem} to ObjectDB");
+                        Instant.m_items.Add(WMRecipeCust.MasterCloneList[citem]);
+                        Instant.m_itemByHash.Add(citem.GetStableHashCode(), WMRecipeCust.MasterCloneList[citem]);
+                        WMRecipeCust.MasterCloneList[citem].SetActive(true);
+                    }
                 }
             }
 
