@@ -573,6 +573,7 @@ namespace wackydatabase.SetData
             }
             */
 
+            if (!WMRecipeCust.dedLoad) 
              removeLocalData();
 
             UPdateItemHashesWacky(ObjectDB.instance);
@@ -582,10 +583,8 @@ namespace wackydatabase.SetData
 
             OnAllReloaded?.Invoke();
 
-            //FinishZnetObjects();
-            //reloadDropPrefab();
 
-            if (OtherApi.Marketplace_API.IsInstalled())
+            if (OtherApi.Marketplace_API.IsInstalled() && !WMRecipeCust.dedLoad)
             {
                 OtherApi.Marketplace_API.ResetTraderItems();
             }

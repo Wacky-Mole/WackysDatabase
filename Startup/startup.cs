@@ -55,6 +55,26 @@ namespace wackydatabase.Startup
 
         }
 
+        [HarmonyPatch(typeof(DungeonDB), "Awake")]
+        [HarmonyPriority(Priority.VeryLow)]
+        static class DungeonDBAwake
+        {
+            static void Prefix()
+            {
+
+                if (WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
+                {
+                    WMRecipeCust.dedLoad = true;
+                    SetData.Reload temp = new SetData.Reload();
+                    WMRecipeCust.CurrentReload = temp;
+                    WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true));
+                }
+                
+
+
+            }
+        }
+
         [HarmonyPatch(typeof(ObjectDB), "Awake")]
         [HarmonyPriority(Priority.VeryLow)]
         static class ObjectAwake
