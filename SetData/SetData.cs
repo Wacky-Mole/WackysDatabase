@@ -1392,6 +1392,7 @@ namespace wackydatabase.SetData
                             //   Instant.m_items.Remove(newObj);
                             //WMRecipeCust.Dbgl("Mock Model is loaded 4.5 " + data.name);
                             Instant.m_items.Add(newObj);
+                            Instant.m_itemByHash.Add(newObj.name.GetStableHashCode(), newObj);
 
                             /*
                             ZNetScene znet = ZNetScene.instance;

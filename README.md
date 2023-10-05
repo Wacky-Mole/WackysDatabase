@@ -999,13 +999,13 @@ Wackymole
 | Version | Changes                                                                                                                                                                                                        ****                                                                                                                        |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 2.0.0 | 2.0.0 - Lots of betas <br/>
-| 2.0.1 | First Release of 2.0 <br/>
+| 2.0.1 | First Release of 2.0 <br/>****
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
 | 2.0.4 | Added ConsumableStatusEffect **to** items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
 | 2.0.5 | Bug fix for a cache item error on updateitemhash. 
 | 2.0.6 | Big bug fix for servers. Moved main loading to an even later point. Added SizeMultiplier to cache, for extra sized cached weapons. 
-| 2.0.7 | Fixed effects not following you. </br> Add beehive data to pieces. </br> Fix for dedicated servers not loading data. Moved up reload for dedicated servers. </br> Changed log messages, added more warnings.</br> Added more checks for cloned cache.
+| 2.0.7 | Fixed effects not following you. </br> Add beehive data to pieces. </br> Fix for dedicated servers not loading data. Moved up reload for dedicated servers. </br> Changed log messages, added more warnings.</br> Added more checks for cloned cache. </br> Fix for mock items.
 
 </details>
 
