@@ -226,7 +226,7 @@ namespace wackydatabase.SetData
 
             if (go == null && ActualR == null)
             {
-                WMRecipeCust.Dbgl(" null " + searchname);
+                WMRecipeCust.WLog.LogWarning(" null " + searchname);
                 return;
             }
 
@@ -234,7 +234,7 @@ namespace wackydatabase.SetData
             {
                 if (go.GetComponent<ItemDrop>() == null)
                 {
-                    WMRecipeCust.WLog.LogWarning($"Item recipe data for {searchname} not found!");
+                    WMRecipeCust.WLog.LogWarning($"Recipe data for {searchname} not found!");
                     return;
                 } // it is a prefab and it is an item.
             }
@@ -247,7 +247,7 @@ namespace wackydatabase.SetData
                 if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)// only first time clone
                 {
 
-                    WMRecipeCust.Dbgl("Setting Cloned Recipe for " + tempname);
+                    WMRecipeCust.Dbgl($"Setting Cloned Recipe for {tempname}" );
                     RecipeR = ScriptableObject.CreateInstance<Recipe>();
                     WMRecipeCust.ClonedR.Add(tempname);
                 }
@@ -469,7 +469,7 @@ namespace wackydatabase.SetData
                     return;
                 }
 
-                WMRecipeCust.Dbgl($"Item CLONE DATA in SetPiece for {tempname} ");
+                WMRecipeCust.Dbgl($"Piece being set {tempname} is CLONE of {data.clonePrefabName}");
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
                 GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
                 Piece NewItemComp = newItem.GetComponent<Piece>();
@@ -1246,7 +1246,7 @@ namespace wackydatabase.SetData
 
                 if (go == null)
                 {
-                    WMRecipeCust.WLog.LogWarning(" item in SetItemData null " + data.name);
+                    WMRecipeCust.WLog.LogWarning(" item is null " + data.name);
                     return null;
                 }
                 if (go.GetComponent<ItemDrop>() == null)
@@ -1262,7 +1262,7 @@ namespace wackydatabase.SetData
              
                 ItemDrop.ItemData PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData;
 
-                WMRecipeCust.Dbgl($"Item CLONE DATA in SetItemData for {tempname} from cache ");
+                WMRecipeCust.Dbgl($"Item CLONE {tempname} from cache ");
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
                 GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
                 ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
@@ -1363,7 +1363,7 @@ namespace wackydatabase.SetData
 
                         if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
-                            WMRecipeCust.Dbgl("Mock Model is loading part 2 " + data.name);
+                           // WMRecipeCust.Dbgl("Mock Model is loading part 2 " + data.name);
                             newObj.transform.Find("Cube").gameObject.SetActive(false);
                             var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
                             newModel.SetActive(true);
@@ -1381,16 +1381,16 @@ namespace wackydatabase.SetData
                             WMRecipeCust.Dbgl("New Mock failed for some reason" + data.name);
                             return;
                         }
-                        WMRecipeCust.Dbgl("Mock Model is loaded 3 " + data.name);
+                        //WMRecipeCust.Dbgl("Mock Model is loaded 3 " + data.name);
                         GameObject go2 = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
                         if (go2 == null)
                             go2 = Instant.GetItemPrefab(data.name); // normal check
                         if (go2 == null)
                         {
-                            WMRecipeCust.Dbgl("Mock Model is loaded 4 " + data.name);
+                            //WMRecipeCust.Dbgl("Mock Model is loaded 4 " + data.name);
                             //if (Instant.m_items.Contains(newObj))
                             //   Instant.m_items.Remove(newObj);
-                            WMRecipeCust.Dbgl("Mock Model is loaded 4.5 " + data.name);
+                            //WMRecipeCust.Dbgl("Mock Model is loaded 4.5 " + data.name);
                             Instant.m_items.Add(newObj);
 
                             /*
@@ -1414,7 +1414,7 @@ namespace wackydatabase.SetData
                                 znet.m_namedPrefabs[hash].gameObject.SetActive(false); //why?
                             }
                             */
-                            WMRecipeCust.Dbgl("Mock Model is loaded 4.6 " + data.name);
+                            //WMRecipeCust.Dbgl("Mock Model is loaded 4.6 " + data.name);
                             ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
                             newObj.SetActive(true);
@@ -1443,7 +1443,7 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl("Mock Model is not loaded, please redownload file or rename or goodluck! " + data.name);
                     return;
                 }
-                WMRecipeCust.Dbgl("Mock Model is loaded 5 " + data.name);
+                //WMRecipeCust.Dbgl("Mock Model is loaded 5 " + data.name);
             }
 
             string tempname = data.name;
@@ -1471,17 +1471,17 @@ namespace wackydatabase.SetData
 
             if (go == null)
             {
-                WMRecipeCust.Dbgl(" item in SetItemData null " + data.name);
+                WMRecipeCust.WLog.LogWarning("Item is null " + data.name);
                 return;
             }
             if (go.GetComponent<ItemDrop>() == null)
             {
-                WMRecipeCust.Dbgl($"Item data in SetItemData for {data.name} not found!");
+                WMRecipeCust.WLog.LogWarning($"Item ItemDrop {data.name} is not found!");
                 return;
             } // it is a prefab and it is an item.
             if (string.IsNullOrEmpty(tempname) && !string.IsNullOrEmpty(data.clonePrefabName))
             {
-                WMRecipeCust.Dbgl($"Item cloned name is empty!");
+                WMRecipeCust.WLog.LogWarning($"Item cloned name is empty!");
                 return;
             }
 
@@ -1499,7 +1499,7 @@ namespace wackydatabase.SetData
                             return;
                         }
 
-                        WMRecipeCust.Dbgl($"Item CLONE DATA in SetItemData for {tempname} ");
+                        WMRecipeCust.Dbgl($"Item being set is {tempname} a CLONE of {data.clonePrefabName}");
                         WMRecipeCust.ClonedI.Add(tempname);
                         Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
                         GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
@@ -1629,7 +1629,7 @@ namespace wackydatabase.SetData
                         catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
                     }
 
-                    WMRecipeCust.Dbgl($"Item being Set in SetItemData for {data.name} ");
+                    WMRecipeCust.Dbgl($"Item Data being set for {data.name} ");
 
                     if (data.Damage != null)
                     {

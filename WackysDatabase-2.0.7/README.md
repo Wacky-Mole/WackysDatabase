@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.0.6
+Version: 2.0.7
 Features
 
 
@@ -38,7 +38,7 @@ YML Knowledge
 
     Almost every component of items/pieces/recipes/effects/creatures can be deleted.
 
-    Some components are multilined where you can actually add your own stuff the ymls.
+    Some components are multilined where you can actually add your own stuff the ymls.********
 
 <details><summary>Installation</summary>
 ### Installation****
@@ -128,6 +128,9 @@ Frequently Asked Questions
     Q: How do I make custom Icons?
         A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename. ie. wacky.png
 
+![Custom Icon Gif](https://wackymole.com/hosts/customicon.gif)
+
+
     Q: Will there be even MORE features and can I edit effects?
         A: No, probably not. 
 
@@ -140,6 +143,9 @@ Frequently Asked Questions
     Q: Would it be possible to have one item take 2+ different item slots ? (say weapon + pants)
         A: No, but you can edit two parts and one effect, which is effective when combined!
         If one of them is missing, then the two pieces of equipment have no effect, which can be regarded as a limitation
+
+    Q:  On an item "name" is the prefab name, "m_name" is the in game name? Then on recipes, "name" is the name of the prefab item name?
+        A: Correct on both. For cloned recipes, it looks at cloneprefabname, recipe name needs to be unique
 
 </details>
 
@@ -638,7 +644,27 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 - `CheckWard` (bool): Indicates whether the container checks for ward placement.
 - `AutoDestoryIfEmpty` (bool): Indicates whether the container auto-destroys if empty.
 
+</br>
 
+### BeehiveData
+
+The **BeehiveData** class represents data for a beehive in the game. It contains the following properties:
+
+- `effectOnlyInDaylight` (bool): Indicates whether the effect only occurs during daylight.
+- `maxCover` (float): The maximum cover value.
+- `biomes` (Heightmap.Biome): The biome in which the beehive is located.
+- `secPerUnit` (float): The time, in seconds, per unit.
+- `maxAmount` (int): The maximum amount of beehives.
+- `dropItem` (string): The item that is dropped from the beehive.
+- `effects` (string[]): An array of effects associated with the beehive.  - don't ask me for more on other pieces!
+- `extractText` (string): Text related to extracting from the beehive.
+- `checkText` (string): Text related to checking the beehive.
+- `areaText` (string): Text related to the area around the beehive.
+- `freespaceText` (string): Text related to free space around the beehive.
+- `sleepText` (string): Text related to the sleep state of the beehive.
+- `happyText` (string): Text related to the happiness of the beehive.
+
+</br>
 
 ### SapData 
 
@@ -947,26 +973,6 @@ This system is not well tested, so please give me feedback and submit bug report
 
 </details>
 
-<details><summary> Last notes</summary>
-
-## Last notes:
-
-This mod should load last. It needs to so it can touch all other mods. 
-
-> You can make changes to that OP bow and make it more realistic on damage or build requirements. Or even set a build piece to adminonly.
-
-> Clone the Item and change the material to make it a more appealing color. 
-
-Submit pull requests to https://github.com/Wacky-Mole/WackysDatabase . The primary purpose of this mod is to edit objects, not to create clones/mocks. ****
-
-A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wrong can break Azu show container contents
-
-
-(Note!: If you want the game to have default values, close the game and delete the wackysDatabase folder).
-
-</details>
-
-****
 <details><summary>Full Features</summary>
 
 Planned features
@@ -985,17 +991,24 @@ Wackymole
 
 </details>
 
-<summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
+****
+
+
+<details><summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
 
 | Version | Changes                                                                                                                                                                                                        ****                                                                                                                        |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 2.0.0 | 2.0.0 - Lots of betas <br/>
-| 2.0.1 | First Release of 2.0 <br/>
+| 2.0.1 | First Release of 2.0 <br/>****
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
-| 2.0.4 | Added ConsumableStatusEffect to items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
+| 2.0.4 | Added ConsumableStatusEffect **to** items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
 | 2.0.5 | Bug fix for a cache item error on updateitemhash. 
 | 2.0.6 | Big bug fix for servers. Moved main loading to an even later point. Added SizeMultiplier to cache, for extra sized cached weapons. 
+| 2.0.7 | Fixed effects not following you. </br> Add beehive data to pieces. </br> Fix for dedicated servers not loading data. Moved up reload for dedicated servers. </br> Changed log messages, added more warnings.</br> Added more checks for cloned cache.
+
+</details>
+
 <details><summary>Feedback</summary>
 
 
@@ -1010,6 +1023,22 @@ Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wacky
 <img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
 
 </details> 
+
+<details><summary> Last notes</summary>
+
+## Last notes:
+
+ This mod loads at various places to ensure that it can touch all objects while allowing other mods to touch some wackydb clones.
+
+ The primary purpose of this mod is to edit objects, not to create clones/mocks. - This is less true in 2.0
+
+ A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wrong can break Azu show container contents
+
+(Note!: If you want the game to have default values, close the game and delete the wackysDatabase folder).
+
+</br>
+</details>
+
 
 
 <details><summary>Credits</summary>
@@ -1032,3 +1061,5 @@ Known issues: </br>
  Bug on moving stuff from one hammer to another - disable orginal and make a clone for now
  </br> 
  Snapshot pieces still disabled
+ </br> 
+ Creature material is not working
