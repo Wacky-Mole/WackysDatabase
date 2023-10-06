@@ -259,17 +259,16 @@ namespace wackydatabase.PatchClasses
                     {
                         if (searchme.ContainsKey(requirement.m_resItem))
                         {
-                            if (searchme[requirement.m_resItem] != 1)
+                            if (searchme[requirement.m_resItem] > 1)
                             {
                                 if ((bool)requirement.m_resItem)
                                 {
-                                    int amount = requirement.GetAmount(qualityLevel);
+                                    int amount = requirement.GetAmount(searchme[requirement.m_resItem]);
                                     if (amount > 0)
                                     {
                                         __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, searchme[requirement.m_resItem]);
                                     }
                                 }
-
                             }
                             else
                             {
@@ -285,7 +284,6 @@ namespace wackydatabase.PatchClasses
                         }
                         else
                         {
-
                             if ((bool)requirement.m_resItem)
                             {
                                 int amount = requirement.GetAmount(qualityLevel);
