@@ -94,6 +94,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\unstripped_corlib\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.dll</HintPath>
     </Reference>
@@ -170,7 +173,7 @@
     <Compile Include="PatchClasses\status.cs" />
     <Compile Include="SetData\ObjectSetMock.cs" />
     <Compile Include="SetData\SetOldData\OldReloadSet.cs" />
-    <Compile Include="Utility\ServerSync.cs" />
+    <Compile Include="Libs\ServerSync.cs" />
     <Compile Include="SetData\Reload.cs" />
     <Compile Include="SetData\SetData.cs" />
     <Compile Include="SetData\WeaponDamage.cs" />

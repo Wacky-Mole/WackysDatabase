@@ -78,9 +78,10 @@ public abstract class CustomSyncedValueBase
     }
 
     protected bool localIsOwner;
-
-    protected CustomSyncedValueBase(ConfigSync configSync, string identifier, Type type)
+    public readonly int Priority;
+    protected CustomSyncedValueBase(ConfigSync configSync, string identifier, Type type, int priority)
     {
+        Priority = priority;
         Identifier = identifier;
         Type = type;
         configSync.AddCustomValue(this);
@@ -98,7 +99,7 @@ public sealed class CustomSyncedValue<T> : CustomSyncedValueBase
         set => BoxedValue = value;
     }
 
-    public CustomSyncedValue(ConfigSync configSync, string identifier, T value = default!) : base(configSync, identifier, typeof(T))
+    public CustomSyncedValue(ConfigSync configSync, string identifier, T value = default!, int priority = 0) : base(configSync, identifier, typeof(T), priority)
     {
         Value = value;
     }
@@ -164,7 +165,7 @@ public class ConfigSync
     private static readonly HashSet<ConfigSync> configSyncs = new();
 
     private readonly HashSet<OwnConfigEntryBase> allConfigs = new();
-    private readonly HashSet<CustomSyncedValueBase> allCustomValues = new();
+    private HashSet<CustomSyncedValueBase> allCustomValues = new();
 
     private static bool isServer;
 
@@ -225,6 +226,7 @@ public class ConfigSync
         }
 
         allCustomValues.Add(customValue);
+        allCustomValues = new HashSet<CustomSyncedValueBase>(allCustomValues.OrderByDescending(v => v.Priority));
         customValue.ValueChanged += () =>
         {
             if (!ProcessingServerUpdate)
@@ -275,7 +277,7 @@ public class ConfigSync
                         {
                             ZPackage package = ConfigsToPackage(packageEntries: new[]
                             {
-                                new PackageEntry { section = "Internal", key = "lockexempt", type = typeof(bool), value = isAdmin }
+                                new PackageEntry { section = "Internal", key = "lockexempt", type = typeof(bool), value = isAdmin },
                             });
 
                             if (configSyncs.First() is { } configSync)
@@ -1056,7 +1058,7 @@ public class ConfigSync
             }
             return dict;
         }
-        if (type != typeof(List<string>) && type.IsGenericType && typeof(ICollection<>).MakeGenericType(type.GenericTypeArguments[0]) is { } collectionType && collectionType.IsAssignableFrom(type.GetGenericTypeDefinition()))
+        if (type != typeof(List<string>) && type.IsGenericType && typeof(ICollection<>).MakeGenericType(type.GenericTypeArguments[0]) is { } collectionType && collectionType.IsAssignableFrom(type))
         {
             int entriesCount = package.ReadInt();
             object list = Activator.CreateInstance(type);

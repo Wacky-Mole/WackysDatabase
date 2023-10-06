@@ -15,6 +15,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using TMPro;
 
 namespace PieceManager;
 
@@ -305,7 +306,7 @@ public class BuildPiece
                 PieceConfig cfg = pieceConfigs[piece] = new PieceConfig();
                 Piece piecePrefab = piece.Prefab.GetComponent<Piece>();
                 string pieceName = piecePrefab.m_name;
-                string englishName = new Regex("['[\"\\]]").Replace(english.Localize(pieceName), "").Trim();
+                string englishName = new Regex(@"[=\n\t\\""\'\[\]]*").Replace(english.Localize(pieceName), "").Trim();
                 string localizedName = Localization.instance.Localize(pieceName).Trim();
 
                 int order = 0;
@@ -1459,16 +1460,16 @@ public static class PiecePrefabManager
         newTab.SetActive(false);
         newTab.GetOrAddComponent<UIInputHandler>().m_onLeftDown += Hud.instance.OnLeftClickCategory;
 
-        foreach (var text in newTab.GetComponentsInChildren<Text>())
+        foreach (var text in newTab.GetComponentsInChildren<TMP_Text>())
         {
             text.rectTransform.offsetMin = new Vector2(3, 1);
             text.rectTransform.offsetMax = new Vector2(-3, -1);
-            text.resizeTextForBestFit = true;
-            text.resizeTextMinSize = 12;
-            text.resizeTextMaxSize = 20;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 12;
+            text.fontSizeMax = 20;
             text.lineSpacing = 0.8f;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.overflowMode = TextOverflowModes.Truncate;
         }
 
         return newTab;

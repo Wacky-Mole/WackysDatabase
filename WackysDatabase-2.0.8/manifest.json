@@ -1,9 +1,9 @@
 ﻿{
   "name": "WackysDatabase",
-  "version_number": "2.0.7",
+  "version_number": "2.0.8",
   "website_url": "https://www.nexusmods.com/valheim/mods/1825",
   "description": "WackysDatabase allows you to control all items/recipes/pieces/creatures/materials/textures via YML files with ServerSync and so much more.",
   "dependencies": [
-    "denikson-BepInExPack_Valheim-5.4.2105"
+    "denikson-BepInExPack_Valheim-5.4.2200"
   ]
 }

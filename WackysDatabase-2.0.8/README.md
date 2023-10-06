@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.0.7
+Version: 2.0.8
 Features
 
 
@@ -1006,6 +1006,7 @@ Wackymole
 | 2.0.5 | Bug fix for a cache item error on updateitemhash. 
 | 2.0.6 | Big bug fix for servers. Moved main loading to an even later point. Added SizeMultiplier to cache, for extra sized cached weapons. 
 | 2.0.7 | Fixed effects not following you. </br> Add beehive data to pieces. </br> Fix for dedicated servers not loading data. Moved up reload for dedicated servers. </br> Changed log messages, added more warnings.</br> Added more checks for cloned cache. </br> Fix for mock items.
+| 2.0.8 | Updated ServerSync, Piecemanger, Patch update for 217.24 </br> Fix bug for consuming resources twice. 
 
 </details>
 
