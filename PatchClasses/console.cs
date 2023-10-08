@@ -325,7 +325,7 @@ namespace wackydatabase.PatchClasses
                     WMRecipeCust.CheckModFolder();
                     if (args.Length - 1 < 1)
                     {
-                        args.Context?.AddString("<color=lime>Not enough arguments</color>");
+                        args.Context?.AddString("<color=red>Not enough arguments</color>");
                     }
                     else
                     {
@@ -571,7 +571,7 @@ namespace wackydatabase.PatchClasses
                             {
                                 if (args.Length-1 <1)
                                 {
-                                    args.Context?.AddString("<color=lime>Enter a piece hammer</color> default hammer is Hammer");
+                                    args.Context?.AddString("<color=red>Enter a piece hammer</color> default hammer is Hammer");
 
                                 }
                                 else
@@ -738,7 +738,7 @@ namespace wackydatabase.PatchClasses
                     {
                         if (args.Length - 1 < 3)
                         {
-                            args.Context?.AddString("<color=lime>Not enough arguments</color>");
+                            args.Context?.AddString("<color=red>Not enough arguments</color>");
 
                         }
                         else
@@ -898,7 +898,7 @@ namespace wackydatabase.PatchClasses
                         WMRecipeCust.CheckModFolder();
                         if (args.Length - 1 < 2)
                         {
-                            args.Context?.AddString("<color=lime>Not enough arguments</color>");
+                            args.Context?.AddString("<color=red>Not enough arguments</color>");
                         }
                         else
                         {
@@ -980,10 +980,18 @@ namespace wackydatabase.PatchClasses
 
             Terminal.ConsoleCommand WackyDescribe = new("wackydb_describe", "Export visual description information for an item", args =>
             {
-                string name = args[1];
-                WMRecipeCust.WLog.LogInfo(name);
-                VisualController.Export(PrefabAssistant.Describe(name));
-                args.Context?.AddString($"Saved in config folder Describe_{name}.yml");
+                if (args.Length - 1 < 1)
+                {
+                    args.Context?.AddString("<color=red>Not enough arguments </color>");
+
+                }
+                else
+                {
+                    string name = args[1];
+                    WMRecipeCust.WLog.LogInfo(name);
+                    VisualController.Export(PrefabAssistant.Describe(name));
+                    args.Context?.AddString($"Saved in config folder Describe_{name}.yml");
+                }
 
             }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 

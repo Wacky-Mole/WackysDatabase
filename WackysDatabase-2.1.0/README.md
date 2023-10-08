@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.0.9
+Version: 2.1.0
 Features
 
 
@@ -1008,6 +1008,7 @@ Wackymole
 | 2.0.7 | Fixed effects not following you. </br> Add beehive data to pieces. </br> Fix for dedicated servers not loading data. Moved up reload for dedicated servers. </br> Changed log messages, added more warnings.</br> Added more checks for cloned cache. </br> Fix for mock items.
 | 2.0.8 | Updated ServerSync, Piecemanger, Patch update for 217.24 </br> Fix bug for recipes consuming resources twice. 
 | 2.0.9 | Bug Fix
+| 2.1.0 | Bug fix, changed color on messages from lime to red
 
 </details>
 
@@ -1049,7 +1050,7 @@ Credits:
 Aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
 Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
 Also thanks to Blaxx and Azu for code like Snapshot and Piece Categories. </br>
-Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
+Thanks to the Odin Discord server, for being active and good for the valheim community.</br>****
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
 An extra thank you to Azumatt and the Odin team. </br>
 Special thank you to @KG for Mock System </br>
@@ -1065,3 +1066,4 @@ Known issues: </br>
  Snapshot pieces still disabled
  </br> 
  Creature material is not working
+****
