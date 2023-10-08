@@ -254,6 +254,7 @@ namespace wackydatabase.Startup
             return WMRecipeCust.issettoSinglePlayer;
         }
 
+        [HarmonyPriority(Priority.Low)]
         [HarmonyPatch(typeof(Game), nameof(Game._RequestRespawn))]
         public static class MainReloadStart
         {
