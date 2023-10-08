@@ -16,6 +16,7 @@ using wackydatabase.Startup;
 using wackydatabase.SetData;
 using UnityEngine.UI;
 using System.Runtime.CompilerServices;
+using TMPro;
 
 namespace wackydatabase.PatchClasses
 {
@@ -132,7 +133,7 @@ namespace wackydatabase.PatchClasses
             Transform component5 = elementRoot.transform.Find("res_quality");
             if (component5 != null)
             {
-                component5.GetComponent<Text>().gameObject.SetActive(value: false);
+                component5.GetComponent<TMP_Text>().gameObject.SetActive(value: false);
             }
         }
     }
@@ -165,12 +166,12 @@ namespace wackydatabase.PatchClasses
                 if (component5T == null)
                 {
                     Transform component3Parent = root.transform.Find("res_amount");
-                    Text component3 = component3Parent.GetComponent<Text>();
+                    TMP_Text component3 = component3Parent.GetComponent<TMP_Text>();
                     component5 = GameObject.Instantiate(component3Parent.gameObject, root);// quality
                     component5.name = "res_quality";
                     component5.GetComponent<RectTransform>().localPosition = new Vector2(0, 0);
-                    component5.GetComponent<Text>().text = "☆1";
-                    component5.GetComponent<Text>().font = component3.font;
+                    component5.GetComponent<TMP_Text>().text = "☆1";
+                    component5.GetComponent<TMP_Text>().font = component3.font;
 
                 }
                 else
@@ -207,7 +208,7 @@ namespace wackydatabase.PatchClasses
                         return;
                     }
                     component5.SetActive(true);
-                    component5.GetComponent<Text>().text = "☆" + qual;
+                    component5.GetComponent<TMP_Text>().text = "☆" + qual;
                     foreach (var slot in playerh.m_inventory.m_inventory)
                     {
                         if (slot.m_shared.m_name == reqh.m_resItem.m_itemData.m_shared.m_name && slot.m_quality == qual)
@@ -217,11 +218,11 @@ namespace wackydatabase.PatchClasses
                     }
                     if (num < amount)
                     {
-                        component5.GetComponent<Text>().color = ((Mathf.Sin(Time.time * 10f) > 0f) ? Color.red : Color.white);
+                        component5.GetComponent<TMP_Text>().color = ((Mathf.Sin(Time.time * 10f) > 0f) ? Color.red : Color.white);
                     }
                     else
                     {
-                        component5.GetComponent<Text>().color = Color.white;
+                        component5.GetComponent<TMP_Text>().color = Color.white;
                     }
                 }
                 else

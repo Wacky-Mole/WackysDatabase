@@ -145,7 +145,11 @@ namespace wackydatabase.Startup
                 
 
                 if (WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
+                {
                     WMRecipeCust.dedLoad = true;
+                    //WMRecipeCust.WLog.LogWarning("This is a dedicated Server wtih ServerDedLoad active");
+                }
+                    
 
             }
 
