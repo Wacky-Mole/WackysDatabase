@@ -17,10 +17,54 @@ using wackydatabase.SetData;
 using UnityEngine.UI;
 using System.Runtime.CompilerServices;
 using TMPro;
+using RainbowTrollArmor;
+using System.Reflection;
 
 namespace wackydatabase.PatchClasses
 {
 
+   /* Cookie Project
+    [HarmonyPatch(typeof(Hud), "UpdateMount")]
+    static class MountIconPatch 
+    {
+        public static string playerCurrentSaddle = "";
+        private static void Postfix(ref Player player, Hud __instance,  GameObject ___m_mountPanel)
+        {
+            Sadle sadle = player.GetDoodadController() as Sadle;
+            if (sadle != null)
+            {             
+                Character character = sadle.GetCharacter(); // use this to select between your riding mobs
+                var Icon = ___m_mountPanel;
+                if (Icon == null) return; 
+                var icon = Icon.transform.GetChild(0).Find("MountIcon")?.gameObject.GetComponent<UnityEngine.UI.Image>();
+                if (icon != null && playerCurrentSaddle != character.name)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Mob with saddle is {character.name}"); // remove this just for testing
+                    SpriteToolsCombined spriteTool = new SpriteToolsCombined();
+                    switch (character.name)
+                    {
+                        case "Lox(Clone)":
+                            WMRecipeCust.WLog.LogInfo("Setting Wolf Icon");
+                            icon.sprite = spriteTool.CreateSprite(spriteTool.loadTexture("Wolf.png"), false);
+                            //icon.sprite = WMRecipeCust.Wolf; or better yet load this in your main awake once
+                            playerCurrentSaddle = character.name;
+                            break;
+
+                        case "Wolf(Clone)":
+                            icon.sprite = spriteTool.CreateSprite(spriteTool.loadTexture("Wolf.png"), false);
+                            playerCurrentSaddle = character.name;
+                            break;
+
+                        default:
+                            playerCurrentSaddle = character.name;
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    */
 
     [HarmonyPatch(typeof(Player), "PlacePiece")]
     static class Player_MessageforPortal_Patch
@@ -250,10 +294,11 @@ namespace wackydatabase.PatchClasses
         private static bool Prefix(Player __instance, Piece.Requirement[] requirements, int qualityLevel, int itemQuality = -1)
         {
             InventoryGui instance = InventoryGui.m_instance;
-            if (instance.m_selectedRecipe.Key != null) {
-
+            if (instance.m_selectedRecipe.Key != null)
+            {
                 if (WMRecipeCust.QualityRecipeReq.ContainsKey(instance.m_selectedRecipe.Key.name))
                 {
+                    var found = false;
                     Dictionary<ItemDrop, int> searchme = WMRecipeCust.QualityRecipeReq[instance.m_selectedRecipe.Key.name];
 
                     foreach (Piece.Requirement requirement in requirements)
@@ -262,42 +307,47 @@ namespace wackydatabase.PatchClasses
                         {
                             if (searchme[requirement.m_resItem] > 1)
                             {
-                                if ((bool)requirement.m_resItem)
-                                {
-                                    int amount = requirement.GetAmount(searchme[requirement.m_resItem]);
-                                    if (amount > 0)
-                                    {
-                                        __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, searchme[requirement.m_resItem]);
-                                    }
-                                }
+                                found = true;
                             }
-                            else
-                            {
-                                if ((bool)requirement.m_resItem)
-                                {
-                                    int amount = requirement.GetAmount(qualityLevel);
-                                    if (amount > 0)
-                                    {
-                                        __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, itemQuality);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if ((bool)requirement.m_resItem)
-                            {
-                                int amount = requirement.GetAmount(qualityLevel);
-                                if (amount > 0)
-                                {
-                                    __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, itemQuality);
-                                }
-                            }
+
                         }
                     }
-                    return false;
+
+                    if (found)
+                    {
+                        foreach (Piece.Requirement requirement in requirements)
+                        {
+                            if (searchme.ContainsKey(requirement.m_resItem))
+                            {
+                                if (searchme[requirement.m_resItem] > 1)
+                                {
+
+                                    if ((bool)requirement.m_resItem)
+                                    {
+                                        int amount = requirement.GetAmount(searchme[requirement.m_resItem]);
+                                        if (amount > 0)
+                                        {
+                                            __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, searchme[requirement.m_resItem]);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if ((bool)requirement.m_resItem)
+                                    {
+                                        int amount = requirement.GetAmount(qualityLevel);
+                                        if (amount > 0)
+                                        {
+                                            __instance.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, itemQuality);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                        return false;
+                    }
                 }
-                return true;
             }
             return true;
         }

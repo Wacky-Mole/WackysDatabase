@@ -34,6 +34,7 @@ using wackydatabase.Read;
 using UnityEngine.Rendering;
 using API;
 using wackydatabase.OBJimporter;
+using RainbowTrollArmor;
 
 namespace wackydatabase
 {
@@ -41,7 +42,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.1.0";
+        internal const string ModVersion = "2.1.1";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -205,6 +206,8 @@ namespace wackydatabase
             assetPathIcons = Path.Combine(assetPathconfig, "Icons");
             assetPathCache = Path.Combine(assetPathconfig, "Cache");
             // testme(); // function for testing things
+
+            
 
             // ending files
 

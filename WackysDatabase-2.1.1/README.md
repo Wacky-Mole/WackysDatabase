@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.1.0
+Version: 2.1.1
 Features
 
 
@@ -1009,6 +1009,8 @@ Wackymole
 | 2.0.8 | Updated ServerSync, Piecemanger, Patch update for 217.24 </br> Fix bug for recipes consuming resources twice. 
 | 2.0.9 | Bug Fix
 | 2.1.0 | Bug fix, changed color on messages from lime to red
+| 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of greater than 1.
+
 
 </details>
 
