@@ -167,7 +167,7 @@ namespace wackydatabase.PatchClasses
         }
     }
 
-    
+    /*  I didn't like all these patches to do something simple. It was a good idea, but could be done better
 
     [HarmonyPatch(typeof(InventoryGui), "SetupRequirement")]
     static class HideQuality
@@ -424,6 +424,7 @@ namespace wackydatabase.PatchClasses
             
         }
     }
+    */
     
 
 }

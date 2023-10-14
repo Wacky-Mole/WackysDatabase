@@ -90,6 +90,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\unstripped_corlib\Microsoft.CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="ServerSync, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Libs\ServerSync.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -173,7 +177,6 @@
     <Compile Include="PatchClasses\status.cs" />
     <Compile Include="SetData\ObjectSetMock.cs" />
     <Compile Include="SetData\SetOldData\OldReloadSet.cs" />
-    <Compile Include="Libs\ServerSync.cs" />
     <Compile Include="SetData\Reload.cs" />
     <Compile Include="SetData\SetData.cs" />
     <Compile Include="SetData\WeaponDamage.cs" />
@@ -216,6 +219,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Libs\LocalizationManager.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Libs\ServerSync.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Libs\YamlDotNet.dll">

@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.1.1
+Version: 2.1.2
 Features
 
 
@@ -17,7 +17,7 @@ Features
     Mainscreen cloned items
     Water Resistance is back
     Slow Reload!
-    Visuals Modifier by Rexabit!
+    Visuals Modifier by Rexabit!****
     Seteffect by Azu!
     Basic Creature cloning or replacing/renaming
     Most components can be removed from YAML
@@ -768,11 +768,8 @@ Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 - `requireOnlyOneIngredient` (bool): Indicates whether the recipe requires only one ingredient.
 - `reqs` (List<string>, required): The list of required ingredients for the recipe.
 
-(Required) requirements to build: Item:amount:amountPerLevel:refundable:quality,
+(Required) requirements to build: Item:amount:amountPerLevel:refundable:
 
-Quality is a requirement of what quality of item you need to be able to use this recipe.  Like a 2* Bronze Sword to upgrade to Bronze Sword Superd *1
-
-![Recipe Quality](https://wackymole.com/hosts/qualityrecipe.png)
 
  </br>Arrows x50 will be put above Arrow x20
  </br>
@@ -1007,9 +1004,10 @@ Wackymole
 | 2.0.6 | Big bug fix for servers. Moved main loading to an even later point. Added SizeMultiplier to cache, for extra sized cached weapons. 
 | 2.0.7 | Fixed effects not following you. </br> Add beehive data to pieces. </br> Fix for dedicated servers not loading data. Moved up reload for dedicated servers. </br> Changed log messages, added more warnings.</br> Added more checks for cloned cache. </br> Fix for mock items.
 | 2.0.8 | Updated ServerSync, Piecemanger, Patch update for 217.24 </br> Fix bug for recipes consuming resources twice. 
-| 2.0.9 | Bug Fix
+| 2.0.9 | Bug Fix****
 | 2.1.0 | Bug fix, changed color on messages from lime to red
-| 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of greater than 1.
+| 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of > 1
+| 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented). </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
 
 
 </details>

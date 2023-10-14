@@ -101,7 +101,7 @@ namespace wackydatabase.GetData
 
             if (!AllowClone)
             {
-                cloneyesorno = "NO";
+                //cloneyesorno = "NO";
                 data.name = temp;
             }else
             {
