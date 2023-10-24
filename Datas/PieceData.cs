@@ -11,7 +11,7 @@ namespace wackydatabase.Datas
         public string name; //must have
         public string piecehammer; // must have
         public string? m_name;
-        public float? sizeMultiplier;
+        public string? sizeMultiplier;
         public string? m_description;
         public string? customIcon;
         public string? clonePrefabName;

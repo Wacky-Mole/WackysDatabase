@@ -26,6 +26,7 @@ using System.Linq.Expressions;
 using static ClutterSystem;
 using static EffectList;
 using System.Diagnostics.Eventing.Reader;
+using YamlDotNet.Core.Tokens;
 
 namespace wackydatabase.SetData
 {
@@ -446,10 +447,21 @@ namespace wackydatabase.SetData
                 if (go == null)
                 {
                     go = DataHelpers.GetModdedPieces(data.name); // known modded Hammer search
-                    if (go == null)
+                    if (go == null) // 4th layer now
                     {
-                        WMRecipeCust.WLog.LogWarning($"Piece {data.name} not found! 3 layer search");
-                        return;
+                        foreach (var objSearch in AllObjects)
+                        {
+                            if (objSearch.GetComponent<Piece>() != null && objSearch.name == data.name)
+                            {
+                                go = objSearch;
+                                break;
+                            }
+                        }
+                        if (go == null)
+                        {
+                            WMRecipeCust.WLog.LogWarning($"Piece {data.name} not found! 4 layer search");
+                            return;
+                        }                                               
                     }
                     else // 2nd layer
                         WMRecipeCust.Dbgl($"Piece {data.name} from known hammer {WMRecipeCust.selectedPiecehammer}"); // selected piecehammer is set in GetModdedPieces!
@@ -767,28 +779,32 @@ namespace wackydatabase.SetData
 
             if (data.disabled ?? false)
             {
-                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
-                if (piecehammer == null)
-                    piecehammer = WMRecipeCust.selectedPiecehammer.gameObject;
-                WMRecipeCust.Dbgl($"Disabling Piece {data.name} with hammer {piecehammer}");
+                if (WMRecipeCust.IsDedServer) {
+                    WMRecipeCust.Dbgl($"Disabling the Piece {data.name} for users, not dedicated server");
+                } else {
+                        GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
+                        if (piecehammer == null)
+                            piecehammer = WMRecipeCust.selectedPiecehammer.gameObject;
+                        WMRecipeCust.Dbgl($"Disabling Piece {data.name} with hammer {piecehammer}");
 
-                if (piecehammer.TryGetComponent<PieceTable>(out var table))
-                {
-                    table.m_pieces.Remove(go);
+                        if (piecehammer.TryGetComponent<PieceTable>(out var table))
+                        {
+                            table.m_pieces.Remove(go);
 
-                    if (!DisabledPieceandHam.ContainsKey(go))
-                        DisabledPieceandHam.Add(go, piecehammer);
-                }
-                else
-                {
-
-                    if (piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                            if (!DisabledPieceandHam.ContainsKey(go))
+                                DisabledPieceandHam.Add(go, piecehammer);
+                        }
+                
+                    else
                     {
-                        WMRecipeCust.Dbgl($"removing from {piecehammer.name} Piece {data.name}");
-                        piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                        if (piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
+                        {
+                            WMRecipeCust.Dbgl($"removing from {piecehammer.name} Piece {data.name}");
+                            piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
 
-                        if (!DisabledPieceandHam.ContainsKey(go))
-                            DisabledPieceandHam.Add(go, piecehammer);
+                            if (!DisabledPieceandHam.ContainsKey(go))
+                                DisabledPieceandHam.Add(go, piecehammer);
+                        }
                     }
                 }
             }
@@ -866,10 +882,36 @@ namespace wackydatabase.SetData
             if (pi.gameObject.TryGetComponent<Door>(out Door wpoo))
                 wpoo.m_name = pi.m_name;
 
-            if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
+            if (data.sizeMultiplier != null)
             {
-                Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
-                go.transform.localScale = NewScale;
+                var splitd = data.sizeMultiplier.Split(',').ToList();
+                var count = splitd.Count;
+                List<float> list = new List<float>();
+                foreach (string m in splitd)
+                {
+                    if (float.TryParse(m, out float s))
+                        list.Add(s);
+
+                }
+                if (count == 1)
+                {
+                    if (list[0] != 1)
+                    {
+                        Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
+                        go.transform.localScale = NewScale;
+                    }
+
+                }
+                else if (count == 2)
+                {
+                    Vector3 NewScale = new Vector3(list[0], list[1], 1f);
+                    go.transform.localScale = NewScale;
+                }
+                else
+                {
+                    Vector3 NewScale = new Vector3(list[0], list[1], list[2]);
+                    go.transform.localScale = NewScale;
+                }
             }
 
             pi.m_groundPiece = data.groundPiece ?? pi.m_groundPiece;
@@ -1259,7 +1301,7 @@ namespace wackydatabase.SetData
                     WMRecipeCust.WLog.LogWarning($"Item cloned name is empty!");
                     return null;
                 }
-             
+
                 ItemDrop.ItemData PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData;
 
                 WMRecipeCust.Dbgl($"Item CLONE {tempname} from cache ");
@@ -1274,10 +1316,34 @@ namespace wackydatabase.SetData
                 Instant.m_items.Add(newItem);
                 Instant.m_itemByHash.Add(hash, newItem);
 
-                if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
-                {
-                    Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
-                    newItem.transform.GetChild(0).localScale = NewScale;
+                if (data.sizeMultiplier != null) { 
+                    var splitd = data.sizeMultiplier.Split(',').ToList();
+                    var count = splitd.Count;
+                    List<float> list = new List<float>();
+                    foreach (string m in splitd)
+                    {
+                        if (float.TryParse(m, out float s))
+                            list.Add(s);
+                        
+                    }
+                    if (count == 1)
+                    {
+                        if (list[0] != 1)
+                        {
+                            Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
+                            newItem.transform.GetChild(0).localScale = NewScale;
+                        }
+
+                    } else if (count == 2)
+                    {
+                        Vector3 NewScale = new Vector3(list[0], list[1], 1f);
+                        newItem.transform.GetChild(0).localScale = NewScale;
+                    }
+                    else 
+                    {
+                        Vector3 NewScale = new Vector3(list[0], list[1], list[2]);
+                        newItem.transform.GetChild(0).localScale = NewScale;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(data.material))
@@ -1648,10 +1714,37 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_description = data.m_description ?? PrimaryItemData.m_shared.m_description;
                     PrimaryItemData.m_shared.m_weight = data.m_weight;
                     PrimaryItemData.m_shared.m_scaleWeightByQuality = data.scale_weight_by_quality ?? PrimaryItemData.m_shared.m_scaleWeightByQuality;
-                    if (data.sizeMultiplier != 1 && data.sizeMultiplier != null)
+
+                    if (data.sizeMultiplier != null)
                     {
-                        Vector3 NewScale = new Vector3((float)data.sizeMultiplier, (float)data.sizeMultiplier, (float)data.sizeMultiplier);
-                        go.transform.GetChild(0).localScale = NewScale;
+                        var splitd = data.sizeMultiplier.Split(',').ToList();
+                        var count = splitd.Count;
+                        List<float> list = new List<float>();
+                        foreach (string m in splitd)
+                        {
+                            if (float.TryParse(m, out float s))
+                                list.Add(s);
+
+                        }
+                        if (count == 1)
+                        {
+                            if (list[0] != 1)
+                            {
+                                Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
+                                go.transform.GetChild(0).localScale = NewScale;
+                            }
+
+                        }
+                        else if (count == 2)
+                        {
+                            Vector3 NewScale = new Vector3(list[0], list[1], 1f);
+                            go.transform.GetChild(0).localScale = NewScale;
+                        }
+                        else
+                        {
+                            Vector3 NewScale = new Vector3(list[0], list[1], list[2]);
+                            go.transform.GetChild(0).localScale = NewScale;
+                        }
                     }
 
                     if (data.Primary_Attack != null)

@@ -42,7 +42,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.1.2";
+        internal const string ModVersion = "2.1.3";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -178,6 +178,7 @@ namespace wackydatabase
         internal static float WaitTime = .3f;
         internal static bool LockReload = false;
         internal static bool Reloading = false;
+        
         internal static bool IsDedServer => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
 

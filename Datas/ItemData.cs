@@ -32,7 +32,7 @@ namespace wackydatabase.Datas
 
         public CustomVisual? customVisual;
 
-        public float? sizeMultiplier;  
+        public string? sizeMultiplier;  
 
         public float? scale_weight_by_quality;
 

@@ -22,8 +22,14 @@ namespace wackydatabase.PatchClasses
         [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
         static class UpdateEnvStatusEffects_Patch
         {
-            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        internal static bool loadTranspiler = true;
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
+                if (loadTranspiler)
+                    loadTranspiler = false;
+                else
+                    return null;
+
                 WMRecipeCust.Dbgl($"Transpiling UpdateEnvStatusEffects");
 
                 var codes = new List<CodeInstruction>(instructions);
@@ -47,6 +53,7 @@ namespace wackydatabase.PatchClasses
                 }
 
                 return outCodes.AsEnumerable();
+
             }
             static void Postfix(float dt, Player __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem, SEMan ___m_seman)
             {

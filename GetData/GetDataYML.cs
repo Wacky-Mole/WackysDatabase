@@ -364,7 +364,7 @@ namespace wackydatabase.GetData
                 m_name = piece.m_name,
                 m_description = piece.m_description,
                 piecehammerCategory = currentmap[piece.m_category],//piece.m_category.ToString(),
-                sizeMultiplier = 1,
+                sizeMultiplier = "1",
                 customIcon = null,
                 clonePrefabName = null,
                 material = null,
@@ -789,7 +789,7 @@ namespace wackydatabase.GetData
                 m_useDurabilityDrain = data.m_shared.m_useDurabilityDrain,
                 m_value = data.m_shared.m_value,
                 scale_weight_by_quality = data.m_shared.m_scaleWeightByQuality,
-                sizeMultiplier = 1, // default scale
+                sizeMultiplier = "1", // default scale
                 m_weight = data.m_shared.m_weight,
                 m_destroyBroken = data.m_shared.m_destroyBroken,
                 m_dodgeable = data.m_shared.m_dodgeable,
