@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -13,9 +14,8 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
-using Version = System.Version;
-using CompressionLevel = System.IO.Compression.CompressionLevel;
 using wackydatabase;
+using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace ServerSync;
 
@@ -1210,6 +1210,7 @@ public class VersionCheck
         ModRequired = ConfigSync.ModRequired;
     }
 
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
     private bool IsVersionOk()
     {
         if (ReceivedMinimumRequiredVersion == null || ReceivedCurrentVersion == null)
@@ -1221,11 +1222,12 @@ public class VersionCheck
         return myVersionOk && otherVersionOk;
     }
 
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
     private string ErrorClient()
     {
         if (ReceivedMinimumRequiredVersion == null)
         {
-            return $"Mod {DisplayName} must not be installed.";
+            return $"{DisplayName} is not installed on the server.";
         }
         bool myVersionOk = new System.Version(CurrentVersion) >= new System.Version(ReceivedMinimumRequiredVersion);
 
@@ -1236,7 +1238,7 @@ public class VersionCheck
             return $"{WMRecipeCust.ModName} You started a Local Game before Multiplayer. That is Not allowed. -Restart Game";
         }
 
-        return myVersionOk ? $"Mod {DisplayName} requires maximum {ReceivedCurrentVersion}. Installed is version {CurrentVersion}." : $"Mod {DisplayName} requires minimum {ReceivedMinimumRequiredVersion}. Installed is version {CurrentVersion}.";
+        return myVersionOk ? $"{DisplayName} may not be higher than version {ReceivedCurrentVersion}. You have version {CurrentVersion}." : $"{DisplayName} needs to be at least version {ReceivedMinimumRequiredVersion}. You have version {CurrentVersion}.";
     }
 
     private string ErrorServer(ZRpc rpc)
@@ -1394,19 +1396,33 @@ public class VersionCheck
         {
             return;
         }
+        bool failedCheck = false;
         VersionCheck[] failedChecks = GetFailedClient();
         if (failedChecks.Length > 0)
         {
             string error = string.Join("\n", failedChecks.Select(check => check.Error()));
             __instance.m_connectionFailedError.text += "\n" + error;
+            failedCheck = true;
         }
 
         foreach (KeyValuePair<string, string> kv in notProcessedNames.OrderBy(kv => kv.Key))
         {
             if (!__instance.m_connectionFailedError.text.Contains(kv.Key))
             {
-                __instance.m_connectionFailedError.text += $"\n{kv.Key} (Version: {kv.Value})";
+                __instance.m_connectionFailedError.text += $"\nServer expects you to have {kv.Key} (Version: {kv.Value}) installed.";
+                failedCheck = true;
             }
+        }
+
+        if (failedCheck)
+        {
+            RectTransform panel = __instance.m_connectionFailedPanel.transform.Find("Image").GetComponent<RectTransform>();
+            panel.sizeDelta = panel.sizeDelta with { x = 675 };
+            __instance.m_connectionFailedError.ForceMeshUpdate();
+            float newHeight = __instance.m_connectionFailedError.renderedHeight + 105;
+            RectTransform button = panel.transform.Find("ButtonOk").GetComponent<RectTransform>();
+            button.anchoredPosition = new Vector2(button.anchoredPosition.x, button.anchoredPosition.y - (newHeight - panel.sizeDelta.y) / 2);
+            panel.sizeDelta = panel.sizeDelta with { y = newHeight };
         }
     }
 }

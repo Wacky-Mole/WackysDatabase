@@ -237,7 +237,7 @@ Custom_AttackSpeed: 5 . 500% faster goes brrr
 </br>
 </details>
 
-<details><summary> Cache System </summary>
+<details><summary> Cache System and Loading Order</summary>
 
 
 <img src="https://wackymole.com/hosts/MainMenu.png" />
@@ -259,6 +259,23 @@ Feel free to removed the cache folder for big changes, but try to leave it for n
 
 </br>
 
+## Loading Order
+
+This only really applies to other mods and sometimes server admins
+
+Wackydb mod will load towards the end of the startup but that doesn't matter. The question is where to load the files and clones.
+
+Too early and you won't get the files from the server/ Too late and you miss out on generating important things. 
+
+Cache clones are loaded in ZNetScene.Awake and ObjectDB.awake
+
+Dedicated Servers (With DedLoad ON) and Servers( COOP server) and SOLO Clients load at ZNetScene.Awake [HarmonyPriority(Priority.VeryLow)]
+
+Connecting Clients load at Game._RequestRespawn [HarmonyPriority(Priority.Low)] ( always consistent is pretty important)
+
+Anyway, it's hard to find a good spot so that you touch all base objects and not too late to add the clones.
+
+</br>
 
 </details>
 
@@ -1008,7 +1025,7 @@ Wackymole
 | 2.1.0 | Bug fix, changed color on messages from lime to red
 | 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of > 1
 | 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented). </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
-| 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang.</br> Updated Refs for new Bepinex
+| 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang.</br> Updated Refs for new Bepinex </br> Changed loading order again
 
 
 </details>

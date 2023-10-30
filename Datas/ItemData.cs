@@ -181,6 +181,7 @@ namespace wackydatabase.Datas
     [Serializable]
     public class AEffects
     {
+       // EffectList.EffectData EffectData;
         public string[]? Hit_Effects;
         public string[]? Hit_Terrain_Effects;
         public string[]? Start_Effect;
