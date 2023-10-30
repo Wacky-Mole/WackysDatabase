@@ -13,6 +13,8 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
+using Version = System.Version;
+using CompressionLevel = System.IO.Compression.CompressionLevel;
 using wackydatabase;
 
 namespace ServerSync;
@@ -79,6 +81,7 @@ public abstract class CustomSyncedValueBase
 
     protected bool localIsOwner;
     public readonly int Priority;
+
     protected CustomSyncedValueBase(ConfigSync configSync, string identifier, Type type, int priority)
     {
         Priority = priority;
@@ -264,6 +267,7 @@ public class ConfigSync
 
             IEnumerator WatchAdminListChanges()
             {
+                MethodInfo? listContainsId = AccessTools.DeclaredMethod(typeof(ZNet), "ListContainsId");
                 SyncedList adminList = (SyncedList)AccessTools.DeclaredField(typeof(ZNet), "m_adminList").GetValue(ZNet.instance);
                 List<string> CurrentList = new(adminList.GetList());
                 for (; ; )
@@ -286,7 +290,11 @@ public class ConfigSync
                             }
                         }
 
-                        List<ZNetPeer> adminPeer = ZNet.instance.GetPeers().Where(p => adminList.Contains(p.m_rpc.GetSocket().GetHostName())).ToList();
+                        List<ZNetPeer> adminPeer = ZNet.instance.GetPeers().Where(p =>
+                        {
+                            string client = p.m_rpc.GetSocket().GetHostName();
+                            return listContainsId is null ? adminList.Contains(client) : (bool)listContainsId.Invoke(ZNet.instance, new object[] { adminList, client });
+                        }).ToList();
                         List<ZNetPeer> nonAdminPeer = ZNet.instance.GetPeers().Except(adminPeer).ToList();
                         SendAdmin(nonAdminPeer, false);
                         SendAdmin(adminPeer, true);
@@ -417,6 +425,8 @@ public class ConfigSync
 
             ParsedConfigs configs = ReadConfigsFromPackage(package);
 
+            ConfigFile? configFile = null;
+            bool originalSaveOnConfigSet = false;
             foreach (KeyValuePair<OwnConfigEntryBase, object?> configKv in configs.configValues)
             {
                 if (!isServer && configKv.Key.LocalBaseValue == null)
@@ -424,7 +434,17 @@ public class ConfigSync
                     configKv.Key.LocalBaseValue = configKv.Key.BaseConfig.BoxedValue;
                 }
 
+                if (configFile is null)
+                {
+                    configFile = configKv.Key.BaseConfig.ConfigFile;
+                    originalSaveOnConfigSet = configFile.SaveOnConfigSet;
+                    configFile.SaveOnConfigSet = false;
+                }
                 configKv.Key.BaseConfig.BoxedValue = configKv.Value;
+            }
+            if (configFile is not null)
+            {
+                configFile.SaveOnConfigSet = originalSaveOnConfigSet;
             }
 
             foreach (KeyValuePair<CustomSyncedValueBase, object?> configKv in configs.customValues)
@@ -577,10 +597,22 @@ public class ConfigSync
 
     private void resetConfigsFromServer()
     {
+        ConfigFile? configFile = null;
+        bool originalSaveOnConfigSet = false;
         foreach (OwnConfigEntryBase config in allConfigs.Where(config => config.LocalBaseValue != null))
         {
+            if (configFile is null)
+            {
+                configFile = config.BaseConfig.ConfigFile;
+                originalSaveOnConfigSet = configFile.SaveOnConfigSet;
+                configFile.SaveOnConfigSet = false;
+            }
             config.BaseConfig.BoxedValue = config.LocalBaseValue;
             config.LocalBaseValue = null;
+        }
+        if (configFile is not null)
+        {
+            configFile.SaveOnConfigSet = originalSaveOnConfigSet;
         }
 
         foreach (CustomSyncedValueBase config in allCustomValues.Where(config => config.LocalBaseValue != null))
@@ -706,7 +738,7 @@ public class ConfigSync
             ZPackage compressedPackage = new();
             compressedPackage.Write(COMPRESSED_CONFIG);
             MemoryStream output = new();
-            using (DeflateStream deflateStream = new(output, System.IO.Compression.CompressionLevel.Optimal))
+            using (DeflateStream deflateStream = new(output, CompressionLevel.Optimal))
             {
                 deflateStream.Write(rawData, 0, rawData.Length);
             }
@@ -1195,14 +1227,15 @@ public class VersionCheck
         {
             return $"Mod {DisplayName} must not be installed.";
         }
-
         bool myVersionOk = new System.Version(CurrentVersion) >= new System.Version(ReceivedMinimumRequiredVersion);
+
         if (CurrentVersion == "0.0.1")
         {
             WMRecipeCust.ConnectionError =
                $"{WMRecipeCust.ModName} You started a Local Game before Multiplayer. That is Not allowed. -Restart Game";
             return $"{WMRecipeCust.ModName} You started a Local Game before Multiplayer. That is Not allowed. -Restart Game";
         }
+
         return myVersionOk ? $"Mod {DisplayName} requires maximum {ReceivedCurrentVersion}. Installed is version {CurrentVersion}." : $"Mod {DisplayName} requires minimum {ReceivedMinimumRequiredVersion}. Installed is version {CurrentVersion}.";
     }
 
