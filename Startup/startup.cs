@@ -55,23 +55,27 @@ namespace wackydatabase.Startup
 
         }
 
-        [HarmonyPatch(typeof(DungeonDB), "Awake")]
-        [HarmonyPriority(Priority.VeryLow)]
-        static class DungeonDBAwake
+        [HarmonyPatch(typeof(ZoneSystem), "Start")]
+        static class ZoneSystemStart
         {
             static void Prefix()
             {
 
-                if (WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
+                if (WMRecipeCust.ServerDedLoad.Value && (ZNet.instance.IsServer() && ZNet.instance.IsDedicated())) // Ded with Load
                 {
                     WMRecipeCust.dedLoad = true;
                     SetData.Reload temp = new SetData.Reload();
                     WMRecipeCust.CurrentReload = temp;
                     WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true));
                 }
-                
 
-
+                if (ZNet.instance.IsServer() && !(ZNet.instance.IsServer() && ZNet.instance.IsDedicated()) ) // COOP and SOLO
+                {
+                    SetData.Reload temp = new SetData.Reload();
+                    WMRecipeCust.CurrentReload = temp;
+                    WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true));
+                }
+               
             }
         }
 
@@ -258,22 +262,23 @@ namespace wackydatabase.Startup
         [HarmonyPatch(typeof(Game), nameof(Game._RequestRespawn))]
         public static class MainReloadStart
         {
-            static void Prefix(DungeonDB __instance)
+            static void Prefix(Game __instance)
             {
                 if (WMRecipeCust.waitingforFirstLoad)
                 {
                     WMRecipeCust.waitingforFirstLoad = false;
 
-                    if (ZNet.instance.IsServer())
-                        WMRecipeCust.Dbgl($" Now Loading Files");
-                    else
+                    if (!ZNet.instance.IsServer())
+                    {
                         WMRecipeCust.Dbgl($" Now loading SERVER Files");
-                    WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
-                    WMRecipeCust.FirstSS = false; // reset in a destory patch
+                        WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
+                        WMRecipeCust.FirstSS = false; // reset in a destory patch
+                    }
                 }
             }
         }
 
+        /* del
         public static IEnumerator CleartoReloadWait(bool firstplayer = false) // waiting for other mods to finish their sync
         {
             yield return new WaitForSeconds(0.2f);
@@ -285,7 +290,7 @@ namespace wackydatabase.Startup
             WMRecipeCust.FirstSS = false; // reset in a destory patch
             //WMRecipeCust.FirstSessionRun = false;                           
             yield break;
-         }
+         } */
 
 
         public static void PrepareLoadData()

@@ -269,9 +269,11 @@ Too early and you won't get the files from the server/ Too late and you miss out
 
 Cache clones are loaded in ZNetScene.Awake and ObjectDB.awake
 
-Dedicated Servers (With DedLoad ON) and Servers( COOP server) and SOLO Clients load at ZNetScene.Awake [HarmonyPriority(Priority.VeryLow)]
+Dedicated Servers (With DedLoad ON) and Servers( COOP server) and SOLO Clients load at ZoneSystem.Start [HarmonyPriority(Priority.High)]
 
 Connecting Clients load at Game._RequestRespawn [HarmonyPriority(Priority.Low)] ( always consistent is pretty important)
+
+Console wackydb_reload /_fast - always reload immediately. 
 
 Anyway, it's hard to find a good spot so that you touch all base objects and not too late to add the clones.
 
