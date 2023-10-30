@@ -1008,7 +1008,7 @@ Wackymole
 | 2.1.0 | Bug fix, changed color on messages from lime to red
 | 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of > 1
 | 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented). </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
-| 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang. 
+| 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang. ****
 
 
 </details>
