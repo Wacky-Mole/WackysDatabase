@@ -64,43 +64,26 @@ namespace wackydatabase.Util
             return hello;
         }
 
-        internal static dynamic getCast<T>(Type ClassTyp, string fieldname, StatusEffect effect)
+        internal static T getCast<T>(Type ClassTyp, string fieldname, StatusEffect effect)
         {
-
             var hello = CompField(ClassTyp, fieldname);
 
             if (hello == null)
-                return null;
+            {
+                return default(T); // return the default value for type T
+            }
 
-            if (typeof(T) == typeof(int))
+            // Ensure the type of the field is assignable to T
+            if (typeof(T).IsAssignableFrom(hello.FieldType))
             {
-                return (int)hello.GetValue(effect);
-            }
-            else if (typeof(T) == typeof(string))
-            {
-                return (string)hello.GetValue(effect);
-            }
-            else if (typeof(T) == typeof(double))
-            {
-                return (double)hello.GetValue(effect);
-            }
-            else if (typeof(T) == typeof(float))
-            {
-                return (float)hello.GetValue(effect);
-            }
-            else if (typeof(T) == typeof(Skills.SkillType))
-            {
-                return (Skills.SkillType)hello.GetValue(effect);
-            }
-            else if (typeof(T) == typeof(List<HitData.DamageModPair>))
-            {
-                return (List<HitData.DamageModPair>)hello.GetValue(effect);
+                return (T)hello.GetValue(effect);
             }
             else
             {
-                return null;
+                throw new InvalidCastException($"Cannot cast {hello.FieldType} to {typeof(T)}.");
             }
         }
+
         internal static void setValue(Type type,object go, string name, float? value=null, int? value2 = null, string? value3 = null, List<HitData.DamageModPair>? value4 =null, Skills.SkillType? value5 = null)
         {
             var field = Functions.CompField(type, name);

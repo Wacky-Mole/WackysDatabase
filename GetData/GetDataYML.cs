@@ -178,11 +178,11 @@ namespace wackydatabase.GetData
             var f2 = effect.GetType();
             WMRecipeCust.WLog.LogInfo("             StatusEffect " + effect.name);
 
-
-
             SEdata stats = new SEdata
             {
                 //m_tickInterval = f2.GetField("m_tickInterval", BindingFlags.Instance | BindingFlags.Public)?.GetValue(effect)
+
+                
                 m_tickInterval = Functions.getCast<float>(f2, "m_tickInterval", effect),
                 m_healthPerTickMinHealthPercentage = Functions.getCast<float>(f2, "m_healthPerTickMinHealthPercentage", effect),
                 m_healthPerTick = Functions.getCast<float>(f2, "m_healthPerTick", effect),

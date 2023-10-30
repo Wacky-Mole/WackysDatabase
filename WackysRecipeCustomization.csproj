@@ -86,10 +86,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\LocalizationManager.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(GamePath)\valheim_Data\Managed\Microsoft.CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="ServerSync, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\ServerSync.dll</HintPath>
