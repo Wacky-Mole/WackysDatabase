@@ -923,6 +923,7 @@ This system is not well tested, so please give me feedback and submit bug report
 
 <details><summary> 1.xx ChangeLog</summary>
         
+
         Version 1.4.2
             Had to disable Piece snapshot because of hovering pieces stacking up on each other, hopefully someone fixes it someday.
             You might have to destroy the existing pieces at (0,0) with infinity hammer quite a lot depending on reloads and players joining.    
@@ -1010,7 +1011,7 @@ Wackymole
 
 <details><summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
 
-| Version | Changes                                                                                                                                                                                                        ****                                                                                                                        |
+| Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 2.0.0 | 2.0.0 - Lots of betas <br/>
 | 2.0.1 | First Release of 2.0 <br/>
@@ -1084,4 +1085,3 @@ Known issues: </br>
  Snapshot pieces still disabled
  </br> 
  Creature material is not working
-****
