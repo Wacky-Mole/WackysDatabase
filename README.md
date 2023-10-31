@@ -38,10 +38,10 @@ YML Knowledge
 
     Almost every component of items/pieces/recipes/effects/creatures can be deleted.
 
-    Some components are multilined where you can actually add your own stuff the ymls.********
+    Some components are multilined where you can actually add your own stuff the ymls.
 
 <details><summary>Installation</summary>
-### Installation****
+### Installation
 
     Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins).
     Run Valheim and join a world.
