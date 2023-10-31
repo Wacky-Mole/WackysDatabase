@@ -17,7 +17,7 @@ Features
     Mainscreen cloned items
     Water Resistance is back
     Slow Reload!
-    Visuals Modifier by Rexabit!****
+    Visuals Modifier by Rexabit!
     Seteffect by Azu!
     Basic Creature cloning or replacing/renaming
     Most components can be removed from YAML
@@ -146,6 +146,9 @@ Frequently Asked Questions
 
     Q:  On an item "name" is the prefab name, "m_name" is the in game name? Then on recipes, "name" is the name of the prefab item name?
         A: Correct on both. For cloned recipes, it looks at cloneprefabname, recipe name needs to be unique
+
+    Q: I can't repair spawned in Cloned items, how do I fix?
+        A: Repairstation is set in the recipe, make a cloned recipe, and set to disable or change a req to SwordCheat.
 
 </details>
 
