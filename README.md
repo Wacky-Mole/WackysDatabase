@@ -1005,9 +1005,7 @@ Planned features
 - [x] Able to change the size of anything
 Wackymole
 
-</details>****
-
-****
+</details>
 
 
 <details><summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
