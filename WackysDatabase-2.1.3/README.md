@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.1.2
+Version: 2.1.3
 Features
 
 
@@ -237,7 +237,7 @@ Custom_AttackSpeed: 5 . 500% faster goes brrr
 </br>
 </details>
 
-<details><summary> Cache System </summary>
+<details><summary> Cache System and Loading Order</summary>
 
 
 <img src="https://wackymole.com/hosts/MainMenu.png" />
@@ -259,6 +259,25 @@ Feel free to removed the cache folder for big changes, but try to leave it for n
 
 </br>
 
+## Loading Order
+
+This only really applies to other mods and sometimes server admins
+
+Wackydb mod will load towards the end of the startup but that doesn't matter. The question is where to load the files and clones.
+
+Too early and you won't get the files from the server/ Too late and you miss out on generating important things. 
+
+Cache clones are loaded in ZNetScene.Awake and ObjectDB.awake
+
+Dedicated Servers (With DedLoad ON) and Servers( COOP server) and SOLO Clients load at ZoneSystem.Start [HarmonyPriority(Priority.High)]
+
+Connecting Clients load at Game._RequestRespawn [HarmonyPriority(Priority.Low)] ( always consistent is pretty important)
+
+Console wackydb_reload /_fast - always reload immediately. 
+
+Anyway, it's hard to find a good spot so that you touch all base objects and not too late to add the clones.
+
+</br>
 
 </details>
 
@@ -355,7 +374,7 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 
 - `customVisual` (CustomVisual): The custom visual data of the item.
-- `sizeMultiplier` (float): The size multiplier of the item. You can go from .01 to 1000.5 if you want. Have fun!****
+- `sizeMultiplier` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x,y,z like "1.23,3.0,2" or a singular value "2.0"  Have fun
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
 
 ![LongSwordBlueRed](https://wackymole.com/hosts/snapshotGoes.png)
@@ -574,7 +593,7 @@ To delete all existing Damage modifiers
 - `name` (string, required): The name of the piece.
 - `piecehammer` (string, required): The piece hammer required to build the piece.
 - `m_name` (string): The In Game Piece Name
-- `sizeMultiplier` (float): The size multiplier of the piece. Any float range 1.0 is normal size, 2.0 is v^3
+- `sizeMultiplier` (string): The size multiplier of the piece. Any float range 1.0 is normal size. You can specify x,y,z like "1.23,3.0,2" or a singular value "2.0"
 - `m_description` (string): The description of the piece.
 - `customIcon` (string): The custom icon for the piece. PNG or JPEG, 64 x 64, Must be in Icon Folder (Icons do not Synced)
 - `clonePrefabName` (string): The name of the prefab to clone.
@@ -986,7 +1005,7 @@ Planned features
 - [x] Able to change the size of anything
 Wackymole
 
-</details>
+</details>****
 
 ****
 
@@ -1008,6 +1027,7 @@ Wackymole
 | 2.1.0 | Bug fix, changed color on messages from lime to red
 | 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of > 1
 | 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented). </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
+| 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang.</br> Updated Refs for new Bepinex </br> Changed loading order again
 
 
 </details>
@@ -1066,4 +1086,5 @@ Known issues: </br>
  Snapshot pieces still disabled
  </br> 
  Creature material is not working
+****
 ****
