@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.1.3
+Version: 2.1.4
 Features
 
 
@@ -17,7 +17,7 @@ Features
     Mainscreen cloned items
     Water Resistance is back
     Slow Reload!
-    Visuals Modifier by Rexabit!****
+    Visuals Modifier by Rexabit!
     Seteffect by Azu!
     Basic Creature cloning or replacing/renaming
     Most components can be removed from YAML
@@ -38,10 +38,10 @@ YML Knowledge
 
     Almost every component of items/pieces/recipes/effects/creatures can be deleted.
 
-    Some components are multilined where you can actually add your own stuff the ymls.********
+    Some components are multilined where you can actually add your own stuff the ymls.
 
 <details><summary>Installation</summary>
-### Installation****
+### Installation
 
     Download and extract the latest version of WackysDatabase into the BepInEx plugin folder (usually Valheim/BepInEx/plugins).
     Run Valheim and join a world.
@@ -146,6 +146,9 @@ Frequently Asked Questions
 
     Q:  On an item "name" is the prefab name, "m_name" is the in game name? Then on recipes, "name" is the name of the prefab item name?
         A: Correct on both. For cloned recipes, it looks at cloneprefabname, recipe name needs to be unique
+
+    Q: I can't repair spawned in Cloned items, how do I fix?
+        A: Repairstation is set in the recipe, make a cloned recipe, and set to disable or change a req to SwordCheat.
 
 </details>
 
@@ -269,7 +272,7 @@ Too early and you won't get the files from the server/ Too late and you miss out
 
 Cache clones are loaded in ZNetScene.Awake and ObjectDB.awake
 
-Dedicated Servers (With DedLoad ON) and Servers( COOP server) and SOLO Clients load at ZoneSystem.Start [HarmonyPriority(Priority.High)]
+Dedicated Servers (With DedLoad ON) and Servers( COOP server) and SOLO Clients load at ZoneSystem.Start [HarmonyPriority(Priority.HigherThanNormal)]
 
 Connecting Clients load at Game._RequestRespawn [HarmonyPriority(Priority.Low)] ( always consistent is pretty important)
 
@@ -374,7 +377,7 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 
 - `customVisual` (CustomVisual): The custom visual data of the item.
-- `sizeMultiplier` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x,y,z like "1.23,3.0,2" or a singular value "2.0"  Have fun
+- `sizeMultiplier` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
 
 ![LongSwordBlueRed](https://wackymole.com/hosts/snapshotGoes.png)
@@ -593,7 +596,7 @@ To delete all existing Damage modifiers
 - `name` (string, required): The name of the piece.
 - `piecehammer` (string, required): The piece hammer required to build the piece.
 - `m_name` (string): The In Game Piece Name
-- `sizeMultiplier` (string): The size multiplier of the piece. Any float range 1.0 is normal size. You can specify x,y,z like "1.23,3.0,2" or a singular value "2.0"
+- `sizeMultiplier` (string): The size multiplier of the piece. Any float range 1.0 is normal size. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"
 - `m_description` (string): The description of the piece.
 - `customIcon` (string): The custom icon for the piece. PNG or JPEG, 64 x 64, Must be in Icon Folder (Icons do not Synced)
 - `clonePrefabName` (string): The name of the prefab to clone.
@@ -923,6 +926,7 @@ This system is not well tested, so please give me feedback and submit bug report
 
 <details><summary> 1.xx ChangeLog</summary>
         
+
         Version 1.4.2
             Had to disable Piece snapshot because of hovering pieces stacking up on each other, hopefully someone fixes it someday.
             You might have to destroy the existing pieces at (0,0) with infinity hammer quite a lot depending on reloads and players joining.    
@@ -995,39 +999,38 @@ Planned features
 - [x] Able to modify item data.
 - [x] Able to modify recipes.
 - [x] Able to modify pieces.
-- [x] Able to modify materials on clones****
-- [x] Custom items/pieces****
-- [x] Custom recipes**
-- [x] Able to modify Set effects **
+- [x] Able to modify materials on clones
+- [x] Custom items/pieces
+- [x] Custom recipes
+- [x] Able to modify Set effects
 - [x] Cloned Items show up on MainScreen
 - [x] Adjust attack values of items
 - [x] Able to add or remove conversions on smelter pieces
 - [x] Able to change the size of anything
 Wackymole
 
-</details>****
-
-****
+</details>
 
 
 <details><summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
 
-| Version | Changes                                                                                                                                                                                                        ****                                                                                                                        |
+| Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 2.0.0 | 2.0.0 - Lots of betas <br/>
 | 2.0.1 | First Release of 2.0 <br/>
 | 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
 | 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
-| 2.0.4 | Added ConsumableStatusEffect **to** items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
+| 2.0.4 | Added ConsumableStatusEffect to items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
 | 2.0.5 | Bug fix for a cache item error on updateitemhash. 
 | 2.0.6 | Big bug fix for servers. Moved main loading to an even later point. Added SizeMultiplier to cache, for extra sized cached weapons. 
 | 2.0.7 | Fixed effects not following you. </br> Add beehive data to pieces. </br> Fix for dedicated servers not loading data. Moved up reload for dedicated servers. </br> Changed log messages, added more warnings.</br> Added more checks for cloned cache. </br> Fix for mock items.
 | 2.0.8 | Updated ServerSync, Piecemanger, Patch update for 217.24 </br> Fix bug for recipes consuming resources twice. 
-| 2.0.9 | Bug Fix****
+| 2.0.9 | Bug Fix
 | 2.1.0 | Bug fix, changed color on messages from lime to red
 | 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of > 1
 | 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented). </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
 | 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang.</br> Updated Refs for new Bepinex </br> Changed loading order again
+| 2.1.4 | Happy Halloween, this update is for the spooky people that use "," as decimal delimiters, resulting in crazy big sizes of items/pieces. </br> SizeMultiplier is now seperated with "|" </br> Updated a Priority for loading
 
 
 </details>
@@ -1037,10 +1040,10 @@ Wackymole
 
 For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus) or my discord at [Wolf Den](https://discord.gg/yPj7xjs3Xf)
 
-Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole****
+Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole
 
 <a href="https://www.buymeacoffee.com/WackyMole" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-****
+
 <a href='https://ko-fi.com/H2H6LL5GA' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 <img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
@@ -1070,7 +1073,7 @@ Credits:
 Aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
 Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
 Also thanks to Blaxx and Azu for code like Snapshot and Piece Categories. </br>
-Thanks to the Odin Discord server, for being active and good for the valheim community.</br>****
+Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
 An extra thank you to Azumatt and the Odin team. </br>
 Special thank you to @KG for Mock System </br>
@@ -1086,5 +1089,3 @@ Known issues: </br>
  Snapshot pieces still disabled
  </br> 
  Creature material is not working
-****
-****

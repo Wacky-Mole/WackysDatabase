@@ -1030,7 +1030,7 @@ Wackymole
 | 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of > 1
 | 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented). </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
 | 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang.</br> Updated Refs for new Bepinex </br> Changed loading order again
-| 2.1.4 | Happy Halloween, this update is for the spooky people that use "," as decimal delimiters, resulting in crazy big sizes of items/pieces. </br> SizeMultiplier is now seperated with "|" </br> Updated a Priority for loading
+| 2.1.4 | Happy Halloween, this update is for the spooky people that use "," as decimal delimiters, resulting in crazy big sizes of items/pieces. </br> SizeMultiplier is now seperated with \| </br> Updated a Priority for loading
 
 
 </details>
@@ -1050,7 +1050,7 @@ Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wacky
 
 </details> 
 
-<details><summary> Last notes</summary>****
+<details><summary> Last notes</summary>
 
 ## Last notes:
 
@@ -1073,7 +1073,7 @@ Credits:
 Aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
 Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
 Also thanks to Blaxx and Azu for code like Snapshot and Piece Categories. </br>
-Thanks to the Odin Discord server, for being active and good for the valheim community.</br>****
+Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
 CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
 An extra thank you to Azumatt and the Odin team. </br>
 Special thank you to @KG for Mock System </br>
