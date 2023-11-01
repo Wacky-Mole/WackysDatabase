@@ -27,6 +27,10 @@ using static ClutterSystem;
 using static EffectList;
 using System.Diagnostics.Eventing.Reader;
 using YamlDotNet.Core.Tokens;
+using System.Globalization;
+using System.Threading;
+
+
 
 namespace wackydatabase.SetData
 {
@@ -884,12 +888,13 @@ namespace wackydatabase.SetData
 
             if (data.sizeMultiplier != null)
             {
-                var splitd = data.sizeMultiplier.Split(',').ToList();
+                var splitd = data.sizeMultiplier.Split('|').ToList();
                 var count = splitd.Count;
                 List<float> list = new List<float>();
                 foreach (string m in splitd)
                 {
-                    if (float.TryParse(m, out float s))
+                    m.Replace(",", ".");
+                    if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s ))
                         list.Add(s);
 
                 }
@@ -1317,12 +1322,13 @@ namespace wackydatabase.SetData
                 Instant.m_itemByHash.Add(hash, newItem);
 
                 if (data.sizeMultiplier != null) { 
-                    var splitd = data.sizeMultiplier.Split(',').ToList();
+                    var splitd = data.sizeMultiplier.Split('|').ToList();
                     var count = splitd.Count;
                     List<float> list = new List<float>();
                     foreach (string m in splitd)
                     {
-                        if (float.TryParse(m, out float s))
+                        m.Replace(",", ".");
+                        if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s))
                             list.Add(s);
                         
                     }
@@ -1717,12 +1723,13 @@ namespace wackydatabase.SetData
 
                     if (data.sizeMultiplier != null)
                     {
-                        var splitd = data.sizeMultiplier.Split(',').ToList();
+                        var splitd = data.sizeMultiplier.Split('|').ToList();
                         var count = splitd.Count;
                         List<float> list = new List<float>();
                         foreach (string m in splitd)
                         {
-                            if (float.TryParse(m, out float s))
+                            m.Replace(",", ".");
+                            if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s))
                                 list.Add(s);
 
                         }

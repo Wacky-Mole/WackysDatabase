@@ -54,7 +54,7 @@ namespace wackydatabase.Startup
             }
 
         }
-        [HarmonyPriority(Priority.High)]
+        [HarmonyPriority(Priority.HigherThanNormal)]
         [HarmonyPatch(typeof(ZoneSystem), "Start")]
         static class ZoneSystemStart
         {
