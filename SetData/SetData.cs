@@ -1387,6 +1387,7 @@ namespace wackydatabase.SetData
                 }
                 WMRecipeCust.ClonedI.Add(tempname); 
                 data.name = tempname; // putting back name
+                WMRecipeCust.ClonedPrefabsMap.Add(data.name, data.clonePrefabName); // cache map of source prefab for each clone
                 return newItem;                   
             }
             return null;

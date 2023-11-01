@@ -107,6 +107,7 @@ namespace wackydatabase
         public static List<string> ClonedI = new List<string>(); // items
         public static List<string> ClonedINoZ = new List<string>(); // items No Znet // not used
         public static Dictionary<string, GameObject> MasterCloneList = new Dictionary<string, GameObject>();
+        public static readonly Dictionary<string, string> ClonedPrefabsMap = new();
         public static List<string> ClonedP = new List<string>(); // pieces
         public static List<string> ClonedR = new List<string>(); // recipes
         public static List<string> ClonedE = new List<string>(); // effects
