@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
+
 using System.Threading.Tasks;
+
 using UnityEngine.SceneManagement;
 using BepInEx;
 using BepInEx.Configuration;
@@ -30,15 +32,12 @@ using YamlDotNet.Core.Tokens;
 using System.Globalization;
 using System.Threading;
 
-
-
 namespace wackydatabase.SetData
 {
-
     [HarmonyPatch(typeof(Player), "OnSpawned")]
-    static class OverrideItemMangerOrVanil
+    internal static class OverrideItemMangerOrVanil
     {
-        static void Postfix()
+        private static void Postfix()
         {
             foreach (var pies in SetData.DisabledPieceandHam)
             {
@@ -51,7 +50,6 @@ namespace wackydatabase.SetData
                 {
                     if (pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(pies.Key))
                     {
-                        
                         pies.Value.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(pies.Key);
                     }
                 }
@@ -59,31 +57,29 @@ namespace wackydatabase.SetData
         }
     }
 
-     public class SetData
+    public class SetData
     {
-
         public static Component[] renderfinder;
         internal static Renderer[] renderfinder2;
-        internal static Dictionary<GameObject , GameObject> DisabledPieceandHam = new Dictionary<GameObject , GameObject>();
-
+        internal static Dictionary<GameObject, GameObject> DisabledPieceandHam = new Dictionary<GameObject, GameObject>();
 
         #region Effects
+
         internal static void SetStatusData(StatusData data, ObjectDB Instant)
         {
-
             var name = data.Name;
             var go = Instant.GetStatusEffect(name.GetStableHashCode());
-            if (go == null) {
+            if (go == null)
+            {
                 // create new
                 go = Instant.GetStatusEffect("SetEffect_TrollArmor".GetStableHashCode());// cloned
                 //WMRecipeCust.WLog.LogDebug($"Item CLONE DATA in SetItemData for {tempname} from cache ");
                 WMRecipeCust.ClonedE.Add(name);
-                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
+                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
                 StatusEffect newStatus = WMRecipeCust.Instantiate(go, RootT, false);
                 newStatus.name = name;
                 ObjectDB.instance.m_StatusEffects.Add(newStatus);
                 go = Instant.GetStatusEffect(name.GetStableHashCode());
-
             }
             go.m_name = data.Status_m_name ?? go.m_name;
             go.m_category = data.Category ?? go.m_category;
@@ -121,10 +117,9 @@ namespace wackydatabase.SetData
 
             if (data.StopEffect_ != null)
                 go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_);
-            
+
             go.m_cooldown = data.Cooldown ?? go.m_cooldown;
             go.m_activationAnimation = data.ActivationAnimation ?? go.m_activationAnimation;
-
 
             Type type = go.GetType();
 
@@ -156,7 +151,6 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_skillLevel2", null, null, null, null, data.SeData.m_skillLevel2);
             Functions.setValue(type, go, "m_skillLevelModifier2", data.SeData.m_skillLevelModifier2);
 
-
             Functions.setValue(type, go, "m_mods", null, null, null, data.SeData.m_mods);
 
             Functions.setValue(type, go, "m_modifyAttackSkill", null, null, null, null, data.SeData.m_modifyAttackSkill);
@@ -177,15 +171,10 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_healthOverTimeTickHP", data.SeData.m_healthOverTimeTickHP);
         }
 
-
-
-        #endregion
-
-
-
-
+        #endregion Effects
 
         #region Recipe
+
         internal static void SetRecipeData(RecipeData data, ObjectDB Instant)
         {
             bool skip = false;
@@ -213,7 +202,6 @@ namespace wackydatabase.SetData
             GameObject go = DataHelpers.CheckforSpecialObjects(searchname);// check for special cases
             if (go == null)
                 go = Instant.GetItemPrefab(searchname);
-
 
             Recipe ActualR = null;
             if (go == null)
@@ -244,15 +232,13 @@ namespace wackydatabase.SetData
                 } // it is a prefab and it is an item.
             }
 
-
             if (!data.disabled ?? true)
             {
                 Recipe RecipeR = null;
 
                 if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)// only first time clone
                 {
-
-                    WMRecipeCust.Dbgl($"Setting Cloned Recipe for {tempname}" );
+                    WMRecipeCust.Dbgl($"Setting Cloned Recipe for {tempname}");
                     RecipeR = ScriptableObject.CreateInstance<Recipe>();
                     WMRecipeCust.ClonedR.Add(tempname);
                 }
@@ -268,13 +254,14 @@ namespace wackydatabase.SetData
                             break;
                         }
                     }
-                } else if (ActualR != null)
+                }
+                else if (ActualR != null)
                 {
                     WMRecipeCust.Dbgl($"An actual Recipe for {searchname}");
                     RecipeR = ActualR;
                     RecipeR.m_enabled = true;
                 }
-                else // in game recipe 
+                else // in game recipe
                 {
                     WMRecipeCust.Dbgl("Setting Recipe for " + tempname);
                     for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
@@ -287,7 +274,6 @@ namespace wackydatabase.SetData
                         }
                     }
                 }
-
 
                 if (RecipeR == null)
                 {
@@ -354,8 +340,6 @@ namespace wackydatabase.SetData
                     }
                 }// foreach
 
-
-
                 int index = 0;
                 RecipeR.m_resources = reqs.ToArray();
 
@@ -388,7 +372,6 @@ namespace wackydatabase.SetData
                             break;
                         }
                     }
-
                 }
                 else if (!skip && !string.IsNullOrEmpty(data.clonePrefabName))
                 { // never added so need to disable
@@ -407,26 +390,15 @@ namespace wackydatabase.SetData
                         {
                             Instant.m_recipes[i].m_enabled = false;
                             WMRecipeCust.Dbgl("Recipe is disabled for " + tempname);
-
-
                         }
                     }
                 }
             }
         }
 
-
-
-
-        #endregion
-
-
-
-
+        #endregion Recipe
 
         #region Piece
-
-
 
         internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant, GameObject[] AllObjects = null, bool cloneonly = false)
         {
@@ -465,7 +437,7 @@ namespace wackydatabase.SetData
                         {
                             WMRecipeCust.WLog.LogWarning($"Piece {data.name} not found! 4 layer search");
                             return;
-                        }                                               
+                        }
                     }
                     else // 2nd layer
                         WMRecipeCust.Dbgl($"Piece {data.name} from known hammer {WMRecipeCust.selectedPiecehammer}"); // selected piecehammer is set in GetModdedPieces!
@@ -486,7 +458,7 @@ namespace wackydatabase.SetData
                 }
 
                 WMRecipeCust.Dbgl($"Piece being set {tempname} is CLONE of {data.clonePrefabName}");
-                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
+                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
                 GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
                 Piece NewItemComp = newItem.GetComponent<Piece>();
 
@@ -535,7 +507,7 @@ namespace wackydatabase.SetData
                             { NewItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
                             catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                         }
-                       // piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
+                        // piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
                         WMRecipeCust.selectedPiecehammer.m_pieces.Add(newItem);
                     }
                     else if (WMRecipeCust.selectedPiecehammer == null)
@@ -550,7 +522,6 @@ namespace wackydatabase.SetData
                     {
                         if (!string.IsNullOrEmpty(data.piecehammerCategory))
                         {
-           
                             try
                             { PieceManager.BuildPiece.BuildTableConfigChangedWacky(NewItemComp, data.piecehammerCategory); }
                             catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
@@ -584,14 +555,11 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
             } // end clone 1st pass
 
-
-
             if (!string.IsNullOrEmpty(data.material) || !string.IsNullOrEmpty(data.damagedMaterial)) // allows changing of any piece
             {
                 WMRecipeCust.Dbgl($"Material name searching for {data.material} for piece {data.name}"); // need to take in account worn at %50
                 try
                 {
-
                     renderfinder = go.GetComponentsInChildren<Renderer>();
                     renderfinder2 = go.GetComponentsInChildren<Renderer>(true); // include inactives
                     if (data.material.Contains("same_mat") || data.material.Contains("no_wear"))
@@ -631,11 +599,9 @@ namespace wackydatabase.SetData
                                 if (renderitem.receiveShadows)
                                     renderitem.material = mat;
                             }
-
                         }
                         else
                         {
-
                             Material mat = WMRecipeCust.originalMaterials[data.material];
                             foreach (Renderer renderitem in renderfinder2)
                             {
@@ -644,13 +610,10 @@ namespace wackydatabase.SetData
                                     renderitem.material = mat;
                                 }
                             }
-
                         }
                     }
                 }
                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
-
-
             } // mats
 
             bool usecustom = false;
@@ -664,11 +627,9 @@ namespace wackydatabase.SetData
                     {
                         try
                         {
-
                             var Spri = SpriteTools.LoadNewSprite(pathI);
                             go.GetComponent<Piece>().m_icon = Spri;
                             usecustom = true;
-
                         }
                         catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
                     }
@@ -683,17 +644,14 @@ namespace wackydatabase.SetData
                 }
             }
 
-
             if (!DataHelpers.ECheck(data.material) && !usecustom)
             {
-
                 try
                 {
-                  //  Functions.SnapshotPiece(go); // snapshot go
+                    //  Functions.SnapshotPiece(go); // snapshot go
                 }
                 catch { WMRecipeCust.WLog.LogInfo("Piece snapshot  failed"); }
             }
-
 
             if (data.craftingStation != null)
             {
@@ -720,11 +678,11 @@ namespace wackydatabase.SetData
                         piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go); // if piecehammer is the actual item and not the PieceTable
                     }
                     else if (ItemComp.m_category != PieceManager.PiecePrefabManager.GetCategory(data.piecehammerCategory))// (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory))
-                    { // now disable old 
+                    { // now disable old
                         WMRecipeCust.Dbgl($"Category change has been detected for {data.name}, disabling old piece and setting new piece location");
                         if (piecehammer == null)
                         {
-                            if (WMRecipeCust.selectedPiecehammer == null) // selectedPiecehammer is set in 
+                            if (WMRecipeCust.selectedPiecehammer == null) // selectedPiecehammer is set in
                             {
                                 piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
                                 piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
@@ -783,22 +741,24 @@ namespace wackydatabase.SetData
 
             if (data.disabled ?? false)
             {
-                if (WMRecipeCust.IsDedServer) {
+                if (WMRecipeCust.IsDedServer)
+                {
                     WMRecipeCust.Dbgl($"Disabling the Piece {data.name} for users, not dedicated server");
-                } else {
-                        GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
-                        if (piecehammer == null)
-                            piecehammer = WMRecipeCust.selectedPiecehammer.gameObject;
-                        WMRecipeCust.Dbgl($"Disabling Piece {data.name} with hammer {piecehammer}");
+                }
+                else
+                {
+                    GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
+                    if (piecehammer == null)
+                        piecehammer = WMRecipeCust.selectedPiecehammer.gameObject;
+                    WMRecipeCust.Dbgl($"Disabling Piece {data.name} with hammer {piecehammer}");
 
-                        if (piecehammer.TryGetComponent<PieceTable>(out var table))
-                        {
-                            table.m_pieces.Remove(go);
+                    if (piecehammer.TryGetComponent<PieceTable>(out var table))
+                    {
+                        table.m_pieces.Remove(go);
 
-                            if (!DisabledPieceandHam.ContainsKey(go))
-                                DisabledPieceandHam.Add(go, piecehammer);
-                        }
-                
+                        if (!DisabledPieceandHam.ContainsKey(go))
+                            DisabledPieceandHam.Add(go, piecehammer);
+                    }
                     else
                     {
                         if (piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(go))
@@ -820,8 +780,8 @@ namespace wackydatabase.SetData
 
                 go.GetComponent<Piece>().m_enabled = true;
 
-                if (piecehammer == null || data.piecehammer == "_CultivatorPieceTable") { 
-                
+                if (piecehammer == null || data.piecehammer == "_CultivatorPieceTable")
+                {
                 } // no change?
                 else
                 {
@@ -858,13 +818,10 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl($"  new CraftingStation named {data.name} ");
             }
 
-
-
             if (data.minStationLevel > 1)
             {
                 WMRecipeCust.pieceWithLvl.Add(go.name + "." + data.minStationLevel);
             }
-
 
             if (data.build != null)
             {
@@ -894,9 +851,8 @@ namespace wackydatabase.SetData
                 foreach (string m in splitd)
                 {
                     m.Replace(",", ".");
-                    if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s ))
+                    if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s))
                         list.Add(s);
-
                 }
                 if (count == 1)
                 {
@@ -905,7 +861,6 @@ namespace wackydatabase.SetData
                         Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
                         go.transform.localScale = NewScale;
                     }
-
                 }
                 else if (count == 2)
                 {
@@ -950,7 +905,6 @@ namespace wackydatabase.SetData
                 wear.m_triggerPrivateArea = data.wearNTearData.triggerPrivateArea ?? wear.m_triggerPrivateArea;
             }
 
-
             if (data.craftingStationData != null)
             {
                 go.TryGetComponent<CraftingStation>(out var station);
@@ -963,8 +917,6 @@ namespace wackydatabase.SetData
                 station.m_showBasicRecipies = data.craftingStationData.showBasicRecipes ?? station.m_showBasicRecipies;
                 station.m_useDistance = data.craftingStationData.useDistance ?? station.m_useDistance;
                 station.m_useAnimation = data.craftingStationData.useAnimation ?? station.m_useAnimation;
-
-
             }
             if (data.cSExtensionData != null)
             {
@@ -975,7 +927,6 @@ namespace wackydatabase.SetData
                 ex.m_maxStationDistance = data.cSExtensionData.maxStationDistance ?? ex.m_maxStationDistance;
                 ex.m_continousConnection = data.cSExtensionData.continousConnection ?? ex.m_continousConnection;
                 ex.m_stack = data.cSExtensionData.stack ?? ex.m_stack;
-
             }
 
             if (data.contData != null)
@@ -984,7 +935,6 @@ namespace wackydatabase.SetData
                 cont.m_autoDestroyEmpty = data.contData.AutoDestoryIfEmpty ?? cont.m_autoDestroyEmpty;
                 cont.m_height = data.contData.Height ?? cont.m_height;
                 cont.m_width = data.contData.Width ?? cont.m_width;
-
             }
 
             if (data.sapData != null)
@@ -1013,10 +963,9 @@ namespace wackydatabase.SetData
                 sap.m_drainingSlowText = data.sapData.drainingSlowText;
                 sap.m_notConnectedText = data.sapData.notConnectedText;
                 sap.m_fullText = data.sapData.fullText;
-
             }
 
-            if (data.fermStationData  != null)
+            if (data.fermStationData != null)
             {
                 go.TryGetComponent<Fermenter>(out var ferm);
 
@@ -1038,11 +987,10 @@ namespace wackydatabase.SetData
                                 conversion.m_to = Instant.GetItemPrefab(conv.ToName).GetComponent<ItemDrop>();
 
                             conversion.m_producedItems = conv.Amount ?? conversion.m_producedItems;
-
                         }
                         ferm.m_conversion.Add(conversion);
                     }
-                }              
+                }
             }
 
             if (data.beehiveData != null)
@@ -1068,7 +1016,6 @@ namespace wackydatabase.SetData
                 Bee.m_freespaceText = data.beehiveData.freespaceText ?? Bee.m_freespaceText;
                 Bee.m_sleepText = data.beehiveData.sleepText ?? Bee.m_sleepText;
                 Bee.m_happyText = data.beehiveData.happyText ?? Bee.m_happyText;
-
             }
 
             if (data.cookingStationData != null)
@@ -1098,7 +1045,7 @@ namespace wackydatabase.SetData
                     {
                         CookingStation.ItemConversion paul = new CookingStation.ItemConversion();
 
-                        //smelt.m_conversion[0].; // has to have 1 set before 
+                        //smelt.m_conversion[0].; // has to have 1 set before
                         if (list != null)
                         {
                             if (list.FromName != null)
@@ -1141,7 +1088,6 @@ namespace wackydatabase.SetData
                 smelt.m_requiresRoof = data.smelterData.requiresRoof ?? smelt.m_requiresRoof;
                 smelt.m_addOreAnimationDuration = data.smelterData.addOreAnimationLength ?? smelt.m_addOreAnimationDuration;
 
-
                 if (data.smelterData.smelterConversion != null)
                 {
                     smelt.m_conversion.Clear();
@@ -1149,7 +1095,7 @@ namespace wackydatabase.SetData
                     {
                         Smelter.ItemConversion paul = new Smelter.ItemConversion();
 
-                        //smelt.m_conversion[0].; // has to have 1 set before 
+                        //smelt.m_conversion[0].; // has to have 1 set before
                         if (list != null)
                         {
                             if (list.FromName != null)
@@ -1170,16 +1116,12 @@ namespace wackydatabase.SetData
             }
         }
 
-
-        #endregion
-
-
+        #endregion Piece
 
         #region Items
 
-        internal static GameObject SetClonedItemsDataCache(WItemData data, ObjectDB Instant, bool WithZDO =false) // need to add mock items as well I guess
+        internal static GameObject SetClonedItemsDataCache(WItemData data, ObjectDB Instant, bool WithZDO = false) // need to add mock items as well I guess
         {
-
             bool skip = false;
             bool skipmock = false;
             foreach (var citem in WMRecipeCust.ClonedI)
@@ -1194,12 +1136,11 @@ namespace wackydatabase.SetData
                     skipmock = true;
             }
 
-            
             if (data.mockName != null && !skipmock)
             {
                 if (ObjModelLoader._loadedModels.ContainsKey(data.mockName))
                 {
-                    WMRecipeCust.Dbgl("Mock Model is loaded" + data.name);                   
+                    WMRecipeCust.Dbgl("Mock Model is loaded" + data.name);
                     LayerMask itemLayer = LayerMask.NameToLayer("item");
                     GameObject inactive = new GameObject("Inactive_MockerBase");
                     inactive.SetActive(false);
@@ -1208,7 +1149,6 @@ namespace wackydatabase.SetData
                     ItemDrop itemDrop = newObj.GetComponent<ItemDrop>();
                     itemDrop.name = data.name;
                     itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "Cube";
-
 
                     if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                     {
@@ -1236,7 +1176,6 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"Item {data.name} searching for mat {data.material}");
                         try
                         {
-
                             if (data.material.Contains(','))
                             {
                                 renderfinder = newObj.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
@@ -1273,8 +1212,6 @@ namespace wackydatabase.SetData
                 }
             }
 
-
-
             if (!skip)
             {
                 string tempname = data.name;
@@ -1310,7 +1247,7 @@ namespace wackydatabase.SetData
                 ItemDrop.ItemData PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData;
 
                 WMRecipeCust.Dbgl($"Item CLONE {tempname} from cache ");
-                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
+                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
                 GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
                 ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
 
@@ -1321,7 +1258,8 @@ namespace wackydatabase.SetData
                 Instant.m_items.Add(newItem);
                 Instant.m_itemByHash.Add(hash, newItem);
 
-                if (data.sizeMultiplier != null) { 
+                if (data.sizeMultiplier != null)
+                {
                     var splitd = data.sizeMultiplier.Split('|').ToList();
                     var count = splitd.Count;
                     List<float> list = new List<float>();
@@ -1330,7 +1268,6 @@ namespace wackydatabase.SetData
                         m.Replace(",", ".");
                         if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s))
                             list.Add(s);
-                        
                     }
                     if (count == 1)
                     {
@@ -1339,13 +1276,13 @@ namespace wackydatabase.SetData
                             Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
                             newItem.transform.GetChild(0).localScale = NewScale;
                         }
-
-                    } else if (count == 2)
+                    }
+                    else if (count == 2)
                     {
                         Vector3 NewScale = new Vector3(list[0], list[1], 1f);
                         newItem.transform.GetChild(0).localScale = NewScale;
                     }
-                    else 
+                    else
                     {
                         Vector3 NewScale = new Vector3(list[0], list[1], list[2]);
                         newItem.transform.GetChild(0).localScale = NewScale;
@@ -1357,7 +1294,6 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($"Item {tempname} searching for mat {data.material}");
                     try
                     {
-                                    
                         if (data.material.Contains(','))
                         {
                             renderfinder = newItem.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
@@ -1385,15 +1321,13 @@ namespace wackydatabase.SetData
                     }
                     catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
                 }
-                WMRecipeCust.ClonedI.Add(tempname); 
+                WMRecipeCust.ClonedI.Add(tempname);
                 data.name = tempname; // putting back name
                 WMRecipeCust.ClonedPrefabsMap.Add(data.name, data.clonePrefabName); // cache map of source prefab for each clone
-                return newItem;                   
+                return newItem;
             }
             return null;
         }
-
-
 
         internal static void SetItemData(WItemData data, ObjectDB Instant, GameObject[] AllObjects = null, bool ZnetNow = true)
         {
@@ -1415,7 +1349,7 @@ namespace wackydatabase.SetData
                 {
                     WMRecipeCust.Dbgl("Mock Model is loaded" + data.name);
                     mock = true;
-                    
+
                     foreach (var citem in WMRecipeCust.MockI)
                     {
                         if (citem == data.name)
@@ -1433,10 +1367,9 @@ namespace wackydatabase.SetData
                         itemDrop.name = data.name;
                         itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "Cube";
 
-
                         if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
-                           // WMRecipeCust.Dbgl("Mock Model is loading part 2 " + data.name);
+                            // WMRecipeCust.Dbgl("Mock Model is loading part 2 " + data.name);
                             newObj.transform.Find("Cube").gameObject.SetActive(false);
                             var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
                             newModel.SetActive(true);
@@ -1450,7 +1383,6 @@ namespace wackydatabase.SetData
                         }
                         else
                         {
-                            
                             WMRecipeCust.Dbgl("New Mock failed for some reason" + data.name);
                             return;
                         }
@@ -1492,7 +1424,6 @@ namespace wackydatabase.SetData
                             ZNetScene.instance.m_namedPrefabs[data.name.GetStableHashCode()] = newObj;
                             WMRecipeCust.MockI.Add(data.name);
                             newObj.SetActive(true);
-                            
 
                             if (string.IsNullOrEmpty(data.customIcon))
                             {
@@ -1508,7 +1439,6 @@ namespace wackydatabase.SetData
                         {
                             WMRecipeCust.Dbgl("New Mock Model with an existing Gameobject, doesn't work right now, please create name for mock item " + data.name);
                         }
-
                     }
                     ///skip to normal editing
                 }
@@ -1526,20 +1456,19 @@ namespace wackydatabase.SetData
                 data.name = data.clonePrefabName;
             }
 
-
             GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
             if (go == null)
                 go = Instant.GetItemPrefab(data.name); // normal check
 
-            if(go == null && !string.IsNullOrEmpty(data.clonePrefabName))
-            {            
+            if (go == null && !string.IsNullOrEmpty(data.clonePrefabName))
+            {
                 go = Instant.GetItemPrefab(data.clonePrefabName);
-                if(go != null)
+                if (go != null)
                 {
                     WMRecipeCust.WLog.LogWarning($"Last ditch effort to catch {data.name} worked, restoring clone");
                     skip = false;
                     WMRecipeCust.ClonedI.Remove(data.name);
-                    data.name = data.clonePrefabName;                  
+                    data.name = data.clonePrefabName;
                 }
             }
 
@@ -1559,7 +1488,6 @@ namespace wackydatabase.SetData
                 return;
             }
 
-
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
                 if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) // Not sure why I am doing this, New Items with the Same name wouldn't make sense in Object DB Should Probably Just change it to GetItemPrefab
@@ -1575,11 +1503,10 @@ namespace wackydatabase.SetData
 
                         WMRecipeCust.Dbgl($"Item being set is {tempname} a CLONE of {data.clonePrefabName}");
                         WMRecipeCust.ClonedI.Add(tempname);
-                        Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components. 
+                        Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
                         GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
                         ItemDrop NewItemComp = newItem.GetComponent<ItemDrop>();
                         ItemDrop.ItemData NewItemData = newItem.GetComponent<ItemDrop.ItemData>();
-
 
                         NewItemComp.name = tempname; // added and seems to be the issue
                         newItem.name = tempname; // resets the orginal name- needs to be unquie
@@ -1605,7 +1532,7 @@ namespace wackydatabase.SetData
                                 znet.m_namedPrefabs.Add(hash, newItem);
                                 WMRecipeCust.Dbgl($"Added prefab {name}");
                             }
-                            znet.m_namedPrefabs[hash].gameObject.SetActive( false ); //why?
+                            znet.m_namedPrefabs[hash].gameObject.SetActive(false); //why?
                         }
 
                         //ObjectDB.instance.UpdateItemHashes();
@@ -1615,7 +1542,6 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_dropPrefab = go;
                         data.name = tempname; // putting back name
                         go.SetActive(true);
-
                     } // end clone creation
                     if (skip || mockskip)
                     {
@@ -1646,12 +1572,12 @@ namespace wackydatabase.SetData
                             {
                                 if (WMRecipeCust.originalMaterials.TryGetValue(data.material, out Material mat))
                                 {
-
                                     foreach (Renderer r in PrefabAssistant.GetRenderers(go))
                                     {
                                         PrefabAssistant.UpdateMaterialReference(r, mat);
                                     }
-                                }else
+                                }
+                                else
                                 {
                                     WMRecipeCust.WLog.LogWarning(data.material + " was not found");
                                 }
@@ -1674,11 +1600,9 @@ namespace wackydatabase.SetData
                             {
                                 try
                                 {
-
                                     var Spri = SpriteTools.LoadNewSprite(pathI);
                                     ItemDr.m_itemData.m_shared.m_icons[0] = Spri;
                                     usecustom = true;
-
                                 }
                                 catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
                             }
@@ -1686,16 +1610,15 @@ namespace wackydatabase.SetData
                             {
                                 WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
                             }
-                        } else
+                        }
+                        else
                         {
                             WMRecipeCust.WLog.LogInfo($"No Img with the name {data.customIcon} in Icon Folder - ");
                         }
                     }
 
-
                     if (!DataHelpers.ECheck(data.material) && !usecustom)
                     {
-
                         try
                         {
                             Functions.SnapshotItem(ItemDr); // snapshot go
@@ -1732,7 +1655,6 @@ namespace wackydatabase.SetData
                             m.Replace(",", ".");
                             if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s))
                                 list.Add(s);
-
                         }
                         if (count == 1)
                         {
@@ -1741,7 +1663,6 @@ namespace wackydatabase.SetData
                                 Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
                                 go.transform.GetChild(0).localScale = NewScale;
                             }
-
                         }
                         else if (count == 2)
                         {
@@ -1766,7 +1687,7 @@ namespace wackydatabase.SetData
                         if (!WMRecipeCust.AttackSpeed.ContainsKey(tempname))
                         {
                             WMRecipeCust.AttackSpeed.Add(tempname, new Dictionary<bool, float>());
-                            WMRecipeCust.AttackSpeed[tempname].Add(false, 1); // Just go ahead and add both of them. 
+                            WMRecipeCust.AttackSpeed[tempname].Add(false, 1); // Just go ahead and add both of them.
                             WMRecipeCust.AttackSpeed[tempname].Add(true, 1);
                         }
                         if (data.Primary_Attack.Custom_AttackSpeed != null)
@@ -1806,7 +1727,6 @@ namespace wackydatabase.SetData
                             }
                             PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
                         }
-                            
 
                         PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
                         PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
@@ -1844,7 +1764,6 @@ namespace wackydatabase.SetData
                             PrimaryItemData.m_shared.m_attack.m_attackProjectile = found ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
                         } */ // disabled attack projectile for now
 
-
                         PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
                         PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
                         PrimaryItemData.m_shared.m_attack.m_projectiles = data.Primary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_attack.m_projectiles;
@@ -1861,7 +1780,6 @@ namespace wackydatabase.SetData
                             PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffects.Trail_Effect);
                         if (data.Primary_Attack.AEffects.Burst_Effect != null)
                             PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffects.Burst_Effect);
-
 
                         // Secondary
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackType = data.Secondary_Attack.AttackType ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackType;
@@ -1906,7 +1824,6 @@ namespace wackydatabase.SetData
                             }
                             PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
                         }
-                            
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
@@ -1926,7 +1843,6 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial = data.Secondary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
 
-
                         /*
                         if (!string.IsNullOrEmpty(data.Secondary_Attack.Attack_Projectile))
                         {
@@ -1944,7 +1860,6 @@ namespace wackydatabase.SetData
                             }
                             PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
                         } */ // disabled for now
-                            
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel = data.Secondary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
@@ -1969,7 +1884,6 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"   {data.name} Item armor ");
                         PrimaryItemData.m_shared.m_armor = data.Armor.armor ?? PrimaryItemData.m_shared.m_armor;
                         PrimaryItemData.m_shared.m_armorPerLevel = data.Armor.armorPerLevel ?? PrimaryItemData.m_shared.m_armorPerLevel;
-
                     }
                     if (data.FoodStats != null)
                     {
@@ -1985,7 +1899,6 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"   {data.name} Item movement ");
                         PrimaryItemData.m_shared.m_movementModifier = data.Moddifiers.m_movementModifier ?? PrimaryItemData.m_shared.m_movementModifier;
                         PrimaryItemData.m_shared.m_eitrRegenModifier = data.Moddifiers.m_EitrRegen ?? PrimaryItemData.m_shared.m_eitrRegenModifier;
-
                     }
                     if (data.SE_Equip != null)
                     {
@@ -1996,7 +1909,6 @@ namespace wackydatabase.SetData
                         }
                         else
                         {
-
                             WMRecipeCust.Dbgl($"   {data.name} Item equip effects ");
                             PrimaryItemData.m_shared.m_equipStatusEffect = Instant.GetStatusEffect(data.SE_Equip.EffectName.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_equipStatusEffect;
                         }
@@ -2029,7 +1941,6 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.ShieldStats.m_deflectionForcePerLevel ?? PrimaryItemData.m_shared.m_deflectionForcePerLevel;
                     }
 
-
                     PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize ?? PrimaryItemData.m_shared.m_maxStackSize;
                     PrimaryItemData.m_shared.m_canBeReparied = data.m_canBeReparied ?? PrimaryItemData.m_shared.m_canBeReparied;
                     PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken ?? PrimaryItemData.m_shared.m_destroyBroken;
@@ -2039,7 +1950,6 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus ?? PrimaryItemData.m_shared.m_backstabBonus;
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback ?? PrimaryItemData.m_shared.m_attackForce;
 
-
                     if (data.Attack_status_effect != null)
                         PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
 
@@ -2048,7 +1958,7 @@ namespace wackydatabase.SetData
                         GameObject found = null;
                         foreach (var ob in AllObjects)
                         {
-                            if(ob.name == data.spawn_on_hit)
+                            if (ob.name == data.spawn_on_hit)
                             {
                                 if (found == null)
                                     found = ob;
@@ -2057,7 +1967,7 @@ namespace wackydatabase.SetData
                                 else { }
                             }
                         }
-                        PrimaryItemData.m_shared.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_spawnOnHit;                                          
+                        PrimaryItemData.m_shared.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_spawnOnHit;
                     }
 
                     if (!string.IsNullOrEmpty(data.spawn_on_terrain_hit) && (data.spawn_on_terrain_hit != PrimaryItemData.m_shared.m_spawnOnHitTerrain?.name))
@@ -2076,7 +1986,6 @@ namespace wackydatabase.SetData
                         }
                         PrimaryItemData.m_shared.m_spawnOnHitTerrain = found ?? PrimaryItemData.m_shared.m_spawnOnHitTerrain;
                     }
-                        
 
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability ?? PrimaryItemData.m_shared.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain ?? PrimaryItemData.m_shared.m_useDurabilityDrain;
@@ -2108,20 +2017,16 @@ namespace wackydatabase.SetData
                     if (data.GEffects.Trail_Effect != null)
                         PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffects.Trail_Effect, "m_trailStartEffect");
 
-
-
-
-
                     if (!DataHelpers.ECheck(data.damageModifiers))
                     {
                         PrimaryItemData.m_shared.m_damageModifiers.Clear(); // from aedenthorn start -  thx
-                        if (data.damageModifiers[0] == "-" || data.damageModifiers[0] == "delete" || data.damageModifiers[0] == " -" ) { // clear it
+                        if (data.damageModifiers[0] == "-" || data.damageModifiers[0] == "delete" || data.damageModifiers[0] == " -")
+                        { // clear it
                             WMRecipeCust.Dbgl("     clearing dmg Modifiers");
                             //PrimaryItemData.m_shared.m_damageModifiers.Clear();
                         }
                         else
                         {
-
                             foreach (string modString in data.damageModifiers)
                             {
                                 string[] mod = modString.Split(':');
@@ -2142,12 +2047,8 @@ namespace wackydatabase.SetData
                     }
                     return;
                 }
-
-
             }
-
         }
-
 
         private static EffectList FindEffect(EffectList current, string[] userlist, string name = "")
         {
@@ -2155,7 +2056,8 @@ namespace wackydatabase.SetData
             {
                 if (current != null && current.m_effectPrefabs != null) // has existing effectlist
                 {
-                    if (userlist[0] == null) {
+                    if (userlist[0] == null)
+                    {
                         EffectList paul = new EffectList();
                         return paul;
                     }
@@ -2197,8 +2099,6 @@ namespace wackydatabase.SetData
                     {
                         EffectList.EffectData effectDataone = new EffectList.EffectData();
 
-
-
                         if (WMRecipeCust.originalVFX.TryGetValue(userEffKey, out GameObject list1))
                         {
                             effectDataone.m_prefab = list1;
@@ -2207,7 +2107,6 @@ namespace wackydatabase.SetData
                             effectDataone.m_follow = true;
                             newEffectData[count] = effectDataone;
                             count++;
-
                         }
                         else if (WMRecipeCust.originalSFX.TryGetValue(userEffKey, out GameObject list2))
                         {
@@ -2217,7 +2116,6 @@ namespace wackydatabase.SetData
                             effectDataone.m_follow = true;
                             newEffectData[count] = effectDataone;
                             count++;
-
                         }
                         else if (WMRecipeCust.originalFX.TryGetValue(userEffKey, out GameObject list3))
                         {
@@ -2227,7 +2125,6 @@ namespace wackydatabase.SetData
                             effectDataone.m_follow = true;
                             newEffectData[count] = effectDataone;
                             count++;
-
                         }
                         else if (WMRecipeCust.extraEffects.TryGetValue(userEffKey, out GameObject list4))
                         {
@@ -2242,11 +2139,9 @@ namespace wackydatabase.SetData
                         { // failure to find
                             WMRecipeCust.WLog.LogError("Didn't find effect " + userEffKey + " This will cause an error when the effect is used - please remove");
                         }
-
                     } // end of foreach
                     copy.m_effectPrefabs = newEffectData;
                     return copy;
-
                 }
                 else if (userlist.Count() > 0)
                 {
@@ -2256,7 +2151,6 @@ namespace wackydatabase.SetData
                     var count = 0;
                     foreach (var userEffe in userlist)
                     {
-
                         if (WMRecipeCust.originalVFX.TryGetValue(userEffe, out GameObject list1))
                         {
                             effectData[count].m_prefab = list1;
@@ -2278,7 +2172,8 @@ namespace wackydatabase.SetData
                             effectData[count].m_enabled = true;
                             effectData[count].m_follow = true;
                             count++;
-                        }else if (WMRecipeCust.extraEffects.TryGetValue(userEffe, out GameObject list4))
+                        }
+                        else if (WMRecipeCust.extraEffects.TryGetValue(userEffe, out GameObject list4))
                         {
                             effectData[count].m_prefab = list4;
                             effectData[count].m_enabled = true;
@@ -2292,16 +2187,13 @@ namespace wackydatabase.SetData
                     }
                     effectList.m_effectPrefabs = effectData;
                     return effectList;
-
                 }
                 else { return current; }
             }
             catch (System.Exception e) { WMRecipeCust.WLog.LogWarning($"Effect {name} had problems  {e.Message}"); return current; }
         }
 
-        #endregion
-
-
+        #endregion Items
 
         #region Creatures
 
@@ -2319,14 +2211,11 @@ namespace wackydatabase.SetData
                     skip = true;
             }
 
-
             foreach (var citem in WMRecipeCust.ClonedCR)
             {
                 if (citem == data.name)
                     skipReplacer = true;
             }
-
-
 
             foreach (GameObject obj in arrayCreature) // clone
             {
@@ -2342,7 +2231,6 @@ namespace wackydatabase.SetData
                     ZNetScene znet = ZNetScene.instance;
                     if (znet)
                     {
-
                         string name = clonecreature.name;
                         var hash = clonecreature.name.GetStableHashCode();
                         if (znet.m_namedPrefabs.ContainsKey(hash))
@@ -2366,7 +2254,6 @@ namespace wackydatabase.SetData
                     currentCreature = clonecreature;
 
                     //return; // end loop
-
                 } // end clone
 
                 if (obj.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid high1) // replacer
@@ -2387,19 +2274,16 @@ namespace wackydatabase.SetData
                                 var repl = replacermodel.GetComponent<ZNetView>();
                                 repl = copyznet;
 
-
                                 var piggy3 = replacermodel.GetComponent<Humanoid>();
                                 piggy3.m_name = data.mob_display_name; // replacer editing
 
                                 ZNetScene znet = ZNetScene.instance;
                                 if (znet)
                                 {
-
                                     string name = replacermodel.name;
                                     var hash = replacermodel.name.GetStableHashCode();
                                     if (znet.m_namedPrefabs.ContainsKey(hash))
                                     {
-
                                         WMRecipeCust.Dbgl($"Prefab {name} already in ZNetScene");
 
                                         znet.m_namedPrefabs.Remove(hash);
@@ -2408,21 +2292,20 @@ namespace wackydatabase.SetData
                                         znet.m_prefabs.Add(replacermodel);
                                         znet.m_namedPrefabs.Add(hash, replacermodel);
                                         WMRecipeCust.Dbgl($"Removed old {name} and replaced prefab with {obj2.name}");
-
                                     }
-
                                 }
                                 WMRecipeCust.ClonedCR.Add(data.name);
                                 // currentCreature = obj; already set
-                                //return; 
+                                //return;
                             }
                         }
                     } // end creature replacer
-                   // return; // end loop
+                      // return; // end loop
                 } // end name match
 
-                if (currentCreature.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid mob))){ 
-                // Normal editing
+                if (currentCreature.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid mob)))
+                {
+                    // Normal editing
                     WMRecipeCust.Dbgl($"Setting {data.name} "); // normal edit
 
                     mob.m_name = data.mob_display_name;
@@ -2462,10 +2345,9 @@ namespace wackydatabase.SetData
                     } */
                 } // nromal edit
                 count++;
-            } 
+            }
         }
-
     }
-    #endregion
 
+    #endregion Creatures
 }
