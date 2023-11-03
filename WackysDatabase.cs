@@ -2,8 +2,7 @@
 // Thanks to the Odin Discord server, for being active and good for the valheim community.
 // Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
 // CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
-// Thank you to Rexabit for Visual Modifier - It really is an amazing mod. 
-
+// Thank you to Rexabit for Visual Modifier - It really is an amazing mod.
 
 using System.IO;
 using System.Reflection;
@@ -49,6 +48,7 @@ namespace wackydatabase
         internal static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
         internal static WMRecipeCust context;
         internal readonly Harmony _harmony = new(ModGUID);
+
         public static readonly ManualLogSource WLog =
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
@@ -88,7 +88,6 @@ namespace wackydatabase
         internal static bool ssLock = false;
         internal static bool waitingforFirstLoad = false;
 
-
         public static List<RecipeData_json> recipeDatas = new List<RecipeData_json>();
         public static List<WItemData_json> ItemDatas = new List<WItemData_json>();
         public static List<PieceData_json> PieceDatas = new List<PieceData_json>();
@@ -103,10 +102,10 @@ namespace wackydatabase
         public static List<WItemData> cacheItemsYML = new List<WItemData>();// cacheonly
         public static List<MaterialInstance> cacheMaterials = new List<MaterialInstance>();// cacheonly
 
-
         public static List<string> ClonedI = new List<string>(); // items
         public static List<string> ClonedINoZ = new List<string>(); // items No Znet // not used
         public static Dictionary<string, GameObject> MasterCloneList = new Dictionary<string, GameObject>();
+        public static readonly Dictionary<string, string> ClonedPrefabsMap = new();
         public static List<string> ClonedP = new List<string>(); // pieces
         public static List<string> ClonedR = new List<string>(); // recipes
         public static List<string> ClonedE = new List<string>(); // effects
@@ -116,7 +115,7 @@ namespace wackydatabase
         public static List<string> MockI = new List<string>(); // MockItems
         public static List<string> BlacklistClone = new List<string>();
         public static List<string> MultiplayerApproved = new List<string>();
-       // internal static Dictionary<string, Texture2D> mainTextures = new Dictionary<string, Texture2D>(); // cached Textures for fun
+        // internal static Dictionary<string, Texture2D> mainTextures = new Dictionary<string, Texture2D>(); // cached Textures for fun
 
         internal static string assetPath;
         internal static string assetPathconfig;
@@ -146,8 +145,10 @@ namespace wackydatabase
         internal static GameObject Root;
         internal static GameObject MockItemBase;
         public static PieceTable selectedPiecehammer;
+
         //private static List<string> piecemods = new List<string>();
         public static PieceTable[] MaybePieceStations;
+
         public static Dictionary<GameObject, GameObject> AdminPiecesOnly;
         public static List<string> RealPieceStations = new List<string>();
         public static List<CraftingStation> NewCraftingStations = new List<CraftingStation>();
@@ -163,8 +164,8 @@ namespace wackydatabase
         internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
-        public static List<string> NoNotTheseSEs= new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
-       // public static List<string> extraEffectList = new List<string>() { "lightningAOE" };
+        public static List<string> NoNotTheseSEs = new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
+                                                                                                                                               // public static List<string> extraEffectList = new List<string>() { "lightningAOE" };
 
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;
@@ -172,20 +173,18 @@ namespace wackydatabase
         internal static bool LobbyRegistered = false;
         internal static bool HasLobbied = false;
         internal static IEnumerable<string> jsonfiles;
-        internal static bool ReloadingOkay= false;
+        internal static bool ReloadingOkay = false;
         internal static int ProcessWait = 10;
         internal static int ProcessWaitforRead = 10;
         internal static float WaitTime = .3f;
         internal static bool LockReload = false;
         internal static bool Reloading = false;
-        
+
         internal static bool IsDedServer => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
-
-
 
         public void Awake() // start
         {
-            StartupConfig(); // startup varables 
+            StartupConfig(); // startup varables
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
             assetPathconfig = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase");
             assetPathItems = Path.Combine(assetPathconfig, "Items");
@@ -208,8 +207,6 @@ namespace wackydatabase
             assetPathCache = Path.Combine(assetPathconfig, "Cache");
             // testme(); // function for testing things
 
-            
-
             // ending files
 
             AnimationSpeedManager.Add((character, speed) =>
@@ -230,12 +227,11 @@ namespace wackydatabase
                     }
                     else
                     {
-                        return speed *Paul[false];
+                        return speed * Paul[false];
                     }
                 }
                 return speed;
             });
-
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
@@ -247,22 +243,20 @@ namespace wackydatabase
                 //startupserver.BeginConvertingJsons(jsoncount);
             }
             WMRecipeCust.context.StartCoroutine(readFiles.GetDataFromFiles()); // YML get
-            AwakeHasRun = true;    
+            AwakeHasRun = true;
 
             readFiles.SetupWatcher();
 
             skillConfigData.ValueChanged += CustomSyncEventDetected; // custom sync watcher for yml file synced from server
 
             largeTransfer.ValueChanged += LargeTransferDetected;
-
-
         }
+
         public static void Dbgl(string str = "", bool pref = true)
         {
             if (isDebug.Value)
                 Debug.Log((pref ? ModName + " " : "") + str);
         }
-
 
         private void StartupConfig()
         {
@@ -273,7 +267,7 @@ namespace wackydatabase
 
             WMRecipeCust.Root = new GameObject("myroot");
             WMRecipeCust.Root.SetActive(false);
-            WMRecipeCust.DontDestroyOnLoad(WMRecipeCust.Root); // clone magic 
+            WMRecipeCust.DontDestroyOnLoad(WMRecipeCust.Root); // clone magic
 
             // ^^ // starting files
             context = this;
@@ -286,24 +280,21 @@ namespace wackydatabase
             ServerDedLoad = config<bool>("General", "DedServer load Memory", true, "Dedicated Servers will load wackydb files as a client would");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
-           // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
-            extraEffectList = config<string>("Effects","List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
+            // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
+            extraEffectList = config<string>("Effects", "List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
             ConfigSync.CurrentVersion = ModVersion;
 
             WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
             if (isautoreload.Value) // only sets at start
                 isSettoAutoReload = true;
             else isSettoAutoReload = false;
-
         }
 
-        
         private void OnDestroy()
         {
             Config.Save();
             //WLog.LogInfo("Calling the Destroyer of Worlds -End Game"); past its time :(
         }
-
 
         private void ReadConfigValues(object sender, FileSystemEventArgs e)
         {
@@ -313,7 +304,6 @@ namespace wackydatabase
                 Config.Reload();
             }
             catch { WLog.LogError($"There was an issue loading Config File "); }
-
         }
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
@@ -333,7 +323,6 @@ namespace wackydatabase
             return configEntry;
         }
 
-
         private ConfigEntry<T> config<T>(string group, string name, T value, string description,
             bool synchronizedSetting = true)
         {
@@ -350,24 +339,20 @@ namespace wackydatabase
             if (prefab == null) return;
             if (BlacklistClone.Contains(prefab)) return;
             BlacklistClone.Add(prefab);
-
         }
-
 
         private void CustomSyncEventDetected()
         {
             if (WMRecipeCust.NoMoreLoading)
                 return;
 
-          CurrentReload.SyncEventDetected();           
+            CurrentReload.SyncEventDetected();
         }
 
         private void LargeTransferDetected()
         {
             HandleData.RecievedData();
         }
-
-
 
         internal static void CheckModFolder()
         {
@@ -412,13 +397,13 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathIcons);
             }
             if (!Directory.Exists(assetPathEffects))
-            {  
-                Dbgl("Creating Effects folder"); 
+            {
+                Dbgl("Creating Effects folder");
                 Directory.CreateDirectory(assetPathEffects);
             }
             if (!Directory.Exists(assetPathCache))
             {
-                Dbgl("Creating Cache folder"); 
+                Dbgl("Creating Cache folder");
                 Directory.CreateDirectory(assetPathCache);
             }
             if (!Directory.Exists(assetPathObjects))
@@ -471,7 +456,7 @@ namespace wackydatabase
         public static void AdminReload(long peer, ZPackage go)
         {
             WMRecipeCust.WLog.LogInfo("Recieved Admin Request to Reload");
-             
+
             ReadFiles readnow = new ReadFiles();
             WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
             WMRecipeCust.readFiles = readnow;
@@ -484,7 +469,6 @@ namespace wackydatabase
 
             if (WMRecipeCust.ServerDedLoad.Value)
                 WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
-            
         }
 
         public static void GetAllMaterials(bool skipMD = false) // Get all Materials, SFX, VFX, FX
@@ -498,7 +482,6 @@ namespace wackydatabase
             originalFX = new Dictionary<string, GameObject>();
             extraEffects = new Dictionary<string, GameObject>();
 
-
             foreach (Material val in array)
             {
                 originalMaterials[val.name] = val;
@@ -507,7 +490,7 @@ namespace wackydatabase
             {
                 if (val1.name.ToLower().StartsWith("vfx"))
                 {
-                    originalVFX[val1.name]= val1;
+                    originalVFX[val1.name] = val1;
                 }
                 else if (val1.name.ToLower().StartsWith("sfx"))
                 {
@@ -516,16 +499,15 @@ namespace wackydatabase
                 else if (val1.name.ToLower().StartsWith("fx_"))
                 {
                     originalFX[val1.name] = val1;
-                }else if (extraEffectList.Value.Split(',').ToList().Contains(val1.name))
+                }
+                else if (extraEffectList.Value.Split(',').ToList().Contains(val1.name))
                 {
                     extraEffects[val1.name] = val1;
                 }
-
             }
             if (!skipMD)
             {
                 MaterialDataManager.Instance.LoadFiles();
-
             }
         }
 
@@ -541,13 +523,10 @@ namespace wackydatabase
                     {
                         // Add blacklist here
                        // WackyDatabase_API.AddBlacklistClone("Wood");
-
-
                     }
                 }
             }
         } example code for modders
         */
-
     }
 }
