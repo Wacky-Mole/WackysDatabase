@@ -462,6 +462,8 @@ namespace wackydatabase.SetData
                 GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
                 Piece NewItemComp = newItem.GetComponent<Piece>();
 
+                WMRecipeCust.ClonedPrefabsMap.Add(tempname, data.clonePrefabName); // cache map of source prefab for each clone
+
                 WMRecipeCust.ClonedP.Add(tempname); // check against
                 newItem.name = tempname; // resets the orginal name- needs to be unquie
                 NewItemComp.name = tempname; // ingame name
