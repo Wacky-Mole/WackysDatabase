@@ -28,7 +28,7 @@ namespace wackydatabase.PatchClasses
                 if (loadTranspiler)
                     loadTranspiler = false;
                 else
-                    return null;
+                    return instructions;
 
                 WMRecipeCust.Dbgl($"Transpiling UpdateEnvStatusEffects");
 
