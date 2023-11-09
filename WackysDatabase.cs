@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.1.5";
+        internal const string ModVersion = "2.1.6";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -53,7 +53,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.1.5" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.1.6" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -483,7 +483,7 @@ namespace wackydatabase
             extraEffects = new Dictionary<string, GameObject>();
 
             foreach (Material val in array)
-            {
+            {   
                 originalMaterials[val.name] = val;
             }
             foreach (GameObject val1 in array3)

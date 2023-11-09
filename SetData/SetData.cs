@@ -462,11 +462,13 @@ namespace wackydatabase.SetData
                 GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
                 Piece NewItemComp = newItem.GetComponent<Piece>();
 
-                WMRecipeCust.ClonedPrefabsMap.Add(tempname, data.clonePrefabName); // cache map of source prefab for each clone
-
                 WMRecipeCust.ClonedP.Add(tempname); // check against
                 newItem.name = tempname; // resets the orginal name- needs to be unquie
                 NewItemComp.name = tempname; // ingame name
+                data.name = tempname; // putting back name
+
+                if (!WMRecipeCust.ClonedPrefabsMap.ContainsKey(tempname))
+                    WMRecipeCust.ClonedPrefabsMap.Add(tempname, data.clonePrefabName);
 
                 var hash = newItem.name.GetStableHashCode();
                 ZNetScene znet = ZNetScene.instance;
@@ -542,7 +544,7 @@ namespace wackydatabase.SetData
                     piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
                 }
 
-                data.name = tempname; // putting back name
+                
                 go = DataHelpers.FindPieceObjectName(data.name); // this needs to call to newItem for modifcation otherwise it modifies orginial.
                 if (go == null)// just verifying
                 {
@@ -1325,7 +1327,9 @@ namespace wackydatabase.SetData
                 }
                 WMRecipeCust.ClonedI.Add(tempname);
                 data.name = tempname; // putting back name
-                WMRecipeCust.ClonedPrefabsMap.Add(data.name, data.clonePrefabName); // cache map of source prefab for each clone
+                if (!WMRecipeCust.ClonedPrefabsMap.ContainsKey(data.name))
+                    WMRecipeCust.ClonedPrefabsMap.Add(data.name, data.clonePrefabName); // cache map of source prefab for each clone
+
                 return newItem;
             }
             return null;

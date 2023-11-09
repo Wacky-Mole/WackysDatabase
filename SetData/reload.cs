@@ -409,7 +409,7 @@ namespace wackydatabase.SetData
                             }
                         }
                     }
-                    catch { } // spams just catch any empty
+                    catch { WMRecipeCust.WLog.LogWarning($"Setting Early Cloned CraftingStation for {data3.name} didn't complete"); } // spams just catch any empty
                 }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
