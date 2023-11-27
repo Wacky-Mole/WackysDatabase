@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.1.6
+Version: 2.1.7
 Features
 
 
@@ -195,7 +195,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_FenringArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
-- `wackydb_clone [recipe/item/piece/creatures/mat/materials] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
+- `wackydb_clone [recipe/item/piece/creature/mat/materials] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
 
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
@@ -661,6 +661,7 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ###  ContainerData
 
+ Don't mess with the container size (width and height): I added for someone, but this will mess up things. Use AzuContainers
 - `Width` (int): The width of the container.
 - `Height` (int): The height of the container.
 - `CheckWard` (bool): Indicates whether the container checks for ward placement.
@@ -1033,6 +1034,7 @@ Wackymole
 | 2.1.4 | Happy Halloween, this update is for the spooky people that use "," as decimal delimiters, resulting in crazy big sizes of items/pieces. </br> SizeMultiplier is now seperated with \| </br> Updated a Priority for loading
 | 2.1.5 | Added API for Clone mapping to orginal prefab. </br> Adjustment for Epicloot+wackydb on quitting </br> 
 | 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
+| 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
 
 
 
@@ -1064,6 +1066,8 @@ Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wacky
  A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wrong can break Azu show container contents
 
 (Note!: If you want the game to have default values, close the game and delete the wackysDatabase folder).
+
+If you null out piece WearNTearData, unexpected things might happen to your world. 
 
 </br>
 </details>

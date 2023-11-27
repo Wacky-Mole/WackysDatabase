@@ -398,11 +398,11 @@ namespace wackydatabase.SetData
                     {
                         CraftingStation checkifStation = null;
                         GameObject go = DataHelpers.FindPieceObjectName(data3.clonePrefabName);
-                        string tempnam = null;
-                        tempnam = go.GetComponent<CraftingStation>()?.m_name;
+                        
+                        var tempnam = go.GetComponent<CraftingStation>();
                         if (tempnam != null)
                         {
-                            checkifStation = DataHelpers.GetCraftingStation(tempnam); // for forge and other items that change names between item and CraftingStation
+                            checkifStation = DataHelpers.GetCraftingStation(tempnam.m_name); // for forge and other items that change names between item and CraftingStation
                             if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed
                             {
                                 SetData.SetPieceRecipeData(data3, Instant, AllObjects);
