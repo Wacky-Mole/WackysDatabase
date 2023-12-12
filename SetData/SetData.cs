@@ -18,7 +18,6 @@ using wackydatabase.Armor;
 using System.Runtime.CompilerServices;
 using System.IO;
 using RainbowTrollArmor;
-using ItemManager;
 using static Attack;
 using System.Xml.Schema;
 using static ItemSets;
@@ -652,7 +651,7 @@ namespace wackydatabase.SetData
             {
                 try
                 {
-                    //  Functions.SnapshotPiece(go); // snapshot go
+                      Functions.SnapshotPiece(go); // snapshot go
                 }
                 catch { WMRecipeCust.WLog.LogInfo("Piece snapshot  failed"); }
             }
@@ -2309,10 +2308,10 @@ namespace wackydatabase.SetData
                       // return; // end loop
                 } // end name match
 
-                if (currentCreature.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid mob)))
+                if (obj.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid mob)))
                 {
                     // Normal editing
-                    WMRecipeCust.Dbgl($"Setting {data.name} "); // normal edit
+                    WMRecipeCust.Dbgl($"Updating {data.name} info"); // normal edit
 
                     mob.m_name = data.mob_display_name;
                     /*

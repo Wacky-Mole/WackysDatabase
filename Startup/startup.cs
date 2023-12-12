@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using ItemManager;
 using ServerSync;
 using System;
 using System.Collections;

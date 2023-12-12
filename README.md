@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.1.7
+Version: 2.1.8
 Features
 
 
@@ -1035,6 +1035,7 @@ Wackymole
 | 2.1.5 | Added API for Clone mapping to orginal prefab. </br> Adjustment for Epicloot+wackydb on quitting </br> 
 | 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
 | 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
+| 2.1.8 | Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time.
 
 
 
@@ -1092,8 +1093,6 @@ Do whatever you want with this mod.
 
 Known issues: </br>
  Bug on moving stuff from one hammer to another - disable orginal and make a clone for now
- </br> 
- Snapshot pieces still disabled
  </br> 
  Creature material is not working
  </br>

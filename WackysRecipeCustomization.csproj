@@ -212,9 +212,6 @@
     <Content Include="Libs\AnimationSpeedManager.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Libs\ItemManager.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Libs\LocalizationManager.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

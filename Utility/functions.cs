@@ -292,7 +292,7 @@ namespace wackydatabase.Util
 
                 // just in case it doesn't gets deleted properly later
                 TimedDestruction timedDestruction = visual.AddComponent<TimedDestruction>();
-                timedDestruction.Trigger(1f);
+                timedDestruction.Trigger(3f);
                 Rect rect = new(0, 0, 128, 128);
                 camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
 
@@ -319,7 +319,8 @@ namespace wackydatabase.Util
                 camera.targetTexture.Release();
                 camera.gameObject.SetActive(false);
                 visual.SetActive(false);
-                Object.DestroyImmediate(visual);
+                //ZNetScene.Destroy(visual,2f);
+                //Object.Destroy(visual);
 
                 Object.Destroy(camera);
                 Object.Destroy(sideLight);
@@ -338,12 +339,13 @@ namespace wackydatabase.Util
             }
             if (ObjectDB.instance)
             {
-                WMRecipeCust.context.StartCoroutine(WackyDelay());
+                plugin.StartCoroutine(Delay2());
+               // WMRecipeCust.context.StartCoroutine(WackyDelay());
                 // Do();
             }
             else
             {
-                WMRecipeCust.context.StartCoroutine(WackyDelay());
+               // WMRecipeCust.context.StartCoroutine(WackyDelay());
                 //plugin.StartCoroutine(Delay2());
             }
         }

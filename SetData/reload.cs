@@ -18,7 +18,6 @@ using static ItemSets;
 using System.Security.Policy;
 using static ItemDrop;
 using System.CodeDom.Compiler;
-using ItemManager;
 
 namespace wackydatabase.SetData
 {
