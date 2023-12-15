@@ -5,11 +5,11 @@ using JetBrains.Annotations;
 
 namespace wackydatabase.Datas
 {
-	[Serializable]
+    [Serializable]
     [CanBeNull]
-	public class WItemData 
-	{
-        #nullable enable
+    public class WItemData
+    {
+#nullable enable
         public string name; // must have
 
         public float m_weight; // must have
@@ -32,7 +32,7 @@ namespace wackydatabase.Datas
 
         public CustomVisual? customVisual;
 
-        public string? sizeMultiplier;  
+        public string? sizeMultiplier;
 
         public float? scale_weight_by_quality;
 
@@ -92,13 +92,13 @@ namespace wackydatabase.Datas
         public float? m_equipDuration;
 
 
-        public Skills.SkillType? m_skillType; 
+        public Skills.SkillType? m_skillType;
 
-        public ItemDrop.ItemData.AnimationState? m_animationState; 
-        
+        public ItemDrop.ItemData.AnimationState? m_animationState;
+
         public ItemDrop.ItemData.ItemType? m_itemType;
 
-        
+
         public int? m_toolTier;
 
         public int? m_maxQuality;
@@ -111,6 +111,8 @@ namespace wackydatabase.Datas
 
         public GEffects? GEffects;
 
+        public GEffectsPLUS? GEffectsPLUS;
+
 
 #nullable disable
     }
@@ -118,7 +120,7 @@ namespace wackydatabase.Datas
 
     [Serializable]
     public class AttackArm  //:Attack
-        {
+    {
         public Attack.AttackType? AttackType;
         public string? Attack_Animation;
         public int? Attack_Random_Animation;
@@ -126,7 +128,7 @@ namespace wackydatabase.Datas
         public bool? Hit_Terrain;
         public float? Custom_AttackSpeed;
 
-		public float? m_attackStamina;
+        public float? m_attackStamina;
         public float? m_eitrCost;
         public float? AttackHealthCost;
         public float? m_attackHealthPercentage;
@@ -164,7 +166,18 @@ namespace wackydatabase.Datas
         public float? Projectile_Accuraccy;
         public int? Projectiles;
 
+        public bool? Skill_Accuracy; // new
+        public float? Launch_Angle;
+        public int? Projectile_Burst;
+        public float? Burst_Interval;
+        public bool? Destory_Previous_Projectile;
+        public bool? PerBurst_Resourse_usage;
+        public bool? Looping_Attack;
+        public bool? Consume_Item;
+
         public AEffects? AEffects;
+
+        public AEffectsPLUS? AEffectsPLUS;
 
     }
 
@@ -175,13 +188,29 @@ namespace wackydatabase.Datas
         public string? chest;
         public string? legs;
         public string? realtime;
-
     }
 
     [Serializable]
+
+    public class EffectVerse //: EffectList.EffectData
+    {
+        public string? name;
+        public bool? m_enabled;
+        public int? m_variant;
+        public bool? m_attach;
+        public bool? m_follow;
+        public bool? m_inheritParentRotation;
+        public bool? m_inheritParentScale;
+        public bool? m_multiplyParentVisualScale;
+        public bool? m_randomRotation;
+        public bool? m_scale;
+        public string? m_childTransform;
+
+    }
+
     public class AEffects
     {
-       // EffectList.EffectData EffectData;
+        //EffectList.EffectData EffectData;
         public string[]? Hit_Effects;
         public string[]? Hit_Terrain_Effects;
         public string[]? Start_Effect;
@@ -199,8 +228,31 @@ namespace wackydatabase.Datas
         public string[]? Trigger_Effect;
         public string[]? Trail_Effect;
 
+    }    
+    public class AEffectsPLUS
+    {
+        //EffectList.EffectData EffectData;
+        public EffectVerse[]? Hit_Effects;
+        public EffectVerse[]? Hit_Terrain_Effects;
+        public EffectVerse[]? Start_Effect;
+        public EffectVerse[]? Trigger_Effect;
+        public EffectVerse[]? Trail_Effect;
+        public EffectVerse[]? Burst_Effect;
     }
-        [Serializable]
+
+    public class GEffectsPLUS
+    {
+        public EffectVerse[]? Hit_Effects;
+        public EffectVerse[]? Hit_Terrain_Effects;
+        public EffectVerse[]? Start_Effect;
+        public EffectVerse[]? Hold_Start_Effects;
+        public EffectVerse[]? Trigger_Effect;
+        public EffectVerse[]? Trail_Effect;
+
+    }
+
+
+    [Serializable]
     public class FoodData
     {
         public float? m_foodHealth;
@@ -229,11 +281,11 @@ namespace wackydatabase.Datas
     {
         public string? SetName;
         public int? Size;
-        public string? EffectName; 
+        public string? EffectName;
 
     }
 
-    
+
     [Serializable]
     public class ShieldData
     {
@@ -247,52 +299,53 @@ namespace wackydatabase.Datas
 
 
     [Serializable]
-	public class ArmorData { 
-	
-		//public string? name;
+    public class ArmorData
+    {
 
-		public float? armor;
-		public float? armorPerLevel;
-		//public float movementModifier;
+        //public string? name;
 
-	}
+        public float? armor;
+        public float? armorPerLevel;
+        //public float movementModifier;
 
-	[Serializable]
-	public class WDamages // can't get the inhertance in json to sterilize
-	{
-		public float Blunt;
+    }
 
-		public float Chop;
+    [Serializable]
+    public class WDamages // can't get the inhertance in json to sterilize
+    {
+        public float Blunt;
 
-		public float Damage;
+        public float Chop;
 
-		public float Fire;
+        public float Damage;
 
-		public float Frost;
+        public float Fire;
 
-		public float Lightning;
+        public float Frost;
 
-		public float Pickaxe;
+        public float Lightning;
 
-		public float Pierce;
+        public float Pickaxe;
 
-		public float Poison;
+        public float Pierce;
 
-		public float Slash;
+        public float Poison;
 
-		public float Spirit;
+        public float Slash;
+
+        public float Spirit;
 
     }
 
 
 
     [Serializable]
-	public class WIngredients
-	{
-		public string id;
-		public int amount;
-		public int amountPerLevel;
+    public class WIngredients
+    {
+        public string id;
+        public int amount;
+        public int amountPerLevel;
 
-	}
+    }
 
 }

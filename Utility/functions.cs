@@ -9,6 +9,7 @@ using UnityEngine;
 using System.Collections;
 using BepInEx;
 using Object = UnityEngine.Object;
+using YamlDotNet.Serialization.ObjectGraphVisitors;
 
 namespace wackydatabase.Util
 {
@@ -244,8 +245,9 @@ namespace wackydatabase.Util
             }
         }
 
-        public static void SnapshotPiece(GameObject prefab, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
+        public  static void SnapshotPiece(GameObject prefab, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
         {
+            
             void Do2()
             {
                 const int layer = 3;
@@ -254,7 +256,7 @@ namespace wackydatabase.Util
                 {
                     return;
                 }
-
+                //var playerpos = Player.m_localPlayer.transform.position;
                 Camera camera = new GameObject("CameraIcon", typeof(Camera)).GetComponent<Camera>();
                 camera.backgroundColor = Color.clear;
                 camera.clearFlags = CameraClearFlags.SolidColor;
@@ -271,7 +273,10 @@ namespace wackydatabase.Util
                 sideLight.cullingMask = 1 << layer;
                 sideLight.intensity = lightIntensity;
 
-                GameObject visual = Object.Instantiate(prefab);
+                GameObject visual = Object.Instantiate(prefab.gameObject, new Vector3(0,0,-100), Quaternion.Euler(23, 51, 25.8f));
+
+                //Object.DestroyImmediate(visual);
+                //visual.name = "snaptrash";
                 foreach (Transform child in visual.GetComponentsInChildren<Transform>())
                 {
                     child.gameObject.layer = layer;
@@ -279,7 +284,7 @@ namespace wackydatabase.Util
 
                 visual.transform.position = Vector3.zero;
                 visual.transform.rotation = Quaternion.Euler(23, 51, 25.8f);
-                visual.name = prefab.name;
+                //visual.name = "snaptrash";
 
                 MeshRenderer[] renderers = visual.GetComponentsInChildren<MeshRenderer>();
                 Vector3 min = renderers.Aggregate(Vector3.positiveInfinity,
@@ -292,7 +297,7 @@ namespace wackydatabase.Util
 
                 // just in case it doesn't gets deleted properly later
                 TimedDestruction timedDestruction = visual.AddComponent<TimedDestruction>();
-                timedDestruction.Trigger(3f);
+                timedDestruction.Trigger(1f);
                 Rect rect = new(0, 0, 128, 128);
                 camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
 
@@ -313,15 +318,18 @@ namespace wackydatabase.Util
                 previewImage.Apply();
 
                 RenderTexture.active = currentRenderTexture;
-
+                             
                 prefab.GetComponent<Piece>().m_icon = Sprite.Create(previewImage, new Rect(0, 0, (int)rect.width, (int)rect.height), Vector2.one / 2f);
+                var piececomp = visual.GetComponent<Piece>();
+                Object.DestroyImmediate(piececomp);
                 sideLight.gameObject.SetActive(false);
                 camera.targetTexture.Release();
                 camera.gameObject.SetActive(false);
                 visual.SetActive(false);
-                //ZNetScene.Destroy(visual,2f);
-                //Object.Destroy(visual);
-
+                //visual.transform.position = new Vector3(0, 0, 1000);
+                //ZNetScene.DestroyImmediate(visual);
+                //Object.Destroy(visual); 
+                
                 Object.Destroy(camera);
                 Object.Destroy(sideLight);
                 Object.Destroy(camera.gameObject);
@@ -334,13 +342,14 @@ namespace wackydatabase.Util
             }
             IEnumerator WackyDelay()
             {
-                yield return 30f;
+                yield return 20f;
                 Do2();
             }
             if (ObjectDB.instance)
             {
-                plugin.StartCoroutine(Delay2());
-               // WMRecipeCust.context.StartCoroutine(WackyDelay());
+                Do2();
+                // plugin.StartCoroutine(Delay2());
+                // WMRecipeCust.context.StartCoroutine(WackyDelay());
                 // Do();
             }
             else

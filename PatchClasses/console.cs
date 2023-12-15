@@ -104,6 +104,19 @@ namespace wackydatabase.PatchClasses
 
              });
 
+            Terminal.ConsoleCommand WackysnapCache =
+        new("snapshot", "snapshot",
+         args =>
+         {
+             foreach (var item in WMRecipeCust.SnapshotPiecestoDo)
+             {
+                 Functions.SnapshotPiece(item);
+             }
+             WMRecipeCust.SnapshotPiecestoDo.Clear();
+
+
+         });
+
 
 
             if (SceneManager.GetActiveScene().name != "main") return; // can't do anything from main 

@@ -30,6 +30,7 @@ using System.Diagnostics.Eventing.Reader;
 using YamlDotNet.Core.Tokens;
 using System.Globalization;
 using System.Threading;
+using static MeleeWeaponTrail;
 
 namespace wackydatabase.SetData
 {
@@ -115,7 +116,13 @@ namespace wackydatabase.SetData
                 go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_);
 
             if (data.StopEffect_ != null)
-                go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_);
+                go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_);            
+            
+            if (data.StartEffect_PLUS != null)
+                go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_PLUS);
+
+            if (data.StopEffect_PLUS != null)
+                go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_PLUS);
 
             go.m_cooldown = data.Cooldown ?? go.m_cooldown;
             go.m_activationAnimation = data.ActivationAnimation ?? go.m_activationAnimation;
@@ -651,7 +658,9 @@ namespace wackydatabase.SetData
             {
                 try
                 {
-                      Functions.SnapshotPiece(go); // snapshot go
+                    WMRecipeCust.SnapshotPiecestoDo.Add(go);
+                   // Functions setDatasnap = new Functions();
+                    //Functions.SnapshotPiece(go); // snapshot go
                 }
                 catch { WMRecipeCust.WLog.LogInfo("Piece snapshot  failed"); }
             }
@@ -1012,6 +1021,9 @@ namespace wackydatabase.SetData
 
                 if (data.beehiveData.effects != null)
                     Bee.m_spawnEffect = FindEffect(Bee.m_spawnEffect, data.beehiveData.effects);
+
+                if (data.beehiveData.effectsPLUS != null)
+                    Bee.m_spawnEffect = FindEffect(Bee.m_spawnEffect, data.beehiveData.effectsPLUS);
 
                 Bee.m_extractText = data.beehiveData.extractText ?? Bee.m_extractText;
                 Bee.m_checkText = data.beehiveData.checkText ?? Bee.m_checkText;
@@ -1750,8 +1762,36 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_multiHit = data.Primary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_attack.m_multiHit;
                         PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial = data.Primary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
+ /*
+                        if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile)) // Only use this is you want the item to have unlimited arrows, magic arrows or something
+                        {
+                            GameObject found = null;
+                            foreach (var ob in AllObjects)
+                            {
+                                if (ob.name == data.Primary_Attack.Attack_Projectile)
+                                {
+                                    if (ob.TryGetComponent<Projectile>( out Projectile peter))
+                                    {
+                                        PrimaryItemData.m_shared.m_attack.m_attackProjectile = ob;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        if (ob.TryGetComponent<Piece>(out var piece1))
+                                        {
 
-                        /*
+                                        }
+                                        if (ob.TryGetComponent<ItemDrop>(out var item1))
+                                        {
+
+                                        }
+                                        //PrimaryItemData.m_shared.m_attack.m_attackProjectile = ob;
+                                    }
+                                }
+                            }
+                        }
+
+                       
                         if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile)  && (data.Primary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger.name))
                         {
                             GameObject found = null;
@@ -1773,6 +1813,15 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
                         PrimaryItemData.m_shared.m_attack.m_projectiles = data.Primary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_attack.m_projectiles;
 
+                        PrimaryItemData.m_shared.m_attack.m_skillAccuracy = data.Primary_Attack.Skill_Accuracy ?? PrimaryItemData.m_shared.m_attack.m_skillAccuracy;
+                        PrimaryItemData.m_shared.m_attack.m_launchAngle = data.Primary_Attack.Launch_Angle ?? PrimaryItemData.m_shared.m_attack.m_launchAngle;
+                        PrimaryItemData.m_shared.m_attack.m_projectileBursts = data.Primary_Attack.Projectile_Burst ?? PrimaryItemData.m_shared.m_attack.m_projectileBursts;
+                        PrimaryItemData.m_shared.m_attack.m_burstInterval = data.Primary_Attack.Burst_Interval ?? PrimaryItemData.m_shared.m_attack.m_burstInterval;
+                        PrimaryItemData.m_shared.m_attack.m_destroyPreviousProjectile = data.Primary_Attack.Destory_Previous_Projectile ?? PrimaryItemData.m_shared.m_attack.m_destroyPreviousProjectile;
+                        PrimaryItemData.m_shared.m_attack.m_perBurstResourceUsage = data.Primary_Attack.PerBurst_Resourse_usage ?? PrimaryItemData.m_shared.m_attack.m_perBurstResourceUsage;
+                        PrimaryItemData.m_shared.m_attack.m_loopingAttack = data.Primary_Attack.Looping_Attack ?? PrimaryItemData.m_shared.m_attack.m_loopingAttack;
+                        PrimaryItemData.m_shared.m_attack.m_consumeItem = data.Primary_Attack.Consume_Item ?? PrimaryItemData.m_shared.m_attack.m_consumeItem;
+
                         if (data.Primary_Attack.AEffects.Hit_Effects != null)
                             PrimaryItemData.m_shared.m_attack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitEffect, data.Primary_Attack.AEffects.Hit_Effects);
                         if (data.Primary_Attack.AEffects.Hit_Terrain_Effects != null)
@@ -1785,6 +1834,19 @@ namespace wackydatabase.SetData
                             PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffects.Trail_Effect);
                         if (data.Primary_Attack.AEffects.Burst_Effect != null)
                             PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffects.Burst_Effect);
+
+                        if (data.Primary_Attack.AEffectsPLUS.Hit_Effects != null)
+                            PrimaryItemData.m_shared.m_attack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitEffect, data.Primary_Attack.AEffectsPLUS.Hit_Effects);
+                        if (data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects != null)
+                            PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect, data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
+                        if (data.Primary_Attack.AEffectsPLUS.Start_Effect != null)
+                            PrimaryItemData.m_shared.m_attack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_startEffect, data.Primary_Attack.AEffectsPLUS.Start_Effect);
+                        if (data.Primary_Attack.AEffectsPLUS.Trigger_Effect != null)
+                            PrimaryItemData.m_shared.m_attack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_triggerEffect, data.Primary_Attack.AEffectsPLUS.Trigger_Effect);
+                        if (data.Primary_Attack.AEffectsPLUS.Trail_Effect != null)
+                            PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffectsPLUS.Trail_Effect);
+                        if (data.Primary_Attack.AEffectsPLUS.Burst_Effect != null)
+                            PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffectsPLUS.Burst_Effect);
 
                         // Secondary
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackType = data.Secondary_Attack.AttackType ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackType;
@@ -1870,6 +1932,15 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles = data.Secondary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles;
 
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_skillAccuracy = data.Secondary_Attack.Skill_Accuracy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_skillAccuracy;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_launchAngle = data.Secondary_Attack.Launch_Angle ?? PrimaryItemData.m_shared.m_secondaryAttack.m_launchAngle;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_projectileBursts = data.Secondary_Attack.Projectile_Burst ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileBursts;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_burstInterval = data.Secondary_Attack.Burst_Interval ?? PrimaryItemData.m_shared.m_secondaryAttack.m_burstInterval;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_destroyPreviousProjectile = data.Secondary_Attack.Destory_Previous_Projectile ?? PrimaryItemData.m_shared.m_secondaryAttack.m_destroyPreviousProjectile;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_perBurstResourceUsage = data.Secondary_Attack.PerBurst_Resourse_usage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_perBurstResourceUsage;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_loopingAttack = data.Secondary_Attack.Looping_Attack ?? PrimaryItemData.m_shared.m_secondaryAttack.m_loopingAttack;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_consumeItem = data.Secondary_Attack.Consume_Item ?? PrimaryItemData.m_shared.m_secondaryAttack.m_consumeItem;
+
                         if (data.Secondary_Attack.AEffects.Hit_Effects != null)
                             PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect, data.Secondary_Attack.AEffects.Hit_Effects);
                         if (data.Secondary_Attack.AEffects.Hit_Terrain_Effects != null)
@@ -1882,6 +1953,20 @@ namespace wackydatabase.SetData
                             PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect, data.Secondary_Attack.AEffects.Trail_Effect);
                         if (data.Secondary_Attack.AEffects.Burst_Effect != null)
                             PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect, data.Secondary_Attack.AEffects.Burst_Effect);
+
+
+                        if (data.Secondary_Attack.AEffectsPLUS.Hit_Effects != null)
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Effects);
+                        if (data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects != null)
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
+                        if (data.Secondary_Attack.AEffectsPLUS.Start_Effect != null)
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect, data.Secondary_Attack.AEffectsPLUS.Start_Effect);
+                        if (data.Secondary_Attack.AEffectsPLUS.Trigger_Effect != null)
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect, data.Secondary_Attack.AEffectsPLUS.Trigger_Effect);
+                        if (data.Secondary_Attack.AEffectsPLUS.Trail_Effect != null)
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect, data.Secondary_Attack.AEffectsPLUS.Trail_Effect);
+                        if (data.Secondary_Attack.AEffectsPLUS.Burst_Effect != null)
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect, data.Secondary_Attack.AEffectsPLUS.Burst_Effect);
                     }
 
                     if (data.Armor != null)
@@ -2020,7 +2105,20 @@ namespace wackydatabase.SetData
                     if (data.GEffects.Trigger_Effect != null)
                         PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffects.Trigger_Effect, "m_triggerEffect");
                     if (data.GEffects.Trail_Effect != null)
-                        PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffects.Trail_Effect, "m_trailStartEffect");
+                        PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffects.Trail_Effect, "m_trailStartEffect"); 
+                    
+                    if (data.GEffectsPLUS.Hit_Effects != null)
+                        PrimaryItemData.m_shared.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_hitEffect, data.GEffectsPLUS.Hit_Effects, "m_hitEffect");
+                    if (data.GEffectsPLUS.Hit_Terrain_Effects != null)
+                        PrimaryItemData.m_shared.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_hitTerrainEffect, data.GEffectsPLUS.Hit_Terrain_Effects, "m_hitTerrainEffect");
+                    if (data.GEffectsPLUS.Start_Effect != null)
+                        PrimaryItemData.m_shared.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_startEffect, data.GEffectsPLUS.Start_Effect, "m_startEffect");
+                    if (data.GEffectsPLUS.Hold_Start_Effects != null)
+                        PrimaryItemData.m_shared.m_holdStartEffect = FindEffect(PrimaryItemData.m_shared.m_holdStartEffect, data.GEffectsPLUS.Hold_Start_Effects, "m_holdStartEffect");
+                    if (data.GEffectsPLUS.Trigger_Effect != null)
+                        PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffectsPLUS.Trigger_Effect, "m_triggerEffect");
+                    if (data.GEffectsPLUS.Trail_Effect != null)
+                        PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffectsPLUS.Trail_Effect, "m_trailStartEffect");
 
                     if (!DataHelpers.ECheck(data.damageModifiers))
                     {
@@ -2053,6 +2151,95 @@ namespace wackydatabase.SetData
                     return;
                 }
             }
+        }
+
+        private static EffectList FindEffect(EffectList current, EffectVerse[] userlist, string name = "")
+        {
+            if (userlist == null)
+                return current;
+
+            if (userlist[0] == null)
+            {
+                EffectList paul = new EffectList();
+                return paul;
+            }
+
+            EffectList newList = new EffectList();
+            EffectData[] newEffectData = new EffectData[userlist.Count()];
+
+            foreach ( var eff in userlist)
+            {
+                EffectData newData = new EffectData();
+
+                if (WMRecipeCust.originalVFX.TryGetValue(eff.name, out GameObject list1))
+                {
+                    newData.m_prefab = list1;
+                    newData.m_enabled = eff.m_enabled ?? true;
+                    newData.m_variant = eff.m_variant ?? -1;
+                    newData.m_attach = eff.m_attach ?? false;
+                    newData.m_follow = eff.m_follow ?? false;
+                    newData.m_inheritParentRotation = eff.m_inheritParentRotation ?? false;
+                    newData.m_inheritParentScale = eff.m_inheritParentScale ?? false;
+                    newData.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false;
+                    newData.m_randomRotation = eff.m_randomRotation ?? false;
+                    newData.m_scale = eff.m_scale ?? false;
+                    newData.m_childTransform = eff.m_childTransform ?? "";
+                    newEffectData.AddItem(newData);
+
+                }
+                else if (WMRecipeCust.originalSFX.TryGetValue(eff.name, out GameObject list2))
+                {
+                    newData.m_prefab = list2;
+                    newData.m_enabled = eff.m_enabled ?? true;
+                    newData.m_variant = eff.m_variant ?? -1;
+                    newData.m_attach = eff.m_attach ?? false;
+                    newData.m_follow = eff.m_follow ?? false;
+                    newData.m_inheritParentRotation = eff.m_inheritParentRotation ?? false;
+                    newData.m_inheritParentScale = eff.m_inheritParentScale ?? false;
+                    newData.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false;
+                    newData.m_randomRotation = eff.m_randomRotation ?? false;
+                    newData.m_scale = eff.m_scale ?? false;
+                    newData.m_childTransform = eff.m_childTransform ?? "";
+                    newEffectData.AddItem(newData);
+                }
+                else if (WMRecipeCust.originalFX.TryGetValue(eff.name, out GameObject list3))
+                {
+                    newData.m_prefab = list3;
+                    newData.m_enabled = eff.m_enabled ?? true;
+                    newData.m_variant = eff.m_variant ?? -1;
+                    newData.m_attach = eff.m_attach ?? false;
+                    newData.m_follow = eff.m_follow ?? false;
+                    newData.m_inheritParentRotation = eff.m_inheritParentRotation ?? false;
+                    newData.m_inheritParentScale = eff.m_inheritParentScale ?? false;
+                    newData.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false;
+                    newData.m_randomRotation = eff.m_randomRotation ?? false;
+                    newData.m_scale = eff.m_scale ?? false;
+                    newData.m_childTransform = eff.m_childTransform ?? "";
+                    newEffectData.AddItem(newData);
+                }
+                else if (WMRecipeCust.extraEffects.TryGetValue(eff.name, out GameObject list4))
+                {
+                    newData.m_prefab = list4;
+                    newData.m_enabled = eff.m_enabled ?? true;
+                    newData.m_variant = eff.m_variant ?? -1;
+                    newData.m_attach = eff.m_attach ?? false;
+                    newData.m_follow = eff.m_follow ?? false;
+                    newData.m_inheritParentRotation = eff.m_inheritParentRotation ?? false;
+                    newData.m_inheritParentScale = eff.m_inheritParentScale ?? false;
+                    newData.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false;
+                    newData.m_randomRotation = eff.m_randomRotation ?? false;
+                    newData.m_scale = eff.m_scale ?? false;
+                    newData.m_childTransform = eff.m_childTransform ?? "";
+                    newEffectData.AddItem(newData);
+                }
+                else
+                { // failure to find
+                    WMRecipeCust.WLog.LogError("Didn't find effect " + eff.name + " This will cause an error when the effect is used - please remove");
+                }
+            }
+            newList.m_effectPrefabs = newEffectData;
+            return newList;          
+            
         }
 
         private static EffectList FindEffect(EffectList current, string[] userlist, string name = "")

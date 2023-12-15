@@ -183,6 +183,7 @@ namespace wackydatabase.Datas
         public string? dropItem;
 
         public string[]? effects;
+        public EffectVerse[]? effectsPLUS;
 
         public string? extractText;
         public string? checkText;

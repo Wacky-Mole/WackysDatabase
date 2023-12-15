@@ -348,7 +348,7 @@ namespace wackydatabase.SetData
                 DataHelpers.GetPiecesatStart();
                 WMRecipeCust.Firstrun = false;
             }
-
+            
 
             if (!WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
                 yield break;
@@ -419,6 +419,7 @@ namespace wackydatabase.SetData
             }
             // END CLONE PASS
             // Real PASS NOW
+            
             foreach (var data in WMRecipeCust.itemDatasYml) // call items first
             {
                 try
@@ -473,6 +474,7 @@ namespace wackydatabase.SetData
                     processcount = 0;
                 }
             }
+            WMRecipeCust.SnapshotPiecestoDo.Clear(); // only add to snapshot once
             foreach (var data in WMRecipeCust.pieceDatasYml)
             {
                 try

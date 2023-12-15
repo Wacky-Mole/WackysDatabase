@@ -15,6 +15,7 @@ using System.Security.Policy;
 using wackydatabase.SetData.SetOldData;
 using System.Reflection;
 using static CharacterAnimEvent;
+using wackydatabase.Util;
 
 namespace wackydatabase.Startup
 {
@@ -274,6 +275,16 @@ namespace wackydatabase.Startup
                         WMRecipeCust.FirstSS = false; // reset in a destory patch
                     }
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(Game), nameof(Game.SpawnPlayer))]
+        public static class SpawnPost
+        {
+            static void Postfix(Game __instance)
+            {
+
+
             }
         }
 

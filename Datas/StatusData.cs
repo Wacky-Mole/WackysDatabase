@@ -33,7 +33,9 @@ namespace wackydatabase.Datas
         public float? RepeatInterval;
         public float? TimeToLive;
         public string[] StartEffect_;
-        public string[] StopEffect_;
+        public string[] StopEffect_;        
+        public EffectVerse[] StartEffect_PLUS;
+        public EffectVerse[] StopEffect_PLUS;
         public float? Cooldown;
         public string? ActivationAnimation;
         public SEdata? SeData;

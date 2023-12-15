@@ -244,8 +244,8 @@ namespace wackydatabase.GetData
                 RepeatMessage = effect.m_repeatMessage ?? "",
                 RepeatInterval = effect.m_repeatInterval,
                 TimeToLive = effect.m_ttl,
-                StartEffect_ = CheckEffectsArray(effect.m_startEffects?.m_effectPrefabs) ?? null,
-                StopEffect_ = CheckEffectsArray(effect.m_stopEffects?.m_effectPrefabs) ?? null,
+                StartEffect_PLUS = ConvertEffectstoVerse(effect.m_startEffects?.m_effectPrefabs) ?? null,
+                StopEffect_PLUS = ConvertEffectstoVerse(effect.m_stopEffects?.m_effectPrefabs) ?? null,
                 Cooldown = effect.m_cooldown,
                 ActivationAnimation = effect.m_activationAnimation ?? "",
                 SeData = stats,
@@ -470,7 +470,7 @@ namespace wackydatabase.GetData
                     secPerUnit = Bee.m_secPerUnit,
                     maxAmount = Bee.m_maxHoney,
                     dropItem = Bee.m_honeyItem.name,
-                    effects =  CheckEffectsArray(Bee.m_spawnEffect.m_effectPrefabs) ?? null,
+                    effectsPLUS = ConvertEffectstoVerse(Bee.m_spawnEffect.m_effectPrefabs) ?? null,
                     extractText = Bee.m_extractText,
                     checkText = Bee.m_checkText,
                     areaText = Bee.m_areaText,
@@ -672,9 +672,38 @@ namespace wackydatabase.GetData
                 {
                     return tosh.Select(p => p.m_prefab.name).ToArray();
                 }
-            } catch { }
+            }
+            catch { }
             return temp;
 
+        }
+
+        private EffectVerse[]? ConvertEffectstoVerse(EffectList.EffectData[] tosh)
+        {
+            if (tosh == null) return null;
+            EffectVerse[] temp = new EffectVerse[tosh.Count()];
+            var count = 0;
+            foreach (EffectList.EffectData eff in tosh)
+            {
+
+                EffectVerse james = new EffectVerse()
+                {
+                    name = eff.m_prefab.name,
+                    m_enabled = eff.m_enabled,
+                    m_variant = eff.m_variant,
+                    m_attach = eff.m_attach,
+                    m_follow = eff.m_follow,
+                    m_inheritParentRotation = eff.m_inheritParentRotation,
+                    m_inheritParentScale = eff.m_inheritParentScale,
+                    m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale,
+                    m_randomRotation = eff.m_randomRotation,
+                    m_scale = eff.m_scale,
+                    m_childTransform = eff.m_childTransform,
+            };
+                temp[count] = james;
+                count++;
+             }
+            return temp;
         }
 
         private WItemData GetItem(GameObject go, ObjectDB tod) {
@@ -724,9 +753,7 @@ namespace wackydatabase.GetData
                     Spirit = data.m_shared.m_damagesPerLevel.m_spirit
                 };
 
-            }
-
-            
+            }         
            
             StatMods StatModdifers = new StatMods
             {
@@ -734,38 +761,35 @@ namespace wackydatabase.GetData
                 m_EitrRegen = data.m_shared.m_eitrRegenModifier,
             };
 
-            //string[] g_hit = data.m_shared.m_hitEffect?.m_effectPrefabs ?? null;
 
-
-
-            GEffects gEffects = new GEffects()
+            GEffectsPLUS gEffects = new GEffectsPLUS()
             {
-                Hit_Effects = CheckEffectsArray(data.m_shared.m_hitEffect?.m_effectPrefabs) ?? null,
-                Hit_Terrain_Effects = CheckEffectsArray(data.m_shared.m_hitTerrainEffect?.m_effectPrefabs) ?? null,
-                Start_Effect = CheckEffectsArray(data.m_shared.m_startEffect?.m_effectPrefabs) ?? null,
-                Hold_Start_Effects = CheckEffectsArray(data.m_shared.m_holdStartEffect?.m_effectPrefabs) ?? null,
-                Trigger_Effect = CheckEffectsArray(data.m_shared.m_triggerEffect?.m_effectPrefabs) ?? null,
-                Trail_Effect = CheckEffectsArray(data.m_shared.m_trailStartEffect?.m_effectPrefabs) ?? null,
+                Hit_Effects = ConvertEffectstoVerse(data.m_shared.m_hitEffect?.m_effectPrefabs),
+                Hit_Terrain_Effects = ConvertEffectstoVerse(data.m_shared.m_hitTerrainEffect?.m_effectPrefabs),
+                Start_Effect = ConvertEffectstoVerse(data.m_shared.m_startEffect?.m_effectPrefabs),
+                Hold_Start_Effects = ConvertEffectstoVerse(data.m_shared.m_holdStartEffect?.m_effectPrefabs),
+                Trigger_Effect = ConvertEffectstoVerse(data.m_shared.m_triggerEffect?.m_effectPrefabs),
+                Trail_Effect = ConvertEffectstoVerse(data.m_shared.m_trailStartEffect?.m_effectPrefabs),
             };
-            AEffects aEffects = new AEffects()
+            AEffectsPLUS aEffects = new AEffectsPLUS()
             {
-                Hit_Effects = CheckEffectsArray(data.m_shared.m_attack?.m_hitEffect?.m_effectPrefabs) ?? null,
-                Hit_Terrain_Effects = CheckEffectsArray(data.m_shared.m_attack?.m_hitTerrainEffect.m_effectPrefabs) ?? null,
-                Start_Effect = CheckEffectsArray(data.m_shared.m_attack?.m_startEffect.m_effectPrefabs) ?? null,
-                Trigger_Effect = CheckEffectsArray(data.m_shared.m_attack?.m_triggerEffect.m_effectPrefabs) ?? null,
-                Trail_Effect = CheckEffectsArray(data.m_shared.m_attack?.m_trailStartEffect.m_effectPrefabs) ?? null,
-                Burst_Effect = CheckEffectsArray(data.m_shared.m_attack?.m_burstEffect?.m_effectPrefabs) ?? null,
+                Hit_Effects = ConvertEffectstoVerse(data.m_shared.m_attack?.m_hitEffect?.m_effectPrefabs) ,
+                Hit_Terrain_Effects = ConvertEffectstoVerse(data.m_shared.m_attack?.m_hitTerrainEffect.m_effectPrefabs),
+                Start_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_startEffect.m_effectPrefabs),
+                Trigger_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_triggerEffect.m_effectPrefabs),
+                Trail_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_trailStartEffect.m_effectPrefabs),
+                Burst_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_burstEffect?.m_effectPrefabs),
 
             };
 
-            AEffects sEffects = new AEffects()
+            AEffectsPLUS sEffects = new AEffectsPLUS()
             {
-                Hit_Effects = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_hitEffect?.m_effectPrefabs) ?? null,
-                Hit_Terrain_Effects = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_hitTerrainEffect.m_effectPrefabs) ?? null,
-                Start_Effect = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_startEffect.m_effectPrefabs) ?? null,
-                Trigger_Effect = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_triggerEffect.m_effectPrefabs) ?? null,
-                Trail_Effect = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_trailStartEffect.m_effectPrefabs) ?? null,
-                Burst_Effect = CheckEffectsArray(data.m_shared.m_secondaryAttack?.m_burstEffect?.m_effectPrefabs) ?? null,
+                Hit_Effects = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_hitEffect?.m_effectPrefabs),
+                Hit_Terrain_Effects = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_hitTerrainEffect.m_effectPrefabs),
+                Start_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_startEffect.m_effectPrefabs),
+                Trigger_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_triggerEffect.m_effectPrefabs),
+                Trail_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_trailStartEffect.m_effectPrefabs),
+                Burst_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_burstEffect?.m_effectPrefabs),
             };
 
             WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " Main ");
@@ -805,7 +829,7 @@ namespace wackydatabase.GetData
                 Damage_Per_Level = damagesPerLevel,
                 Moddifiers = StatModdifers,
                 damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
-                GEffects = gEffects,
+                GEffectsPLUS = gEffects,
 
 
 
@@ -887,7 +911,17 @@ namespace wackydatabase.GetData
                     Projectile_Accuraccy = data.m_shared.m_attack.m_projectileAccuracy,
                     Projectiles = data.m_shared.m_attack.m_projectiles,
 
-                    AEffects = aEffects,
+                    Skill_Accuracy = data.m_shared.m_attack.m_skillAccuracy,
+                    Launch_Angle = data.m_shared.m_attack.m_launchAngle,
+                    Projectile_Burst = data.m_shared.m_attack.m_projectileBursts,
+                    Burst_Interval = data.m_shared.m_attack.m_burstInterval,
+                    Destory_Previous_Projectile = data.m_shared.m_attack.m_destroyPreviousProjectile,
+                    PerBurst_Resourse_usage = data.m_shared.m_attack.m_perBurstResourceUsage,
+                    Looping_Attack = data.m_shared.m_attack.m_loopingAttack,
+                    Consume_Item = data.m_shared.m_attack.m_consumeItem,
+
+
+                    AEffectsPLUS = aEffects,
                 };
 
                 AttackArm Secondary_Attack = new AttackArm
@@ -937,7 +971,17 @@ namespace wackydatabase.GetData
                     Projectile_Accuraccy = data.m_shared.m_secondaryAttack.m_projectileAccuracy,
                     Projectiles = data.m_shared.m_secondaryAttack.m_projectiles,
 
-                    AEffects = sEffects,
+
+                    Skill_Accuracy = data.m_shared.m_secondaryAttack.m_skillAccuracy,
+                    Launch_Angle = data.m_shared.m_secondaryAttack.m_launchAngle,
+                    Projectile_Burst = data.m_shared.m_secondaryAttack.m_projectileBursts,
+                    Burst_Interval = data.m_shared.m_secondaryAttack.m_burstInterval,
+                    Destory_Previous_Projectile = data.m_shared.m_secondaryAttack.m_destroyPreviousProjectile,
+                    PerBurst_Resourse_usage = data.m_shared.m_secondaryAttack.m_perBurstResourceUsage,
+                    Looping_Attack = data.m_shared.m_secondaryAttack.m_loopingAttack,
+                    Consume_Item = data.m_shared.m_secondaryAttack.m_consumeItem,
+
+                    AEffectsPLUS = sEffects,
                 };
                 ItemData.Primary_Attack = Primary_Attack;
                 ItemData.Secondary_Attack = Secondary_Attack;
