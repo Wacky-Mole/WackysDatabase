@@ -1044,7 +1044,7 @@ Wackymole
 | 2.1.5 | Added API for Clone mapping to orginal prefab. </br> Adjustment for Epicloot+wackydb on quitting </br> 
 | 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
 | 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
-| 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to Conversion list allows you to disable an item and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
+| 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to piece conversion list allows you to disable an input and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
 
 
 
