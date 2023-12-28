@@ -716,6 +716,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `FromName` (string): The name of the item to convert from.
 - `ToName` (string): The name of the item to convert to.
 - `Amount` (int): The amount to spawn when batch is done.
+- `Disable` (bool): Default is false, this allows you to remove existing conversions, while also allowing me to not force clear the list. Now items not listed shouldn't be affected
 
 
 </br>
@@ -731,12 +732,14 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `maxFuel` (int): The maximum fuel capacity of the cooking station.
 - `secPerFuel` (int): The time, in seconds, per unit of fuel.
 - `cookConversion` (List<CookStationConversionList>): A list of cooking conversions.
+- `replaceDefaultConversion` (bool) Default true - Override all of the conversion list. - false just adds to existing list
 
 #### CookStationConversionList
 
 - `FromName` (string): The name of the item to convert from.
 - `ToName` (string): The name of the item to convert to.
 - `CookTime` (float): The cooking time for the conversion.
+- `Disable` (bool): Default false - disables this conversion
 
 </br>
 
@@ -755,6 +758,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `requiresRoof` (bool): Indicates whether the smelter requires a roof.
 - `addOreAnimationLength` (float): The length of the animation for adding ore.
 - `smelterConversion` (List<SmelterConversionList>): The list of smelter conversions.
+- `replaceDefaultConversion` (bool) Default true - Override all of the conversion list. - false just adds to existing list
 
 
 ### fuelItemData
@@ -1035,7 +1039,7 @@ Wackymole
 | 2.1.5 | Added API for Clone mapping to orginal prefab. </br> Adjustment for Epicloot+wackydb on quitting </br> 
 | 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
 | 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
-| 2.1.8 | Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time.
+| 2.1.8 | Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Disable to Conversion list allows you to disable an item and not forcing me to clear the whole list. Now you list shouldn't conflict with additional mods
 
 
 

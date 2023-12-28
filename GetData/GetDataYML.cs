@@ -490,6 +490,7 @@ namespace wackydatabase.GetData
                     cookl.FromName = Item.m_from.name;
                     cookl.ToName = Item.m_to.name;
                     cookl.CookTime = Item.m_cookTime;
+                    cookl.Remove = false;
                     CookConversionList.Add(cookl);
                 } 
                 CookingStationData CookData2 = new CookingStationData();
@@ -525,6 +526,7 @@ namespace wackydatabase.GetData
                     temp1.FromName = ferms.m_from.gameObject.name;
                     temp1.ToName = ferms.m_to.gameObject.name;
                     temp1.Amount = ferms.m_producedItems;
+                    temp1.Remove = false;
                     fermenterConversionLists.Add(temp1);
                 }
                 FermenterData fermdata = new FermenterData();
@@ -532,6 +534,7 @@ namespace wackydatabase.GetData
                 fermdata.fermDuration = ferm.m_fermentationDuration;
                 fermdata.fermConversion = fermenterConversionLists;
                 data.fermStationData = fermdata;
+                
 
             }
 
@@ -567,6 +570,7 @@ namespace wackydatabase.GetData
                         SmelterConversionList smell = new SmelterConversionList();
                         smell.FromName = Item.m_from.name;
                         smell.ToName = Item.m_to.name;
+                        smell.Remove = false;
                         smelterConversionList.Add(smell);
                     }
 
@@ -578,6 +582,7 @@ namespace wackydatabase.GetData
                         addOreTooltip = smelt.m_addOreTooltip,
                         maxOre = smelt.m_maxOre,
                         secPerProduct = smelt.m_secPerProduct,
+
                     };
                     data.smelterData = smelterData2;
                 }
@@ -595,6 +600,7 @@ namespace wackydatabase.GetData
                         SmelterConversionList smell = new SmelterConversionList();
                         smell.FromName = Item.m_from.name;
                         smell.ToName = Item.m_to.name;
+                        smell.Remove = false;
                         smelterConversionList.Add(smell);
                     }
 

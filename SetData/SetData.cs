@@ -985,22 +985,38 @@ namespace wackydatabase.SetData
 
                 if (data.fermStationData.fermConversion != null)
                 {
-                    ferm.m_conversion.Clear();
-                    List<FermenterConversionList> list = new List<FermenterConversionList>();
-                    foreach (var conv in data.fermStationData.fermConversion)
+                    var list = ferm.m_conversion;
+                    foreach (var userlist in data.fermStationData.fermConversion)
                     {
-                        Fermenter.ItemConversion conversion = new Fermenter.ItemConversion();
-                        if (conv != null)
+                        if (list.Exists(x => x.m_from.gameObject.name == userlist.FromName))
                         {
-                            if (conv.FromName != null)
-                                conversion.m_from = Instant.GetItemPrefab(conv.FromName).GetComponent<ItemDrop>();
-
-                            if (conv.ToName != null)
-                                conversion.m_to = Instant.GetItemPrefab(conv.ToName).GetComponent<ItemDrop>();
-
-                            conversion.m_producedItems = conv.Amount ?? conversion.m_producedItems;
+                            var c = list.Find(x => x.m_from.gameObject.name == userlist.FromName);
+                            if (userlist.ToName != null)
+                            {
+                                c.m_to = Instant.GetItemPrefab(userlist.ToName).GetComponent<ItemDrop>();
+                            }
+                            c.m_producedItems = userlist.Amount ?? c.m_producedItems;
+                            if (userlist.Remove ?? false)
+                                list.Remove(c);
                         }
-                        ferm.m_conversion.Add(conversion);
+                        else
+                        {
+                            if (!userlist.Remove ?? false)
+                            {
+                                Fermenter.ItemConversion paul = new Fermenter.ItemConversion();
+                                if (userlist.FromName != null)
+                                {
+                                    paul.m_from = Instant.GetItemPrefab(userlist.FromName).GetComponent<ItemDrop>();
+                                }
+                                if (userlist.ToName != null)
+                                {
+                                    paul.m_to = Instant.GetItemPrefab(userlist.ToName).GetComponent<ItemDrop>();
+                                }
+                                paul.m_producedItems = userlist.Amount ?? paul.m_producedItems;
+
+                                list.Add(paul);
+                            }
+                        }
                     }
                 }
             }
@@ -1055,26 +1071,39 @@ namespace wackydatabase.SetData
 
                 if (data.cookingStationData.cookConversion != null)
                 {
-                    cook.m_conversion.Clear();
-                    foreach (var list in data.cookingStationData.cookConversion)
+                    var list = cook.m_conversion;
+                    foreach (var userlist in data.cookingStationData.cookConversion)
                     {
-                        CookingStation.ItemConversion paul = new CookingStation.ItemConversion();
-
-                        //smelt.m_conversion[0].; // has to have 1 set before
-                        if (list != null)
+                        if (list.Exists(x => x.m_from.gameObject.name == userlist.FromName))
                         {
-                            if (list.FromName != null)
+                            var c = list.Find(x => x.m_from.gameObject.name == userlist.FromName);
+                            if (userlist.ToName != null)
                             {
-                                paul.m_from = Instant.GetItemPrefab(list.FromName).GetComponent<ItemDrop>();
+                                c.m_to = Instant.GetItemPrefab(userlist.ToName).GetComponent<ItemDrop>();
                             }
-
-                            if (list.ToName != null)
-                            {
-                                paul.m_to = Instant.GetItemPrefab(list.ToName).GetComponent<ItemDrop>();
-                            }
-                            paul.m_cookTime = list.CookTime ?? 10;// overwise 10 secs
+                            c.m_cookTime = userlist.CookTime ?? 10;// overwise 10 secs
+                            if (userlist.Remove ?? false)
+                                list.Remove(c);
                         }
-                        cook.m_conversion.Add(paul);
+                        else
+                        {
+                            if (!userlist.Remove ?? false)
+                            {
+                                CookingStation.ItemConversion paul = new CookingStation.ItemConversion();
+                                if (userlist.FromName != null)
+                                {
+                                    paul.m_from = Instant.GetItemPrefab(userlist.FromName).GetComponent<ItemDrop>();
+                                }
+
+                                if (userlist.ToName != null)
+                                {
+                                    paul.m_to = Instant.GetItemPrefab(userlist.ToName).GetComponent<ItemDrop>();
+                                }
+                                paul.m_cookTime = userlist.CookTime ?? 10;// overwise 10 secs
+
+                                list.Add(paul);
+                            }
+                        }
                     }
                 }
             }
@@ -1105,27 +1134,37 @@ namespace wackydatabase.SetData
 
                 if (data.smelterData.smelterConversion != null)
                 {
-                    smelt.m_conversion.Clear();
-                    foreach (var list in data.smelterData.smelterConversion)
+                    var list = smelt.m_conversion;
+                    foreach (var userlist in data.smelterData.smelterConversion)
                     {
-                        Smelter.ItemConversion paul = new Smelter.ItemConversion();
-
-                        //smelt.m_conversion[0].; // has to have 1 set before
-                        if (list != null)
+                        if (list.Exists(x => x.m_from.gameObject.name == userlist.FromName))
                         {
-                            if (list.FromName != null)
+                            var c = list.Find(x => x.m_from.gameObject.name == userlist.FromName);
+                            if (userlist.ToName != null)
                             {
-                                //paul.m_from.name =list.FromName;
-                                paul.m_from = Instant.GetItemPrefab(list.FromName).GetComponent<ItemDrop>();
+                                c.m_to = Instant.GetItemPrefab(userlist.ToName).GetComponent<ItemDrop>();
                             }
-
-                            if (list.ToName != null)
+                            if (userlist.Remove ?? false)
+                                list.Remove(c);
+                        }
+                        else
+                        {
+                            if (!userlist.Remove ?? false)
                             {
-                                //paul.m_to.name = list.ToName;
-                                paul.m_to = Instant.GetItemPrefab(list.ToName).GetComponent<ItemDrop>();
+                                Smelter.ItemConversion paul = new Smelter.ItemConversion();
+                                if (userlist.FromName != null)
+                                {
+                                    paul.m_from = Instant.GetItemPrefab(userlist.FromName).GetComponent<ItemDrop>();
+                                }
+
+                                if (userlist.ToName != null)
+                                {
+                                    paul.m_to = Instant.GetItemPrefab(userlist.ToName).GetComponent<ItemDrop>();
+                                }
+
+                                list.Add(paul);
                             }
                         }
-                        smelt.m_conversion.Add(paul);
                     }
                 }
             }

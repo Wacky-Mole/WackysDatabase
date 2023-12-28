@@ -202,6 +202,7 @@ namespace wackydatabase.Datas
     {
         public string? FromName;
         public string? ToName;
+        public bool? Remove = false;
 
     }
 
@@ -210,6 +211,7 @@ namespace wackydatabase.Datas
         public string? FromName;
         public string? ToName;
         public float? CookTime;
+        public bool? Remove = false;
 
     }
 
@@ -218,6 +220,7 @@ namespace wackydatabase.Datas
         public string? FromName;
         public string? ToName;
         public int? Amount;
+        public bool? Remove = false;
     }
 
 }
