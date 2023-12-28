@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.1.8
+Version: 2.2.0
 Features
 
 
@@ -150,6 +150,9 @@ Frequently Asked Questions
     Q: I can't repair spawned in Cloned items, how do I fix?
         A: Repairstation is set in the recipe, make a cloned recipe, and set to disable or change a req to SwordCheat.
 
+    Q: How does Piece Snapshot work?
+        A: Piece snapshot has given me a lot of problems so it only loads the at Game.SpawnPlayer. If you do a wackydb_reload use the wackydb_snapshot command to reload snapshots. 
+
 </details>
 
 <details><summary>Configuration</summary>
@@ -210,6 +213,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
 - `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
 - `wackydb_clearcache`: Clears the current cache, materials and textures. Only do this after big yaml changes, cache is important - This command works on menu screen
+- `wackydb_snapshot`: Loads Snapshots for pieces after a manual reload
 
 
 </details>
@@ -716,7 +720,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `FromName` (string): The name of the item to convert from.
 - `ToName` (string): The name of the item to convert to.
 - `Amount` (int): The amount to spawn when batch is done.
-- `Disable` (bool): Default is false, this allows you to remove existing conversions, while also allowing me to not force clear the list. Now items not listed shouldn't be affected
+- `Remove` (bool): Default is false, this allows you to remove existing conversions. Now items not listed shouldn't be affected
 
 
 </br>
@@ -739,7 +743,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `FromName` (string): The name of the item to convert from.
 - `ToName` (string): The name of the item to convert to.
 - `CookTime` (float): The cooking time for the conversion.
-- `Disable` (bool): Default false - disables this conversion
+- `Remove` (bool): Default is false, this allows you to remove existing conversions. Now items not listed shouldn't be affected
 
 </br>
 
@@ -769,6 +773,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 
 - `FromName` (string): The name of the item to convert from.
 - `ToName` (string): The name of the item to convert to.
+- `Remove` (bool): Default is false, this allows you to remove existing conversions. Now items not listed shouldn't be affected
 
 Delete all by using "-"
 
@@ -1039,7 +1044,7 @@ Wackymole
 | 2.1.5 | Added API for Clone mapping to orginal prefab. </br> Adjustment for Epicloot+wackydb on quitting </br> 
 | 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
 | 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
-| 2.1.8 | Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Disable to Conversion list allows you to disable an item and not forcing me to clear the whole list. Now you list shouldn't conflict with additional mods
+| 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to Conversion list allows you to disable an item and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
 
 
 

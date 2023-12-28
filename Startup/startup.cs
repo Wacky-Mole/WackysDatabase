@@ -284,7 +284,11 @@ namespace wackydatabase.Startup
             static void Postfix(Game __instance)
             {
 
-
+                foreach (var item in WMRecipeCust.SnapshotPiecestoDo)
+                {
+                    Functions.SnapshotPiece(item);
+                }
+                WMRecipeCust.SnapshotPiecestoDo.Clear();
             }
         }
 

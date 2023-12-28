@@ -245,7 +245,7 @@ namespace wackydatabase.Util
             }
         }
 
-        public  static void SnapshotPiece(GameObject prefab, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
+        public static void SnapshotPiece(GameObject prefab, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
         {
             
             void Do2()
@@ -256,7 +256,7 @@ namespace wackydatabase.Util
                 {
                     return;
                 }
-                //var playerpos = Player.m_localPlayer.transform.position;
+                var playerpos = Player.m_localPlayer.transform.position;
                 Camera camera = new GameObject("CameraIcon", typeof(Camera)).GetComponent<Camera>();
                 camera.backgroundColor = Color.clear;
                 camera.clearFlags = CameraClearFlags.SolidColor;
@@ -273,7 +273,8 @@ namespace wackydatabase.Util
                 sideLight.cullingMask = 1 << layer;
                 sideLight.intensity = lightIntensity;
 
-                GameObject visual = Object.Instantiate(prefab.gameObject, new Vector3(0,0,-100), Quaternion.Euler(23, 51, 25.8f));
+                playerpos.y =  - 100; // new Vector3(0,0,-100)
+                GameObject visual = Object.Instantiate(prefab.gameObject, playerpos, Quaternion.Euler(23, 51, 25.8f));
 
                 //Object.DestroyImmediate(visual);
                 //visual.name = "snaptrash";
