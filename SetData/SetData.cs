@@ -1861,32 +1861,38 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_loopingAttack = data.Primary_Attack.Looping_Attack ?? PrimaryItemData.m_shared.m_attack.m_loopingAttack;
                         PrimaryItemData.m_shared.m_attack.m_consumeItem = data.Primary_Attack.Consume_Item ?? PrimaryItemData.m_shared.m_attack.m_consumeItem;
 
-                        if (data.Primary_Attack.AEffects.Hit_Effects != null)
-                            PrimaryItemData.m_shared.m_attack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitEffect, data.Primary_Attack.AEffects.Hit_Effects);
-                        if (data.Primary_Attack.AEffects.Hit_Terrain_Effects != null)
-                            PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect, data.Primary_Attack.AEffects.Hit_Terrain_Effects);
-                        if (data.Primary_Attack.AEffects.Start_Effect != null)
-                            PrimaryItemData.m_shared.m_attack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_startEffect, data.Primary_Attack.AEffects.Start_Effect);
-                        if (data.Primary_Attack.AEffects.Trigger_Effect != null)
-                            PrimaryItemData.m_shared.m_attack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_triggerEffect, data.Primary_Attack.AEffects.Trigger_Effect);
-                        if (data.Primary_Attack.AEffects.Trail_Effect != null)
-                            PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffects.Trail_Effect);
-                        if (data.Primary_Attack.AEffects.Burst_Effect != null)
-                            PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffects.Burst_Effect);
-
-                        if (data.Primary_Attack.AEffectsPLUS.Hit_Effects != null)
-                            PrimaryItemData.m_shared.m_attack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitEffect, data.Primary_Attack.AEffectsPLUS.Hit_Effects);
-                        if (data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects != null)
-                            PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect, data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
-                        if (data.Primary_Attack.AEffectsPLUS.Start_Effect != null)
-                            PrimaryItemData.m_shared.m_attack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_startEffect, data.Primary_Attack.AEffectsPLUS.Start_Effect);
-                        if (data.Primary_Attack.AEffectsPLUS.Trigger_Effect != null)
-                            PrimaryItemData.m_shared.m_attack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_triggerEffect, data.Primary_Attack.AEffectsPLUS.Trigger_Effect);
-                        if (data.Primary_Attack.AEffectsPLUS.Trail_Effect != null)
-                            PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffectsPLUS.Trail_Effect);
-                        if (data.Primary_Attack.AEffectsPLUS.Burst_Effect != null)
-                            PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffectsPLUS.Burst_Effect);
-
+                        //WMRecipeCust.Dbgl($"   {data.name} Item AEffects ");
+                        if (data.Primary_Attack.AEffects != null)
+                        {
+                            if (data.Primary_Attack.AEffects.Hit_Effects != null)
+                                PrimaryItemData.m_shared.m_attack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitEffect, data.Primary_Attack.AEffects.Hit_Effects);
+                            if (data.Primary_Attack.AEffects.Hit_Terrain_Effects != null)
+                                PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect, data.Primary_Attack.AEffects.Hit_Terrain_Effects);
+                            if (data.Primary_Attack.AEffects.Start_Effect != null)
+                                PrimaryItemData.m_shared.m_attack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_startEffect, data.Primary_Attack.AEffects.Start_Effect);
+                            if (data.Primary_Attack.AEffects.Trigger_Effect != null)
+                                PrimaryItemData.m_shared.m_attack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_triggerEffect, data.Primary_Attack.AEffects.Trigger_Effect);
+                            if (data.Primary_Attack.AEffects.Trail_Effect != null)
+                                PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffects.Trail_Effect);
+                            if (data.Primary_Attack.AEffects.Burst_Effect != null)
+                                PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffects.Burst_Effect);
+                        }
+                        //WMRecipeCust.Dbgl($"   {data.name} Item AEffectsPLUS ");
+                        if (data.Primary_Attack.AEffectsPLUS != null)
+                        {
+                            if (data.Primary_Attack.AEffectsPLUS.Hit_Effects.Length > 0)
+                                PrimaryItemData.m_shared.m_attack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitEffect, data.Primary_Attack.AEffectsPLUS.Hit_Effects);
+                            if (data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects.Length > 0)
+                                PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect, data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
+                            if (data.Primary_Attack.AEffectsPLUS.Start_Effect.Length > 0)
+                                PrimaryItemData.m_shared.m_attack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_startEffect, data.Primary_Attack.AEffectsPLUS.Start_Effect);
+                            if (data.Primary_Attack.AEffectsPLUS.Trigger_Effect.Length > 0)
+                                PrimaryItemData.m_shared.m_attack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_triggerEffect, data.Primary_Attack.AEffectsPLUS.Trigger_Effect);
+                            if (data.Primary_Attack.AEffectsPLUS.Trail_Effect.Length > 0)
+                                PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffectsPLUS.Trail_Effect);
+                            if (data.Primary_Attack.AEffectsPLUS.Burst_Effect.Length > 0)
+                                PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffectsPLUS.Burst_Effect);
+                        }
                         // Secondary
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackType = data.Secondary_Attack.AttackType ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackType;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation = data.Secondary_Attack.Attack_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation;
@@ -1980,32 +1986,37 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_loopingAttack = data.Secondary_Attack.Looping_Attack ?? PrimaryItemData.m_shared.m_secondaryAttack.m_loopingAttack;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_consumeItem = data.Secondary_Attack.Consume_Item ?? PrimaryItemData.m_shared.m_secondaryAttack.m_consumeItem;
 
-                        if (data.Secondary_Attack.AEffects.Hit_Effects != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect, data.Secondary_Attack.AEffects.Hit_Effects);
-                        if (data.Secondary_Attack.AEffects.Hit_Terrain_Effects != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect, data.Secondary_Attack.AEffects.Hit_Terrain_Effects);
-                        if (data.Secondary_Attack.AEffects.Start_Effect != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect, data.Secondary_Attack.AEffects.Start_Effect);
-                        if (data.Secondary_Attack.AEffects.Trigger_Effect != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect, data.Secondary_Attack.AEffects.Trigger_Effect);
-                        if (data.Secondary_Attack.AEffects.Trail_Effect != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect, data.Secondary_Attack.AEffects.Trail_Effect);
-                        if (data.Secondary_Attack.AEffects.Burst_Effect != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect, data.Secondary_Attack.AEffects.Burst_Effect);
+                        if (data.Secondary_Attack.AEffects != null)
+                        {
+                            if (data.Secondary_Attack.AEffects.Hit_Effects != null)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect, data.Secondary_Attack.AEffects.Hit_Effects);
+                            if (data.Secondary_Attack.AEffects.Hit_Terrain_Effects != null)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect, data.Secondary_Attack.AEffects.Hit_Terrain_Effects);
+                            if (data.Secondary_Attack.AEffects.Start_Effect != null)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect, data.Secondary_Attack.AEffects.Start_Effect);
+                            if (data.Secondary_Attack.AEffects.Trigger_Effect != null)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect, data.Secondary_Attack.AEffects.Trigger_Effect);
+                            if (data.Secondary_Attack.AEffects.Trail_Effect != null)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect, data.Secondary_Attack.AEffects.Trail_Effect);
+                            if (data.Secondary_Attack.AEffects.Burst_Effect != null)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect, data.Secondary_Attack.AEffects.Burst_Effect);
+                        }
+                        if (data.Secondary_Attack.AEffectsPLUS != null)
+                        {
+                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Effects.Length > 0)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Effects);
+                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects.Length > 0)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
+                            if (data.Secondary_Attack.AEffectsPLUS.Start_Effect.Length > 0)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect, data.Secondary_Attack.AEffectsPLUS.Start_Effect);
+                            if (data.Secondary_Attack.AEffectsPLUS.Trigger_Effect.Length > 0)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect, data.Secondary_Attack.AEffectsPLUS.Trigger_Effect);
+                            if (data.Secondary_Attack.AEffectsPLUS.Trail_Effect.Length > 0)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect, data.Secondary_Attack.AEffectsPLUS.Trail_Effect);
+                            if (data.Secondary_Attack.AEffectsPLUS.Burst_Effect.Length > 0)
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect, data.Secondary_Attack.AEffectsPLUS.Burst_Effect);
 
-
-                        if (data.Secondary_Attack.AEffectsPLUS.Hit_Effects != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Effects);
-                        if (data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
-                        if (data.Secondary_Attack.AEffectsPLUS.Start_Effect != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect, data.Secondary_Attack.AEffectsPLUS.Start_Effect);
-                        if (data.Secondary_Attack.AEffectsPLUS.Trigger_Effect != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect, data.Secondary_Attack.AEffectsPLUS.Trigger_Effect);
-                        if (data.Secondary_Attack.AEffectsPLUS.Trail_Effect != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect, data.Secondary_Attack.AEffectsPLUS.Trail_Effect);
-                        if (data.Secondary_Attack.AEffectsPLUS.Burst_Effect != null)
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect, data.Secondary_Attack.AEffectsPLUS.Burst_Effect);
+                        }
                     }
 
                     if (data.Armor != null)
@@ -2079,11 +2090,13 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus ?? PrimaryItemData.m_shared.m_backstabBonus;
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback ?? PrimaryItemData.m_shared.m_attackForce;
 
+                    
                     if (data.Attack_status_effect != null)
                         PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
 
                     if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
                     {
+                        WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit added ");
                         GameObject found = null;
                         foreach (var ob in AllObjects)
                         {
@@ -2101,6 +2114,7 @@ namespace wackydatabase.SetData
 
                     if (!string.IsNullOrEmpty(data.spawn_on_terrain_hit) && (data.spawn_on_terrain_hit != PrimaryItemData.m_shared.m_spawnOnHitTerrain?.name))
                     {
+                        WMRecipeCust.Dbgl($"   {data.name} SpawnOnHitTerrain added ");
                         GameObject found = null;
                         foreach (var ob in AllObjects)
                         {
@@ -2133,31 +2147,38 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_maxQuality = data.m_maxQuality ?? PrimaryItemData.m_shared.m_maxQuality;
                     PrimaryItemData.m_shared.m_value = data.m_value ?? PrimaryItemData.m_shared.m_value;
 
-                    if (data.GEffects.Hit_Effects != null)
-                        PrimaryItemData.m_shared.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_hitEffect, data.GEffects.Hit_Effects, "m_hitEffect");
-                    if (data.GEffects.Hit_Terrain_Effects != null)
-                        PrimaryItemData.m_shared.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_hitTerrainEffect, data.GEffects.Hit_Terrain_Effects, "m_hitTerrainEffect");
-                    if (data.GEffects.Start_Effect != null)
-                        PrimaryItemData.m_shared.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_startEffect, data.GEffects.Start_Effect, "m_startEffect");
-                    if (data.GEffects.Hold_Start_Effects != null)
-                        PrimaryItemData.m_shared.m_holdStartEffect = FindEffect(PrimaryItemData.m_shared.m_holdStartEffect, data.GEffects.Hold_Start_Effects, "m_holdStartEffect");
-                    if (data.GEffects.Trigger_Effect != null)
-                        PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffects.Trigger_Effect, "m_triggerEffect");
-                    if (data.GEffects.Trail_Effect != null)
-                        PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffects.Trail_Effect, "m_trailStartEffect"); 
-                    
-                    if (data.GEffectsPLUS.Hit_Effects != null)
-                        PrimaryItemData.m_shared.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_hitEffect, data.GEffectsPLUS.Hit_Effects, "m_hitEffect");
-                    if (data.GEffectsPLUS.Hit_Terrain_Effects != null)
-                        PrimaryItemData.m_shared.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_hitTerrainEffect, data.GEffectsPLUS.Hit_Terrain_Effects, "m_hitTerrainEffect");
-                    if (data.GEffectsPLUS.Start_Effect != null)
-                        PrimaryItemData.m_shared.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_startEffect, data.GEffectsPLUS.Start_Effect, "m_startEffect");
-                    if (data.GEffectsPLUS.Hold_Start_Effects != null)
-                        PrimaryItemData.m_shared.m_holdStartEffect = FindEffect(PrimaryItemData.m_shared.m_holdStartEffect, data.GEffectsPLUS.Hold_Start_Effects, "m_holdStartEffect");
-                    if (data.GEffectsPLUS.Trigger_Effect != null)
-                        PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffectsPLUS.Trigger_Effect, "m_triggerEffect");
-                    if (data.GEffectsPLUS.Trail_Effect != null)
-                        PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffectsPLUS.Trail_Effect, "m_trailStartEffect");
+                    if (data.GEffects != null)
+                    {
+                        if (data.GEffects.Hit_Effects != null)
+                            PrimaryItemData.m_shared.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_hitEffect, data.GEffects.Hit_Effects, "m_hitEffect");
+                        if (data.GEffects.Hit_Terrain_Effects != null)
+                            PrimaryItemData.m_shared.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_hitTerrainEffect, data.GEffects.Hit_Terrain_Effects, "m_hitTerrainEffect");
+                        if (data.GEffects.Start_Effect != null)
+                            PrimaryItemData.m_shared.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_startEffect, data.GEffects.Start_Effect, "m_startEffect");
+                        if (data.GEffects.Hold_Start_Effects != null)
+                            PrimaryItemData.m_shared.m_holdStartEffect = FindEffect(PrimaryItemData.m_shared.m_holdStartEffect, data.GEffects.Hold_Start_Effects, "m_holdStartEffect");
+                        if (data.GEffects.Trigger_Effect != null)
+                            PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffects.Trigger_Effect, "m_triggerEffect");
+                        if (data.GEffects.Trail_Effect != null)
+                            PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffects.Trail_Effect, "m_trailStartEffect");
+                    }
+
+                    if (data.GEffectsPLUS != null)
+                    {
+                        if (data.GEffectsPLUS.Hit_Effects.Length > 0)
+                            PrimaryItemData.m_shared.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_hitEffect, data.GEffectsPLUS.Hit_Effects, "m_hitEffect");
+                        if (data.GEffectsPLUS.Hit_Terrain_Effects.Length > 0)
+                            PrimaryItemData.m_shared.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_hitTerrainEffect, data.GEffectsPLUS.Hit_Terrain_Effects, "m_hitTerrainEffect");
+                        if (data.GEffectsPLUS.Start_Effect.Length > 0)
+                            PrimaryItemData.m_shared.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_startEffect, data.GEffectsPLUS.Start_Effect, "m_startEffect");
+                        if (data.GEffectsPLUS.Hold_Start_Effects.Length > 0)
+                            PrimaryItemData.m_shared.m_holdStartEffect = FindEffect(PrimaryItemData.m_shared.m_holdStartEffect, data.GEffectsPLUS.Hold_Start_Effects, "m_holdStartEffect");
+                        if (data.GEffectsPLUS.Trigger_Effect.Length > 0)
+                            PrimaryItemData.m_shared.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_triggerEffect, data.GEffectsPLUS.Trigger_Effect, "m_triggerEffect");
+                        if (data.GEffectsPLUS.Trail_Effect.Length > 0)
+                            PrimaryItemData.m_shared.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_trailStartEffect, data.GEffectsPLUS.Trail_Effect, "m_trailStartEffect");
+                    }
+
 
                     if (!DataHelpers.ECheck(data.damageModifiers))
                     {
@@ -2179,12 +2200,14 @@ namespace wackydatabase.SetData
                     }
                     if (PrimaryItemData.m_shared.m_value > 0)
                     {
+                        WMRecipeCust.Dbgl($"   {data.name} Item value " + PrimaryItemData.m_shared.m_value);
                         string valu = "              <color=#edd221>Valuable</color>";
                         PrimaryItemData.m_shared.m_description = data.m_description + valu;
                     }
 
                     if (data.ConsumableStatusEffect != null)
                     {
+                        WMRecipeCust.Dbgl($"   {data.name} Item ConsumableStatusEffect added ");
                         PrimaryItemData.m_shared.m_consumeStatusEffect = Instant.GetStatusEffect(data.ConsumableStatusEffect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_consumeStatusEffect;
                     }
                     return;

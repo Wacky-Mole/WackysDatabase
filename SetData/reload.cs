@@ -391,15 +391,15 @@ namespace wackydatabase.SetData
             // CLONE PASS FIRST - only for craftingStation
             foreach (var data3 in WMRecipeCust.pieceDatasYml)
             {
-                if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName))
+                if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName) && data3.craftingStationData != null)
                 {
                     try
                     {
                         CraftingStation checkifStation = null;
                         GameObject go = DataHelpers.FindPieceObjectName(data3.clonePrefabName);
                         
-                        var tempnam = go.GetComponent<CraftingStation>();
-                        if (tempnam != null)
+                         
+                        if (go.TryGetComponent<CraftingStation>(out var tempnam))
                         {
                             checkifStation = DataHelpers.GetCraftingStation(tempnam.m_name); // for forge and other items that change names between item and CraftingStation
                             if (checkifStation != null) // means the prefab being cloned is a craftingStation and needs to proceed

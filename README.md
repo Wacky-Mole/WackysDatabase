@@ -160,7 +160,7 @@ Frequently Asked Questions
 ## Configuration
 
 The configuration file for WackysDatabase is located at BepInEx/config/WackyMole.WackysDatabase.cfg. The available configurations and their default values are as follows:
-
+****
 - Force Server Config: true (forces server sync)
 - Enable this mod: true
 - IsDebug: true (enables debug information)
@@ -435,9 +435,10 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `Projectile_Vel` (float): The velocity of the projectile.
 - `Projectile_Accuraccy` (float): The accuracy of the projectile.
 - `Projectiles` (int): The number of projectiles.
-- `AEffects` (AEffects): The additional effects of the attack.
+- `AEffects` (AEffects): The additional effects of the attack. OLD
+- `AEffectsPLUS` (AEffectsPLUS): The additional effects of the attack PLUS version- more.
 
-### Class: AEffects
+### Class: AEffectsPLUS
 
 - `Hit_Effects` (string[]): The hit effects of the attack.
 - `Hit_Terrain_Effects` (string[]): The effects when hitting terrain.
@@ -448,6 +449,17 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 
 ![Delete](https://wackymole.com/hosts/Effects_delete.png)
 To delete existing Effects
+
+- `m_enabled` (bool) 
+- `m_variant`(int) Default is -1, most cases leave at -1
+- `m_attach` (bool) - attach to the point or parent?
+- `m_follow` (bool) - follow the parent around
+- `m_inheritParentRotation` (bool) - what is says
+- `m_inheritParentScale` (bool) - Use parent scale based on the time of effect creation
+- `m_multiplyParentVisualScale` (bool) - Scale the size of the parent's size?
+- `m_randomRotation` (bool) - randomRotation
+- `m_scale` (bool) - Scales the size 
+- `m_childTransform` (string)  Probably don't mess with unless you are looking in Unity or unity explorer
 
 </br>
 
@@ -571,12 +583,12 @@ To delete all existing Damage modifiers
 </br>
 </br>
 
-`GEffects` (GEffects): The additional game effects of the item.
+`GEffects` (GEffects): The additional game effects of the item. OLD
+`GEffectsPLUS` (GEffectsPLUS): The additional game effects of the item.
 
-### GEffects
+### GEffectsPLUS
 
 ![Ice Video](https://wackymole.com/hosts/icevideo.gif)
-
 
 
 - `Hit_Effects` (string[]): The hit effects.
@@ -586,7 +598,18 @@ To delete all existing Damage modifiers
 - `Trigger_Effect` (string[]): The triggered effect.
 - `Trail_Effect` (string[]): The effect trail.
 
+</br>
 
+- `m_enabled` (bool) 
+- `m_variant`(int) Default is -1, most cases leave at -1
+- `m_attach` (bool) - attach to the point or parent?
+- `m_follow` (bool) - follow the parent around
+- `m_inheritParentRotation` (bool) - what is says
+- `m_inheritParentScale` (bool) - Use parent scale based on the time of effect creation
+- `m_multiplyParentVisualScale` (bool) - Scale the size of the parent's size?
+- `m_randomRotation` (bool) - randomRotation
+- `m_scale` (bool) - Scales the size 
+- `m_childTransform` (string)  Probably don't mess with unless you are looking in Unity or unity explorer
 </details>
 
 <details><summary> Piece components</summary>
