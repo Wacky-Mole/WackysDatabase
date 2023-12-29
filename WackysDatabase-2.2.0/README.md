@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.1.6
+Version: 2.2.0
 Features
 
 
@@ -150,6 +150,9 @@ Frequently Asked Questions
     Q: I can't repair spawned in Cloned items, how do I fix?
         A: Repairstation is set in the recipe, make a cloned recipe, and set to disable or change a req to SwordCheat.
 
+    Q: How does Piece Snapshot work?
+        A: Piece snapshot has given me a lot of problems so it only loads the at Game.SpawnPlayer. If you do a wackydb_reload use the wackydb_snapshot command to reload snapshots. 
+
 </details>
 
 <details><summary>Configuration</summary>
@@ -157,7 +160,7 @@ Frequently Asked Questions
 ## Configuration
 
 The configuration file for WackysDatabase is located at BepInEx/config/WackyMole.WackysDatabase.cfg. The available configurations and their default values are as follows:
-
+****
 - Force Server Config: true (forces server sync)
 - Enable this mod: true
 - IsDebug: true (enables debug information)
@@ -195,7 +198,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_FenringArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
-- `wackydb_clone [recipe/item/piece/creatures/mat/materials] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
+- `wackydb_clone [recipe/item/piece/creature/mat/materials] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
 
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
@@ -210,6 +213,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
 - `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
 - `wackydb_clearcache`: Clears the current cache, materials and textures. Only do this after big yaml changes, cache is important - This command works on menu screen
+- `wackydb_snapshot`: Loads Snapshots for pieces after a manual reload
 
 
 </details>
@@ -431,9 +435,10 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `Projectile_Vel` (float): The velocity of the projectile.
 - `Projectile_Accuraccy` (float): The accuracy of the projectile.
 - `Projectiles` (int): The number of projectiles.
-- `AEffects` (AEffects): The additional effects of the attack.
+- `AEffects` (AEffects): The additional effects of the attack. OLD
+- `AEffectsPLUS` (AEffectsPLUS): The additional effects of the attack PLUS version- more.
 
-### Class: AEffects
+### Class: AEffectsPLUS
 
 - `Hit_Effects` (string[]): The hit effects of the attack.
 - `Hit_Terrain_Effects` (string[]): The effects when hitting terrain.
@@ -444,6 +449,17 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 
 ![Delete](https://wackymole.com/hosts/Effects_delete.png)
 To delete existing Effects
+
+- `m_enabled` (bool) 
+- `m_variant`(int) Default is -1, most cases leave at -1
+- `m_attach` (bool) - attach to the point or parent?
+- `m_follow` (bool) - follow the parent around
+- `m_inheritParentRotation` (bool) - what is says
+- `m_inheritParentScale` (bool) - Use parent scale based on the time of effect creation
+- `m_multiplyParentVisualScale` (bool) - Scale the size of the parent's size?
+- `m_randomRotation` (bool) - randomRotation
+- `m_scale` (bool) - Scales the size 
+- `m_childTransform` (string)  Probably don't mess with unless you are looking in Unity or unity explorer
 
 </br>
 
@@ -567,12 +583,12 @@ To delete all existing Damage modifiers
 </br>
 </br>
 
-`GEffects` (GEffects): The additional game effects of the item.
+`GEffects` (GEffects): The additional game effects of the item. OLD
+`GEffectsPLUS` (GEffectsPLUS): The additional game effects of the item.
 
-### GEffects
+### GEffectsPLUS
 
 ![Ice Video](https://wackymole.com/hosts/icevideo.gif)
-
 
 
 - `Hit_Effects` (string[]): The hit effects.
@@ -582,7 +598,18 @@ To delete all existing Damage modifiers
 - `Trigger_Effect` (string[]): The triggered effect.
 - `Trail_Effect` (string[]): The effect trail.
 
+</br>
 
+- `m_enabled` (bool) 
+- `m_variant`(int) Default is -1, most cases leave at -1
+- `m_attach` (bool) - attach to the point or parent?
+- `m_follow` (bool) - follow the parent around
+- `m_inheritParentRotation` (bool) - what is says
+- `m_inheritParentScale` (bool) - Use parent scale based on the time of effect creation
+- `m_multiplyParentVisualScale` (bool) - Scale the size of the parent's size?
+- `m_randomRotation` (bool) - randomRotation
+- `m_scale` (bool) - Scales the size 
+- `m_childTransform` (string)  Probably don't mess with unless you are looking in Unity or unity explorer
 </details>
 
 <details><summary> Piece components</summary>
@@ -661,6 +688,7 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 
 ###  ContainerData
 
+ Don't mess with the container size (width and height): I added for someone, but this will mess up things. Use AzuContainers
 - `Width` (int): The width of the container.
 - `Height` (int): The height of the container.
 - `CheckWard` (bool): Indicates whether the container checks for ward placement.
@@ -715,6 +743,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `FromName` (string): The name of the item to convert from.
 - `ToName` (string): The name of the item to convert to.
 - `Amount` (int): The amount to spawn when batch is done.
+- `Remove` (bool): Default is false, this allows you to remove existing conversions. Now items not listed shouldn't be affected
 
 
 </br>
@@ -730,12 +759,14 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `maxFuel` (int): The maximum fuel capacity of the cooking station.
 - `secPerFuel` (int): The time, in seconds, per unit of fuel.
 - `cookConversion` (List<CookStationConversionList>): A list of cooking conversions.
+- `replaceDefaultConversion` (bool) Default true - Override all of the conversion list. - false just adds to existing list
 
 #### CookStationConversionList
 
 - `FromName` (string): The name of the item to convert from.
 - `ToName` (string): The name of the item to convert to.
 - `CookTime` (float): The cooking time for the conversion.
+- `Remove` (bool): Default is false, this allows you to remove existing conversions. Now items not listed shouldn't be affected
 
 </br>
 
@@ -754,6 +785,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `requiresRoof` (bool): Indicates whether the smelter requires a roof.
 - `addOreAnimationLength` (float): The length of the animation for adding ore.
 - `smelterConversion` (List<SmelterConversionList>): The list of smelter conversions.
+- `replaceDefaultConversion` (bool) Default true - Override all of the conversion list. - false just adds to existing list
 
 
 ### fuelItemData
@@ -764,6 +796,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 
 - `FromName` (string): The name of the item to convert from.
 - `ToName` (string): The name of the item to convert to.
+- `Remove` (bool): Default is false, this allows you to remove existing conversions. Now items not listed shouldn't be affected
 
 Delete all by using "-"
 
@@ -1033,6 +1066,8 @@ Wackymole
 | 2.1.4 | Happy Halloween, this update is for the spooky people that use "," as decimal delimiters, resulting in crazy big sizes of items/pieces. </br> SizeMultiplier is now seperated with \| </br> Updated a Priority for loading
 | 2.1.5 | Added API for Clone mapping to orginal prefab. </br> Adjustment for Epicloot+wackydb on quitting </br> 
 | 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
+| 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
+| 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to piece conversion list allows you to disable an input and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
 
 
 
@@ -1065,6 +1100,8 @@ Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wacky
 
 (Note!: If you want the game to have default values, close the game and delete the wackysDatabase folder).
 
+If you null out piece WearNTearData, unexpected things might happen to your world. 
+
 </br>
 </details>
 
@@ -1089,6 +1126,8 @@ Do whatever you want with this mod.
 Known issues: </br>
  Bug on moving stuff from one hammer to another - disable orginal and make a clone for now
  </br> 
- Snapshot pieces still disabled
- </br> 
  Creature material is not working
+ </br>
+SS bug where client receives multi messages, while reloading. 
+</br>
+Stay Wacky.
