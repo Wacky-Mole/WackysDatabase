@@ -863,7 +863,7 @@ namespace wackydatabase.GetData
                 };
                 ItemData.SE_SET_Equip = SE_SET_Equip2;
             }
-            if(go.name == "StaffShield") // for the special cases
+            if(go.name == "StaffShield" || go.name == "StaffSkeleton") // for the special cases
                 hasdmg = true;
 
             if (hasdmg)
