@@ -267,6 +267,7 @@ namespace wackydatabase.Datas
     {
         public float? m_movementModifier;
         public float? m_EitrRegen;
+        public float? m_BaseItemStaminaModifier;
 
     }
 

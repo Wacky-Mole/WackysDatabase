@@ -2039,6 +2039,7 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"   {data.name} Item movement ");
                         PrimaryItemData.m_shared.m_movementModifier = data.Moddifiers.m_movementModifier ?? PrimaryItemData.m_shared.m_movementModifier;
                         PrimaryItemData.m_shared.m_eitrRegenModifier = data.Moddifiers.m_EitrRegen ?? PrimaryItemData.m_shared.m_eitrRegenModifier;
+                        PrimaryItemData.m_shared.m_baseItemsStaminaModifier = data.Moddifiers.m_BaseItemStaminaModifier ?? PrimaryItemData.m_shared.m_baseItemsStaminaModifier;
                     }
                     if (data.SE_Equip != null)
                     {

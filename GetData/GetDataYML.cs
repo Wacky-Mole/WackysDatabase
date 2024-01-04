@@ -765,6 +765,7 @@ namespace wackydatabase.GetData
             {
                 m_movementModifier = data.m_shared.m_movementModifier,
                 m_EitrRegen = data.m_shared.m_eitrRegenModifier,
+                m_BaseItemStaminaModifier = data.m_shared.m_baseItemsStaminaModifier,
             };
 
 
