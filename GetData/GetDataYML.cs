@@ -687,29 +687,48 @@ namespace wackydatabase.GetData
         private EffectVerse[]? ConvertEffectstoVerse(EffectList.EffectData[] tosh)
         {
             if (tosh == null) return null;
-            EffectVerse[] temp = new EffectVerse[tosh.Count()];
-            var count = 0;
-            foreach (EffectList.EffectData eff in tosh)
+            try
             {
-
-                EffectVerse james = new EffectVerse()
+                EffectVerse[] temp = new EffectVerse[tosh.Count()];
+                var count = 0;
+                foreach (EffectList.EffectData eff in tosh)
                 {
-                    name = eff.m_prefab.name,
-                    m_enabled = eff.m_enabled,
-                    m_variant = eff.m_variant,
-                    m_attach = eff.m_attach,
-                    m_follow = eff.m_follow,
-                    m_inheritParentRotation = eff.m_inheritParentRotation,
-                    m_inheritParentScale = eff.m_inheritParentScale,
-                    m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale,
-                    m_randomRotation = eff.m_randomRotation,
-                    m_scale = eff.m_scale,
-                    m_childTransform = eff.m_childTransform,
-            };
-                temp[count] = james;
-                count++;
-             }
-            return temp;
+                    if (eff != null )
+                    {
+                        if (eff.m_prefab != null) {
+                            //WMRecipeCust.WLog.LogWarning(" Effect Check 1 ");
+                            EffectVerse james = new EffectVerse();
+
+                            james.name = eff.m_prefab?.name;
+                            //WMRecipeCust.WLog.LogWarning(" Effect Check 2 ");
+                            james.m_enabled = eff.m_enabled;
+                            james.m_variant = eff.m_variant;
+                            james.m_attach = eff.m_attach;
+                            james.m_follow = eff.m_follow;
+                            james.m_inheritParentRotation = eff.m_inheritParentRotation;
+                            james.m_inheritParentScale = eff.m_inheritParentScale;
+                            james.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale;
+                            james.m_randomRotation = eff.m_randomRotation;
+                            james.m_scale = eff.m_scale;
+                            james.m_childTransform = eff.m_childTransform;
+
+                            temp[count] = james;
+                            count++;
+                        }
+                        else
+                        {
+                            WMRecipeCust.WLog.LogWarning(" effect prefab is null, skipping effect");
+                        }
+                    }
+                    else
+                    {
+                        WMRecipeCust.WLog.LogWarning(" effect is null, skipping effect" );
+                    }
+                    
+                }
+
+                return temp;
+            } catch { WMRecipeCust.WLog.LogWarning(" One Effect returned null - be careful with last item " ); return null; }
         }
 
         private WItemData GetItem(GameObject go, ObjectDB tod) {

@@ -64,6 +64,22 @@ public static class ObjModelLoader
             {
                 WMRecipeCust.WLog.LogInfo($"Failed to load model {file}\n: {ex}");
             }
+        }       
+        foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathObjects, "*.fbx", SearchOption.AllDirectories))
+        {
+            try
+            {
+                GameObject obj = Resources.Load<GameObject>(file);
+                UnityEngine.Object.DontDestroyOnLoad(obj);
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                _loadedModels.Add(fileName, obj);
+                //ParsePNGs(obj, fileName);
+                AddColliders(obj);
+            }
+            catch (Exception ex)
+            {
+                WMRecipeCust.WLog.LogInfo($"Failed to load model fbx {file}\n: {ex}");
+            }
         }
     }
 
