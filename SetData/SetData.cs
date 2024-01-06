@@ -2218,7 +2218,6 @@ namespace wackydatabase.SetData
 
         private static EffectList FindEffect(EffectList current, EffectVerse[] userlist, string name = "")
         {
-           // WMRecipeCust.WLog.LogWarning("Setting Effect");
             if (userlist[0] == null)
                 return current;
 
@@ -2231,7 +2230,6 @@ namespace wackydatabase.SetData
 
             //WMRecipeCust.WLog.LogWarning("Setting Effect "+ userlist[0].name);
             EffectList newList = new EffectList();
-            //newList.m_effectPrefabs = 
             EffectData[] m_effectPrefabs = new EffectData[0];
             EffectData[] newEffectData = new EffectData[userlist.Count()];
             var count = 0;
@@ -2241,7 +2239,6 @@ namespace wackydatabase.SetData
 
                 if (WMRecipeCust.originalVFX.TryGetValue(eff.name, out GameObject list1))
                 {
-                   // WMRecipeCust.WLog.LogWarning("Effect Found 1");
                     newData.m_prefab = list1;
                     newData.m_enabled = eff.m_enabled ?? true;
                     newData.m_variant = eff.m_variant ?? -1;
@@ -2259,7 +2256,6 @@ namespace wackydatabase.SetData
                 }
                 else if (WMRecipeCust.originalSFX.TryGetValue(eff.name, out GameObject list2))
                 {
-                    //WMRecipeCust.WLog.LogWarning("Effect Found 2");
                     newData.m_prefab = list2;
                     newData.m_enabled = eff.m_enabled ?? true;
                     newData.m_variant = eff.m_variant ?? -1;
@@ -2276,7 +2272,6 @@ namespace wackydatabase.SetData
                 }
                 else if (WMRecipeCust.originalFX.TryGetValue(eff.name, out GameObject list3))
                 {
-                   // WMRecipeCust.WLog.LogWarning("Effect Found 3");
                     newData.m_prefab = list3;
                     newData.m_enabled = eff.m_enabled ?? true;
                     newData.m_variant = eff.m_variant ?? -1;
@@ -2293,7 +2288,6 @@ namespace wackydatabase.SetData
                 }
                 else if (WMRecipeCust.extraEffects.TryGetValue(eff.name, out GameObject list4))
                 {
-                    //WMRecipeCust.WLog.LogWarning("Effect Found 4");
                     newData.m_prefab = list4;
                     newData.m_enabled = eff.m_enabled ?? true;
                     newData.m_variant = eff.m_variant ?? -1;

@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.2.0
+Version: 2.2.1
 Features
 
 
@@ -506,6 +506,7 @@ To delete existing Effects
 ### StatMods
 - `m_movementModifier` (float): The movement modifier.
 - `m_EitrRegen` (float): The eitr regeneration modifier.
+- `m_BaseItemStaminaModifier` (float): The Item stamina (Hildir's Clothes) modifier.
 
 
 `SE_Equip` (SE_Equip): The special effect data for equipping the item.</br> If you want an Item to have an Effect by itself, put the effect name here
@@ -1068,7 +1069,7 @@ Wackymole
 | 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
 | 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
 | 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to piece conversion list allows you to disable an input and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
-| 2.2.1 | Added BaseItemStamina for statmods </br> Add StaffSkelton attack </br> Added FBX support in the mock system </br> Fix Bug on PLUS effects
+| 2.2.1 | Added BaseItemStamina for statmods </br> Add StaffSkelton attack  </br> Fix Bug on PLUS effects
 
 
 

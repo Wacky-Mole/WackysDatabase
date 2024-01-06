@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.2.0
+Version: 2.2.1
 Features
 
 
@@ -506,6 +506,7 @@ To delete existing Effects
 ### StatMods
 - `m_movementModifier` (float): The movement modifier.
 - `m_EitrRegen` (float): The eitr regeneration modifier.
+- `m_BaseItemStaminaModifier` (float): The Item stamina (Hildir's Clothes) modifier.
 
 
 `SE_Equip` (SE_Equip): The special effect data for equipping the item.</br> If you want an Item to have an Effect by itself, put the effect name here
@@ -1061,13 +1062,14 @@ Wackymole
 | 2.0.9 | Bug Fix
 | 2.1.0 | Bug fix, changed color on messages from lime to red
 | 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of > 1
-| 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented). </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
+| 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented**).** </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
 | 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang.</br> Updated Refs for new Bepinex </br> Changed loading order again
 | 2.1.4 | Happy Halloween, this update is for the spooky people that use "," as decimal delimiters, resulting in crazy big sizes of items/pieces. </br> SizeMultiplier is now seperated with \| </br> Updated a Priority for loading
 | 2.1.5 | Added API for Clone mapping to orginal prefab. </br> Adjustment for Epicloot+wackydb on quitting </br> 
 | 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
 | 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
 | 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to piece conversion list allows you to disable an input and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
+| 2.2.1 | Added BaseItemStamina for statmods </br> Add StaffSkelton attack  </br> Fix Bug on PLUS effects
 
 
 
