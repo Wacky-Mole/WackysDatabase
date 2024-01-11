@@ -219,7 +219,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="LICENSE.txt" />
-    <Content Include="WackysDatabase-2.2.1\icon.png" />
+    <Content Include="WackysDatabase\icon.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="OBJimporter\rootcube" />

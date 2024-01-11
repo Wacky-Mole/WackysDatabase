@@ -116,13 +116,15 @@ namespace wackydatabase.SetData
                 go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_);
 
             if (data.StopEffect_ != null)
-                go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_);            
-            
-            if (data.StartEffect_PLUS != null)
-                go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_PLUS);
+                go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_);
 
-            if (data.StopEffect_PLUS != null)
-                go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_PLUS);
+
+             if (data.StopEffect_PLUS  != null  && data.StartEffect_PLUS.Length > 0)
+                    go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_PLUS);
+
+             if (data.StopEffect_PLUS != null && data.StopEffect_PLUS.Length > 0 )
+                    go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_PLUS);
+
 
             go.m_cooldown = data.Cooldown ?? go.m_cooldown;
             go.m_activationAnimation = data.ActivationAnimation ?? go.m_activationAnimation;
@@ -1038,7 +1040,7 @@ namespace wackydatabase.SetData
                 if (data.beehiveData.effects != null)
                     Bee.m_spawnEffect = FindEffect(Bee.m_spawnEffect, data.beehiveData.effects);
 
-                if (data.beehiveData.effectsPLUS != null)
+                if (data.beehiveData.effectsPLUS.Length > 0 && data.beehiveData.effectsPLUS != null)
                     Bee.m_spawnEffect = FindEffect(Bee.m_spawnEffect, data.beehiveData.effectsPLUS);
 
                 Bee.m_extractText = data.beehiveData.extractText ?? Bee.m_extractText;
