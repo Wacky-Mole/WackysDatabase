@@ -441,7 +441,17 @@ namespace wackydatabase.SetData
 
                         if (DataHelpers.ECheck(data.customIcon))
                         {
-                            Functions.SnapshotItem(lastItemSet); // snapshot go
+                            Quaternion? saul = null;
+                            if (data.snapshotRotation != null)
+                            {
+                                float[] splitme = data.snapshotRotation
+                                    .Split(',')
+                                    .Select(float.Parse)
+                                    .ToArray();
+
+                                saul = Quaternion.Euler(splitme[0], splitme[1], splitme[2]);
+                            }
+                            Functions.SnapshotItem(lastItemSet, 1.3f, null, saul); // snapshot go
                         }
    
                     }

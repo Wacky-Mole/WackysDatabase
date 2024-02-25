@@ -309,6 +309,9 @@ namespace wackydatabase.SetData
                     if (!WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeR.m_item.name))
                     {
                         WMRecipeCust.RecipeMaxStationLvl.Add(RecipeR.m_item.name, data.maxStationLevelCap ?? -1); // -1 no cap
+                    }else
+                    {
+                        WMRecipeCust.RecipeMaxStationLvl[RecipeR.m_item.name] = data.maxStationLevelCap ?? -1;
                     }
                 }
 
@@ -1675,11 +1678,21 @@ namespace wackydatabase.SetData
                         }
                     }
 
-                    if (!DataHelpers.ECheck(data.material) && !usecustom)
+                    if (!DataHelpers.ECheck(data.material) && !usecustom && ( data.snapshotOnMaterialChange ?? true))
                     {
-                        try
+                        try                       
                         {
-                            Functions.SnapshotItem(ItemDr); // snapshot go
+                            Quaternion? saul = null;
+                            if (data.snapshotRotation != null)
+                            {
+                                float[] splitme  = data.snapshotRotation
+                                    .Split(',')
+                                    .Select(float.Parse)
+                                    .ToArray();
+
+                                 saul = Quaternion.Euler(splitme[0], splitme[1], splitme[2]);
+                            }
+                            Functions.SnapshotItem(ItemDr, 1.3f, null, saul); // snapshot go
                         }
                         catch { WMRecipeCust.WLog.LogInfo("Icon cloned failed"); }
                     }

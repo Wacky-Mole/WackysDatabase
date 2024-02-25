@@ -1071,6 +1071,7 @@ Wackymole
 | 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to piece conversion list allows you to disable an input and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
 | 2.2.1 | Added BaseItemStamina for statmods </br> Add StaffSkelton attack  </br> Fix Bug on PLUS effects
 | 2.2.2 | Bug Fix for SE_Effects with generated PLUS effects 
+| 2.2.3 | Added snapshotRotation, and snapshotOnMaterialChange.
 
 
 

@@ -32,6 +32,10 @@ namespace wackydatabase.Datas
 
         public CustomVisual? customVisual;
 
+        public string? snapshotRotation;
+
+        public bool? snapshotOnMaterialChange;
+
         public string? sizeMultiplier;
 
         public float? scale_weight_by_quality;

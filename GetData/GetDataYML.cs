@@ -1066,6 +1066,10 @@ namespace wackydatabase.GetData
 
             ItemData.ConsumableStatusEffect = data.m_shared.m_consumeStatusEffect?.name ?? null;
 
+            ItemData.snapshotOnMaterialChange = true;
+            //ItemData.snapshotVisualRotation = Quaternion.Euler(90, 30, 30);
+            //ItemData.snapshotRotation = new Vector3(33, 22, 44);
+
             return ItemData;
 
         }
