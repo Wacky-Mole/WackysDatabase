@@ -774,7 +774,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 
 ### SmelterData
 
-- `smelterName` (string): The name of the smelter.
+- `smelterName` (string): The name of the smelter. (Disabled and Removed)
 - `addOreTooltip` (string): The tooltip for adding ore to the smelter.
 - `emptyOreTooltip` (string): The tooltip for emptying ore from the smelter.
 - `fuelItem` (fuelItemData): The fuel item for the smelter.

@@ -446,8 +446,41 @@ namespace wackydatabase.SetData
                         }
                         if (go == null)
                         {
-                            WMRecipeCust.WLog.LogWarning($"Piece {data.name} not found! 4 layer search");
-                            return;
+                            WMRecipeCust.WLog.LogWarning($"Piece {data.name} not found! 4 layer search"); // usual end
+                           /* if (skip)
+                            {
+                                data.name = data.clonePrefabName;
+
+                                go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
+                                if (go == null)
+                                {
+                                    go = DataHelpers.GetPieces(Instant).Find(g => Utils.GetPrefabName(g) == data.name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
+                                    if (go == null)
+                                    {
+                                        go = DataHelpers.GetModdedPieces(data.name); // known modded Hammer search
+                                        if (go == null) // 4th layer now
+                                        {
+                                            foreach (var objSearch in AllObjects)
+                                            {
+                                                if (objSearch.GetComponent<Piece>() != null && objSearch.name == data.name)
+                                                {
+                                                    go = objSearch;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (go == null)
+                                    return;
+                                else
+                                {
+                                    WMRecipeCust.WLog.LogWarning($"Piece {data.name} is a clone, recovering");
+                                    skip = false;
+                                }
+                            }// a piece clone
+                            else */
+                                return;
                         }
                     }
                     else // 2nd layer
@@ -1117,7 +1150,7 @@ namespace wackydatabase.SetData
             if (data.smelterData != null && go.TryGetComponent<Smelter>(out var smelt))
             {
                 WMRecipeCust.WLog.LogInfo("       Setting Smelt");
-                smelt.name = data.smelterData.smelterName ?? smelt.name;
+                //smelt.name = data.smelterData.smelterName ?? smelt.name; // causes bad stuff
                 smelt.m_addOreTooltip = data.smelterData.addOreTooltip ?? smelt.m_addOreTooltip;
                 smelt.m_emptyOreTooltip = data.smelterData.emptyOreTooltip ?? smelt.m_emptyOreTooltip;
                 // smelt.m_addOreSwitch = data.smelterData.addOreSwitch ?? smelt.m_addOreSwitch;

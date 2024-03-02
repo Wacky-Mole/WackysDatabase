@@ -576,7 +576,7 @@ namespace wackydatabase.GetData
 
                     SmelterData smelterData2 = new SmelterData
                     {
-                        smelterName = smelt.name,
+                        //smelterName = smelt.name,
                         smelterConversion = smelterConversionList,
                         emptyOreTooltip = smelt.m_emptyOreTooltip,
                         addOreTooltip = smelt.m_addOreTooltip,
@@ -607,7 +607,7 @@ namespace wackydatabase.GetData
 
                     SmelterData smelterData = new SmelterData
                     {
-                        smelterName = smelt.name,
+                        //smelterName = smelt.name,
                         addOreTooltip = smelt.m_addOreTooltip,
                         emptyOreTooltip = smelt.m_emptyOreTooltip,
                         //addFuelSwitch = smelt.m_addWoodSwitch,

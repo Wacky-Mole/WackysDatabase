@@ -116,7 +116,7 @@ namespace wackydatabase.Datas
     public class SmelterData
     {
         //Smelter Script
-        public string? smelterName;
+       // public string? smelterName;
         public string? addOreTooltip;
         public string? emptyOreTooltip;
 
