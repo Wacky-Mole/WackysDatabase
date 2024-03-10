@@ -10,6 +10,7 @@ using System;
 using wackydatabase.Util;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using static Skills;
 
 namespace wackydatabase.GetData
 {
@@ -555,8 +556,38 @@ namespace wackydatabase.GetData
                 data.sapData = sapdata;
 
             }
+            if (PieceID.TryGetComponent<Incinerator>(out var obl))
+            {
+                ObliteratorData obldata = new ObliteratorData();
+                obldata.defaultCostPerDrop = obl.m_defaultCost;
+                obldata.defaultDrop = obl.m_defaultResult.name;
 
-                try {
+                List<ObliteratorList> OblConversionList = new List<ObliteratorList>();
+                foreach (var con in obl.m_conversions)
+                {
+                    ObliteratorList oblitList = new ObliteratorList();
+                    oblitList.Priority = con.m_priority;
+                    oblitList.Result = con.m_result.name;
+                    oblitList.ResultAmount = con.m_resultAmount;
+                    oblitList.RequireOnlyOne = con.m_requireOnlyOneIngredient;
+                                      
+                    List<ObRequirementList> OblReqList = new List<ObRequirementList>();                 
+                    foreach (var reqO in con.m_requirements) 
+                    {
+                        ObRequirementList obRequirementList = new ObRequirementList();
+                        obRequirementList.Name = reqO.m_resItem.name;
+                        obRequirementList.Amount = reqO.m_amount;
+                        OblReqList.Add(obRequirementList);
+                    } 
+                    oblitList.Requirements = OblReqList;
+                    OblConversionList.Add(oblitList);
+                }
+                data.incineratorData = obldata;
+                data.incineratorData.incineratorConversion = OblConversionList;
+
+            }
+
+            try {
             if (PieceID.TryGetComponent<Smelter>(out var smelt))
             {
                 // WMRecipeCust.WLog.LogWarning("Piece Smelter");

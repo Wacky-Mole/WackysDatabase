@@ -31,6 +31,7 @@ using YamlDotNet.Core.Tokens;
 using System.Globalization;
 using System.Threading;
 using static MeleeWeaponTrail;
+using static Incinerator;
 
 namespace wackydatabase.SetData
 {
@@ -1085,6 +1086,53 @@ namespace wackydatabase.SetData
                 Bee.m_freespaceText = data.beehiveData.freespaceText ?? Bee.m_freespaceText;
                 Bee.m_sleepText = data.beehiveData.sleepText ?? Bee.m_sleepText;
                 Bee.m_happyText = data.beehiveData.happyText ?? Bee.m_happyText;
+            }
+
+            if (data.incineratorData != null)
+            {
+                WMRecipeCust.WLog.LogInfo("       Setting Incinerator");
+                go.TryGetComponent<Incinerator>(out var Inc);
+
+                Inc.m_defaultCost = data.incineratorData.defaultCostPerDrop ?? Inc.m_defaultCost;
+                if (data.incineratorData.defaultDrop != null)
+                {
+                    Inc.m_defaultResult = Instant.GetItemPrefab(data.incineratorData.defaultDrop).GetComponent<ItemDrop>();
+                }
+
+                if (data.incineratorData.incineratorConversion != null)
+                {
+                    Inc.m_conversions.Clear();
+                    var list = Inc.m_conversions;
+               
+                    foreach (var convlist in data.incineratorData.incineratorConversion)
+                    {
+                        IncineratorConversion paul = new IncineratorConversion();
+                        paul.m_requireOnlyOneIngredient = convlist.RequireOnlyOne ?? true;
+                        paul.m_resultAmount = convlist.ResultAmount ?? 1;
+                        paul.m_priority = convlist.Priority ?? 0;
+
+                        if (convlist.Result != null)                       
+                            paul.m_result = Instant.GetItemPrefab(convlist.Result).GetComponent<ItemDrop>();      
+                        else 
+                            paul.m_result = Instant.GetItemPrefab("Coal").GetComponent<ItemDrop>();
+
+                        //var dblist = paul.m_requirements;
+                        paul.m_requirements =  new List <Requirement>();
+
+
+                        foreach (var userlist in convlist.Requirements)
+                        {
+                            if (userlist.Name != null)
+                            {
+                                Incinerator.Requirement REQ = new Incinerator.Requirement();
+                                REQ.m_amount = userlist.Amount ?? 1;
+                                REQ.m_resItem = Instant.GetItemPrefab(userlist.Name).GetComponent<ItemDrop>();
+                                paul.m_requirements.Add(REQ);
+                            }
+                        }
+                        Inc.m_conversions.Add(paul);
+                    }
+                }
             }
 
             if (data.cookingStationData != null)

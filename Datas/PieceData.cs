@@ -56,6 +56,8 @@ namespace wackydatabase.Datas
 
         public SapData? sapData;
 
+        public ObliteratorData? incineratorData;
+
         public List<string>? build = new List<string>();
 
     }
@@ -192,6 +194,12 @@ namespace wackydatabase.Datas
         public string? sleepText;
         public string? happyText;
     }
+    public class ObliteratorData
+    {
+        public string? defaultDrop;
+        public int? defaultCostPerDrop;
+        public List<ObliteratorList>? incineratorConversion;
+    }
 
     public class fuelItemData
     {
@@ -221,6 +229,20 @@ namespace wackydatabase.Datas
         public string? ToName;
         public int? Amount;
         public bool? Remove = false;
+    }
+    public class ObliteratorList
+    {
+        public string? Result;
+        public int? ResultAmount;
+        public int? Priority;
+        public bool? RequireOnlyOne;
+        public List<ObRequirementList>? Requirements;
+    }
+
+    public class ObRequirementList
+    {
+        public string? Name;
+        public int? Amount;
     }
 
 }
