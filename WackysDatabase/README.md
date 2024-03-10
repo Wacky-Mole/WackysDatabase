@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.2.2
+Version: 2.2.3
 Features
 
 
@@ -381,6 +381,8 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 
 - `customVisual` (CustomVisual): The custom visual data of the item.
+- `snapshotRotation` ((string) (x,y,z)int,int,int) - Default null - Changes  the angle of snapshot cam. 0-360 degrees. Can do 33,44,55 for example. </br> Very annoying to perfect, but it's an option now for the masochists. 
+-  `snapshotOnMaterialChange` (bool) - Default true - Makes a snapshot on item material change
 - `sizeMultiplier` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
 
@@ -746,7 +748,31 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 - `Amount` (int): The amount to spawn when batch is done.
 - `Remove` (bool): Default is false, this allows you to remove existing conversions. Now items not listed shouldn't be affected
 
+</br>
 
+
+### IncineratorData
+
+This will overwrite any other oblinerator changes!
+
+- `defaultDrop` (string): Specifies the default item dropped by the obliterator.
+- `defaultCostPerDrop` (int): Indicates the default cost per drop when using the obliterator. 
+- `incineratorConversion` (List<ObliteratorList>): Conversion List
+
+ObliteratorList
+
+- `Result`: *(string )* Specifies the resulting item produced by the conversion.
+- `ResultAmount`: *(int )* Indicates the amount of the resulting item generated.
+- `Priority`: *(int )* Defines the priority level of this conversion option. </br> Higher priority takes precedence on conversion, but it will convert to multiple into item types
+- `RequireOnlyOne`: *(bool )* Specifies whether only one ingredient is required for this conversion.
+- `Requirements`: *(List\<ObRequirementList\> )* Stores the list of requirements needed for this conversion, including the required items and their amounts.
+
+ObRequirementList
+
+- `Name`: *(string )* Specifies the name of the required item for the conversion.
+- `Amount`: *(int )* Indicates the quantity of the required item needed for the conversion.
+
+Changing this dramtically allows the obliterator/incinerator to become a recycler. Have fun!
 </br>
 
 ### CookingStationData
@@ -774,7 +800,7 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 
 ### SmelterData
 
-- `smelterName` (string): The name of the smelter.
+- `smelterName` (string): The name of the smelter. (Disabled and Removed)
 - `addOreTooltip` (string): The tooltip for adding ore to the smelter.
 - `emptyOreTooltip` (string): The tooltip for emptying ore from the smelter.
 - `fuelItem` (fuelItemData): The fuel item for the smelter.
@@ -1071,6 +1097,8 @@ Wackymole
 | 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to piece conversion list allows you to disable an input and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
 | 2.2.1 | Added BaseItemStamina for statmods </br> Add StaffSkelton attack  </br> Fix Bug on PLUS effects
 | 2.2.2 | Bug Fix for SE_Effects with generated PLUS effects 
+| 2.2.5 | Added snapshotRotation and snapshotOnMaterialChange for items. <br> Fix for some cloned pieces </br> Fix for reloading RecipeMaxStationLvl </br> Added incineratorData conversion for obliterator, you can now make obliterator into a recycler if you want.
+
 
 
 
