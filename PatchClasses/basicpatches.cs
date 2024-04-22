@@ -19,52 +19,101 @@ using System.Runtime.CompilerServices;
 using TMPro;
 using RainbowTrollArmor;
 using System.Reflection;
+using System.Diagnostics.Eventing.Reader;
 
 namespace wackydatabase.PatchClasses
 {
 
-   /* Cookie Project
-    [HarmonyPatch(typeof(Hud), "UpdateMount")]
-    static class MountIconPatch 
+    /* Cookie Project
+     [HarmonyPatch(typeof(Hud), "UpdateMount")]
+     static class MountIconPatch 
+     {
+         public static string playerCurrentSaddle = "";
+         private static void Postfix(ref Player player, Hud __instance,  GameObject ___m_mountPanel)
+         {
+             Sadle sadle = player.GetDoodadController() as Sadle;
+             if (sadle != null)
+             {             
+                 Character character = sadle.GetCharacter(); // use this to select between your riding mobs
+                 var Icon = ___m_mountPanel;
+                 if (Icon == null) return; 
+                 var icon = Icon.transform.GetChild(0).Find("MountIcon")?.gameObject.GetComponent<UnityEngine.UI.Image>();
+                 if (icon != null && playerCurrentSaddle != character.name)
+                 {
+                     WMRecipeCust.WLog.LogWarning($"Mob with saddle is {character.name}"); // remove this just for testing
+                     SpriteToolsCombined spriteTool = new SpriteToolsCombined();
+                     switch (character.name)
+                     {
+                         case "Lox(Clone)":
+                             WMRecipeCust.WLog.LogInfo("Setting Wolf Icon");
+                             icon.sprite = spriteTool.CreateSprite(spriteTool.loadTexture("Wolf.png"), false);
+                             //icon.sprite = WMRecipeCust.Wolf; or better yet load this in your main awake once
+                             playerCurrentSaddle = character.name;
+                             break;
+
+                         case "Wolf(Clone)":
+                             icon.sprite = spriteTool.CreateSprite(spriteTool.loadTexture("Wolf.png"), false);
+                             playerCurrentSaddle = character.name;
+                             break;
+
+                         default:
+                             playerCurrentSaddle = character.name;
+                             break;
+                     }
+                 }
+             }
+         }
+     }
+
+     */
+
+    [HarmonyPatch(typeof(ItemDrop.ItemData))]
+    internal static class ItemDataPatch
     {
-        public static string playerCurrentSaddle = "";
-        private static void Postfix(ref Player player, Hud __instance,  GameObject ___m_mountPanel)
+        [HarmonyPrefix]
+        [HarmonyPriority(Priority.Last)]
+        [HarmonyPatch(nameof(ItemDrop.ItemData.GetWeaponLoadingTime))]
+        public static void GetWeaponLoadingTimePrefixWM(ItemDrop.ItemData __instance, out float __state)
         {
-            Sadle sadle = player.GetDoodadController() as Sadle;
-            if (sadle != null)
-            {             
-                Character character = sadle.GetCharacter(); // use this to select between your riding mobs
-                var Icon = ___m_mountPanel;
-                if (Icon == null) return; 
-                var icon = Icon.transform.GetChild(0).Find("MountIcon")?.gameObject.GetComponent<UnityEngine.UI.Image>();
-                if (icon != null && playerCurrentSaddle != character.name)
-                {
-                    WMRecipeCust.WLog.LogWarning($"Mob with saddle is {character.name}"); // remove this just for testing
-                    SpriteToolsCombined spriteTool = new SpriteToolsCombined();
-                    switch (character.name)
+            if (__instance.m_shared.m_attack.m_requiresReload)
+            {
+                string name = __instance.m_shared.m_name ?? "none";
+                __state = __instance.m_shared.m_attack.m_reloadTime;
+                if (WMRecipeCust.crossbowReloadingTime.TryGetValue(name + "P", out float value))
+                {  
+                    if (value == 1.0f)
                     {
-                        case "Lox(Clone)":
-                            WMRecipeCust.WLog.LogInfo("Setting Wolf Icon");
-                            icon.sprite = spriteTool.CreateSprite(spriteTool.loadTexture("Wolf.png"), false);
-                            //icon.sprite = WMRecipeCust.Wolf; or better yet load this in your main awake once
-                            playerCurrentSaddle = character.name;
-                            break;
-
-                        case "Wolf(Clone)":
-                            icon.sprite = spriteTool.CreateSprite(spriteTool.loadTexture("Wolf.png"), false);
-                            playerCurrentSaddle = character.name;
-                            break;
-
-                        default:
-                            playerCurrentSaddle = character.name;
-                            break;
-                    }
+                        __state = -1f;
+                        return;
+                    }                    
+                    __instance.m_shared.m_attack.m_reloadTime *= value;
                 }
+                else if (WMRecipeCust.crossbowReloadingTime.TryGetValue(name + "S", out float value2)) // for future// not quite setup
+                {
+                    if (value2 == 1.0f)
+                    {
+                        __state = -1f;
+                        return;
+                    }
+                    __instance.m_shared.m_secondaryAttack.m_reloadTime *= value2;
+                }           
+                return;
+            }
+            __state = -1f;
+        }
+
+
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.First)]
+        [HarmonyPatch(nameof(ItemDrop.ItemData.GetWeaponLoadingTime))]
+        public static void GetWeaponLoadingTimePostfixWM(ItemDrop.ItemData __instance, ref float __state)
+        {
+            if (__instance.m_shared.m_attack.m_requiresReload && __state != -1f)
+            {
+                __instance.m_shared.m_attack.m_reloadTime = __state;
             }
         }
     }
-
-    */
 
     [HarmonyPatch(typeof(Player), "PlacePiece")]
     static class Player_MessageforPortal_Patch

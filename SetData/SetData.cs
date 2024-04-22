@@ -1882,9 +1882,18 @@ namespace wackydatabase.SetData
 
                         PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
                         PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
-                        PrimaryItemData.m_shared.m_attack.m_reloadTime = data.Primary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_attack.m_reloadTime;
-                        PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain = data.Primary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain;
+                        //PrimaryItemData.m_shared.m_attack.m_reloadTime = data.Primary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_attack.m_reloadTime; This is overriden by valheim, needs a patch instead
+                        if (PrimaryItemData.m_shared.m_attack.m_requiresReload)
+                        {
+                            var nameofbow = PrimaryItemData.m_shared.m_name;
+                            nameofbow += "P"; // primary
+                            if (WMRecipeCust.crossbowReloadingTime.ContainsKey(nameofbow))
+                                WMRecipeCust.crossbowReloadingTime[nameofbow] = data.Primary_Attack.ReloadTimeMultiplier ?? 1;                           
+                            else
+                                WMRecipeCust.crossbowReloadingTime.Add(nameofbow, data.Primary_Attack.ReloadTimeMultiplier ?? 1);                        
+                        }
 
+                        PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain = data.Primary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain;
                         PrimaryItemData.m_shared.m_attack.m_bowDraw = data.Primary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_attack.m_bowDraw;
                         PrimaryItemData.m_shared.m_attack.m_drawDurationMin = data.Primary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_attack.m_drawDurationMin;
                         PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain = data.Primary_Attack.Bow_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain;
@@ -2035,7 +2044,16 @@ namespace wackydatabase.SetData
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
-                        PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime = data.Secondary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime;
+                        //PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime = data.Secondary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime;
+                        if (PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload)
+                        {
+                            var nameofbow = PrimaryItemData.m_shared.m_name;
+                            nameofbow += "S"; // Secondary
+                            if (WMRecipeCust.crossbowReloadingTime.ContainsKey(nameofbow))
+                                WMRecipeCust.crossbowReloadingTime[nameofbow] = data.Secondary_Attack.ReloadTimeMultiplier ?? 1;
+                            else
+                                WMRecipeCust.crossbowReloadingTime.Add(nameofbow, data.Secondary_Attack.ReloadTimeMultiplier ?? 1);
+                        }
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain = data.Secondary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw = data.Secondary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw;

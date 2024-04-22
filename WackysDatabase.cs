@@ -40,7 +40,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.2.5";
+        internal const string ModVersion = "2.2.6";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -160,13 +160,14 @@ namespace wackydatabase
         public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>();
         public static Dictionary<string, Dictionary<ItemDrop, int>> QualityRecipeReq = new Dictionary<string, Dictionary<ItemDrop, int>>();
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
+        public static Dictionary<string, Recipe> hiddenRecipeUpgrade; // Reqs_Upgrade
+        public static Dictionary<string, float> crossbowReloadingTime = new Dictionary<string, float>();
 
         internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
         public static List<string> NoNotTheseSEs = new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
                                                                                                                                                // public static List<string> extraEffectList = new List<string>() { "lightningAOE" };
-
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;
         public static bool ForceLogout = false;

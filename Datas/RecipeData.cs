@@ -19,7 +19,9 @@ namespace wackydatabase.Datas
         public int? amount;
         public bool? disabled;
         public bool? requireOnlyOneIngredient;
-        public List<string>? reqs = new List<string>(); // must have
+        public List<string>? upgrade_reqs = new List<string>(); // Only for upgrades
+        public List<string>? reqs = new List<string>(); // must have // First time and upgrades if upgrade_reqs is not set
+        
 
     }
 

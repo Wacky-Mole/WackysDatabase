@@ -149,7 +149,8 @@ namespace wackydatabase.Datas
 
         public bool? Requires_Reload;
         public string? Reload_Animation;
-        public float? ReloadTime;
+        //public float? ReloadTime;
+        public float? ReloadTimeMultiplier;
         public float? Reload_Stamina_Drain;
 
         public bool? Bow_Draw;

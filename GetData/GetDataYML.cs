@@ -947,7 +947,7 @@ namespace wackydatabase.GetData
 
                     Requires_Reload = data.m_shared.m_attack.m_requiresReload,
                     Reload_Animation = data.m_shared.m_attack.m_reloadAnimation,
-                    ReloadTime = data.m_shared.m_attack.m_reloadTime,
+                    ReloadTimeMultiplier = 1.0f,
                     Reload_Stamina_Drain = data.m_shared.m_attack.m_reloadStaminaDrain,
 
                     Bow_Draw = data.m_shared.m_attack.m_bowDraw,
@@ -1007,7 +1007,7 @@ namespace wackydatabase.GetData
 
                     Requires_Reload = data.m_shared.m_secondaryAttack.m_requiresReload,
                     Reload_Animation = data.m_shared.m_secondaryAttack.m_reloadAnimation,
-                    ReloadTime = data.m_shared.m_secondaryAttack.m_reloadTime,
+                    ReloadTimeMultiplier = 1.0f,
                     Reload_Stamina_Drain = data.m_shared.m_secondaryAttack.m_reloadStaminaDrain,
 
                     Bow_Draw = data.m_shared.m_secondaryAttack.m_bowDraw,

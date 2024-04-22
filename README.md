@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.2.3
+Version: 2.2.6
 Features
 
 
@@ -420,7 +420,8 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `Spawn_On_Trigger` (string): The spawn-on-trigger effect of the attack.
 - `Requires_Reload` (bool): Indicates whether the attack requires reloading.
 - `Reload_Animation` (string): The animation for reloading.
-- `ReloadTime` (float): The time it takes to reload.
+- `ReloadTime` (float): The time it takes to reload. - Removed - Never worked
+- `ReloadTimeMultiplier` (float): "Multiplier for reload speed of crossbows. Does not affect Vanilla scaling with skill level. Values 0.1 to 2.0. Default 1.0
 - `Reload_Stamina_Drain` (float): The stamina drain during reloading.
 - `Bow_Draw` (bool): Indicates whether the bow is drawn for the attack.
 - `Bow_Duration_Min` (float): The minimum duration of the bow.
@@ -433,6 +434,14 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `Multi_Hit` (bool): Indicates whether the attack can hit multiple times.
 - `Pickaxe_Special` (bool): Indicates whether it is a special pickaxe attack.
 - `Last_Chain_Dmg_Multiplier` (float): The damage multiplier for the last chain attack.
+
+- The vanilla Code for chain multiplier <code>
+if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels - 1 && m_lastChainDamageMultiplier > 1f)
+                {
+                    hitData.m_damage.Modify(m_lastChainDamageMultiplier);
+                    hitData.m_pushForce *= 1.2f;
+                }
+                </code>
 - `Attack_Projectile` (string): The Gameobject projectile has to have Projectile Componenent. Disabled for now. 
 - `Projectile_Vel` (float): The velocity of the projectile.
 - `Projectile_Accuraccy` (float): The accuracy of the projectile.
@@ -1098,6 +1107,7 @@ Wackymole
 | 2.2.1 | Added BaseItemStamina for statmods </br> Add StaffSkelton attack  </br> Fix Bug on PLUS effects
 | 2.2.2 | Bug Fix for SE_Effects with generated PLUS effects 
 | 2.2.5 | Added snapshotRotation and snapshotOnMaterialChange for items. <br> Fix for some cloned pieces </br> Fix for reloading RecipeMaxStationLvl </br> Added incineratorData conversion for obliterator, you can now make obliterator into a recycler if you want.
+| 2.2.6 | Removed Reloadtime(broken) and replaced it with ReloadTimeMultiplier for crossbow. 
 
 
 
