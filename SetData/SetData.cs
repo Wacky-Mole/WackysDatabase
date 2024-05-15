@@ -2148,12 +2148,23 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
                         PrimaryItemData.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
                     }
+
+
+
                     if (data.Moddifiers != null)
                     {
                         WMRecipeCust.Dbgl($"   {data.name} Item movement ");
                         PrimaryItemData.m_shared.m_movementModifier = data.Moddifiers.m_movementModifier ?? PrimaryItemData.m_shared.m_movementModifier;
                         PrimaryItemData.m_shared.m_eitrRegenModifier = data.Moddifiers.m_EitrRegen ?? PrimaryItemData.m_shared.m_eitrRegenModifier;
-                        PrimaryItemData.m_shared.m_baseItemsStaminaModifier = data.Moddifiers.m_BaseItemStaminaModifier ?? PrimaryItemData.m_shared.m_baseItemsStaminaModifier;
+                        PrimaryItemData.m_shared.m_homeItemsStaminaModifier = data.Moddifiers.m_homeItemsStaminaModifier ?? PrimaryItemData.m_shared.m_homeItemsStaminaModifier;
+                        PrimaryItemData.m_shared.m_heatResistanceModifier = data.Moddifiers.m_heatResistanceModifier ?? PrimaryItemData.m_shared.m_heatResistanceModifier;
+                        PrimaryItemData.m_shared.m_jumpStaminaModifier = data.Moddifiers.m_jumpStaminaModifier ?? PrimaryItemData.m_shared.m_jumpStaminaModifier;
+                        PrimaryItemData.m_shared.m_attackStaminaModifier = data.Moddifiers.m_attackStaminaModifier ?? PrimaryItemData.m_shared.m_attackStaminaModifier;
+                        PrimaryItemData.m_shared.m_blockStaminaModifier = data.Moddifiers.m_blockStaminaModifier ?? PrimaryItemData.m_shared.m_blockStaminaModifier;
+                        PrimaryItemData.m_shared.m_dodgeStaminaModifier = data.Moddifiers.m_dodgeStaminaModifier ?? PrimaryItemData.m_shared.m_dodgeStaminaModifier;
+                        PrimaryItemData.m_shared.m_swimStaminaModifier = data.Moddifiers.m_swimStaminaModifier ?? PrimaryItemData.m_shared.m_swimStaminaModifier;
+                        PrimaryItemData.m_shared.m_sneakStaminaModifier = data.Moddifiers.m_sneakStaminaModifier ?? PrimaryItemData.m_shared.m_sneakStaminaModifier;
+                        PrimaryItemData.m_shared.m_runStaminaModifier = data.Moddifiers.m_runStaminaModifier ?? PrimaryItemData.m_shared.m_runStaminaModifier;
                     }
                     if (data.SE_Equip != null)
                     {

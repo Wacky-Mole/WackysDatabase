@@ -81,10 +81,11 @@ public enum BuildPieceCategory
 {
     Misc = 0,
     Crafting = 1,
-    Building = 2,
-    Furniture = 3,
+    BuildingWorkbench = 2,
+    BuildingStonecutter = 3,
+    Furniture = 4,
     All = 100,
-    Custom = 99
+    Custom = 99,
 }
 
 [PublicAPI]

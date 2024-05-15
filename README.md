@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.2.6
+Version: 2.3.0
 Features
 
 
@@ -517,7 +517,16 @@ To delete existing Effects
 ### StatMods
 - `m_movementModifier` (float): The movement modifier.
 - `m_EitrRegen` (float): The eitr regeneration modifier.
-- `m_BaseItemStaminaModifier` (float): The Item stamina (Hildir's Clothes) modifier.
+- `m_BaseItemStaminaModifier` (float): - (Deleted/Removed in Ashlands)
+- `m_homeItemsStaminaModifier` (float): - (Added Ashlands)
+- `m_heatResistanceModifier` (float): - (Added Ashlands)
+- `m_jumpStaminaModifier` (float): - (Added Ashlands)
+- `m_attackStaminaModifier` (float): - (Added Ashlands)
+- `m_blockStaminaModifier` (float): - (Added Ashlands)
+- `m_dodgeStaminaModifier` (float): - (Added Ashlands)
+- `m_swimStaminaModifier` (float): - (Added Ashlands)
+- `m_sneakStaminaModifier` (float): - (Added Ashlands)
+- `m_runStaminaModifier` (float): - (Added Ashlands)
 
 
 `SE_Equip` (SE_Equip): The special effect data for equipping the item.</br> If you want an Item to have an Effect by itself, put the effect name here
@@ -1108,6 +1117,7 @@ Wackymole
 | 2.2.2 | Bug Fix for SE_Effects with generated PLUS effects 
 | 2.2.5 | Added snapshotRotation and snapshotOnMaterialChange for items. <br> Fix for some cloned pieces </br> Fix for reloading RecipeMaxStationLvl </br> Added incineratorData conversion for obliterator, you can now make obliterator into a recycler if you want.
 | 2.2.6 | Removed Reloadtime(broken) and replaced it with ReloadTimeMultiplier for crossbow. 
+| 2.3.0 | Update for Ashlands. </br>Removed m_baseItemsStaminaModifier, added a lot of other StaminaModfiers. </br> Updated PieceManager
 
 
 

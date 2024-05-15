@@ -60,7 +60,7 @@ namespace wackydatabase.PatchClasses
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
 
-                if (___m_seman.HaveStatusEffect("Wet"))
+                if (___m_seman.HaveStatusEffect("Wet".GetStableHashCode()))
                 {
                     HitData.DamageModifier water = GetNewDamageTypeMod(NewDamageTypes.Water, ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem);
                     var wet = ___m_seman.GetStatusEffect("Wet".GetStableHashCode());

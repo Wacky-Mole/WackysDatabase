@@ -809,14 +809,23 @@ namespace wackydatabase.GetData
                     Spirit = data.m_shared.m_damagesPerLevel.m_spirit
                 };
 
-            }         
-           
-            StatMods StatModdifers = new StatMods
+            }
+
+            StatMods StatModdifers = new StatMods()
             {
                 m_movementModifier = data.m_shared.m_movementModifier,
                 m_EitrRegen = data.m_shared.m_eitrRegenModifier,
-                m_BaseItemStaminaModifier = data.m_shared.m_baseItemsStaminaModifier,
-            };
+                m_homeItemsStaminaModifier = data.m_shared.m_homeItemsStaminaModifier,
+                m_heatResistanceModifier = data.m_shared.m_heatResistanceModifier,
+                m_jumpStaminaModifier = data.m_shared.m_jumpStaminaModifier,
+                m_attackStaminaModifier = data.m_shared.m_attackStaminaModifier,
+                m_blockStaminaModifier = data.m_shared.m_blockStaminaModifier,
+                m_dodgeStaminaModifier = data.m_shared.m_dodgeStaminaModifier,
+                m_swimStaminaModifier = data.m_shared.m_swimStaminaModifier,
+                m_sneakStaminaModifier = data.m_shared.m_sneakStaminaModifier,
+                m_runStaminaModifier = data.m_shared.m_runStaminaModifier
+
+    };
 
 
             GEffectsPLUS gEffects = new GEffectsPLUS()

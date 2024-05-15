@@ -272,7 +272,15 @@ namespace wackydatabase.Datas
     {
         public float? m_movementModifier;
         public float? m_EitrRegen;
-        public float? m_BaseItemStaminaModifier;
+        public float? m_homeItemsStaminaModifier;
+        public float? m_heatResistanceModifier;
+        public float? m_jumpStaminaModifier;
+        public float? m_attackStaminaModifier;
+        public float? m_blockStaminaModifier;
+        public float? m_dodgeStaminaModifier;
+        public float? m_swimStaminaModifier;
+        public float? m_sneakStaminaModifier;
+        public float? m_runStaminaModifier;
 
     }
 
