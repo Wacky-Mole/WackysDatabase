@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.3.0
+Version: 2.3.1
 Features
 
 
@@ -837,6 +837,24 @@ Changing this dramtically allows the obliterator/incinerator to become a recycle
 
 - `name` (string): The name of the fuel item.
 
+
+### Fireplace
+
+- `StartFuel` (float): How much fuel the piece starts with with you first build it.
+- `MaxFuel` (float): Max Fuel the piece holds
+- `SecPerFuel` (float): Time to burn one piece.
+- `InfiniteFuel` (bool): Woot Woot! Never refil
+- `FuelType` (string): Fuel that is burned for the piece, any item
+- `IgniteInterval` (float): Chance to spread fire time check. (Only applies to Biomes that have Fire Hazard)
+- `IgniteChance` (float): Chance of fire spread (Only applies to Biomes that have Fire Hazard)
+- `IgniteSpread` (int): Not sure on this Spread value (Only applies to Biomes that have Fire Hazard)
+
+
+
+### TeleportWorldData
+
+- `AllowAllItems` (bool)  Allow all items through portals. Otherwise use default rule checks
+
 ### SmelterConversionList
 
 - `FromName` (string): The name of the item to convert from.
@@ -997,6 +1015,8 @@ Auto Gens Icon
 
 This system is not well tested, so please give me feedback and submit bug reports for any bugs. 
 
+2.3.1, I made default material as wood. I think it can be overwritten, but I am unsure.
+
 
 
 </details>
@@ -1118,6 +1138,7 @@ Wackymole
 | 2.2.5 | Added snapshotRotation and snapshotOnMaterialChange for items. <br> Fix for some cloned pieces </br> Fix for reloading RecipeMaxStationLvl </br> Added incineratorData conversion for obliterator, you can now make obliterator into a recycler if you want.
 | 2.2.6 | Removed Reloadtime(broken) and replaced it with ReloadTimeMultiplier for crossbow. 
 | 2.3.0 | Update for Ashlands. </br>Removed m_baseItemsStaminaModifier, added a lot of other StaminaModfiers. </br> Updated PieceManager
+| 2.3.1 | Adjust font sizeMin for Categories. </br> Added AllowAllItems for portal Pieces </br> Added Fireplace for pieces - Infinite Fuel now </br> Fixed Mock System again.
 
 
 
