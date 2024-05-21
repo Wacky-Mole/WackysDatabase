@@ -586,6 +586,32 @@ namespace wackydatabase.GetData
                 data.incineratorData.incineratorConversion = OblConversionList;
 
             }
+            if (PieceID.TryGetComponent<Fireplace>(out var FP))
+            {
+                try
+                {
+                    FireplaceData fireData = new FireplaceData();
+                    fireData.StartFuel = FP.m_startFuel;
+                    fireData.MaxFuel = FP.m_maxFuel;
+                    fireData.SecPerFuel = FP.m_secPerFuel;
+                    fireData.InfiniteFuel = FP.m_infiniteFuel;
+                    fireData.FuelType = FP.m_fuelItem.name;
+                    fireData.IgniteInterval = FP.m_igniteInterval;
+                    fireData.IgniteChance = FP.m_igniteChance;
+                    fireData.IgniteSpread = FP.m_igniteSpread;
+
+                    data.fireplaceData = fireData;
+                }
+                catch { WMRecipeCust.WLog.LogWarning("Error catch in Fireplace"); }
+                
+            }
+
+            if (PieceID.TryGetComponent<TeleportWorld>(out var tpW))
+            {
+                TeleportWorldData tpData = new TeleportWorldData();
+                tpData.AllowAllItems = tpW.m_allowAllItems;
+                data.teleportWorldData = tpData;
+            }
 
             try {
             if (PieceID.TryGetComponent<Smelter>(out var smelt))

@@ -1547,7 +1547,7 @@ public static class PiecePrefabManager
             text.rectTransform.offsetMin = new Vector2(3, 1);
             text.rectTransform.offsetMax = new Vector2(-3, -1);
             text.enableAutoSizing = true;
-            text.fontSizeMin = 12;
+            text.fontSizeMin = 5;
             text.fontSizeMax = 20;
             text.lineSpacing = 0.8f;
             text.textWrappingMode = TextWrappingModes.Normal;

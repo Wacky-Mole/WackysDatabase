@@ -17,6 +17,7 @@ using System.IO;
 using UnityEngine;
 using System;
 using Dummiesman;
+using wackydatabase;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -44,6 +45,7 @@ namespace Dummiesman
 
         //materials, accessed by objobjectbuilder
         internal Dictionary<string, Material> Materials;
+        //Materials = WMRecipeCust.originalMaterials ;
 
         //file info for files loaded from file path, used for GameObject naming and MTL finding
         private FileInfo _objInfo;

@@ -58,6 +58,10 @@ namespace wackydatabase.Datas
 
         public ObliteratorData? incineratorData;
 
+        public FireplaceData? fireplaceData;
+
+        public TeleportWorldData? teleportWorldData;
+
         public List<string>? build = new List<string>();
 
     }
@@ -239,10 +243,26 @@ namespace wackydatabase.Datas
         public List<ObRequirementList>? Requirements;
     }
 
+    public class FireplaceData
+    {
+        public float? StartFuel;
+        public float? MaxFuel;
+        public float? SecPerFuel;
+        public bool? InfiniteFuel;
+        public string? FuelType;
+        public float? IgniteInterval;
+        public float? IgniteChance;
+        public int? IgniteSpread;
+    }
+
     public class ObRequirementList
     {
         public string? Name;
         public int? Amount;
+    }
+    public class TeleportWorldData
+    {
+        public bool? AllowAllItems;
     }
 
 }

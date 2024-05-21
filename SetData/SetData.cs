@@ -1135,6 +1135,33 @@ namespace wackydatabase.SetData
                 }
             }
 
+            if (data.teleportWorldData != null)
+            {
+                go.TryGetComponent<TeleportWorld>(out var tpW);
+                tpW.m_allowAllItems = data.teleportWorldData.AllowAllItems ?? tpW.m_allowAllItems;
+            }
+
+
+
+            if (data.fireplaceData != null)
+            {
+                go.TryGetComponent<Fireplace>(out var FP);
+
+                FP.m_startFuel = data.fireplaceData.StartFuel ?? FP.m_startFuel;
+                FP.m_maxFuel = data.fireplaceData.MaxFuel ?? FP.m_maxFuel;
+                FP.m_secPerFuel = data.fireplaceData.SecPerFuel ?? FP.m_secPerFuel;
+                FP.m_infiniteFuel = data.fireplaceData.InfiniteFuel ?? FP.m_infiniteFuel;
+                FP.m_igniteChance = data.fireplaceData.IgniteChance ?? FP.m_igniteChance;
+                FP.m_igniteSpread = data.fireplaceData.IgniteSpread ?? FP.m_igniteSpread;
+                FP.m_igniteInterval = data.fireplaceData.IgniteInterval ?? FP.m_igniteInterval;
+                if (data.fireplaceData.FuelType != null)
+                {
+                    FP.m_fuelItem = Instant.GetItemPrefab(data.fireplaceData.FuelType).GetComponent<ItemDrop>();
+                }
+
+               
+            }
+
             if (data.cookingStationData != null)
             {
                 go.TryGetComponent<CookingStation>(out var cook);

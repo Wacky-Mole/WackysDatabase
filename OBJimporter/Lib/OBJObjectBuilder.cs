@@ -15,6 +15,7 @@
 using Dummiesman;
 using System.Collections.Generic;
 using UnityEngine;
+using wackydatabase;
 
 namespace Dummiesman {
 public class OBJObjectBuilder {
@@ -74,6 +75,7 @@ public class OBJObjectBuilder {
 		//locate the material for each submesh
 		Material[] materialArray = new Material[_materialIndices.Count];
 		foreach (var kvp in _materialIndices) {
+				/*
 			Material material = null;
 			if (_loader.Materials == null) {
 				material = OBJLoaderHelper.CreateNullMaterial();
@@ -85,7 +87,8 @@ public class OBJObjectBuilder {
 					_loader.Materials[kvp.Key] = material;
 				}
 			}
-			materialArray[submesh] = material;
+			materialArray[submesh] = material; */
+			materialArray[submesh] = WMRecipeCust.originalMaterials["wood"]; // Can't be a null material anymore
 			submesh++;
 		}
 		mr.sharedMaterials = materialArray;
