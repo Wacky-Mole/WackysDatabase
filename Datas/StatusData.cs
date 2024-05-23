@@ -39,9 +39,23 @@ namespace wackydatabase.Datas
         public float? Cooldown;
         public string? ActivationAnimation;
         public SEdata? SeData;
+        public SEShield SeShield;
         //public FieldInfo? fld = typeof(StatusEffect).GetField("m_tickInterval").GetValue;
 
     }
+
+    [Serializable]
+    [CanBeNull]
+    public class SEShield
+    {
+        public float? AbsorbDmg;
+        public float? AbsorbDmgWorldLevel;
+        public int? LevelUpSkillFactor;
+        public int? TtlPerItemLevel;
+        public float? AbsorbDmgPerSkill;
+
+    }
+
 
     [Serializable]
     [CanBeNull]

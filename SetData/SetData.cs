@@ -178,6 +178,17 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_healthOverTimeTimer", data.SeData.m_healthOverTimeTimer);
             Functions.setValue(type, go, "m_healthOverTimeTicks", data.SeData.m_healthOverTimeTicks);
             Functions.setValue(type, go, "m_healthOverTimeTickHP", data.SeData.m_healthOverTimeTickHP);
+
+
+            if (data.SeShield != null)
+            {
+                Functions.setValue(type, go, "m_absorbDamage", data.SeShield.AbsorbDmg);
+                Functions.setValue(type, go, "m_absorbDamageWorldLevel", data.SeShield.AbsorbDmgWorldLevel);
+                Functions.setValue(type, go,"m_levelUpSkillFactor",null,data.SeShield.LevelUpSkillFactor);
+                Functions.setValue(type, go, "m_ttlPerItemLevel",null, data.SeShield.TtlPerItemLevel);
+                Functions.setValue(type, go, "m_absorbDamagePerSkillLevel", data.SeShield.AbsorbDmgPerSkill);
+
+            }
         }
 
         #endregion Effects

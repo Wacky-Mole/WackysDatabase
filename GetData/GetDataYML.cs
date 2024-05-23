@@ -179,6 +179,17 @@ namespace wackydatabase.GetData
             var f2 = effect.GetType();
             WMRecipeCust.WLog.LogInfo("             StatusEffect " + effect.name);
 
+            SEShield shield = new SEShield();
+            if (effect.name == "Staff_shield")
+            { // the Skill levelup could work LevelUpSkillOnBreak
+                shield.AbsorbDmg = Functions.getCast<float>(f2, "m_absorbDamage", effect);
+                shield.AbsorbDmgWorldLevel = Functions.getCast<float>(f2, "m_absorbDamageWorldLevel", effect);
+                shield.LevelUpSkillFactor = Functions.getCast<int>(f2, "m_levelUpSkillFactor", effect);
+                shield.TtlPerItemLevel = Functions.getCast<int>(f2, "m_ttlPerItemLevel", effect);
+                shield.AbsorbDmgPerSkill = Functions.getCast<float>(f2, "m_absorbDamagePerSkillLevel", effect);
+
+    }
+
             SEdata stats = new SEdata
             {
                 //m_tickInterval = f2.GetField("m_tickInterval", BindingFlags.Instance | BindingFlags.Public)?.GetValue(effect)
@@ -249,8 +260,12 @@ namespace wackydatabase.GetData
                 StopEffect_PLUS = ConvertEffectstoVerse(effect.m_stopEffects?.m_effectPrefabs) ?? null,
                 Cooldown = effect.m_cooldown,
                 ActivationAnimation = effect.m_activationAnimation ?? "",
-                SeData = stats,
+                SeData = stats,              
             };
+            if(effect.name == "Staff_shield")
+            {
+                statusData.SeShield = shield;
+            }
 
 
             /*

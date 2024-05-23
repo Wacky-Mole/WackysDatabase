@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![BlueMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.3.1
+Version: 2.3.2
 Features
 
 
@@ -1139,7 +1139,7 @@ Wackymole
 | 2.2.6 | Removed Reloadtime(broken) and replaced it with ReloadTimeMultiplier for crossbow. 
 | 2.3.0 | Update for Ashlands. </br>Removed m_baseItemsStaminaModifier, added a lot of other StaminaModfiers. </br> Updated PieceManager
 | 2.3.1 | Adjust font sizeMin for Categories. </br> Added AllowAllItems for portal Pieces </br> Added Fireplace for pieces - Infinite Fuel now </br> Fixed Mock System again.
-
+| 2.3.2 | Added values for Staff of protection SE or SE Staff_Sheild 
 
 
 
