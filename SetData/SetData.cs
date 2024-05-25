@@ -327,6 +327,17 @@ namespace wackydatabase.SetData
                     }
                 }
 
+                if (data.upgrade_reqs != null)
+                {
+                    if (WMRecipeCust.RequiredUpgradeItemsString.ContainsKey(RecipeR.m_item.name))
+                    {
+
+                    }else
+                    {
+                        WMRecipeCust.RequiredUpgradeItemsString[RecipeR.m_item.name] = data.upgrade_reqs ?? "-1";
+                    }
+                }
+
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
 
                 RecipeR.m_requireOnlyOneIngredient = data.requireOnlyOneIngredient ?? RecipeR.m_requireOnlyOneIngredient;
