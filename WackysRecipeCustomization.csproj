@@ -78,10 +78,6 @@
       <HintPath>$(GamePath)\BepInEx\core\BepInEx.dll</HintPath>
       <HintPath>$(ModPath)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
-    <Reference Include="ItemManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\MagicPortalFluid\MagicPortalFluid\Libs\ItemManager.dll</HintPath>
-    </Reference>
     <Reference Include="LocalizationManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\LocalizationManager.dll</HintPath>
