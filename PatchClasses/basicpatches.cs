@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
+using BepInEx;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using System.IO;
@@ -81,6 +82,7 @@ namespace wackydatabase.PatchClasses
         else if (InventoryGui.instance.InUpradeTab())
         {
             hidden = hiddenUpgradeRecipes;
+            
         }
         else
         {
