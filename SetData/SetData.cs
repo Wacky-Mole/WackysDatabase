@@ -2179,6 +2179,7 @@ namespace wackydatabase.SetData
                     }
                     if (data.FoodStats != null)
                     {
+                       
                         WMRecipeCust.Dbgl($"   {data.name} Item food ");
                         PrimaryItemData.m_shared.m_food = data.FoodStats.m_foodHealth ?? PrimaryItemData.m_shared.m_food;
                         PrimaryItemData.m_shared.m_foodStamina = data.FoodStats.m_foodStamina ?? PrimaryItemData.m_shared.m_foodStamina;

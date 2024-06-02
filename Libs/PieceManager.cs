@@ -572,11 +572,6 @@ public class BuildPiece
                     };
                 }
 
-                if (SaveOnConfigSet)
-                {
-                    plugin.Config.SaveOnConfigSet = true;
-                    plugin.Config.Save();
-                }
             }
 
             foreach (BuildPiece piece in registeredPieces)
@@ -590,6 +585,12 @@ public class BuildPiece
                 }
 
                 piece.InitializeNewRegisteredPiece(piece);
+            }
+
+            if (SaveOnConfigSet)
+            {
+                plugin.Config.SaveOnConfigSet = true;
+                plugin.Config.Save();
             }
         }
     }
