@@ -40,7 +40,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.3.2";
+        internal const string ModVersion = "2.3.3";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -52,7 +52,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.3.2" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.3.3" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -162,7 +162,8 @@ namespace wackydatabase
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
         public static Dictionary<string, Recipe> hiddenRecipeUpgrade; // Reqs_Upgrade
         public static Dictionary<string, float> crossbowReloadingTime = new Dictionary<string, float>();
-        public static Dictionary<Recipe, Piece.Requirement[]> RequiredUpgradeItemsString = new(); // holding
+        public static Dictionary<Recipe, bool> RequiredUpgradeItemsString = new(); // holding
+        public static Dictionary<Recipe, bool> RequiredCraftItemsString = new(); // holding
 
         internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();

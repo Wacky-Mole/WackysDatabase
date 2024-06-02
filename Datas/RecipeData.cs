@@ -18,6 +18,7 @@ namespace wackydatabase.Datas
         public string? repairStation;
         public int? amount;
         public bool? disabled;
+        public bool? disabledUpgrade;
         public bool? requireOnlyOneIngredient;
         public List<string>? upgrade_reqs = new List<string>(); // Only for upgrades
         public List<string>? reqs = new List<string>(); // must have // First time and upgrades if upgrade_reqs is not set

@@ -252,128 +252,85 @@ namespace wackydatabase.SetData
                 } // it is a prefab and it is an item.
             }
 
-            if (!data.disabled ?? true)
+
+            Recipe RecipeR = null;
+
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)// only first time clone
             {
-                Recipe RecipeR = null;
-
-                if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)// only first time clone
+                WMRecipeCust.Dbgl($"Setting Cloned Recipe for {tempname}");
+                RecipeR = ScriptableObject.CreateInstance<Recipe>();
+                WMRecipeCust.ClonedR.Add(tempname);
+            }
+            else if (skip)
+            {
+                WMRecipeCust.Dbgl("ReSetting Cloned Recipe for " + tempname);
+                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                 {
-                    WMRecipeCust.Dbgl($"Setting Cloned Recipe for {tempname}");
-                    RecipeR = ScriptableObject.CreateInstance<Recipe>();
-                    WMRecipeCust.ClonedR.Add(tempname);
-                }
-                else if (skip)
-                {
-                    WMRecipeCust.Dbgl("ReSetting Cloned Recipe for " + tempname);
-                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
+                    if (Instant.m_recipes[i].name == tempname)
                     {
-                        if (Instant.m_recipes[i].name == tempname)
-                        {
-                            RecipeR = Instant.m_recipes[i];
-                            RecipeR.m_enabled = true;
-                            break;
-                        }
+                        RecipeR = Instant.m_recipes[i];
+                        RecipeR.m_enabled = true;
+                        break;
                     }
                 }
-                else if (ActualR != null)
+            }
+            else if (ActualR != null)
+            {
+                WMRecipeCust.Dbgl($"An actual Recipe for {searchname}");
+                RecipeR = ActualR;
+                RecipeR.m_enabled = true;
+            }
+            else // in game recipe
+            {
+                WMRecipeCust.Dbgl("Setting Recipe for " + tempname);
+                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                 {
-                    WMRecipeCust.Dbgl($"An actual Recipe for {searchname}");
-                    RecipeR = ActualR;
-                    RecipeR.m_enabled = true;
-                }
-                else // in game recipe
-                {
-                    WMRecipeCust.Dbgl("Setting Recipe for " + tempname);
-                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
+                    if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
                     {
-                        if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
-                        {
-                            RecipeR = Instant.m_recipes[i];
-                            RecipeR.m_enabled = true;
-                            break;
-                        }
+                        RecipeR = Instant.m_recipes[i];
+                        RecipeR.m_enabled = true;
+                        break;
                     }
                 }
+            }
 
-                if (RecipeR == null)
+            if (RecipeR == null)
+            {
+                WMRecipeCust.Dbgl("Recipe failed inside of " + tempname);
+                return;
+            }
+
+            if (ActualR == null)
+                RecipeR.m_item = go.GetComponent<ItemDrop>();
+
+            if (data.craftingStation != null)
+            { // null is don't set, '' is only by hand
+                RecipeR.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
+            }
+            if (data.repairStation != null)
+            {
+                RecipeR.m_repairStation = DataHelpers.GetCraftingStation(data.repairStation);
+            }
+            RecipeR.m_minStationLevel = data.minStationLevel ?? RecipeR.m_minStationLevel;
+            RecipeR.m_amount = data.amount ?? RecipeR.m_amount;
+            RecipeR.name = tempname;
+
+            if (data.maxStationLevelCap != null)
+            {
+                if (!WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeR.m_item.name))
                 {
-                    WMRecipeCust.Dbgl("Recipe failed inside of " + tempname);
-                    return;
-                }
-
-                if (ActualR == null)
-                    RecipeR.m_item = go.GetComponent<ItemDrop>();
-
-                if (data.craftingStation != null)
-                { // null is don't set, '' is only by hand
-                    RecipeR.m_craftingStation = DataHelpers.GetCraftingStation(data.craftingStation);
-                }
-                if (data.repairStation != null)
+                    WMRecipeCust.RecipeMaxStationLvl.Add(RecipeR.m_item.name, data.maxStationLevelCap ?? -1); // -1 no cap
+                } else
                 {
-                    RecipeR.m_repairStation = DataHelpers.GetCraftingStation(data.repairStation);
+                    WMRecipeCust.RecipeMaxStationLvl[RecipeR.m_item.name] = data.maxStationLevelCap ?? -1;
                 }
-                RecipeR.m_minStationLevel = data.minStationLevel ?? RecipeR.m_minStationLevel;
-                RecipeR.m_amount = data.amount ?? RecipeR.m_amount;
-                RecipeR.name = tempname;
+            }
 
-                if (data.maxStationLevelCap != null)
-                {
-                    if (!WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeR.m_item.name))
-                    {
-                        WMRecipeCust.RecipeMaxStationLvl.Add(RecipeR.m_item.name, data.maxStationLevelCap ?? -1); // -1 no cap
-                    }else
-                    {
-                        WMRecipeCust.RecipeMaxStationLvl[RecipeR.m_item.name] = data.maxStationLevelCap ?? -1;
-                    }
-                }
+            if (data.upgrade_reqs != null)
+            {
+                List<Piece.Requirement> UpgradeReqs = new();
 
-                if (data.upgrade_reqs != null)
-                {
-                    List<Piece.Requirement> UpgradeReqs = new();
-
-                    foreach (string req in data.upgrade_reqs)
-                    {
-                        if (!string.IsNullOrEmpty(req))
-                        {
-                            string[] array = req.Split(':'); // safer vewrsion // could add a 5th col for Quality, item must be such and such quality would require a small patch
-                            string itemname = array[0];  // and a three tier directonary
-                            if (Instant.GetItemPrefab(itemname))
-                            {
-                                int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
-                                int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
-                                bool recover = array.Length != 4 || bool.Parse(array[3].ToLower());
-                                //int quality = ((array.Length < 5) ? 1 : int.Parse(array[4]));
-                                Piece.Requirement item = new Piece.Requirement
-                                {
-                                    m_amount = amount,
-                                    m_recover = recover,
-                                    m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
-                                    m_amountPerLevel = amountPerLevel
-                                };
-                                UpgradeReqs.Add(item);
-
-                            }
-                        }
-                    }
-                               
-                    if (WMRecipeCust.RequiredUpgradeItemsString.ContainsKey(RecipeR))       
-                            WMRecipeCust.RequiredUpgradeItemsString[RecipeR] = UpgradeReqs.ToArray();
-                    else
-                        WMRecipeCust.RequiredUpgradeItemsString.Add(RecipeR, UpgradeReqs.ToArray());
-                    
-                }
-
-
-                List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-
-                RecipeR.m_requireOnlyOneIngredient = data.requireOnlyOneIngredient ?? RecipeR.m_requireOnlyOneIngredient;
-                bool alreadyadded = true;
-                if (!WMRecipeCust.QualityRecipeReq.ContainsKey(tempname))
-                {
-                    alreadyadded = false;
-                    WMRecipeCust.QualityRecipeReq.Add(tempname, new Dictionary<ItemDrop, int>());
-                }
-                foreach (string req in data.reqs)
+                foreach (string req in data.upgrade_reqs)
                 {
                     if (!string.IsNullOrEmpty(req))
                     {
@@ -382,46 +339,144 @@ namespace wackydatabase.SetData
                         if (Instant.GetItemPrefab(itemname))
                         {
                             int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
-                            int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
-                            bool recover = array.Length != 4 || bool.Parse(array[3].ToLower());
-                            int quality = ((array.Length < 5) ? 1 : int.Parse(array[4]));
+                            //int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+                            //bool recover = array.Length != 4 || bool.Parse(array[3].ToLower());
+                            //int quality = ((array.Length < 5) ? 1 : int.Parse(array[4]));
                             Piece.Requirement item = new Piece.Requirement
                             {
-                                m_amount = amount,
-                                m_recover = recover,
+                               // m_amount = amount,
+                                //m_recover = recover,
                                 m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
-                                m_amountPerLevel = amountPerLevel
+                                m_amountPerLevel = amount
                             };
-                            reqs.Add(item);
+                            UpgradeReqs.Add(item);
 
-                            if (!alreadyadded)
-                                WMRecipeCust.QualityRecipeReq[tempname].Add(Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(), quality);
-                        }
-                    }
-                }// foreach
-
-                int index = 0;
-                RecipeR.m_resources = reqs.ToArray();
-
-                if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // only first time clone
-                {
-                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
-                    {
-                        if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                        }else
                         {
-                            index = i++; // some extra resourses, but I think it's worth it
-                            break;
+                            WMRecipeCust.WLog.LogWarning("Could not find " + itemname + " for upgrade_reqs in Recipe " + RecipeR.name);
                         }
                     }
-                    Instant.m_recipes.Insert(index, RecipeR);
+                }
+                Recipe RecipeRUPGRADE = null;
+                var upgadename = RecipeR.name + "_Upgrade"; // try to find
+                foreach (var rec in Instant.m_recipes)
+                {
+                    if (rec.name == upgadename)
+                    {
+                        RecipeRUPGRADE = rec;
+                        break;
+                    }
+                }
+                if (RecipeRUPGRADE == null)
+                {
+                    RecipeRUPGRADE = ScriptableObject.Instantiate(RecipeR);
+                    RecipeRUPGRADE.name = RecipeR.name + "_Upgrade";
+                    RecipeRUPGRADE.m_resources = UpgradeReqs.ToArray();
+                    RecipeRUPGRADE.m_enabled = true;
+                    Instant.m_recipes.Add(RecipeRUPGRADE);
+
+                    WMRecipeCust.RequiredUpgradeItemsString.Add(RecipeRUPGRADE, true);
+                }
+                else 
+                {
+                    RecipeRUPGRADE.m_resources = UpgradeReqs.ToArray();
+                    RecipeRUPGRADE.m_enabled = true;
+                    WMRecipeCust.RequiredUpgradeItemsString[RecipeRUPGRADE] = true;
+                }
+                
+
+
+                if (data.disabledUpgrade ??= false) // dis upgrade but allows req
+                {
+                    WMRecipeCust.RequiredUpgradeItemsString[RecipeRUPGRADE] = false;
                 }
 
-                return;
+            }
+
+            if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
+                WMRecipeCust.RequiredCraftItemsString[RecipeR] = true;
+            else
+                WMRecipeCust.RequiredCraftItemsString.Add(RecipeR, true);
+
+            /*
+                        if (data.disabled ??= false && data.upgrade_reqs != null) // not needed
+                        {
+                            WMRecipeCust.RequiredCraftItemsString[RecipeR] = false;
+                        }
+            */
+            if (data.disabledUpgrade ??= false && data.upgrade_reqs == null)
+                WMRecipeCust.RequiredCraftItemsString[RecipeR] = false;
+
+
+            List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+            RecipeR.m_requireOnlyOneIngredient = data.requireOnlyOneIngredient ?? RecipeR.m_requireOnlyOneIngredient;
+            bool alreadyadded = true;
+            if (!WMRecipeCust.QualityRecipeReq.ContainsKey(tempname))
+            {
+                alreadyadded = false;
+                WMRecipeCust.QualityRecipeReq.Add(tempname, new Dictionary<ItemDrop, int>());
+            }
+            foreach (string req in data.reqs)
+            {
+                if (!string.IsNullOrEmpty(req))
+                {
+                    string[] array = req.Split(':'); // safer vewrsion // could add a 5th col for Quality, item must be such and such quality would require a small patch
+                    string itemname = array[0];  // and a three tier directonary
+                    if (Instant.GetItemPrefab(itemname))
+                    {
+                        int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
+                        int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+                        bool recover = array.Length != 4 || bool.Parse(array[3].ToLower());
+                        int quality = ((array.Length < 5) ? 1 : int.Parse(array[4]));
+                        Piece.Requirement item = new Piece.Requirement
+                        {
+                            m_amount = amount,
+                            m_recover = recover,
+                            m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
+                            m_amountPerLevel = amountPerLevel
+                        };
+                        reqs.Add(item);                         
+
+                        if (!alreadyadded)
+                            WMRecipeCust.QualityRecipeReq[tempname].Add(Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(), quality);
+                    }else
+                    {
+                        WMRecipeCust.WLog.LogWarning("Could not find " + itemname + " for req in Recipe " + RecipeR.name);
+                    }
+                }
+            }// foreach
+
+            int index = 0;
+            RecipeR.m_resources = reqs.ToArray();
+
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // only first time clone
+            {
+                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
+                {
+                    if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
+                    {
+                        index = i++; // some extra resourses, but I think it's worth it
+                        break;
+                    }
+                }
+                Instant.m_recipes.Insert(index, RecipeR);
+            }
+
+            if (!data.disabled ?? true)
+            {
+                if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
+                    WMRecipeCust.RequiredCraftItemsString[RecipeR] = true;
             }
             else // disabled
             {
+                if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
+                    WMRecipeCust.RequiredCraftItemsString[RecipeR] = false;
+
                 if (skip) // has been set before
                 {
+                    RecipeR.m_enabled = false;
+                    WMRecipeCust.Dbgl("Cloned Recipe has been disabled for " + tempname);
+                    /*
                     for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
                     {
                         if (Instant.m_recipes[i].name == tempname)
@@ -431,10 +486,11 @@ namespace wackydatabase.SetData
                             WMRecipeCust.Dbgl("Cloned Recipe that was enabled before is disabled for " + tempname);
                             break;
                         }
-                    }
+                    }*/
                 }
                 else if (!skip && !string.IsNullOrEmpty(data.clonePrefabName))
-                { // never added so need to disable
+                {
+                    RecipeR.m_enabled = false;
                     WMRecipeCust.Dbgl("Cloned Recipe is disabled for " + tempname);
                 }
                 else if (ActualR != null)

@@ -67,45 +67,52 @@ namespace wackydatabase.PatchClasses
      }
 
      */
-    [HarmonyPatch(AccessTools.DeclaredMethod(typeof(Player), nameof(Player.GetAvailableRecipes)),
-        prefix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Item),
-            nameof(Item.Patch_GetAvailableRecipesPrefixWM))), finalizer:
-        new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Item), nameof(Item.Patch_GetAvailableRecipesFinalizerWM))))]
-    internal static void Patch_GetAvailableRecipesPrefixWM(ref Dictionary<Assembly, Dictionary<Recipe, ConfigEntryBase?>>? __state)
-    {
-        __state ??= new Dictionary<Assembly, Dictionary<Recipe, ConfigEntryBase?>>();
-        Dictionary<Recipe, ConfigEntryBase?>? hidden;
-        if (InventoryGui.instance.InCraftTab())
-        {
-            hidden = hiddenCraftRecipes;
-        }
-        else if (InventoryGui.instance.InUpradeTab())
-        {
-            hidden = hiddenUpgradeRecipes;
-            
-        }
-        else
-        {
-            return;
-        }
 
-        foreach (Recipe recipe in hidden.Keys)
-        {
-            recipe.m_enabled = false;
-        }
-        __state[Assembly.GetExecutingAssembly()] = hidden;
-    }
 
-    internal static void Patch_GetAvailableRecipesFinalizerWM(Dictionary<Assembly, Dictionary<Recipe, ConfigEntryBase?>> __state)
+    [HarmonyPatch(typeof(Player), nameof(Player.GetAvailableRecipes))]
+    internal static class Player_GetAvailableRecipes_Patch
     {
-        if (__state.TryGetValue(Assembly.GetExecutingAssembly(), out Dictionary<Recipe, ConfigEntryBase?> hidden))
+        [HarmonyPrefix]
+        public static void Prefix(ref Dictionary<Assembly, Dictionary<Recipe, bool>>? __state)
         {
-            foreach (KeyValuePair<Recipe, ConfigEntryBase?> kv in hidden)
+            __state ??= new Dictionary<Assembly, Dictionary<Recipe, bool>>();
+            Dictionary<Recipe, bool> hidden = new Dictionary<Recipe, bool>();
+
+            if (InventoryGui.instance.InCraftTab())
             {
-                kv.Key.m_enabled = (int)(kv.Value?.BoxedValue ?? 1) != 0;
+                hidden = WMRecipeCust.RequiredUpgradeItemsString; // Opposite of ItemManager
+            }
+            else if (InventoryGui.instance.InUpradeTab())
+            {
+                hidden = WMRecipeCust.RequiredCraftItemsString;
+            }
+            else
+            {
+                return;
+            }
+
+            foreach (Recipe recipe in hidden.Keys)
+            {
+                recipe.m_enabled = false;
+            }
+            __state[Assembly.GetExecutingAssembly()] = hidden;
+        }
+
+        [HarmonyFinalizer]
+        public static void Finalizer(Dictionary<Assembly, Dictionary<Recipe, bool>> __state)
+        {
+            if (__state.TryGetValue(Assembly.GetExecutingAssembly(), out Dictionary<Recipe, bool> hidden))
+            {
+                foreach (KeyValuePair<Recipe, bool> kv in hidden)
+                {
+                    kv.Key.m_enabled = kv.Value;
+                }
             }
         }
+
     }
+
+
 
     [HarmonyPatch(typeof(ItemDrop.ItemData))]
     internal static class ItemDataPatch

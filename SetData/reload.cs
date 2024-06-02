@@ -86,6 +86,9 @@ namespace wackydatabase.SetData
 
                 WMRecipeCust.MultiplayerApproved.Clear();
 
+                //WMRecipeCust.RequiredCraftItemsString.Clear();
+                //WMRecipeCust.RequiredUpgradeItemsString.Clear();
+
                 string SyncedString = WMRecipeCust.skillConfigData.Value;
                 if (SyncedString != null && SyncedString != "")
                 {

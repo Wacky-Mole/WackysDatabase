@@ -113,12 +113,13 @@ namespace wackydatabase.GetData
             {
                 name = data.name,
                 amount = data.m_amount,
-                clonePrefabName =cloneyesorno,
+                clonePrefabName = cloneyesorno,
                 craftingStation = data.m_craftingStation?.m_name ?? "",
                 repairStation = data.m_repairStation?.m_name ?? null, // maybe
                 minStationLevel = data.m_minStationLevel,
                 maxStationLevelCap = null,
                 disabled = !data.m_enabled,
+                disabledUpgrade = false,
                 requireOnlyOneIngredient = data.m_requireOnlyOneIngredient,
                 reqs = reqs2,
 
