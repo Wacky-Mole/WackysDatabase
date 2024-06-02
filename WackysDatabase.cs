@@ -162,7 +162,7 @@ namespace wackydatabase
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
         public static Dictionary<string, Recipe> hiddenRecipeUpgrade; // Reqs_Upgrade
         public static Dictionary<string, float> crossbowReloadingTime = new Dictionary<string, float>();
-        public static Dictionary<string, string> RequiredUpgradeItemsString = new(); // holding
+        public static Dictionary<Recipe, Piece.Requirement[]> RequiredUpgradeItemsString = new(); // holding
 
         internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();

@@ -327,6 +327,43 @@ namespace wackydatabase.SetData
                     }
                 }
 
+                if (data.upgrade_reqs != null)
+                {
+                    List<Piece.Requirement> UpgradeReqs = new();
+
+                    foreach (string req in data.upgrade_reqs)
+                    {
+                        if (!string.IsNullOrEmpty(req))
+                        {
+                            string[] array = req.Split(':'); // safer vewrsion // could add a 5th col for Quality, item must be such and such quality would require a small patch
+                            string itemname = array[0];  // and a three tier directonary
+                            if (Instant.GetItemPrefab(itemname))
+                            {
+                                int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
+                                int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+                                bool recover = array.Length != 4 || bool.Parse(array[3].ToLower());
+                                //int quality = ((array.Length < 5) ? 1 : int.Parse(array[4]));
+                                Piece.Requirement item = new Piece.Requirement
+                                {
+                                    m_amount = amount,
+                                    m_recover = recover,
+                                    m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
+                                    m_amountPerLevel = amountPerLevel
+                                };
+                                UpgradeReqs.Add(item);
+
+                            }
+                        }
+                    }
+                               
+                    if (WMRecipeCust.RequiredUpgradeItemsString.ContainsKey(RecipeR))       
+                            WMRecipeCust.RequiredUpgradeItemsString[RecipeR] = UpgradeReqs.ToArray();
+                    else
+                        WMRecipeCust.RequiredUpgradeItemsString.Add(RecipeR, UpgradeReqs.ToArray());
+                    
+                }
+
+
                 List<Piece.Requirement> reqs = new List<Piece.Requirement>();
 
                 RecipeR.m_requireOnlyOneIngredient = data.requireOnlyOneIngredient ?? RecipeR.m_requireOnlyOneIngredient;

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
+using BepInEx;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using System.IO;
@@ -66,6 +67,45 @@ namespace wackydatabase.PatchClasses
      }
 
      */
+    [HarmonyPatch(AccessTools.DeclaredMethod(typeof(Player), nameof(Player.GetAvailableRecipes)),
+        prefix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Item),
+            nameof(Item.Patch_GetAvailableRecipesPrefixWM))), finalizer:
+        new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Item), nameof(Item.Patch_GetAvailableRecipesFinalizerWM))))]
+    internal static void Patch_GetAvailableRecipesPrefixWM(ref Dictionary<Assembly, Dictionary<Recipe, ConfigEntryBase?>>? __state)
+    {
+        __state ??= new Dictionary<Assembly, Dictionary<Recipe, ConfigEntryBase?>>();
+        Dictionary<Recipe, ConfigEntryBase?>? hidden;
+        if (InventoryGui.instance.InCraftTab())
+        {
+            hidden = hiddenCraftRecipes;
+        }
+        else if (InventoryGui.instance.InUpradeTab())
+        {
+            hidden = hiddenUpgradeRecipes;
+            
+        }
+        else
+        {
+            return;
+        }
+
+        foreach (Recipe recipe in hidden.Keys)
+        {
+            recipe.m_enabled = false;
+        }
+        __state[Assembly.GetExecutingAssembly()] = hidden;
+    }
+
+    internal static void Patch_GetAvailableRecipesFinalizerWM(Dictionary<Assembly, Dictionary<Recipe, ConfigEntryBase?>> __state)
+    {
+        if (__state.TryGetValue(Assembly.GetExecutingAssembly(), out Dictionary<Recipe, ConfigEntryBase?> hidden))
+        {
+            foreach (KeyValuePair<Recipe, ConfigEntryBase?> kv in hidden)
+            {
+                kv.Key.m_enabled = (int)(kv.Value?.BoxedValue ?? 1) != 0;
+            }
+        }
+    }
 
     [HarmonyPatch(typeof(ItemDrop.ItemData))]
     internal static class ItemDataPatch
