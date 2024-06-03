@@ -3,9 +3,9 @@
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
-![BlueMan](https://wackymole.com/hosts/Greenman.png)
+![GreenMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.3.1
+Version: 2.3.3
 Features
 
 
@@ -662,6 +662,7 @@ To delete all existing Damage modifiers
 - `waterPiece` (bool): Indicates whether the piece is a water piece.
 - `noInWater` (bool): Indicates whether the piece cannot be placed in water.
 - `notOnFloor` (bool): Indicates whether the piece cannot be placed on the floor.
+- `notOnWood` (bool): Indicates whether the piece cannot be placed on the wood.
 - `onlyinTeleportArea` (bool): Indicates whether the piece can only be placed in teleport areas. Stone Groups making a Circle
 - `allowedInDungeons` (bool): Indicates whether the piece is allowed in dungeons.
 - `canBeRemoved` (bool): Indicates whether the piece can be removed.
@@ -673,6 +674,9 @@ To delete all existing Damage modifiers
 - `build` (List<string>): The list of requirement items for the piece.
 
 build: requirements to build: Item:amount:amountPerLevel:refundable,
+
+To make something free. build:
+- Wood:0:0:True
 
 ### ComfortData
 
@@ -875,6 +879,9 @@ Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 
 ## Recipes
 
+Most recipes are saved with itemname in name for recipe. For actual recipes they will have Recipe_ in the name like Recipe_Bronze or Recipe_Bronze5.
+<br/></br>Actual recipes can be found in bulk save now and with JVL docs.  https://valheim-modding.github.io/Jotunn/data/objects/recipe-list.html They have no for clonePrefabName: NO . Actual Recipes can NOT be cloned.
+
 - `name` (string, required): The name of the recipe.
 - `clonePrefabName` (string): The name of the prefab to clone.
 - `craftingStation` (string): The crafting station required to craft the recipe. "" is hand crafted
@@ -883,7 +890,15 @@ Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 - `repairStation` (string): The repair station required to repair the recipe.
 - `amount` (int): The amount of the recipe.
 - `disabled` (bool): Indicates whether the recipe is disabled.
+- `disabledUpgrade` (bool): Disables allowing upgrades in the upgrade tab, can be used in combination with disable to only allow upgrading and not crafting.
 - `requireOnlyOneIngredient` (bool): Indicates whether the recipe requires only one ingredient.
+- `upgrade_reqs ` (List<string>): By default will be empty, it allows you to speficy complete different requirements to upgrade than craft. </br>Actually adds a second hidden recipe to game with the name + _upgrade. 
+</br>(upgrade_reqs) requirements to upgrade: Item:amountPerLevel
+</br>
+![upgrade_reqs ](https://wackymole.com/hosts/upgrade_reqs.png)
+</br>
+
+
 - `reqs` (List<string>, required): The list of required ingredients for the recipe.
 
 (Required) requirements to build: Item:amount:amountPerLevel:refundable:
@@ -1110,40 +1125,6 @@ Wackymole
 </details>
 
 
-<details><summary><b><span style="color:aqua;font-weight:200;font-size:20px">2.xx ChangeLog</span></b></summary>
-
-| Version | Changes                                                                                                                                                                                                                                                                                                                                |
-|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.0.0 | 2.0.0 - Lots of betas <br/>
-| 2.0.1 | First Release of 2.0 <br/>
-| 2.0.2 | Bug fix for cloned pieces being deleted at logout and login -sorry  <br/>
-| 2.0.3 | Bug fix for cloned items being deleted for some people.  Fix for piece disabling, disabling already placed pieces - whoops  <br/>
-| 2.0.4 | Added ConsumableStatusEffect to items.  </br>Hovernames for cloned doors. </br> Added Sap and Fermentor Section to pieces. </br>  BIG - Moved main loading to a later point for more pieces to be found. </br> Reduced bug counts with disabling pieces. </br> Known bug: moving from one hammer to another hammer, might require disabling orginal and cloning. </br>  Fixed Mock items for the adventurous few, added example for mock bike.
-| 2.0.5 | Bug fix for a cache item error on updateitemhash. 
-| 2.0.6 | Big bug fix for servers. Moved main loading to an even later point. Added SizeMultiplier to cache, for extra sized cached weapons. 
-| 2.0.7 | Fixed effects not following you. </br> Add beehive data to pieces. </br> Fix for dedicated servers not loading data. Moved up reload for dedicated servers. </br> Changed log messages, added more warnings.</br> Added more checks for cloned cache. </br> Fix for mock items.
-| 2.0.8 | Updated ServerSync, Piecemanger, Patch update for 217.24 </br> Fix bug for recipes consuming resources twice. 
-| 2.0.9 | Bug Fix
-| 2.1.0 | Bug fix, changed color on messages from lime to red
-| 2.1.1 | Change a priorty. </br> Minimized the chance of a recipe consuming double resources with cfc. It will still happen with cfc, if a recipe has quality of > 1
-| 2.1.2 | Updated recipeGet, Removed recipe quality (it's a good idea, but I didn't like how it was implemented**).** </br> Took out my custom ServerSync temporarily to test a bug, it won't display message 0.0.1
-| 2.1.3 | Added custom SS messsage back </br> added a 4th layer to piece search </br> Separated out sizeMultiplier for x,y,z or just one value </br> Added a check for transplier at closeout for a few people that hang.</br> Updated Refs for new Bepinex </br> Changed loading order again
-| 2.1.4 | Happy Halloween, this update is for the spooky people that use "," as decimal delimiters, resulting in crazy big sizes of items/pieces. </br> SizeMultiplier is now seperated with \| </br> Updated a Priority for loading
-| 2.1.5 | Added API for Clone mapping to orginal prefab. </br> Adjustment for Epicloot+wackydb on quitting </br> 
-| 2.1.6 | Bug fix for cloned pieces on relog. </br> Thx to OrianaVenture for updated icon
-| 2.1.7 | Update Readme a bit. </br> Made it so some pieces didn't reload twice. 
-| 2.2.0 | Decent sized Update: Fix for cloned creatures replacing main creatures name </br> Enabled piece snapshot again, hopefully it works well this time. Added a command wackydb_snapshot for pieces </br> Vastly expanded effect capabilities. Old Effects will work, but generate new yamls for more features. </br> Added Remove to piece conversion list allows you to disable an input and not forcing me to clear the whole list. Now the list shouldn't conflict with additional mods.
-| 2.2.1 | Added BaseItemStamina for statmods </br> Add StaffSkelton attack  </br> Fix Bug on PLUS effects
-| 2.2.2 | Bug Fix for SE_Effects with generated PLUS effects 
-| 2.2.5 | Added snapshotRotation and snapshotOnMaterialChange for items. <br> Fix for some cloned pieces </br> Fix for reloading RecipeMaxStationLvl </br> Added incineratorData conversion for obliterator, you can now make obliterator into a recycler if you want.
-| 2.2.6 | Removed Reloadtime(broken) and replaced it with ReloadTimeMultiplier for crossbow. 
-| 2.3.0 | Update for Ashlands. </br>Removed m_baseItemsStaminaModifier, added a lot of other StaminaModfiers. </br> Updated PieceManager
-| 2.3.1 | Adjust font sizeMin for Categories. </br> Added AllowAllItems for portal Pieces </br> Added Fireplace for pieces - Infinite Fuel now </br> Fixed Mock System again.
-
-
-
-
-</details>
 
 <details><summary>Feedback</summary>
 
