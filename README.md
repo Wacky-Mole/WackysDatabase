@@ -662,6 +662,7 @@ To delete all existing Damage modifiers
 - `waterPiece` (bool): Indicates whether the piece is a water piece.
 - `noInWater` (bool): Indicates whether the piece cannot be placed in water.
 - `notOnFloor` (bool): Indicates whether the piece cannot be placed on the floor.
+- `notOnWood` (bool): Indicates whether the piece cannot be placed on the wood.
 - `onlyinTeleportArea` (bool): Indicates whether the piece can only be placed in teleport areas. Stone Groups making a Circle
 - `allowedInDungeons` (bool): Indicates whether the piece is allowed in dungeons.
 - `canBeRemoved` (bool): Indicates whether the piece can be removed.
@@ -1139,7 +1140,7 @@ Wackymole
 | 2.2.6 | Removed Reloadtime(broken) and replaced it with ReloadTimeMultiplier for crossbow. 
 | 2.3.0 | Update for Ashlands. </br>Removed m_baseItemsStaminaModifier, added a lot of other StaminaModfiers. </br> Updated PieceManager
 | 2.3.1 | Adjust font sizeMin for Categories. </br> Added AllowAllItems for portal Pieces </br> Added Fireplace for pieces - Infinite Fuel now </br> Fixed Mock System again.
-| 2.3.3 | Added values for Staff of protection SE or SE Staff_Sheild </br> Updated PieceManager </br> Officially added upgrade_reqs and disabledUpgrade for Recipe goodness. Say thank you to Blaxx and Item Manager </br> Added warning if Recipes don't find req item
+| 2.3.3 | Added values for Staff of protection SE or SE Staff_Sheild </br> Updated PieceManager </br> Officially added upgrade_reqs and disabledUpgrade for Recipe goodness. Say thank you to Blaxx and Item Manager </br> Added warning if Recipes don't find req item </br> Fixed using actual recipes like Recipe_Bronze5 </br> Added notOnWood for pieces
 
 
 

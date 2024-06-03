@@ -228,9 +228,9 @@ namespace wackydatabase.SetData
             {
                 foreach (Recipe recipes in Instant.m_recipes)
                 {
-                    if (!(recipes.m_item == null) && recipes.name == searchname)
+                    if  (recipes.name == searchname)
                     {
-                        //WMRecipeCust.Dbgl($"An actual {data.name} has been found!-- Only modification allowed");
+                        WMRecipeCust.Dbgl($"An actual {data.name} has been found!-- Only modification allowed");
                         ActualR = recipes;
                         break;
                     }
@@ -1037,6 +1037,7 @@ namespace wackydatabase.SetData
             pi.m_onlyInTeleportArea = data.onlyinTeleportArea ?? pi.m_onlyInTeleportArea;
             pi.m_allowedInDungeons = data.allowedInDungeons ?? pi.m_allowedInDungeons;
             pi.m_canBeRemoved = data.canBeRemoved ?? pi.m_canBeRemoved;
+            pi.m_notOnWood = data.notOnWood ?? pi.m_notOnWood;
 
             if (data.comfort != null)
             {

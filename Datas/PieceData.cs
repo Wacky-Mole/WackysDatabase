@@ -36,6 +36,7 @@ namespace wackydatabase.Datas
         public bool? onlyinTeleportArea;
         public bool? allowedInDungeons;
         public bool? canBeRemoved;
+        public bool? notOnWood;
 
 
         public WearNTearData? wearNTearData;

@@ -76,11 +76,11 @@ namespace wackydatabase.GetData
             
             try
             {
-                /*
+                
                 if (rep.name.Contains("Recipe_"))
                 {
                     return GetRecip(rep, tod, false);
-                } */
+                } 
 
                 return GetRecip(rep, tod);
             }
@@ -102,7 +102,7 @@ namespace wackydatabase.GetData
 
             if (!AllowClone)
             {
-                //cloneyesorno = "NO";
+                cloneyesorno = "NO";
                 data.name = temp;
             }else
             {
@@ -397,6 +397,7 @@ namespace wackydatabase.GetData
                 onlyinTeleportArea = piece.m_onlyInTeleportArea,
                 allowedInDungeons = piece.m_allowedInDungeons,
                 canBeRemoved = piece.m_canBeRemoved,
+                notOnWood = piece.m_notOnWood,
 
             };
             
