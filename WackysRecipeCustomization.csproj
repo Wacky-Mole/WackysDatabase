@@ -215,7 +215,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="LICENSE.txt" />
-    <Content Include="WackysDatabase\icon.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="OBJimporter\rootcube" />
@@ -233,7 +232,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\ILRepack.Lib.MSBuild.Task.2.0.18.2\build\ILRepack.Lib.MSBuild.Task.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\ILRepack.Lib.MSBuild.Task.2.0.18.2\build\ILRepack.Lib.MSBuild.Task.targets'))" />
   </Target>
-    <Target Name="GetAssemblyVersion" AfterTargets="ILRepack">
+  <Target Name="GetAssemblyVersion" AfterTargets="ILRepack">
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
@@ -252,7 +251,7 @@
       <PackageDir>$(ProjectDir)\Thunderstore\$(PackageName)</PackageDir>
     </PropertyGroup>
   </Target>
-    <UsingTask TaskName="WriteManifestFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+  <UsingTask TaskName="WriteManifestFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
       <ManifestFile ParameterType="System.String" Required="true" />
       <AssemblyName ParameterType="System.String" Required="true" />
@@ -275,7 +274,7 @@ System.IO.File.WriteAllText(ManifestFile, content);
 ]]></Code>
     </Task>
   </UsingTask>
-    <Target Name="UpdateManifestVersion" AfterTargets="GetAssemblyVersion" Condition=" ('$(Configuration)|$(Platform)' == 'Release|AnyCPU') And ('$(OS)' == 'Windows_NT') ">
+  <Target Name="UpdateManifestVersion" AfterTargets="GetAssemblyVersion" Condition=" ('$(Configuration)|$(Platform)' == 'Release|AnyCPU') And ('$(OS)' == 'Windows_NT') ">
     <WriteManifestFile ManifestFile="$(ProjectDir)Thunderstore\manifest.json" AssemblyName="$(AssemblyName)" />
     <ItemGroup>
       <ManifestFile Include="$(ProjectDir)Thunderstore\manifest.json" />

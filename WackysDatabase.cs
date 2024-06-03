@@ -1,6 +1,6 @@
 ﻿// Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate
 // Thanks to the Odin Discord server, for being active and good for the valheim community.
-// Taking from Azu OpenDatabase code and the orginal now. https://www.nexusmods.com/valheim/mods/319?tab=description
+// Taking from Azu OpenDatabase code and the old one now. https://www.nexusmods.com/valheim/mods/319?tab=description
 // CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs
 // Thank you to Rexabit for Visual Modifier - It really is an amazing mod.
 
