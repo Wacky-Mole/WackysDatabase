@@ -184,7 +184,7 @@ namespace wackydatabase.SetData
             {
                 Functions.setValue(type, go, "m_absorbDamage", data.SeShield.AbsorbDmg);
                 Functions.setValue(type, go, "m_absorbDamageWorldLevel", data.SeShield.AbsorbDmgWorldLevel);
-                Functions.setValue(type, go,"m_levelUpSkillFactor",null,data.SeShield.LevelUpSkillFactor);
+                Functions.setValue(type, go,"m_levelUpSkillFactor",data.SeShield.LevelUpSkillFactor);
                 Functions.setValue(type, go, "m_ttlPerItemLevel",null, data.SeShield.TtlPerItemLevel);
                 Functions.setValue(type, go, "m_absorbDamagePerSkillLevel", data.SeShield.AbsorbDmgPerSkill);
 

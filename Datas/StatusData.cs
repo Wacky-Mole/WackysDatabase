@@ -50,7 +50,7 @@ namespace wackydatabase.Datas
     {
         public float? AbsorbDmg;
         public float? AbsorbDmgWorldLevel;
-        public int? LevelUpSkillFactor;
+        public float? LevelUpSkillFactor;
         public int? TtlPerItemLevel;
         public float? AbsorbDmgPerSkill;
 
