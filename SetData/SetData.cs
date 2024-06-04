@@ -370,30 +370,22 @@ namespace wackydatabase.SetData
                 }
                 if (RecipeRUPGRADE == null)
                 {
-                    //RecipeRUPGRADE = ScriptableObject.Instantiate(RecipeR);
+                    RecipeRUPGRADE = ScriptableObject.Instantiate(RecipeR);
+                    /*
                     RecipeRUPGRADE = ScriptableObject.CreateInstance<Recipe>();
                     RecipeRUPGRADE.m_item = RecipeR.m_item;
                     RecipeRUPGRADE.m_amount = RecipeR.m_amount;
                     RecipeRUPGRADE.m_craftingStation = RecipeR.m_craftingStation;
                     RecipeRUPGRADE.m_repairStation = RecipeR.m_repairStation;
                     RecipeRUPGRADE.m_minStationLevel = RecipeR.m_minStationLevel;
+                    */
 
                     RecipeRUPGRADE.name = RecipeR.name + "_Upgrade";
                     RecipeRUPGRADE.m_resources = UpgradeReqs.ToArray();
                     RecipeRUPGRADE.m_enabled = false;
                     Instant.m_recipes.Add(RecipeRUPGRADE);
 
-                    if (data.maxStationLevelCap != null)
-                    {
-                        if (!WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeRUPGRADE.m_item.name))
-                        {
-                            WMRecipeCust.RecipeMaxStationLvl.Add(RecipeRUPGRADE.m_item.name, data.maxStationLevelCap ?? -1); // -1 no cap
-                        }
-                        else
-                        {
-                            WMRecipeCust.RecipeMaxStationLvl[RecipeRUPGRADE.m_item.name] = data.maxStationLevelCap ?? -1;
-                        }
-                    }
+
 
                     WMRecipeCust.RequiredUpgradeItemsString.Add(RecipeRUPGRADE, true);
                 }
