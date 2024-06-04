@@ -32,6 +32,7 @@ using System.Globalization;
 using System.Threading;
 using static MeleeWeaponTrail;
 using static Incinerator;
+using System.Collections;
 
 namespace wackydatabase.SetData
 {
@@ -326,7 +327,7 @@ namespace wackydatabase.SetData
                 }
             }
 
-            if (data.upgrade_reqs != null)
+            if (data.upgrade_reqs != null && data.upgrade_reqs.Any() )
             {
                 List<Piece.Requirement> UpgradeReqs = new();
 
@@ -369,11 +370,30 @@ namespace wackydatabase.SetData
                 }
                 if (RecipeRUPGRADE == null)
                 {
-                    RecipeRUPGRADE = ScriptableObject.Instantiate(RecipeR);
+                    //RecipeRUPGRADE = ScriptableObject.Instantiate(RecipeR);
+                    RecipeRUPGRADE = ScriptableObject.CreateInstance<Recipe>();
+                    RecipeRUPGRADE.m_item = RecipeR.m_item;
+                    RecipeRUPGRADE.m_amount = RecipeR.m_amount;
+                    RecipeRUPGRADE.m_craftingStation = RecipeR.m_craftingStation;
+                    RecipeRUPGRADE.m_repairStation = RecipeR.m_repairStation;
+                    RecipeRUPGRADE.m_minStationLevel = RecipeR.m_minStationLevel;
+
                     RecipeRUPGRADE.name = RecipeR.name + "_Upgrade";
                     RecipeRUPGRADE.m_resources = UpgradeReqs.ToArray();
-                    RecipeRUPGRADE.m_enabled = true;
+                    RecipeRUPGRADE.m_enabled = false;
                     Instant.m_recipes.Add(RecipeRUPGRADE);
+
+                    if (data.maxStationLevelCap != null)
+                    {
+                        if (!WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeRUPGRADE.m_item.name))
+                        {
+                            WMRecipeCust.RecipeMaxStationLvl.Add(RecipeRUPGRADE.m_item.name, data.maxStationLevelCap ?? -1); // -1 no cap
+                        }
+                        else
+                        {
+                            WMRecipeCust.RecipeMaxStationLvl[RecipeRUPGRADE.m_item.name] = data.maxStationLevelCap ?? -1;
+                        }
+                    }
 
                     WMRecipeCust.RequiredUpgradeItemsString.Add(RecipeRUPGRADE, true);
                 }
@@ -385,18 +405,17 @@ namespace wackydatabase.SetData
                 }
                 
 
-
                 if (data.disabledUpgrade ??= false) // dis upgrade but allows req
                 {
                     WMRecipeCust.RequiredUpgradeItemsString[RecipeRUPGRADE] = false;
                 }
-
+         
+                if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
+                    WMRecipeCust.RequiredCraftItemsString[RecipeR] = true;
+                else
+                    WMRecipeCust.RequiredCraftItemsString.Add(RecipeR, true);
             }
 
-            if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
-                WMRecipeCust.RequiredCraftItemsString[RecipeR] = true;
-            else
-                WMRecipeCust.RequiredCraftItemsString.Add(RecipeR, true);
 
             /*
                         if (data.disabled ??= false && data.upgrade_reqs != null) // not needed
@@ -405,7 +424,7 @@ namespace wackydatabase.SetData
                         }
             */
             if (data.disabledUpgrade ??= false && data.upgrade_reqs == null)
-                WMRecipeCust.RequiredCraftItemsString[RecipeR] = false;
+                RecipeR.m_item.m_itemData.m_shared.m_maxQuality = 1; // WMRecipeCust.RequiredCraftItemsString[RecipeR] = false;
 
 
             List<Piece.Requirement> reqs = new List<Piece.Requirement>();
@@ -464,13 +483,13 @@ namespace wackydatabase.SetData
 
             if (!data.disabled ?? true)
             {
-                if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
-                    WMRecipeCust.RequiredCraftItemsString[RecipeR] = true;
+                //if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
+                  //  WMRecipeCust.RequiredCraftItemsString[RecipeR] = true;
             }
             else // disabled
             {
-                if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
-                    WMRecipeCust.RequiredCraftItemsString[RecipeR] = false;
+                //if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
+                  //  WMRecipeCust.RequiredCraftItemsString[RecipeR] = false;
 
                 if (skip) // has been set before
                 {

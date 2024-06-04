@@ -73,28 +73,49 @@ namespace wackydatabase.PatchClasses
     internal static class Player_GetAvailableRecipes_Patch
     {
         [HarmonyPrefix]
-        public static void Prefix(ref Dictionary<Assembly, Dictionary<Recipe, bool>>? __state)
+        public static void Prefix(Player __instance , ref Dictionary<Assembly, Dictionary<Recipe, bool>>? __state)
         {
             __state ??= new Dictionary<Assembly, Dictionary<Recipe, bool>>();
             Dictionary<Recipe, bool> hidden = new Dictionary<Recipe, bool>();
 
             if (InventoryGui.instance.InCraftTab())
             {
-                hidden = WMRecipeCust.RequiredUpgradeItemsString; // Opposite of ItemManager
+               hidden = WMRecipeCust.RequiredUpgradeItemsString.ToDictionary(entry => entry.Key,
+                                               entry => entry.Value); // Opposite of ItemManager
             }
             else if (InventoryGui.instance.InUpradeTab())
             {
-                hidden = WMRecipeCust.RequiredCraftItemsString;
+                hidden = WMRecipeCust.RequiredCraftItemsString.ToDictionary(entry => entry.Key,
+                                               entry => entry.Value); 
             }
             else
             {
                 return;
             }
-
+         /*   
+            foreach (var re in WMRecipeCust.RequiredCraftItemsString)
+            {
+                WMRecipeCust.WLog.LogWarning("RequiredCraftItemsString " + re.Key.name );
+                if (InventoryGui.instance.InCraftTab())
+                {
+                    if (!__instance.m_knownRecipes.Contains(re.Key.name))
+                    {
+                        WMRecipeCust.WLog.LogWarning("known recipes is false " + re.Key.name);
+                        hidden[re.Key] = false;
+                    }
+                    else
+                    {
+                        WMRecipeCust.WLog.LogWarning("known recipes is true " + re.Key.name);
+                        hidden[re.Key] = true;
+                    }
+                }
+            } 
+         */
             foreach (Recipe recipe in hidden.Keys)
             {
                 recipe.m_enabled = false;
             }
+            
             __state[Assembly.GetExecutingAssembly()] = hidden;
         }
 
