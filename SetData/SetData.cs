@@ -386,7 +386,6 @@ namespace wackydatabase.SetData
                     Instant.m_recipes.Add(RecipeRUPGRADE);
 
 
-
                     WMRecipeCust.RequiredUpgradeItemsString.Add(RecipeRUPGRADE, true);
                 }
                 else 
