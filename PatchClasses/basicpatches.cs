@@ -227,29 +227,20 @@ namespace wackydatabase.PatchClasses
         }
 
     }
+    
 
     [HarmonyPatch(typeof(Recipe), "GetRequiredStationLevel")]
-    static class RecipeStationPatch
+    [HarmonyPriority(Priority.Last)]
+    static class RecipeStationPatchWackydb
     {
-        private static void Postfix(Recipe __instance, ref int __result)
+        private static void Postfix( ref int __result, Recipe __instance)
         {
-
-
             if (__instance == null) return;
-            if (__instance.m_item == null) return;
-            //if (__instance.m_item.name == null) return;
-
-            //var level2 = WMRecipeCust.RecipeMaxStationLvl[__instance.m_item.m_itemData.m_shared.m_name];
-            /*
-            foreach (KeyValuePair<string, int> kvp in WMRecipeCust.RecipeMaxStationLvl)
-            {
-                //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
-                WMRecipeCust.WLog.LogInfo("Key and Value "+ kvp.Key + " "  +kvp.Value);
-            
-            } */
+             if (__instance.m_item == null) return;
 
             if (WMRecipeCust.RecipeMaxStationLvl.TryGetValue(__instance.m_item.name, out int level))
             {
+                
                 if (level == -1)
                 {
 
@@ -259,28 +250,9 @@ namespace wackydatabase.PatchClasses
                     __result = Math.Min(__result, level);
 
                 }
+                //WMRecipeCust.WLog.LogInfo("Current instance name is " + __instance.m_item.name + "With result " +__result);
 
             }
-
-            /*
-            if (___recipe == null )
-                return;
-            if (___recipe.name == null)
-                return;
-
-            string name = ___recipe.name;
-            if (WMRecipeCust.RecipeMaxStationLvl.ContainsKey(name))
-            {
-                int level = WMRecipeCust.RecipeMaxStationLvl[name];
-                if (level == -1 || level == 0)
-                {
-                    return;
-                }else
-                {
-                    __result = Mathf.Min(__result, level);
-                }
-            }
-            */
         }
     }
 

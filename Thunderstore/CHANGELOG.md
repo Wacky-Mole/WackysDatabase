@@ -26,5 +26,6 @@
 | 2.3.0 | Update for Ashlands. </br>Removed m_baseItemsStaminaModifier, added a lot of other StaminaModfiers. </br> Updated PieceManager
 | 2.3.1 | Adjust font sizeMin for Categories. </br> Added AllowAllItems for portal Pieces </br> Added Fireplace for pieces - Infinite Fuel now </br> Fixed Mock System again.
 | 2.3.3 | Added values for Staff of protection SE or SE Staff_Sheild </br> Updated PieceManager </br> Officially added upgrade_reqs and disabledUpgrade for Recipe goodness. Say thank you to Blaxx and Item Manager </br> Added warning if Recipes don't find req item </br> Fixed using actual recipes like Recipe_Bronze5 </br> Added notOnWood for pieces
-| 2.3.4 | Bug Fix for recipe. A bug still remains with items that have upgrade_reqs recipe showing up at start.
+| 2.3.4 | Bug Fix for recipe.
+| 2.3.5 | Bug fixes for recipes, disabled and disabledUpgrade
 

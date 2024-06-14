@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![GreenMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.3.4
+Version: 2.3.5
 Features
 
 

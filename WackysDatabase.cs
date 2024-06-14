@@ -37,10 +37,11 @@ using RainbowTrollArmor;
 namespace wackydatabase
 {
     [BepInPlugin(ModGUID, ModName, ModVersion)]
+
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.3.4";
+        internal const string ModVersion = "2.3.5";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -85,6 +86,7 @@ namespace wackydatabase
         internal static int spawnedinWorld = 0;
         internal static bool dedLoad = false;
         internal static bool ssLock = false;
+        internal static int ssLockcount = 0;
         internal static bool waitingforFirstLoad = false;
 
         public static List<RecipeData_json> recipeDatas = new List<RecipeData_json>();
@@ -158,7 +160,7 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalFX;
         public static Dictionary<string, GameObject> extraEffects;
         public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>();
-        public static Dictionary<string, Dictionary<ItemDrop, int>> QualityRecipeReq = new Dictionary<string, Dictionary<ItemDrop, int>>();
+        public static Dictionary<string, Dictionary<ItemDrop, int>> QualityRecipeReq = new Dictionary<string, Dictionary<ItemDrop, int>>();// not used anymore
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
         public static Dictionary<string, Recipe> hiddenRecipeUpgrade; // Reqs_Upgrade
         public static Dictionary<string, float> crossbowReloadingTime = new Dictionary<string, float>();
@@ -348,7 +350,7 @@ namespace wackydatabase
         {
             if (WMRecipeCust.NoMoreLoading)
                 return;
-
+           // WMRecipeCust.WLog.LogInfo("skillConfig data recieved " + skillConfigData.Value) ;
             CurrentReload.SyncEventDetected();
         }
 

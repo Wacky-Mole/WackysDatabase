@@ -178,8 +178,8 @@ namespace wackydatabase.Read
             }
 
             WMRecipeCust.ymlstring = yaml.ToString();//(WMRecipeCust.itemDatasYml.ToString() + WMRecipeCust.pieceDatasYml.ToString() + WMRecipeCust.recipeDatasYml + WMRecipeCust.visualDatasYml + WMRecipeCust.effectDataYml).ToString();
-            if (singleplayeronly == false)
-                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; // Shouldn't matter - maybe...
+            //if (singleplayeronly == false)
+                //WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; // Shouldn't matter - maybe... lol, it does
 
             YamlLoader cache = new YamlLoader(); // cache Only
 

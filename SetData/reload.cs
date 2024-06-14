@@ -54,7 +54,15 @@ namespace wackydatabase.SetData
             {
                 if (WMRecipeCust.ssLock)
                 {
-                    WMRecipeCust.Dbgl($" You recieved SERVER files again before finishing current ones");
+                    WMRecipeCust.ssLockcount++;
+                    if (WMRecipeCust.ssLockcount == 2)
+                    {
+                        WMRecipeCust.ssLockcount = 0;
+                        WMRecipeCust.ssLock = false;
+                        WMRecipeCust.WLog.LogWarning($" You recieved SERVER files again again, resetting");
+                        return;
+                    }
+                    WMRecipeCust.WLog.LogWarning($" You recieved SERVER files again before finishing current ones, -bug wackydb");
                     return;
                 }
                 WMRecipeCust.WLog.LogDebug("CustomSyncEventDetected was called ");
@@ -350,6 +358,11 @@ namespace wackydatabase.SetData
                 DataHelpers.GetPieceStations();
                 DataHelpers.GetPiecesatStart();
                 WMRecipeCust.Firstrun = false;
+
+                if (WMRecipeCust.IsDedServer)
+                {
+                    WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+                }
             }
             
 
@@ -509,7 +522,7 @@ namespace wackydatabase.SetData
                     SetData.SetRecipeData(data, Instant);
                 }
                 catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
-                processcount++;
+                processcount++; 
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
                 {
                     yield return new WaitForSeconds(WMRecipeCust.WaitTime);
