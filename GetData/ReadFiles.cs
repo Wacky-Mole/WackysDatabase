@@ -16,6 +16,7 @@ using wackydatabase.GetData;
 using System.Runtime.InteropServices.ComTypes;
 using System.Collections;
 using wackydatabase.OBJimporter;
+using HarmonyLib;
 
 
 
@@ -117,6 +118,9 @@ namespace wackydatabase.Read
                 WMRecipeCust.LockReload = true;
             }
 
+
+            // Going to make this worse so the lists are more consistant between a singleplayer and multiplayer client
+            /*
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
             {
                 yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml);
@@ -176,8 +180,93 @@ namespace wackydatabase.Read
                     processcount = 0;
                 }
             }
+            */
+
+
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
+            {
+                var ymlread = File.ReadAllText(file);
+                if (ymlread.Contains("m_weight")) //item
+                {
+                    yaml.Load<WItemData>(file, WMRecipeCust.itemDatasYml, ymlread);
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?iece_*.yml", SearchOption.AllDirectories))
+            {
+                var ymlread = File.ReadAllText(file);
+                if (ymlread.Contains("piecehammer")) // only piece
+                {
+                    yaml.Load<PieceData>(file, WMRecipeCust.pieceDatasYml, ymlread);
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ecipe_*.yml", SearchOption.AllDirectories))
+            {
+                var ymlread = File.ReadAllText(file);
+                if (ymlread.Contains("reqs"))// only recipes
+                {
+                    yaml.Load<RecipeData>(file, WMRecipeCust.recipeDatasYml, ymlread);
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "SE_*.yml", SearchOption.AllDirectories))
+            {
+                var ymlread = File.ReadAllText(file);
+                if (ymlread.Contains("Status_m_name"))
+                {
+                    yaml.Load<StatusData>(file, WMRecipeCust.effectDataYml, ymlread);
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "Creature_*.yml", SearchOption.AllDirectories))
+            {
+                var ymlread = File.ReadAllText(file);
+                if (ymlread.Contains("mob_display_name"))
+                {
+                    yaml.Load<CreatureData>(file, WMRecipeCust.creatureDatasYml, ymlread);
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
 
             WMRecipeCust.ymlstring = yaml.ToString();//(WMRecipeCust.itemDatasYml.ToString() + WMRecipeCust.pieceDatasYml.ToString() + WMRecipeCust.recipeDatasYml + WMRecipeCust.visualDatasYml + WMRecipeCust.effectDataYml).ToString();
+
             //if (singleplayeronly == false)
                 //WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; // Shouldn't matter - maybe... lol, it does
 

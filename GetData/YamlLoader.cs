@@ -29,11 +29,15 @@ namespace wackydatabase.Datas {
             _stringBuilder = new StringBuilder();
         }
 
-        public bool Load<T>(string file, List<T> items) // need to rewrite this a bit
+        public bool Load<T>(string file, List<T> items, string ymlread = null) // need to rewrite this a bit
         {
             try
             {
-                var yml = File.ReadAllText(file);
+                string yml;
+                if (ymlread == null)  
+                 yml = File.ReadAllText(file);
+                else
+                    yml = ymlread;
 
                 _stringBuilder.Append(yml);
                 _stringBuilder.Append(WMRecipeCust.StringSeparator);
@@ -56,6 +60,7 @@ namespace wackydatabase.Datas {
 
             return false;
         }
+
 
         public bool Write<T>(string file, T data)
         {

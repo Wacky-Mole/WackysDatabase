@@ -236,7 +236,7 @@ namespace wackydatabase.PatchClasses
         private static void Postfix( ref int __result, Recipe __instance)
         {
             if (__instance == null) return;
-             if (__instance.m_item == null) return;
+            if (__instance.m_item == null) return;
 
             if (WMRecipeCust.RecipeMaxStationLvl.TryGetValue(__instance.m_item.name, out int level))
             {

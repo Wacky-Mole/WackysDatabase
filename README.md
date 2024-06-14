@@ -955,6 +955,17 @@ You can replace all Boars in the game with this Dude.
 - `Cooldown` (float): The cooldown of the status effect.
 - `ActivationAnimation` (string): The animation for the activation of the status effect.
 - `SeData` (SEdata): The additional data for the status effect.
+- `SeShield` (SEShield): The additional data for the shield status effect.
+
+### Class: SEShield
+ Only for Staff_shield at the moment
+
+ - `AbsorbDmg` (float): How much the shield protects against.
+ - `AbsorbDmgWorldLevel` (float): No idea, maybe future plans?
+ - `LevelUpSkillFactor` (float): How much you can level up per usage. 
+ - `TtlPerItemLevel` (int): How long the shield lasts.
+ - `AbsorbDmgPerSkill` (float): How much additional shield you get per skill level.
+
 
 ### Class: SEdata
 
@@ -1181,6 +1192,4 @@ Known issues: </br>
  </br> 
  Creature material is not working
  </br>
-SS bug where client receives multi messages, while reloading. 
-</br>
 Stay Wacky.
