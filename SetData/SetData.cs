@@ -45,7 +45,9 @@ namespace wackydatabase.SetData
             {
                 if (pies.Value.TryGetComponent<PieceTable>(out var table))
                 {
-                    WMRecipeCust.Dbgl($"Forcing PieceManger or Vanilla to Disable Piece {pies.Key}");
+                    if (WMRecipeCust.isDebugString.Value)
+                        WMRecipeCust.Dbgl($"Forcing PieceManger or Vanilla to Disable Piece {pies.Key}");
+
                     table.m_pieces.Remove(pies.Key);
                 }
                 else
@@ -1615,6 +1617,7 @@ namespace wackydatabase.SetData
             bool skip = false;
             bool mockskip = false;
 
+
             foreach (var citem in WMRecipeCust.ClonedI)
             {
                 if (citem == data.name)
@@ -1728,7 +1731,7 @@ namespace wackydatabase.SetData
                 }
                 //WMRecipeCust.Dbgl("Mock Model is loaded 5 " + data.name);
             }
-
+            
             string tempname = data.name;
             if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)
             {
@@ -1750,6 +1753,7 @@ namespace wackydatabase.SetData
                     data.name = data.clonePrefabName;
                 }
             }
+           // WMRecipeCust.WLog.LogWarning("Stable Hash " + go.name.GetStableHashCode());
 
             if (go == null)
             {
@@ -2020,7 +2024,8 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
                         PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
                         //PrimaryItemData.m_shared.m_attack.m_reloadTime = data.Primary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_attack.m_reloadTime; This is overriden by valheim, needs a patch instead
-                        if (PrimaryItemData.m_shared.m_attack.m_requiresReload)
+                        
+                        if (PrimaryItemData.m_shared.m_attack.m_requiresReload )
                         {
                             var nameofbow = PrimaryItemData.m_shared.m_name;
                             nameofbow += "P"; // primary
@@ -2029,7 +2034,7 @@ namespace wackydatabase.SetData
                             else
                                 WMRecipeCust.crossbowReloadingTime.Add(nameofbow, data.Primary_Attack.ReloadTimeMultiplier ?? 1);                        
                         }
-
+                        
                         PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain = data.Primary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain;
                         PrimaryItemData.m_shared.m_attack.m_bowDraw = data.Primary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_attack.m_bowDraw;
                         PrimaryItemData.m_shared.m_attack.m_drawDurationMin = data.Primary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_attack.m_drawDurationMin;
@@ -2182,6 +2187,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
                         //PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime = data.Secondary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime;
+                        /* future use?
                         if (PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload)
                         {
                             var nameofbow = PrimaryItemData.m_shared.m_name;
@@ -2191,6 +2197,7 @@ namespace wackydatabase.SetData
                             else
                                 WMRecipeCust.crossbowReloadingTime.Add(nameofbow, data.Secondary_Attack.ReloadTimeMultiplier ?? 1);
                         }
+                        */
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain = data.Secondary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw = data.Secondary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw;

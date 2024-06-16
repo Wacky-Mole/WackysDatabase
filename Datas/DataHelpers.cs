@@ -171,6 +171,10 @@ namespace wackydatabase.Datas
                     break;
                 case "AxeIron":
                     ZnetName = "AxeIron";
+                    break;                
+                case "CrossbowArbalest":
+                    ZnetName = "CrossbowArbalest";
+                   // hash = -1556386686;
                     break;
                 case "TrophyDraugr":
                     ZnetName = "TrophyDraugr";
@@ -192,7 +196,7 @@ namespace wackydatabase.Datas
                         go = ZNetScene.instance.GetPrefab(hash);
 
                         if (go != null)
-                            WMRecipeCust.WLog.LogInfo($"Found Special Object with Hash {go.name} but TrophyDraugr is actually being set for TrophyDraugrFem - known issue");
+                            WMRecipeCust.WLog.LogInfo($"Found Special Object with Hash {go.name} known issue");
                     }
 
                 }
