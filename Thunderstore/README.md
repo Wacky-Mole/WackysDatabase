@@ -5,7 +5,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![GreenMan](https://wackymole.com/hosts/Greenman.png)
 
-Version: 2.3.5
+Version: 
 Features
 
 
@@ -1191,5 +1191,7 @@ Known issues: </br>
  Bug on moving stuff from one hammer to another - disable orginal and make a clone for now
  </br> 
  Creature material is not working
+ </br>
+ CrossbowArbalest item not changing, recommend cloning and replacing
  </br>
 Stay Wacky.

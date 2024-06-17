@@ -476,7 +476,7 @@ namespace wackydatabase.SetData
             else // disabled
             {
                 if (WMRecipeCust.RequiredCraftItemsString.ContainsKey(RecipeR))
-                    WMRecipeCust.RequiredCraftItemsString[RecipeR] = false;
+                    WMRecipeCust.RequiredCraftItemsString.Remove(RecipeR);
 
                 if (skip) // has been set before
                 {

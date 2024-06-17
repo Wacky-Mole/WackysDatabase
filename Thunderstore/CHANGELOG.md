@@ -28,4 +28,5 @@
 | 2.3.3 | Added values for Staff of protection SE or SE Staff_Sheild </br> Updated PieceManager </br> Officially added upgrade_reqs and disabledUpgrade for Recipe goodness. Say thank you to Blaxx and Item Manager </br> Added warning if Recipes don't find req item </br> Fixed using actual recipes like Recipe_Bronze5 </br> Added notOnWood for pieces
 | 2.3.4 | Bug Fix for recipe.
 | 2.3.5 | Bug fixes for recipes, disabled and disabledUpgrade </br> Bug fix for double serversync issue, was probably causing server admins a lot of problems on pushing updates without restarts. </br> Changed singleplayer loading yml files to be more consistent with how multiplayer client receives them. Required fields are required. </br>Removed unnecessarily log on respawn
+| 2.3.6 | Possible bug fix for disabled recipes
 

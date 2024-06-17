@@ -172,9 +172,20 @@ namespace wackydatabase.Datas
                 case "AxeIron":
                     ZnetName = "AxeIron";
                     break;                
-                case "CrossbowArbalest":
-                    ZnetName = "CrossbowArbalest";
-                   // hash = -1556386686;
+                case "CrossbowArbalest": // Very werid one inc through full database
+                    int count = 0;
+                    foreach (var item in ObjectDB.instance.m_items)
+                    {
+                       if( item.GetComponent<ItemDrop>().name == "CrossbowArbalest")
+                        {
+                            count++;
+                            go = item;
+                                              
+                        }                      
+                    }
+                    WMRecipeCust.Dbgl("Found " + count + " For CrossbowArbalest in DB");
+                    //ZnetName = "CrossbowArbalest";
+                    // hash = -1556386686;
                     break;
                 case "TrophyDraugr":
                     ZnetName = "TrophyDraugr";
