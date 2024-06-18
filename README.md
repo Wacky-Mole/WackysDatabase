@@ -420,9 +420,10 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `Spawn_On_Trigger` (string): The spawn-on-trigger effect of the attack.
 - `Requires_Reload` (bool): Indicates whether the attack requires reloading.
 - `Reload_Animation` (string): The animation for reloading.
-- `ReloadTime` (float): The time it takes to reload. - Removed - Never worked
+- `ReloadTime` (float): The time it takes to reload. - Added Back - Might work - Didn't work for crossbows before
 - `ReloadTimeMultiplier` (float): "Multiplier for reload speed of crossbows. Does not affect Vanilla scaling with skill level. Values 0.1 to 2.0. Default 1.0
 - `Reload_Stamina_Drain` (float): The stamina drain during reloading.
+- `Reload_Eitr_Drain` (float): The Eitr drain during reloading.
 - `Bow_Draw` (bool): Indicates whether the bow is drawn for the attack.
 - `Bow_Duration_Min` (float): The minimum duration of the bow.
 - `Bow_Stamina_Drain` (float): The stamina drain during bow usage.
@@ -434,7 +435,6 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `Multi_Hit` (bool): Indicates whether the attack can hit multiple times.
 - `Pickaxe_Special` (bool): Indicates whether it is a special pickaxe attack.
 - `Last_Chain_Dmg_Multiplier` (float): The damage multiplier for the last chain attack.
-
 - The vanilla Code for chain multiplier <code>
 if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels - 1 && m_lastChainDamageMultiplier > 1f)
                 {
@@ -442,6 +442,19 @@ if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels -
                     hitData.m_pushForce *= 1.2f;
                 }
                 </code>
+
+- `Reset_Chain_If_hit` (DestructibleType): The damage multiplier for the last chain attack. 
+
+
+- `SpawnOnHit` (string): Spawn any Gameobject/Mob ect..
+- `SpawnOnHit_Chance` (float): Chance Values 0 to 1.0 (100%)
+
+- `Raise_Skill_Amount` (float): Raise a skill this amount with the weapon in hand or when used?
+- `Skill_Hit_Type` (SkillType): Skill to Raise.
+- `Special_Hit_Skill` (SkillType): I don't know what it means by special hit. 
+- `Special_Hit_Type` (DestructibleType): The Special Hit Type.   I don't know what these last 4 fields do, if you figure it out, let me know. 
+-
+
 - `Attack_Projectile` (string): The Gameobject projectile has to have Projectile Componenent. Disabled for now. 
 - `Projectile_Vel` (float): The velocity of the projectile.
 - `Projectile_Accuraccy` (float): The accuracy of the projectile.
@@ -581,6 +594,7 @@ To delete existing
 - `m_skillType` (Skills.SkillType): The skill type of the item.
 - `m_animationState` (ItemDrop.ItemData.AnimationState): The animation state of the item.
 - `m_itemType` (ItemDrop.ItemData.ItemType): The item type of the item.
+- `Attach_Override` (ItemDrop.ItemData.ItemType): Override where the attachment is placed on character.
 - `m_toolTier` (int): The tool tier of the item.
 - `m_maxQuality` (int): The maximum quality of the item.
 - `m_value` (int): The value of the item. The value of the item. if value is >0. Then the object becomes salable at Trader. 
@@ -631,6 +645,42 @@ To delete all existing Damage modifiers
 - `m_randomRotation` (bool) - randomRotation
 - `m_scale` (bool) - Scales the size 
 - `m_childTransform` (string)  Probably don't mess with unless you are looking in Unity or unity explorer
+
+
+                        public enum SkillType
+                        {
+                            None = 0,
+                            Swords = 1,
+                            Knives = 2,
+                            Clubs = 3,
+                            Polearms = 4,
+                            Spears = 5,
+                            Blocking = 6,
+                            Axes = 7,
+                            Bows = 8,
+                            ElementalMagic = 9,
+                            BloodMagic = 10,
+                            Unarmed = 11,
+                            Pickaxes = 12,
+                            WoodCutting = 13,
+                            Crossbows = 14,
+                            Jump = 100,
+                            Sneak = 101,
+                            Run = 102,
+                            Swim = 103,
+                            Fishing = 104,
+                            Ride = 110,
+                            All = 999
+                        }
+
+                    public enum DestructibleType
+                    {
+                        None = 0,
+                        Default = 1,
+                        Tree = 2,
+                        Character = 4,
+                        Everything = 7
+                    }
 </details>
 
 <details><summary> Piece components</summary>

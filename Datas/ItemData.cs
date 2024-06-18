@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using static ItemDrop.ItemData;
 
 namespace wackydatabase.Datas
 {
@@ -95,6 +96,8 @@ namespace wackydatabase.Datas
 
         public float? m_equipDuration;
 
+        public ItemDrop.ItemData.ItemType? Attach_Override;
+
 
         public Skills.SkillType? m_skillType;
 
@@ -149,9 +152,10 @@ namespace wackydatabase.Datas
 
         public bool? Requires_Reload;
         public string? Reload_Animation;
-        //public float? ReloadTime;
-        public float? ReloadTimeMultiplier;
+        public float? ReloadTime;
+        public float? ReloadTimeMultiplier; // crossbowOnly
         public float? Reload_Stamina_Drain;
+        public float? Reload_Eitr_Drain;
 
         public bool? Bow_Draw;
         public float? Bow_Duration_Min;
@@ -165,7 +169,16 @@ namespace wackydatabase.Datas
         public bool? Multi_Hit;
         public bool? Pickaxe_Special;
         public float? Last_Chain_Dmg_Multiplier;
+        public DestructibleType? Reset_Chain_If_hit;
 
+        public string? SpawnOnHit;
+        public float? SpawnOnHit_Chance;
+     
+        public float? Raise_Skill_Amount;
+        public DestructibleType? Skill_Hit_Type;
+        public Skills.SkillType? Special_Hit_Skill;
+        public DestructibleType? Special_Hit_Type;
+       
         public string? Attack_Projectile;
         public float? Projectile_Vel;
         public float? Projectile_Accuraccy;

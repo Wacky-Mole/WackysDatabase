@@ -506,6 +506,7 @@ namespace wackydatabase.SetData
                 }
                 else // normal in game
                 {
+                    /*
                     for (int i = 0; i < Instant.m_recipes.Count - 1; i++)
                     {
                         if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name && Instant.m_recipes[i].name == data.name)
@@ -514,7 +515,9 @@ namespace wackydatabase.SetData
                             WMRecipeCust.Dbgl("Recipe is disabled for " + tempname +" with recipe name " + Instant.m_recipes[i].name);
                             break;
                         }
-                    }
+                    }*/ // NO reason to do it this way anymore
+                    RecipeR.m_enabled = false;
+                    WMRecipeCust.Dbgl("Recipe is disabled for " + RecipeR.name);
                 }
             }
         }
@@ -2023,7 +2026,7 @@ namespace wackydatabase.SetData
 
                         PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
                         PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
-                        //PrimaryItemData.m_shared.m_attack.m_reloadTime = data.Primary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_attack.m_reloadTime; This is overriden by valheim, needs a patch instead
+                        PrimaryItemData.m_shared.m_attack.m_reloadTime = data.Primary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_attack.m_reloadTime; //This is overriden by valheim, needs a patch instead for crossbow
                         
                         if (PrimaryItemData.m_shared.m_attack.m_requiresReload )
                         {
@@ -2036,6 +2039,7 @@ namespace wackydatabase.SetData
                         }
                         
                         PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain = data.Primary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_reloadStaminaDrain;
+                        PrimaryItemData.m_shared.m_attack.m_reloadEitrDrain = data.Primary_Attack.Reload_Eitr_Drain ?? PrimaryItemData.m_shared.m_attack.m_reloadEitrDrain;
                         PrimaryItemData.m_shared.m_attack.m_bowDraw = data.Primary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_attack.m_bowDraw;
                         PrimaryItemData.m_shared.m_attack.m_drawDurationMin = data.Primary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_attack.m_drawDurationMin;
                         PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain = data.Primary_Attack.Bow_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain;
@@ -2048,42 +2052,18 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_multiHit = data.Primary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_attack.m_multiHit;
                         PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial = data.Primary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
- /*
-                        if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile)) // Only use this is you want the item to have unlimited arrows, magic arrows or something
+                        PrimaryItemData.m_shared.m_attack.m_resetChainIfHit = data.Primary_Attack.Reset_Chain_If_hit ?? PrimaryItemData.m_shared.m_attack.m_resetChainIfHit;
+
+                        if (!string.IsNullOrEmpty(data.Primary_Attack.SpawnOnHit) && (data.Primary_Attack.SpawnOnHit != PrimaryItemData.m_shared.m_attack.m_spawnOnHit?.name))
                         {
-                            GameObject found = null;
-                            foreach (var ob in AllObjects)
+                            if (data.Primary_Attack.SpawnOnHit == "delete" || data.Primary_Attack.SpawnOnHit == "-")
                             {
-                                if (ob.name == data.Primary_Attack.Attack_Projectile)
-                                {
-                                    if (ob.TryGetComponent<Projectile>( out Projectile peter))
-                                    {
-                                        PrimaryItemData.m_shared.m_attack.m_attackProjectile = ob;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        if (ob.TryGetComponent<Piece>(out var piece1))
-                                        {
-
-                                        }
-                                        if (ob.TryGetComponent<ItemDrop>(out var item1))
-                                        {
-
-                                        }
-                                        //PrimaryItemData.m_shared.m_attack.m_attackProjectile = ob;
-                                    }
-                                }
+                                PrimaryItemData.m_shared.m_attack.m_spawnOnHit = null;
                             }
-                        }
-
-                       
-                        if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile)  && (data.Primary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger.name))
-                        {
                             GameObject found = null;
                             foreach (var ob in AllObjects)
                             {
-                                if (ob.name == data.Primary_Attack.Attack_Projectile)
+                                if (ob.name == data.Primary_Attack.SpawnOnHit)
                                 {
                                     if (found == null)
                                         found = ob;
@@ -2092,8 +2072,63 @@ namespace wackydatabase.SetData
                                     else { }
                                 }
                             }
-                            PrimaryItemData.m_shared.m_attack.m_attackProjectile = found ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
-                        } */ // disabled attack projectile for now
+                            PrimaryItemData.m_shared.m_attack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHit;
+                        }
+
+                        PrimaryItemData.m_shared.m_attack.m_spawnOnHitChance = data.Primary_Attack.SpawnOnHit_Chance ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHitChance;
+                        
+                        PrimaryItemData.m_shared.m_attack.m_raiseSkillAmount = data.Primary_Attack.Raise_Skill_Amount ?? PrimaryItemData.m_shared.m_attack.m_raiseSkillAmount;
+                        PrimaryItemData.m_shared.m_attack.m_skillHitType = data.Primary_Attack.Skill_Hit_Type ?? PrimaryItemData.m_shared.m_attack.m_skillHitType;
+                        PrimaryItemData.m_shared.m_attack.m_specialHitSkill = data.Primary_Attack.Special_Hit_Skill ?? PrimaryItemData.m_shared.m_attack.m_specialHitSkill;
+                        PrimaryItemData.m_shared.m_attack.m_specialHitType = data.Primary_Attack.Special_Hit_Type ?? PrimaryItemData.m_shared.m_attack.m_specialHitType;
+                        
+
+                        /*
+                                               if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile)) // Only use this is you want the item to have unlimited arrows, magic arrows or something
+                                               {
+                                                   GameObject found = null;
+                                                   foreach (var ob in AllObjects)
+                                                   {
+                                                       if (ob.name == data.Primary_Attack.Attack_Projectile)
+                                                       {
+                                                           if (ob.TryGetComponent<Projectile>( out Projectile peter))
+                                                           {
+                                                               PrimaryItemData.m_shared.m_attack.m_attackProjectile = ob;
+                                                               break;
+                                                           }
+                                                           else
+                                                           {
+                                                               if (ob.TryGetComponent<Piece>(out var piece1))
+                                                               {
+
+                                                               }
+                                                               if (ob.TryGetComponent<ItemDrop>(out var item1))
+                                                               {
+
+                                                               }
+                                                               //PrimaryItemData.m_shared.m_attack.m_attackProjectile = ob;
+                                                           }
+                                                       }
+                                                   }
+                                               }
+
+
+                                               if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile)  && (data.Primary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger.name))
+                                               {
+                                                   GameObject found = null;
+                                                   foreach (var ob in AllObjects)
+                                                   {
+                                                       if (ob.name == data.Primary_Attack.Attack_Projectile)
+                                                       {
+                                                           if (found == null)
+                                                               found = ob;
+                                                           else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                                               found = ob;
+                                                           else { }
+                                                       }
+                                                   }
+                                                   PrimaryItemData.m_shared.m_attack.m_attackProjectile = found ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
+                                               } */ // disabled attack projectile for now
 
                         PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
                         PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
@@ -2186,7 +2221,7 @@ namespace wackydatabase.SetData
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
-                        //PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime = data.Secondary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime = data.Secondary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime; // IDK man
                         /* future use?
                         if (PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload)
                         {
@@ -2199,6 +2234,7 @@ namespace wackydatabase.SetData
                         }
                         */
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain = data.Secondary_Attack.Reload_Stamina_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadStaminaDrain;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_reloadEitrDrain = data.Secondary_Attack.Reload_Eitr_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadEitrDrain;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw = data.Secondary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_drawDurationMin = data.Secondary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawDurationMin;
@@ -2212,6 +2248,37 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit = data.Secondary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial = data.Secondary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_resetChainIfHit = data.Secondary_Attack.Reset_Chain_If_hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_resetChainIfHit;
+
+                        if (!string.IsNullOrEmpty(data.Secondary_Attack.SpawnOnHit) && (data.Secondary_Attack.SpawnOnHit != PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit?.name))
+                        {
+                            if (data.Secondary_Attack.SpawnOnHit == "delete" || data.Secondary_Attack.SpawnOnHit == "-")
+                            {
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit = null;
+                            }
+                            GameObject found = null;
+                            foreach (var ob in AllObjects)
+                            {
+                                if (ob.name == data.Secondary_Attack.SpawnOnHit)
+                                {
+                                    if (found == null)
+                                        found = ob;
+                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                        found = ob;
+                                    else { }
+                                }
+                            }
+                            PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit;
+                        }
+
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHitChance = data.Secondary_Attack.SpawnOnHit_Chance ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHitChance;
+                        
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_raiseSkillAmount = data.Secondary_Attack.Raise_Skill_Amount ?? PrimaryItemData.m_shared.m_secondaryAttack.m_raiseSkillAmount;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_skillHitType = data.Secondary_Attack.Skill_Hit_Type ?? PrimaryItemData.m_shared.m_secondaryAttack.m_skillHitType;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_specialHitSkill = data.Secondary_Attack.Special_Hit_Skill ?? PrimaryItemData.m_shared.m_secondaryAttack.m_specialHitSkill;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_specialHitType = data.Secondary_Attack.Special_Hit_Type ?? PrimaryItemData.m_shared.m_secondaryAttack.m_specialHitType;
+                        
+
 
                         /*
                         if (!string.IsNullOrEmpty(data.Secondary_Attack.Attack_Projectile))
@@ -2411,8 +2478,10 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_equipDuration = data.m_equipDuration ?? PrimaryItemData.m_shared.m_equipDuration;
 
                     PrimaryItemData.m_shared.m_skillType = data.m_skillType ?? PrimaryItemData.m_shared.m_skillType;
+
                     PrimaryItemData.m_shared.m_animationState = data.m_animationState ?? PrimaryItemData.m_shared.m_animationState;
                     PrimaryItemData.m_shared.m_itemType = data.m_itemType ?? PrimaryItemData.m_shared.m_itemType;
+                    PrimaryItemData.m_shared.m_attachOverride = data.Attach_Override ?? PrimaryItemData.m_shared.m_attachOverride;
 
                     PrimaryItemData.m_shared.m_toolTier = data.m_toolTier ?? PrimaryItemData.m_shared.m_toolTier;
                     PrimaryItemData.m_shared.m_maxQuality = data.m_maxQuality ?? PrimaryItemData.m_shared.m_maxQuality;

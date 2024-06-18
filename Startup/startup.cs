@@ -61,12 +61,27 @@ namespace wackydatabase.Startup
             static void Prefix()
             {
 
-                if (WMRecipeCust.ServerDedLoad.Value && (ZNet.instance.IsServer() && ZNet.instance.IsDedicated())) // Ded with Load
+                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated()) 
                 {
-                    WMRecipeCust.dedLoad = true;
+                    WMRecipeCust.WLog.LogInfo("Dedicated with loaded memory");
                     SetData.Reload temp = new SetData.Reload();
                     WMRecipeCust.CurrentReload = temp;
-                    WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true));
+
+                    if (WMRecipeCust.ServerDedLoad.Value)// Ded with Load
+                    {
+                        WMRecipeCust.dedLoad = true;
+                        WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true));
+                    }
+                    else //  DedServer load Memory = false. 
+                    {
+
+                        WMRecipeCust.CheckModFolder();
+                        WMRecipeCust.Firstrun = false;
+                        WMRecipeCust.WLog.LogInfo("Dedicated with no load memory");
+                        WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+                            
+                        
+                    }
                 }
 
                 if (ZNet.instance.IsServer() && !(ZNet.instance.IsServer() && ZNet.instance.IsDedicated()) ) // COOP and SOLO

@@ -934,6 +934,7 @@ namespace wackydatabase.GetData
                 m_skillType = data.m_shared.m_skillType,
                 m_animationState = data.m_shared.m_animationState,
                 m_itemType = data.m_shared.m_itemType,
+                Attach_Override = data.m_shared.m_attachOverride,
                 Damage = damages,
                 Damage_Per_Level = damagesPerLevel,
                 Moddifiers = StatModdifers,
@@ -999,8 +1000,10 @@ namespace wackydatabase.GetData
 
                     Requires_Reload = data.m_shared.m_attack.m_requiresReload,
                     Reload_Animation = data.m_shared.m_attack.m_reloadAnimation,
+                    ReloadTime = data.m_shared.m_attack.m_reloadTime,
                     ReloadTimeMultiplier = 1.0f,
                     Reload_Stamina_Drain = data.m_shared.m_attack.m_reloadStaminaDrain,
+                    Reload_Eitr_Drain = data.m_shared.m_attack.m_reloadEitrDrain,
 
                     Bow_Draw = data.m_shared.m_attack.m_bowDraw,
                     Bow_Duration_Min = data.m_shared.m_attack.m_drawDurationMin,
@@ -1014,6 +1017,17 @@ namespace wackydatabase.GetData
                     Multi_Hit = data.m_shared.m_attack.m_multiHit,
                     Pickaxe_Special = data.m_shared.m_attack.m_pickaxeSpecial,
                     Last_Chain_Dmg_Multiplier = data.m_shared.m_attack.m_lastChainDamageMultiplier,
+                    Reset_Chain_If_hit = data.m_shared.m_attack.m_resetChainIfHit,
+
+                    SpawnOnHit = data.m_shared.m_attack.m_spawnOnHit?.name,
+                    SpawnOnHit_Chance = data.m_shared.m_attack.m_spawnOnHitChance,
+                    
+                    Raise_Skill_Amount = data.m_shared.m_attack.m_raiseSkillAmount,
+                    Skill_Hit_Type = data.m_shared.m_attack.m_skillHitType,
+                    Special_Hit_Skill = data.m_shared.m_attack.m_specialHitSkill,
+                    Special_Hit_Type = data.m_shared.m_attack.m_specialHitType,
+                    
+
 
                     Attack_Projectile = data.m_shared.m_attack.m_attackProjectile?.name,
                     Projectile_Vel = data.m_shared.m_attack.m_projectileVel,
@@ -1074,6 +1088,16 @@ namespace wackydatabase.GetData
                     Multi_Hit = data.m_shared.m_secondaryAttack.m_multiHit,
                     Pickaxe_Special = data.m_shared.m_secondaryAttack.m_pickaxeSpecial,
                     Last_Chain_Dmg_Multiplier = data.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier,
+                    Reset_Chain_If_hit = data.m_shared.m_secondaryAttack.m_resetChainIfHit,
+
+                    SpawnOnHit = data.m_shared.m_secondaryAttack.m_spawnOnHit?.name,
+                    SpawnOnHit_Chance = data.m_shared.m_secondaryAttack.m_spawnOnHitChance,
+                    
+                    Raise_Skill_Amount = data.m_shared.m_secondaryAttack.m_raiseSkillAmount,
+                    Skill_Hit_Type = data.m_shared.m_secondaryAttack.m_skillHitType,
+                    Special_Hit_Skill = data.m_shared.m_secondaryAttack.m_specialHitSkill,
+                    Special_Hit_Type = data.m_shared.m_secondaryAttack.m_specialHitType,
+                    
 
                     Attack_Projectile = data.m_shared.m_secondaryAttack.m_attackProjectile?.name,
                     Projectile_Vel = data.m_shared.m_secondaryAttack.m_projectileVel,
