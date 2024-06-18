@@ -883,7 +883,7 @@ Most recipes are saved with itemname in name for recipe. For actual recipes they
 <br/></br>Actual recipes can be found in bulk save now and with JVL docs.  https://valheim-modding.github.io/Jotunn/data/objects/recipe-list.html They have no for clonePrefabName: NO . Actual Recipes can NOT be cloned.
 
 - `name` (string, required): The name of the recipe.
-- `clonePrefabName` (string):  The name of the Item prefab to craft. (Icon picture comes from this) 
+- `clonePrefabName` (string):  The name of the Item prefab to craft. 
 - `craftingStation` (string): The crafting station required to craft the recipe. "" is hand crafted
 - `minStationLevel` (int): The minimum level of the crafting station required.
 - `maxStationLevelCap` (int): The maximum level cap of the crafting station.
