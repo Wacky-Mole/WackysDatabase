@@ -135,7 +135,7 @@ namespace wackydatabase.PatchClasses
                         + $"wackydb_save_material [MaterialName] Save Material Info - Usually has _mat\r\n"
                         + $"wackydb_se [SEEffectName] Save SEeffect\r\n"
                         + $"wackydb_help\r\n"
-                        + $"wackydb_clone  [item/recipe/piece/creatures/material] [Prefab to clone] [Unique name for the clone] \r\n"
+                        + $"wackydb_clone  [item/recipe/piece/creatures/material/se] [Prefab to clone] [Unique name for the clone] \r\n"
                         + $"4th paramater for recipes - you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit\r\n"
                         + $"wackydb_clone_recipeitem  [Prefab to clone] [Unique name for the clone](Recipe name will be Rname) (clones item and recipe at same time)\r\n"
                         + $"wackydb_vfx (outputs vfx gameobjects available)\r\n"
@@ -170,7 +170,7 @@ namespace wackydatabase.PatchClasses
                         + $"wackydb_save_material [MaterialName] Save Material Info - Usually has _mat\r\n"
                         + $"wackydb_se [SEEffectName] Save SEeffect\r\n"
                         + $"wackydb_help\r\n"
-                        + $"wackydb_clone  [item/recipe/piece/creatures/material] [Prefab to clone] [Unique name for the clone] \r\n"
+                        + $"wackydb_clone  [item/recipe/piece/creatures/material/se] [Prefab to clone] [Unique name for the clone] \r\n"
                         + $"4th paramater for recipes - you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit\r\n"
                         + $"wackydb_clone_recipeitem  [Prefab to clone] [Unique name for the clone](Recipe name will be Rname) (clones item and recipe at same time)\r\n"
                         + $"wackydb_vfx (outputs vfx gameobjects available)\r\n"
@@ -761,7 +761,7 @@ namespace wackydatabase.PatchClasses
                     });
 
             Terminal.ConsoleCommand WackyClone =
-                new("wackydb_clone", "Clone an Item/Piece/Recipe with different stats, names, effects ect... ",
+                new("wackydb_clone", "Clone an Item/Piece/Recipe/Material/creature/SE with different stats, names, effects ect... ",
                     args =>
                     {
                         if (args.Length - 1 < 3)
@@ -854,6 +854,33 @@ namespace wackydatabase.PatchClasses
                                 WMRecipeCust.CheckModFolder();
                                 File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCreatures, "Creature_" + clone.name + ".yml"), serializer.Serialize(clone));
                                 file = "Creature_" + clone.name;
+
+                            }
+                            if (commandtype == "se" || commandtype == "SE" || commandtype == "Se")
+                            {
+                                try
+                                {
+                                    var tod = ObjectDB.instance;
+                                    GetDataYML SEcheck = new GetDataYML();
+
+                                    var temp = SEcheck.GetStatusEByName(prefab, tod);
+                                    
+                                    if (temp == null)
+                                    {
+                                       // args.Context?.AddString(temp.Name + " Was not found");
+                                        WMRecipeCust.WLog.LogInfo(temp.Name + " Was not found");
+
+                                    } 
+
+                                    temp.Name = newname;
+                                    temp.ClonedSE = prefab;
+
+                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathEffects, "SE_" + temp.Name + ".yml"), serializer.Serialize(temp));
+
+                                    args.Context?.AddString($"Created a clone from " + prefab + " , saved as a file SE_" + temp.Name + ".yml  in Effects folder");
+                                    WMRecipeCust.WLog.LogInfo($"Created a clone from " + prefab + " , saved as a file SE_" + temp.Name + ".yml in Effects folder");
+                                } catch { WMRecipeCust.WLog.LogWarning("wackydb_clone SE is unhappy, feed it better cookies"); file = "not saved"; }
+                                
 
                             }
 

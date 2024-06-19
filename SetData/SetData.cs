@@ -76,7 +76,11 @@ namespace wackydatabase.SetData
             if (go == null)
             {
                 // create new
-                go = Instant.GetStatusEffect("SetEffect_TrollArmor".GetStableHashCode());// cloned
+                if (data.ClonedSE == null)
+                    go = Instant.GetStatusEffect("SetEffect_TrollArmor".GetStableHashCode());// cloned
+                else 
+                    go = Instant.GetStatusEffect(data.ClonedSE.GetStableHashCode());// cloned
+
                 //WMRecipeCust.WLog.LogDebug($"Item CLONE DATA in SetItemData for {tempname} from cache ");
                 WMRecipeCust.ClonedE.Add(name);
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.

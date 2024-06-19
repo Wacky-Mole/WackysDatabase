@@ -19,6 +19,7 @@ namespace wackydatabase.Datas
         public string? Status_m_name;// required
         public string? Category;
         public string? IconName;
+        public string? ClonedSE;
         public string? CustomIcon;
         public bool? FlashIcon;
         public bool? CooldownIcon;

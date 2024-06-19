@@ -136,12 +136,15 @@ namespace wackydatabase.GetData
         internal StatusData GetStatusEByName(string name, ObjectDB tod)
         {
             // WMRecipeCust.NoNotTheseSEs
-           // SEdata stats = new SEdata() ;//= (SEdata)ScriptableObject.CreateInstance<SE_Stats>();
+            // SEdata stats = new SEdata() ;//= (SEdata)ScriptableObject.CreateInstance<SE_Stats>();
             //var eff= tod.GetStatusEffect(name);
             //stats = Ob.Cast<SEdata>(eff);
 
+            var pass = tod.GetStatusEffect(name.GetStableHashCode());
+            if (pass == null)
+                return null;
 
-            return GetStatusData(tod.GetStatusEffect(name.GetStableHashCode()));
+            return GetStatusData(pass);
         }
         internal StatusData GetStatusEByNum(int num, ObjectDB tod)
         {
@@ -175,13 +178,12 @@ namespace wackydatabase.GetData
 
         private StatusData GetStatusData(StatusEffect effect)
         {
-            
             //effect.m_icon = effect.m_icon.name;
             var f2 = effect.GetType();
             WMRecipeCust.WLog.LogInfo("             StatusEffect " + effect.name);
 
             SEShield shield = new SEShield();
-            if (effect.name == "Staff_shield")
+            if (Functions.getCast<float>(f2, "m_absorbDamage", effect) > 0)
             { // the Skill levelup could work LevelUpSkillOnBreak
                 shield.AbsorbDmg = Functions.getCast<float>(f2, "m_absorbDamage", effect);
                 shield.AbsorbDmgWorldLevel = Functions.getCast<float>(f2, "m_absorbDamageWorldLevel", effect);
@@ -189,7 +191,7 @@ namespace wackydatabase.GetData
                 shield.TtlPerItemLevel = Functions.getCast<int>(f2, "m_ttlPerItemLevel", effect);
                 shield.AbsorbDmgPerSkill = Functions.getCast<float>(f2, "m_absorbDamagePerSkillLevel", effect);
 
-    }
+             }
 
             SEdata stats = new SEdata
             {
@@ -263,9 +265,9 @@ namespace wackydatabase.GetData
                 ActivationAnimation = effect.m_activationAnimation ?? "",
                 SeData = stats,              
             };
-            if(effect.name == "Staff_shield")
+            if(Functions.getCast<float>(f2, "m_absorbDamage", effect) > 0)
             {
-                statusData.SeShield = shield;
+                statusData.SeShield = shield; 
             }
 
 
