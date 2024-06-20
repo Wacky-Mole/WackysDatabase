@@ -2432,9 +2432,16 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus ?? PrimaryItemData.m_shared.m_backstabBonus;
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback ?? PrimaryItemData.m_shared.m_attackForce;
 
-                    
+
                     if (data.Attack_status_effect != null)
-                        PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
+                    {
+                        if (data.Attack_status_effect == "delete")
+                        {
+                            PrimaryItemData.m_shared.m_attackStatusEffect = null;
+                        }
+                        else
+                            PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
+                    }
 
                     if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
                     {

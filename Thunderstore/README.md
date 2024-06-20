@@ -577,7 +577,7 @@ To delete existing
 - `m_canBeReparied` (bool): Indicates whether the item can be repaired.
 - `m_destroyBroken` (bool): Indicates whether the item gets destroyed when broken.
 - `m_dodgeable` (bool): Indicates whether the item can be dodged.
-- `Attack_status_effect` (string): The attack status effect of the item.
+- `Attack_status_effect` (string): The attack status effect of the item.  (Can remove current status with 'delete')
 - `spawn_on_hit` (string): The spawn-on-hit effect of the item.
 - `spawn_on_terrain_hit` (string): The spawn-on-terrain-hit effect of the item.
 - `m_questItem` (bool): Indicates whether the item is a quest item.
