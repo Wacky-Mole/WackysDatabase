@@ -107,7 +107,7 @@ Frequently Asked Questions
         A: Not yet, but YOU could make one!
 
     Q: Is it possible to add a recipe for each upgrade of an item?
-        A: Recipes are at a weird place in wackydb. I might split it out into a submod, but I am not sure yet. 
+        A: You can now have a crafting recipe and an upgrading recipe. You can't have a different recipe for each upgrade, unless you do item cloning/recipe cloning hack.
 
     Q: My weapon clones are speedup/speed down. 
         A: The clones speed can change a little bit from their parents. Custom_AttackSpeed should always be 1 on a save. 
@@ -132,7 +132,7 @@ Frequently Asked Questions
 
 
     Q: Will there be even MORE features and can I edit effects?
-        A: No, probably not. 
+        A: Yes I guess, because I just keep adding MOAR. - Send help, I might have a problem. 
 
     Q: Why are some of the SE Effects empty? Like SeData?
         A: Well its complicated, I am having to grab them in a weird way, and not all SEs have SeData. Nothing to be done about it. 
@@ -145,13 +145,14 @@ Frequently Asked Questions
         If one of them is missing, then the two pieces of equipment have no effect, which can be regarded as a limitation
 
     Q:  On an item "name" is the prefab name, "m_name" is the in game name? Then on recipes, "name" is the name of the prefab item name?
-        A: Correct on both. For cloned recipes, it looks at cloneprefabname, recipe name needs to be unique
+        A: For cloned recipes, it looks at cloneprefabname for item prefab name. For regular recipes the name points to the item. 
 
     Q: I can't repair spawned in Cloned items, how do I fix?
-        A: Repairstation is set in the recipe, make a cloned recipe, and set to disable or change a req to SwordCheat.
+        A: Repairstation is set in the recipe, make a cloned recipe, and set to disable or change a req to SwordCheat. - 
+        Wacky Later - I have no idea what I am trying to suggest here, but I am going to leave it for now. Do whatever makes it work.
 
     Q: How does Piece Snapshot work?
-        A: Piece snapshot has given me a lot of problems so it only loads the at Game.SpawnPlayer. If you do a wackydb_reload use the wackydb_snapshot command to reload snapshots. 
+        A: Piece snapshot has given me a lot of problems so it only loads at Game.SpawnPlayer. If you do a wackydb_reload use the wackydb_snapshot command to reload snapshots. 
 
 </details>
 
