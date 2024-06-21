@@ -31,3 +31,4 @@
 | 2.3.6 | Possible bug fix for disabled recipes.
 | 2.3.7 | Changed disabled recipes code again</br> Added back ReloadTime, might work for some things. </br> Added Reload_Eitr_Drain </br> Fix for DedServer load Memory = false.</br> Added Reset_Chain_If_hit, SpawnOnHit, SpawnOnHit_Chance, Raise_Skill_Amount, Skill_Hit_Type, Special_Hit_Skill, Special_Hit_Type to Attack. </br> Added Attach_Override for items
 | 2.3.8 | Added SE/se to wackydb_clone, rejoice, you can now change which SE you clone. Allows you to clone SEShield now.</br> Added the ability to delete Attack_status_effect with "delete"
+| 2.3.9 | Added Attack_status_effect_chance

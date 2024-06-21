@@ -1167,6 +1167,8 @@ namespace wackydatabase.GetData
             if (data.m_shared.m_attackStatusEffect != null)
                 ItemData.Attack_status_effect = data.m_shared.m_attackStatusEffect?.name;
 
+            ItemData.Attack_status_effect_chance = data.m_shared.m_attackStatusEffectChance;
+
             if (data.m_shared.m_spawnOnHit != null)
                 ItemData.spawn_on_hit = data.m_shared.m_spawnOnHit?.name;
 

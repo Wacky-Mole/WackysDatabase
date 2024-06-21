@@ -2441,7 +2441,10 @@ namespace wackydatabase.SetData
                         }
                         else
                             PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
+
+                        
                     }
+                    PrimaryItemData.m_shared.m_attackStatusEffectChance = data.Attack_status_effect_chance ?? PrimaryItemData.m_shared.m_attackStatusEffectChance;
 
                     if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
                     {

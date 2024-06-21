@@ -71,6 +71,8 @@ namespace wackydatabase.Datas
 
         public string? Attack_status_effect;
 
+        public float? Attack_status_effect_chance;
+
         public string? spawn_on_hit;
 
         public string? spawn_on_terrain_hit;
