@@ -359,7 +359,12 @@ namespace wackydatabase.SetData
                 DataHelpers.GetPiecesatStart();
                 WMRecipeCust.Firstrun = false;
 
+
+
                 if (WMRecipeCust.IsDedServer)
+                {
+                    WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+                }else if (WMRecipeCust.LobbyRegistered) // COOP
                 {
                     WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
                 }

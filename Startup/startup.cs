@@ -133,7 +133,7 @@ namespace wackydatabase.Startup
 
                     }
 
-                    if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied) // is client now
+                    if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied    ) // is client now
                     {
                         WMRecipeCust.ForceLogout = true;
                         // Has Lobbied in Past and could try to use this to get around lockout. 
@@ -186,20 +186,24 @@ namespace wackydatabase.Startup
                     WMRecipeCust.context.StartCoroutine(WMRecipeCust.readFiles.GetDataFromFiles(false, true));
                 }
 
-                if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
+                try
                 {
 
-                    WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.CreateLobby)),
-                        postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
-                            nameof(gamepassServer))));
+                    if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
+                    {
 
-                }
-                else if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
-                {
-                    WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.RegisterServer)),
-                        postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
-                            nameof(steamServer))));
-                }
+                        WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.CreateLobby)),
+                            postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
+                                nameof(gamepassServer))));
+
+                    }
+                    else if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
+                    {
+                        WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.RegisterServer)),
+                            postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
+                                nameof(steamServer))));
+                    }
+                } catch { WMRecipeCust.WLog.LogWarning("Steam or Gamepass wasn't found"); }
 
             }
 
@@ -266,6 +270,7 @@ namespace wackydatabase.Startup
             {
                 WMRecipeCust.ConfigSync.CurrentVersion = WMRecipeCust.ModVersion; // Just in case goes from singleplayer to hosting. 
                 WMRecipeCust.HasLobbied = true;
+
 
             }
 
