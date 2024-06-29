@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.3.9";
+        internal const string ModVersion = "2.3.91";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -53,7 +53,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.3.9" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.3.91" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -134,6 +134,7 @@ namespace wackydatabase
         internal static string assetPathBulkYMLPieces;
         internal static string assetPathBulkYMLEffects;
         internal static string assetPathBulkYMLRecipes;
+        internal static string assetPathBulkYMLCreatures;
         internal static string assetPathIcons;
         internal static string assetPathEffects;
         internal static string assetPathCache;
@@ -160,8 +161,8 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalFX;
         public static Dictionary<string, GameObject> extraEffects;
         public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>();
-        public static Dictionary<string, Dictionary<ItemDrop, int>> QualityRecipeReq = new Dictionary<string, Dictionary<ItemDrop, int>>();// not used anymore
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
+        public static Dictionary<string, Tuple <string, float, string, float>> SEWeaponChoice = new Dictionary<string, Tuple<string, float, string, float>>();
         public static Dictionary<string, Recipe> hiddenRecipeUpgrade; // Reqs_Upgrade
         public static Dictionary<string, float> crossbowReloadingTime = new Dictionary<string, float>();
         public static Dictionary<Recipe, bool> RequiredUpgradeItemsString = new(); // holding
@@ -171,7 +172,7 @@ namespace wackydatabase
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
         public static List<string> NoNotTheseSEs = new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
-                                                                                                                                               // public static List<string> extraEffectList = new List<string>() { "lightningAOE" };
+                                                                                                                                          
         internal static int kickcount = 0;
         internal static bool jsonsFound = false;
         public static bool ForceLogout = false;
@@ -207,6 +208,7 @@ namespace wackydatabase
             assetPathBulkYMLPieces = Path.Combine(assetPathBulkYML, "Pieces");
             assetPathBulkYMLRecipes = Path.Combine(assetPathBulkYML, "Recipes");
             assetPathBulkYMLEffects = Path.Combine(assetPathBulkYML, "Effects");
+            assetPathBulkYMLCreatures = Path.Combine(assetPathBulkYML, "Creatures");
 
             assetPathIcons = Path.Combine(assetPathconfig, "Icons");
             assetPathCache = Path.Combine(assetPathconfig, "Cache");

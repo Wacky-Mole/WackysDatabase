@@ -21,6 +21,7 @@ using TMPro;
 using RainbowTrollArmor;
 using System.Reflection;
 using System.Diagnostics.Eventing.Reader;
+using System.Web;
 
 namespace wackydatabase.PatchClasses
 {
@@ -65,9 +66,51 @@ namespace wackydatabase.PatchClasses
              }
          }
      }
-
      */
 
+    [HarmonyPatch(typeof(Attack), nameof(Attack.ModifyDamage))]
+    internal static class ModifyDamageWM
+    {
+        public static void Postfix(ref HitData hitData, Attack __instance )
+        {
+            if (__instance.m_character.IsPlayer())
+            {
+                if (WMRecipeCust.SEWeaponChoice.TryGetValue(__instance.m_weapon.m_dropPrefab.name, out Tuple<string,float,string,float> userSE))
+                {
+                    /*
+                    bool projectile = false;
+                    if (__instance.m_weapon.m_dropPrefab.TryGetComponent<Projectile>(out var paul))
+                        projectile = true;
+
+                    __instance.m_weapon.m_dropPrefab.TryGetComponent<ItemDrop.ItemData>(out var paul2);
+                    if (paul2.m_shared.m_ammoType != "")
+                    {
+                        projectile = true;
+                    } */
+
+                    if (__instance.m_character.m_currentAttackIsSecondary)
+                    {
+                        if (userSE.Item3 != "" && userSE.Item4 != 0)
+                        {
+                            if(UnityEngine.Random.Range(0f, 1f) < userSE.Item4)
+                            {
+                                hitData.m_statusEffectHash = userSE.Item3.GetStableHashCode();
+                            }
+                        }
+                    } else
+                    {
+                        if (userSE.Item1 != "" && userSE.Item2 != 0 )
+                        {
+                            if (UnityEngine.Random.Range(0f, 1f) < userSE.Item2)
+                            {
+                                hitData.m_statusEffectHash = userSE.Item1.GetStableHashCode();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     [HarmonyPatch(typeof(Player), nameof(Player.GetAvailableRecipes))]
     internal static class Player_GetAvailableRecipes_Patch
@@ -139,7 +182,7 @@ namespace wackydatabase.PatchClasses
     internal static class ItemDataPatch
     {
         [HarmonyPrefix]
-        [HarmonyPriority(Priority.Last)]
+        [HarmonyPriority(Priority.VeryLow)]
         [HarmonyPatch(nameof(ItemDrop.ItemData.GetWeaponLoadingTime))]
         public static void GetWeaponLoadingTimePrefixWM(ItemDrop.ItemData __instance, out float __state)
         {
@@ -172,7 +215,7 @@ namespace wackydatabase.PatchClasses
 
 
         [HarmonyPostfix]
-        [HarmonyPriority(Priority.First)]
+        [HarmonyPriority(Priority.VeryHigh)]
         [HarmonyPatch(nameof(ItemDrop.ItemData.GetWeaponLoadingTime))]
         public static void GetWeaponLoadingTimePostfixWM(ItemDrop.ItemData __instance, ref float __state)
         {

@@ -2446,6 +2446,12 @@ namespace wackydatabase.SetData
                     }
                     PrimaryItemData.m_shared.m_attackStatusEffectChance = data.Attack_status_effect_chance ?? PrimaryItemData.m_shared.m_attackStatusEffectChance;
 
+                    if (data.Primary_Attack.Attack_status_effect != null || data.Secondary_Attack.Attack_status_effect != null)
+                    {
+                        WMRecipeCust.SEWeaponChoice.Add(data.name, new Tuple<string,float, string, float>( data.Primary_Attack.Attack_status_effect ?? "", data.Primary_Attack.Attack_status_effect_chance ?? 0, data.Secondary_Attack.Attack_status_effect ?? "", data.Secondary_Attack.Attack_status_effect_chance ?? 0));
+                    }
+
+
                     if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
                     {
                         WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit added ");

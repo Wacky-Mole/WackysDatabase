@@ -175,6 +175,9 @@ namespace wackydatabase.Datas
 
         public string? SpawnOnHit;
         public float? SpawnOnHit_Chance;
+
+        public string? Attack_status_effect;
+        public float? Attack_status_effect_chance;
      
         public float? Raise_Skill_Amount;
         public DestructibleType? Skill_Hit_Type;

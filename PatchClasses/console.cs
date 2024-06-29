@@ -549,6 +549,27 @@ namespace wackydatabase.PatchClasses
                             args.Context?.AddString($"saved all Items in WackyBulk Items");
                             WMRecipeCust.WLog.LogInfo($"saved all Items in WackyBulk Items");
 
+                        });                  
+                    Terminal.ConsoleCommand WackyAllCreatures =
+                    new("wackydb_all_creatures", "Get all Creatures in game",
+                        args =>
+                        {
+                            if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
+                            {
+                                WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
+                                Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                            }
+                            if (!Directory.Exists(WMRecipeCust.assetPathBulkYMLCreatures))
+                            {
+                                Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLCreatures);
+                            }
+                            GetDataYML ItemCheck = new GetDataYML();
+                            ItemCheck.GetAllCreature();
+
+
+                            args.Context?.AddString($"saved all Creatures in WackyBulk ");
+                            WMRecipeCust.WLog.LogInfo($"saved all Creatures in WackyBulk ");
+
                         });
 
                         Terminal.ConsoleCommand WackyAllRecipe =

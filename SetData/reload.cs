@@ -368,14 +368,14 @@ namespace wackydatabase.SetData
                 {
                     WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
                 }
-            }
-            
+            }           
 
             if (!WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
                 yield break;
 
             ObjectDB Instant = ObjectDB.instance;
             GameObject[] AllObjects = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
+            WMRecipeCust.SEWeaponChoice.Clear();
 
             if (slowmode)
             {

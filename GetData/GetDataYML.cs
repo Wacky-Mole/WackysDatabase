@@ -11,6 +11,8 @@ using wackydatabase.Util;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using static Skills;
+using System.IO;
+using YamlDotNet.Serialization;
 
 namespace wackydatabase.GetData
 {
@@ -814,6 +816,7 @@ namespace wackydatabase.GetData
                 WMRecipeCust.Dbgl("Item GetItemDataByName not found! - componets");
                 return null;
             }
+
             bool hasdmg = false;
             WDamages damages = null;
             if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
@@ -948,6 +951,11 @@ namespace wackydatabase.GetData
                 //damageModifiers = data.m_shared.m_damageModifiers.Select(m => m.m_type + ":" + m.m_modifier).ToList(),
 
             };
+
+            if (WMRecipeCust.ClonedPrefabsMap.ContainsKey(go.name))
+            {
+                ItemData.clonePrefabName = WMRecipeCust.ClonedPrefabsMap[go.name];
+            }
             if (data.m_shared.m_equipStatusEffect != null)
             {
                 WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " SEs ");
@@ -1202,6 +1210,30 @@ namespace wackydatabase.GetData
                 }
             }
             return null;
+        }
+
+        internal bool GetAllCreature()
+        {
+            Humanoid[] array = Resources.FindObjectsOfTypeAll<Humanoid>();
+            GameObject cre = null;
+            var serializer = new SerializerBuilder().WithNewLine("\n")
+                .Build();
+
+            foreach (var obj in array)
+            {
+
+                CreatureData creatureData = new CreatureData();
+                string Name = obj.name;
+
+
+                creatureData.name = obj.name;
+                creatureData.mob_display_name = obj.GetComponent<Humanoid>().m_name;
+                //creatureData.faction = obj.GetComponent<Humanoid>().m_faction;
+
+                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLCreatures, "Creature_" + Name + ".yml"), serializer.Serialize(creatureData));
+          
+            }
+            return true;
         }
 
 
