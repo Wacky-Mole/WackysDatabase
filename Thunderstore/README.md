@@ -450,10 +450,9 @@ if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels -
 - `SpawnOnHit_Chance` (float): Chance Values 0 to 1.0 (100%)
 
 - `Raise_Skill_Amount` (float): Raise a skill this amount with the weapon in hand or when used?
-- `Skill_Hit_Type` (SkillType): Skill to Raise.
+- `Skill_Hit_Type` (DestructibleType): Skill to Raise.
 - `Special_Hit_Skill` (SkillType): I don't know what it means by special hit. 
 - `Special_Hit_Type` (DestructibleType): The Special Hit Type.   I don't know what these last 4 fields do, if you figure it out, let me know. 
--
 
 - `Attack_Projectile` (string): The Gameobject projectile has to have Projectile Componenent. Disabled for now. 
 - `Projectile_Vel` (float): The velocity of the projectile.

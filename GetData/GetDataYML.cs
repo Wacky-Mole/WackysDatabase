@@ -229,6 +229,7 @@ namespace wackydatabase.GetData
                 m_stealthModifier = Functions.getCast<float>(f2, "m_stealthModifier", effect),
                 m_addMaxCarryWeight = Functions.getCast<float>(f2, "m_addMaxCarryWeight", effect),
                 m_speedModifier = Functions.getCast<float>(f2, "m_speedModifier", effect),
+                m_jumpModifier = Functions.getCast<Vector3>(f2, "m_jumpModifier", effect),
                 m_maxMaxFallSpeed = Functions.getCast<float>(f2, "m_maxMaxFallSpeed", effect),
                 m_fallDamageModifier = Functions.getCast<float>(f2, "m_fallDamageModifier", effect),
                 m_tickTimer = Functions.getCast<float>(f2, "m_tickTimer", effect),

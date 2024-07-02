@@ -178,6 +178,7 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_addMaxCarryWeight", data.SeData.m_addMaxCarryWeight);
 
             Functions.setValue(type, go, "m_speedModifier", data.SeData.m_speedModifier);
+            Functions.setValue(type, go, "m_jumpModifier", null,null, null, null,null, data.SeData.m_jumpModifier);
 
             Functions.setValue(type, go, "m_maxMaxFallSpeed", data.SeData.m_maxMaxFallSpeed);
             Functions.setValue(type, go, "m_fallDamageModifier", data.SeData.m_fallDamageModifier);
@@ -2454,38 +2455,55 @@ namespace wackydatabase.SetData
 
                     if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
                     {
-                        WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit added ");
-                        GameObject found = null;
-                        foreach (var ob in AllObjects)
+                        if (data.spawn_on_hit == "delete")
                         {
-                            if (ob.name == data.spawn_on_hit)
-                            {
-                                if (found == null)
-                                    found = ob;
-                                else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                    found = ob;
-                                else { }
-                            }
+                            WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit deleted ");
+                            PrimaryItemData.m_shared.m_spawnOnHit = null;
                         }
-                        PrimaryItemData.m_shared.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_spawnOnHit;
+                        else
+                        {
+
+                            WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit added ");
+                            GameObject found = null;
+                            foreach (var ob in AllObjects)
+                            {
+                                if (ob.name == data.spawn_on_hit)
+                                {
+                                    if (found == null)
+                                        found = ob;
+                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                        found = ob;
+                                    else { }
+                                }
+                            }
+                            PrimaryItemData.m_shared.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_spawnOnHit;
+                        }
                     }
 
                     if (!string.IsNullOrEmpty(data.spawn_on_terrain_hit) && (data.spawn_on_terrain_hit != PrimaryItemData.m_shared.m_spawnOnHitTerrain?.name))
                     {
-                        WMRecipeCust.Dbgl($"   {data.name} SpawnOnHitTerrain added ");
-                        GameObject found = null;
-                        foreach (var ob in AllObjects)
+                        if (data.spawn_on_terrain_hit == "delete")
                         {
-                            if (ob.name == data.spawn_on_terrain_hit)
-                            {
-                                if (found == null)
-                                    found = ob;
-                                else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                    found = ob;
-                                else { }
-                            }
+                            WMRecipeCust.Dbgl($"   {data.name} spawn_on_terrain_hit deleted ");
+                            PrimaryItemData.m_shared.m_spawnOnHitTerrain = null;
                         }
-                        PrimaryItemData.m_shared.m_spawnOnHitTerrain = found ?? PrimaryItemData.m_shared.m_spawnOnHitTerrain;
+                        else
+                        {
+                            WMRecipeCust.Dbgl($"   {data.name} SpawnOnHitTerrain added ");
+                            GameObject found = null;
+                            foreach (var ob in AllObjects)
+                            {
+                                if (ob.name == data.spawn_on_terrain_hit)
+                                {
+                                    if (found == null)
+                                        found = ob;
+                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                        found = ob;
+                                    else { }
+                                }
+                            }
+                            PrimaryItemData.m_shared.m_spawnOnHitTerrain = found ?? PrimaryItemData.m_shared.m_spawnOnHitTerrain;
+                        }
                     }
 
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability ?? PrimaryItemData.m_shared.m_useDurability;

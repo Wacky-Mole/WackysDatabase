@@ -131,7 +131,7 @@ namespace wackydatabase.Datas
         //[Header("Speed")]
         public float? m_speedModifier;
 
-        //public Vector3? m_jumpModifier;
+        public Vector3? m_jumpModifier;
 
         //[Header("Fall")]
         public float? m_maxMaxFallSpeed;
