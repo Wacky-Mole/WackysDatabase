@@ -2433,7 +2433,6 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus ?? PrimaryItemData.m_shared.m_backstabBonus;
                     PrimaryItemData.m_shared.m_attackForce = data.m_knockback ?? PrimaryItemData.m_shared.m_attackForce;
 
-
                     if (data.Attack_status_effect != null)
                     {
                         if (data.Attack_status_effect == "delete")
@@ -2446,12 +2445,19 @@ namespace wackydatabase.SetData
                         
                     }
                     PrimaryItemData.m_shared.m_attackStatusEffectChance = data.Attack_status_effect_chance ?? PrimaryItemData.m_shared.m_attackStatusEffectChance;
+                   
+                    bool checkSEChoice = false;
+                    if (!string.IsNullOrEmpty(data.Primary_Attack?.Attack_status_effect))
+                        checkSEChoice = true;
 
-                    if (data.Primary_Attack.Attack_status_effect != null || data.Secondary_Attack.Attack_status_effect != null)
+                    if (!string.IsNullOrEmpty(data.Secondary_Attack?.Attack_status_effect))
+                        checkSEChoice = true;
+                    
+
+                    if (checkSEChoice)
                     {
                         WMRecipeCust.SEWeaponChoice.Add(data.name, new Tuple<string,float, string, float>( data.Primary_Attack.Attack_status_effect ?? "", data.Primary_Attack.Attack_status_effect_chance ?? 0, data.Secondary_Attack.Attack_status_effect ?? "", data.Secondary_Attack.Attack_status_effect_chance ?? 0));
                     }
-
 
                     if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
                     {
@@ -2505,7 +2511,6 @@ namespace wackydatabase.SetData
                             PrimaryItemData.m_shared.m_spawnOnHitTerrain = found ?? PrimaryItemData.m_shared.m_spawnOnHitTerrain;
                         }
                     }
-
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability ?? PrimaryItemData.m_shared.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain ?? PrimaryItemData.m_shared.m_useDurabilityDrain;
                     // WMRecipeCust.WLog.LogWarning($"use Durabilty is " + data.m_useDurability); // test temp
