@@ -118,12 +118,12 @@ Frequently Asked Questions
         A: Textures, Objects, Icons will NOT SYNC. I also recommend including the cache folder. Cache keeps track of Item/mock clones and materials
 
     Q: How can I export material without _mat suffix ? I succeeded to export draugr_mat, but how for goblin or greydwarves ? 
-        A: It's is unfortunely not possible right now to get all of the mats because of how the devs named and made different things.
+        A: It's is unfortunately not possible right now to get all of the mats because of how the devs named and made different things.
             If you have access to Unity you could look at the files themselves. 
 
     Q: What lines can I delete or how can I make somethings empty?
         A: This is a long answer, but most lines in the YAMLS can be deleted. Only the required ones need to be in the files, when the line is deleted the computer interprets that as a null value.
-            Null is like I don't know, so I don't care, use the orginal values. To delete the existing values you will use either '' for strings, "delete" for SE Effects or "-" for multiliners. 
+            Null is like I don't know, so I don't care, use the original values. To delete the existing values you will use either '' for strings, "delete" for SE Effects or "-" for multiliners. 
 
     Q: How do I make custom Icons?
         A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename. ie. wacky.png
@@ -195,6 +195,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_all_recipes`: Saves all recipes in the game into wackyDatabase-BulkYML.
 - `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
 - `wackydb_all_se`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
+- `wackydb_all_creatures`: Saves all creatures in game into Bulk Creature folder. (Not deer or birds?)
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_TrollArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
@@ -227,7 +228,7 @@ Changing the SwordSilver to Blue and Increasing the size to 3
 
 ![JustMaterials](https://wackymole.com/hosts/JustMaterials.png)
 
-This is just chaning the materials, not messing with CustomVisuals
+This is just changing the materials, not messing with CustomVisuals
 
 <a href="https://wackymole.com/hosts/crazypower.mov"> Crazy Power </a>
 
@@ -330,6 +331,7 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 
 
 
+
 ![Materials and Custom](https://wackymole.com/hosts/wackyDescribe.png)
 
 
@@ -359,6 +361,9 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 
 ![Materials and Custom](https://wackymole.com/hosts/rexExplain.png)
 
+</br></br>
+
+#### Future Guide by Lughbaloo
 </br>
 </details>
 
@@ -435,6 +440,8 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `Multi_Hit` (bool): Indicates whether the attack can hit multiple times.
 - `Pickaxe_Special` (bool): Indicates whether it is a special pickaxe attack.
 - `Last_Chain_Dmg_Multiplier` (float): The damage multiplier for the last chain attack.
+- 'Attack_status_effect' (string) - SE - The attack status effect of the item. This is a custom patch for wackydb. You can now set primary and secondary differently. Setting this will override the normal Attack_status_effect.
+- 'Attack_status_effect_chance' (float) 0.0 to 1 (100%) Set a different chance for primary and secondary
 - The vanilla Code for chain multiplier <code>
 if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels - 1 && m_lastChainDamageMultiplier > 1f)
                 {
@@ -579,8 +586,8 @@ To delete existing
 - `m_dodgeable` (bool): Indicates whether the item can be dodged.
 - `Attack_status_effect` (string): The attack status effect of the item.  (Can remove current status with 'delete')
 - `Attack_status_effect_chance` (float): Chance of attack status effect of the item.
-- `spawn_on_hit` (string): The spawn-on-hit effect of the item.
-- `spawn_on_terrain_hit` (string): The spawn-on-terrain-hit effect of the item.
+- `spawn_on_hit` (string): The spawn-on-hit effect of the item. ('delete' to remove)
+- `spawn_on_terrain_hit` (string): The spawn-on-terrain-hit effect of the item. ('delete' to remove)
 - `m_questItem` (bool): Indicates whether the item is a quest item.
 - `m_teleportable` (bool): Indicates whether the item is teleportable.
 - `m_backstabbonus` (float): The backstab bonus of the item.
@@ -1049,6 +1056,7 @@ You can replace all Boars in the game with this Dude.
 - `m_stealthModifier` (float): The stealth modifier for sneaking.
 - `m_addMaxCarryWeight` (float): The additional maximum carry weight.
 - `m_speedModifier` (float): The speed modifier.
+- `m_jumpModifier` (Vector3): Allows you to control how much a charcter can jump or not. Very small values make big difference. Usual range is -1 to 1. You can delete the normalized. You only need the x,y,z lines.
 - `m_maxMaxFallSpeed` (float): The maximum maximum fall speed.
 - `m_fallDamageModifier` (float): The fall damage modifier.
 - `m_tickTimer` (float): The tick timer.

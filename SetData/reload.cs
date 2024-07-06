@@ -112,6 +112,9 @@ namespace wackydatabase.SetData
                     string[] yml = SyncedString.Split(WMRecipeCust.StringSeparator);
                     foreach (var word in yml) 
                     {
+                        if (WMRecipeCust.isDebugString.Value)
+                            WMRecipeCust.WLog.LogInfo("Current Parsing String is  " + word);
+
                         if (word.Contains("m_weight")) //item
                         {
                             WMRecipeCust.itemDatasYml.Add(deserializer.Deserialize<WItemData>(word));
