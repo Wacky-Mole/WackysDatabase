@@ -154,6 +154,10 @@ Frequently Asked Questions
     Q: How does Piece Snapshot work?
         A: Piece snapshot has given me a lot of problems so it only loads at Game.SpawnPlayer. If you do a wackydb_reload use the wackydb_snapshot command to reload snapshots. 
 
+    Q: What is 0.0.1 Error message when I try to connect? I keep getting this one COOP.
+        A: 0.0.1 is a security feature that prevents people loading into a singleplayer world and then immediately connecting to a multiplayer world. It does seem to have some problems in COOP.
+            Just disable it on client and server if you are having problems. ExtraSecurity = false
+
 </details>
 
 <details><summary>Configuration</summary>
