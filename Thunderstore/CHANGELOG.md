@@ -33,4 +33,4 @@
 | 2.3.8   | Added SE/se to wackydb_clone, rejoice, you can now change which SE you clone. Allows you to clone SEShield now.</br> Added the ability to delete Attack_status_effect with "delete"
 | 2.3.9   | Added Attack_status_effect_chance </br> Fixed COOP servers again. I even verfied with Gamepass PC.
 | 2.4.11  | Added 'delete' to spawn_on_hit and spawn_on_terrain_hit for items. </br> Added command to save all mobs wackydb_all_creatures in Bulk Folder </br> Separated out attack_status_effect into primary and secondary, custom wackydb patch for it. The normal attack_status_effect will be overwritten if a primary or secondary is set. </br> Added m_jumpModifier as a Vector3. Unnecessary lines can be deleted. </br> Added some more logs for debugmode </br> IG forgot to add a check for zero stamina for staminaReload, added
-
+| 2.4.12  | Rexabyte fix for darker textures than intended. Also you can now save materials with spaces in the name, using underscores '_' in place of a space. </br> Bug fix for unarmed hits
