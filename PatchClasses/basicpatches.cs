@@ -100,7 +100,7 @@ namespace wackydatabase.PatchClasses
     {
         public static void Postfix(ref HitData hitData, Attack __instance )
         {
-            if (__instance.m_character.IsPlayer())
+            if (__instance.m_character.IsPlayer() && !(bool)__instance.m_character.m_unarmedWeapon)
             {
                 if (WMRecipeCust.SEWeaponChoice.TryGetValue(__instance.m_weapon.m_dropPrefab.name, out Tuple<string,float,string,float> userSE))
                 {
