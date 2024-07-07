@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -17,7 +19,7 @@ namespace wackydatabase
         {
             Transform skin_meshes = item.transform.Find("attach_skin"); // Find Skinned Meshes
             Transform static_meshes = item.transform.Find("attach");    // Find Static Meshes
-            Transform drop_meshes = GetDropChild(item); // Find Drop Visual
+            Transform drop_meshes = GetDropChild(item);                 // Find Drop Visual
 
             List<Renderer> renderers = new List<Renderer>();
 
@@ -129,6 +131,87 @@ namespace wackydatabase
             return data;
         }
 
+        private static string SaveMaterial(Material material, string actualName)
+        {
+            var loader = new YamlLoader();
+
+            MaterialInstance mi = new MaterialInstance()
+            {
+                original = actualName,
+                name = actualName + "_clone",
+                overwrite = false
+            };
+
+            int propertyCount = material.shader.GetPropertyCount();
+
+            for (int k = 0; k < propertyCount; k++)
+            {
+                ShaderPropertyType type = material.shader.GetPropertyType(k);
+                string propertyName = material.shader.GetPropertyName(k);
+
+                switch (type)
+                {
+                    case ShaderPropertyType.Color:
+                        mi.changes.colors.Add(propertyName, material.GetColor(propertyName));
+                        break;
+                    case ShaderPropertyType.Float:
+                    case ShaderPropertyType.Range:
+                    case ShaderPropertyType.Vector:
+                        mi.changes.floats.Add(propertyName, material.GetFloat(propertyName));
+                        break;
+                    case ShaderPropertyType.Texture:
+                        Texture t = material.GetTexture(propertyName);
+
+                        try
+                        {
+                            if (t != null)
+                            {
+                                mi.changes.textures.Add(propertyName, t.name);
+                                TextureDataManager.SaveTexture(t.name, t);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to write texture for property: {propertyName} - {ex.Message}");
+                        }
+
+                        break;
+                }
+            }
+
+            loader.Write(Path.Combine(WMRecipeCust.assetPathMaterials, mi.name + ".yml"), mi);
+
+            return mi.name;
+        }
+
+        public static string SaveMaterial(string materialName)
+        {
+            string actualName = null;
+            Material m = null;
+
+            if (WMRecipeCust.originalMaterials.ContainsKey(materialName))
+            {
+                m = WMRecipeCust.originalMaterials[materialName];
+                actualName = materialName;
+            } else
+            {
+                string friendlyName = materialName.Replace('_', ' ');
+
+                if (WMRecipeCust.originalMaterials.ContainsKey(friendlyName))
+                {
+                    m = WMRecipeCust.originalMaterials[friendlyName];
+                    actualName = friendlyName;
+                }
+            }
+
+            if (m == null)
+            {
+                return null;
+            }
+
+            return SaveMaterial(m, actualName);
+        }
+
         public static void UpdateItemMaterialReference(GameObject prefab, Material m)
         {
             ItemDrop id = prefab.GetComponent<ItemDrop>();
@@ -179,7 +262,7 @@ namespace wackydatabase
                     target = PrefabAssistant.GetDropChild(item.gameObject);
                 }
 
-                GameObject visual = Object.Instantiate(target.gameObject, Vector3.zero, rotation);
+                GameObject visual = UnityEngine.Object.Instantiate(target.gameObject, Vector3.zero, rotation);
                 foreach (Transform child in visual.GetComponentsInChildren<Transform>(true))
                 {
                     child.gameObject.layer = layer;
@@ -209,7 +292,7 @@ namespace wackydatabase
 
                 item.m_itemData.m_shared.m_icons = new[] { Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f)) };
 
-                Object.DestroyImmediate(visual);
+                UnityEngine.Object.DestroyImmediate(visual);
                 camera.targetTexture.Release();
 
             }
@@ -219,8 +302,8 @@ namespace wackydatabase
             }
             finally
             {
-                Object.Destroy(camera);
-                Object.Destroy(topLight);
+                UnityEngine.Object.Destroy(camera);
+                UnityEngine.Object.Destroy(topLight);
             }
         }
 
@@ -232,7 +315,7 @@ namespace wackydatabase
                 return;
             }
 
-            WMRecipeCust.Dbgl($"[{WMRecipeCust.ModName}]: Updating material to: {m.name}");
+            Debug.Log($"[{WMRecipeCust.ModName}]: {r.name} - Updating material to: {m.name}");
 
             if (r.sharedMaterials.Length > 1)
             {
@@ -253,6 +336,8 @@ namespace wackydatabase
 
         public static void UpdateMaterialReferences(Renderer r, Material[] materials)
         {
+            Debug.Log("Updating material references");
+
             if (r.sharedMaterials.Length > 1)
             {
                 r.sharedMaterials = materials;

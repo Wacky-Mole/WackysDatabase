@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,11 +11,8 @@ using wackydatabase.GetData;
 using wackydatabase.Read;
 using wackydatabase.Util;
 using YamlDotNet.Core;
-using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.EventEmitters;
-using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization.ObjectFactories;
 
 namespace wackydatabase.PatchClasses
 {
@@ -551,7 +547,7 @@ namespace wackydatabase.PatchClasses
                             args.Context?.AddString($"saved all Items in WackyBulk Items");
                             WMRecipeCust.WLog.LogInfo($"saved all Items in WackyBulk Items");
 
-                        });                  
+                        });
                     Terminal.ConsoleCommand WackyAllCreatures =
                     new("wackydb_all_creatures", "Get all Creatures in game",
                         args =>
@@ -1077,61 +1073,14 @@ namespace wackydatabase.PatchClasses
             Terminal.ConsoleCommand WackySaveMaterial = new("wackydb_save_material", "Export default material settings for a material", args =>
             {
                 string name = args[1];
+                string clonedName = PrefabAssistant.SaveMaterial(name);
 
-                if (WMRecipeCust.originalMaterials.ContainsKey(name))
+                if (clonedName != null)
                 {
-                    var material = WMRecipeCust.originalMaterials[name];
-                    var loader = new YamlLoader();
-
-                    MaterialInstance mi = new MaterialInstance()
-                    {
-                        original = name,
-                        name = name + "_clone",
-                        overwrite = false
-                    };
-
-                    int propertyCount = material.shader.GetPropertyCount();
-
-                    for (int k = 0; k < propertyCount; k++)
-                    {
-                        ShaderPropertyType type = material.shader.GetPropertyType(k);
-                        string propertyName = material.shader.GetPropertyName(k);
-
-                        switch (type)
-                        {
-                            case ShaderPropertyType.Color:
-                                mi.changes.colors.Add(propertyName, material.GetColor(propertyName));
-                                break;
-                            case ShaderPropertyType.Float:
-                            case ShaderPropertyType.Range:
-                            case ShaderPropertyType.Vector:
-                                mi.changes.floats.Add(propertyName, material.GetFloat(propertyName));
-                                break;
-                            case ShaderPropertyType.Texture:
-                                Texture t = material.GetTexture(propertyName);
-
-                                try
-                                {
-                                    if (t != null)
-                                    {
-                                        mi.changes.textures.Add(propertyName, t.name);
-                                        TextureDataManager.SaveTexture(t.name, t);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.LogError($"[{WMRecipeCust.ModName}]: Unable to write texture for property: {propertyName} - {ex.Message}");
-                                }
-
-                                break;
-                        }
-                    }
-
-                    loader.Write(Path.Combine(WMRecipeCust.assetPathMaterials, mi.name + ".yml"), mi);
-                    args.Context?.AddString($"Saved in the Material folder, as {name}.yml");
+                    args.Context?.AddString($"Saved in the Material folder, as {clonedName}.yml");
                 } else
                 {
-                    Debug.LogWarning("Not found");
+                    args.Context?.AddString($"Material '{name}' not found.");
                 }
             }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
         }

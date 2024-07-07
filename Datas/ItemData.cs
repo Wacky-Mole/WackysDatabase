@@ -31,6 +31,8 @@ namespace wackydatabase.Datas
 
         public string? material;
 
+        public string[]? materials;
+
         public CustomVisual? customVisual;
 
         public string? snapshotRotation;
