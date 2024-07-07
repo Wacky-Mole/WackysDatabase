@@ -1839,14 +1839,41 @@ namespace wackydatabase.SetData
                         go.SetActive(true); // for clones and mocks // They are false to make sure non approved cache gameobjects don't get added to Networked Game
                     }
 
-                    if (!string.IsNullOrEmpty(data.material))
+                    if (!string.IsNullOrEmpty(data.material) || (data.materials != null && data.materials.Length > 0))
                     {
                         WMRecipeCust.Dbgl($"Item {data.name} searching for {data.material}");
+
                         try
                         {
-                            renderfinder = go.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
-                            if (data.material.Contains(','))
+                            if (data.materials != null && data.materials.Length > 0)
                             {
+                                try
+                                {
+                                    Debug.Log("Updating materials");
+
+                                    Material[] materials = new Material[data.materials.Length];
+
+                                    for (uint mIndex = 0; mIndex < data.materials.Length; mIndex++)
+                                    {
+                                        WMRecipeCust.originalMaterials.TryGetValue(data.materials[mIndex], out materials[mIndex]);
+                                    }
+
+                                    Debug.Log("Applying materials");
+
+                                    foreach (Renderer r in PrefabAssistant.GetRenderers(go))
+                                    {
+                                        PrefabAssistant.UpdateMaterialReferences(r, materials);
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    WMRecipeCust.WLog.LogError(e);
+                                }
+
+                            }
+                            else if (data.material.Contains(','))
+                            {
+                                renderfinder = go.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
                                 string[] materialstr = data.material.Split(',');
                                 Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
                                 Material part = WMRecipeCust.originalMaterials[materialstr[1]];

@@ -7,9 +7,20 @@ namespace wackydatabase
     {
         private static Color GRAYSCALE = new Color(0.2126729f, 0.7151522f, 0.0721750f);
 
+        public static Texture2D CloneTextureAsNormal(Texture2D texture)
+        {
+            // Normals in unity are packed. We may need to unpack them manually and set pixels.
+
+            Texture2D normalTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false, true);
+
+            normalTexture.SetPixels(texture.GetPixels());
+
+            return normalTexture;
+        }
+
         public static Texture2D CloneTexture(Texture2D texture)
         {
-            RenderTexture tmp = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            RenderTexture tmp = RenderTexture.GetTemporary(texture.width, texture.height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
 
             Graphics.Blit(texture, tmp);
 
