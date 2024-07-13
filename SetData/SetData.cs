@@ -2483,6 +2483,7 @@ namespace wackydatabase.SetData
 
                     if (checkSEChoice)
                     {
+                        WMRecipeCust.Dbgl($"   {data.name} Item Attack_status_effect ");
                         WMRecipeCust.SEWeaponChoice.Add(data.name, new Tuple<string,float, string, float>( data.Primary_Attack.Attack_status_effect ?? "", data.Primary_Attack.Attack_status_effect_chance ?? 0, data.Secondary_Attack.Attack_status_effect ?? "", data.Secondary_Attack.Attack_status_effect_chance ?? 0));
                     }
 
