@@ -41,7 +41,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.13";
+        internal const string ModVersion = "2.4.20";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -53,7 +53,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.12" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.4.20" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -100,6 +100,8 @@ namespace wackydatabase
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
         public static List<StatusData> effectDataYml = new List<StatusData>();
         public static List<CreatureData> creatureDatasYml = new List<CreatureData>();
+        public static List<PickableData> pickableDatasYml = new List<PickableData>();
+        public static List<TreeBaseData> treebaseDatasYml = new List<TreeBaseData>();
         public static List<WItemData> cacheItemsYML = new List<WItemData>();// cacheonly
         public static List<MaterialInstance> cacheMaterials = new List<MaterialInstance>();// cacheonly
 
@@ -110,6 +112,8 @@ namespace wackydatabase
         public static List<string> ClonedP = new List<string>(); // pieces
         public static List<string> ClonedR = new List<string>(); // recipes
         public static List<string> ClonedE = new List<string>(); // effects
+        public static List<string> ClonedPI = new List<string>(); // pickables
+        public static List<string> ClonedPTB = new List<string>(); // picktreebase
         public static List<string> ClonedC = new List<string>(); // creatures
         public static Dictionary<string, GameObject> ClonedCC = new Dictionary<string, GameObject>(); //Cloned creatureDick
         public static List<string> ClonedCR = new List<string>(); // creaturesReplacer
@@ -128,6 +132,7 @@ namespace wackydatabase
         internal static string assetPathMaterials;
         internal static string assetPathObjects;
         internal static string assetPathCreatures;
+        internal static string assetPathPickables;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
         internal static string assetPathBulkYMLItems;
@@ -135,6 +140,7 @@ namespace wackydatabase
         internal static string assetPathBulkYMLEffects;
         internal static string assetPathBulkYMLRecipes;
         internal static string assetPathBulkYMLCreatures;
+        internal static string assetPathBulkYMLPickables;
         internal static string assetPathIcons;
         internal static string assetPathEffects;
         internal static string assetPathCache;
@@ -201,6 +207,7 @@ namespace wackydatabase
             assetPathEffects = Path.Combine(assetPathconfig, "Effects");
             assetPathObjects = Path.Combine(assetPathconfig, "Objects");
             assetPathCreatures = Path.Combine(assetPathconfig, "Creatures");
+            assetPathPickables = Path.Combine(assetPathconfig, "Pickables");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
 
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
@@ -209,6 +216,7 @@ namespace wackydatabase
             assetPathBulkYMLRecipes = Path.Combine(assetPathBulkYML, "Recipes");
             assetPathBulkYMLEffects = Path.Combine(assetPathBulkYML, "Effects");
             assetPathBulkYMLCreatures = Path.Combine(assetPathBulkYML, "Creatures");
+            assetPathBulkYMLPickables = Path.Combine(assetPathBulkYML, "Pickables");
 
             assetPathIcons = Path.Combine(assetPathconfig, "Icons");
             assetPathCache = Path.Combine(assetPathconfig, "Cache");
@@ -432,6 +440,11 @@ namespace wackydatabase
             {
                 Dbgl("Creating Creature folder");
                 Directory.CreateDirectory(assetPathCreatures);
+            }
+            if (!Directory.Exists(assetPathPickables))
+            {
+                Dbgl("Creating Pickable folder");
+                Directory.CreateDirectory(assetPathPickables);
             }
 
             /*

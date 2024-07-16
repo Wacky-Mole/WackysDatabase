@@ -694,6 +694,31 @@ To delete all existing Damage modifiers
                     }
 </details>
 
+<details><summary> Pickables components</summary>
+
+
+### Pickables
+
+- `name` (string, required): The name of the piece.
+- `itemPrefab` (string, required): Item given when pickable is plucked.
+- `cloneOfWhatPickable` (string): Clone what for this new pickable?
+- `amount` (int): Amount items given.
+- `minAmountScaled` (int): Amount scaled with world configs
+- `overrideName` (string): Override name of pickable
+- `respawnTimer` (float): When does this pickable reappear, in miniutes?
+- `spawnOffset` (float):  Various wear the pickable pops up at. 
+- `enable` (bool):  Enable this pickable worldwide? - Unknown what effect this will have if changed.
+
+
+### Treebase
+
+- `name` (string, required): The name of the tree.
+- `treeTealth` (int, required): health of the tree needed to cut down.
+- `cloneOfWhatTree` (string): Clone what Treebase for this.
+
+
+</details>
+
 <details><summary> Piece components</summary>
 
 ![Glowing Red BronzeSword ](https://wackymole.com/hosts/redforge.png)

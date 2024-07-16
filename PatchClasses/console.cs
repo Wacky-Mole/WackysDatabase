@@ -128,10 +128,11 @@ namespace wackydatabase.PatchClasses
                         + $"wackydb_save_piece [PieceName](piece output) \r\n"
                         + $"wackydb_save_item [ItemName](item Output)\r\n"
                         + $"wackydb_save_creature [CreatureName](Creature Output)\r\n"
+                        + $"wackydb_save_pickable [PickableName](Pickable Output)\r\n"
                         + $"wackydb_save_material [MaterialName] Save Material Info - Usually has _mat\r\n"
                         + $"wackydb_se [SEEffectName] Save SEeffect\r\n"
                         + $"wackydb_help\r\n"
-                        + $"wackydb_clone  [item/recipe/piece/creatures/material/se] [Prefab to clone] [Unique name for the clone] \r\n"
+                        + $"wackydb_clone  [item/recipe/piece/creatures/material/se/pickables] [Prefab to clone] [Unique name for the clone] \r\n"
                         + $"4th paramater for recipes - you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit\r\n"
                         + $"wackydb_clone_recipeitem  [Prefab to clone] [Unique name for the clone](Recipe name will be Rname) (clones item and recipe at same time)\r\n"
                         + $"wackydb_vfx (outputs vfx gameobjects available)\r\n"
@@ -145,6 +146,7 @@ namespace wackydatabase.PatchClasses
                         + $"wackydb_all_recipes -Save all Recipes to Bulk Folder\r\n"
                         + $"wackydb_all_pieces [Hammer][Optional-Category]-Save all Pieces to Bulk Folder: default hammer, optionally by category\r\n"
                         + $"wackydb_all_creatures -Save All Creatures\r\n"
+                        + $"wackydb_all_pickables -Save All Pickables and Tree Bases\r\n"
                         + $"wackydb_describe [ObjectName] Describe an Objects Visual Data\r\n"
                         + $"wackydb_clearcache Clears cache\r\n"
                         + $"wackydb_snapshot Reloads snapshot after wackydb_reload\r\n"
@@ -340,6 +342,39 @@ namespace wackydatabase.PatchClasses
                         .Build();
                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCreatures, "Creature_" + creatureData.name + ".yml"), serializer.Serialize(creatureData));
                     args.Context?.AddString($"saved data to Creature_{file}.yml");
+
+                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+            
+            Terminal.ConsoleCommand WackyPickableSave =
+                new("wackydb_save_pickable", "Save a Pickable or Treebase ",
+                args =>
+                {
+                    string file = args[1];
+                    GetDataYML PickableCheck = new GetDataYML();
+                    Pickable[] array = Resources.FindObjectsOfTypeAll<Pickable>();
+                    PickableData pics = PickableCheck.GetPickable(file, array);
+                    TreeBase[] array2 = Resources.FindObjectsOfTypeAll<TreeBase>();
+                    TreeBaseData pics2 = PickableCheck.GetTreeBase(file, array2);
+                    string tag = "Pickables";
+                    if (pics == null)
+                    {                   
+                        tag = "Treebase";
+                        if (pics2 == null)
+                            return;
+                    }
+                    WMRecipeCust.CheckModFolder();
+                    var serializer = new SerializerBuilder().WithNewLine("\n")
+                        .Build();
+                    if (tag == "Pickables")
+                    {
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPickables, "Pickables" + pics.name + ".yml"), serializer.Serialize(pics));
+                    }
+                    else
+                    {
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPickables, tag + pics2.name + ".yml"), serializer.Serialize(pics2));
+                    }
+
+                    args.Context?.AddString($"Saved data to Folder Pickables {tag}_{file}.yml");
 
                 }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
@@ -611,8 +646,30 @@ namespace wackydatabase.PatchClasses
                             WMRecipeCust.WLog.LogInfo("saved all Recipes in WackyBulk Recipes Folder");
 
                         });
+                        Terminal.ConsoleCommand WackyAllPickables =
+                        new("wackydb_all_pickables", "Get all Pickables/TreeBase in game",
+                        args =>
+                        {
+                            if (!Directory.Exists(WMRecipeCust.assetPathBulkYML))
+                            {
+                                WMRecipeCust.Dbgl("Creating wackyDatabase-BulkYML Folder in Config");
+                                Directory.CreateDirectory(WMRecipeCust.assetPathBulkYML);
+                            }
+                            if (!Directory.Exists(WMRecipeCust.assetPathBulkYMLPickables))
+                            {
+                                Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLPickables);
+                            }
 
-                        Terminal.ConsoleCommand WackyAllPiece =
+                            GetDataYML PickCheck = new GetDataYML();
+                            var temp = PickCheck.GetAllPickables();
+
+
+                            args.Context?.AddString($"saved all Pickables/TreeBases in WackyBulk Pickables Folder");
+                            WMRecipeCust.WLog.LogInfo("saved all Pickables/TreeBases in WackyBulk Pickables Folder");
+
+                        });
+    
+                         Terminal.ConsoleCommand WackyAllPiece =
                             new("wackydb_all_pieces", "Get all Pieces in game by hammer and optionally by category",
                             args =>
                             {
@@ -1063,7 +1120,12 @@ namespace wackydatabase.PatchClasses
                 {
                     string name = args[1];
                     WMRecipeCust.WLog.LogInfo(name);
-                    VisualController.Export(PrefabAssistant.Describe(name));
+                    try
+                    {
+                        VisualController.Export(PrefabAssistant.Describe(name));
+                    } catch { WMRecipeCust.WLog.LogWarning("Error, Didnt save");
+                        args.Context?.AddString($"Error, Didnt save");
+                    }
                     args.Context?.AddString($"Saved in config folder Describe_{name}.yml");
                 }
 

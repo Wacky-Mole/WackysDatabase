@@ -103,6 +103,8 @@ namespace wackydatabase.Read
             WMRecipeCust.creatureDatasYml.Clear();
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
             WMRecipeCust.effectDataYml.Clear();
+            WMRecipeCust.pickableDatasYml.Clear();
+            WMRecipeCust.treebaseDatasYml.Clear();
 
             WMRecipeCust.ymlstring = ""; //clear
 
@@ -248,12 +250,42 @@ namespace wackydatabase.Read
                 }
             }
 
-            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "Creature_*.yml", SearchOption.AllDirectories))
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?reature_*.yml", SearchOption.AllDirectories))
             {
                 var ymlread = File.ReadAllText(file);
                 if (ymlread.Contains("mob_display_name"))
                 {
                     yaml.Load<CreatureData>(file, WMRecipeCust.creatureDatasYml, ymlread);
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ickables_*.yml", SearchOption.AllDirectories))
+            {
+                var ymlread = File.ReadAllText(file);
+                if (ymlread.Contains("itemPrefab"))
+                {
+                    yaml.Load<PickableData>(file, WMRecipeCust.pickableDatasYml, ymlread);
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?reebase_*.yml", SearchOption.AllDirectories))
+            {
+                var ymlread = File.ReadAllText(file);
+                if (ymlread.Contains("treeTealth"))
+                {
+                    yaml.Load<TreeBaseData>(file, WMRecipeCust.treebaseDatasYml, ymlread);
                 }
 
                 processcount++;

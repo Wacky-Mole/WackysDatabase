@@ -138,6 +138,7 @@
     <Compile Include="Datas\DescriptorData.cs" />
     <Compile Include="Datas\ItemData.cs" />
     <Compile Include="Datas\MaterialData.cs" />
+    <Compile Include="Datas\PickableData.cs" />
     <Compile Include="Datas\PieceData.cs" />
     <Compile Include="Datas\RecipeData.cs" />
     <Compile Include="Datas\StatusData.cs" />

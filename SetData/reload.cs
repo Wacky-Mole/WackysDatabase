@@ -91,6 +91,8 @@ namespace wackydatabase.SetData
                 WMRecipeCust.effectDataYml.Clear();
                 WMRecipeCust.cacheItemsYML.Clear();
                 WMRecipeCust.creatureDatasYml.Clear();
+                WMRecipeCust.pickableDatasYml.Clear();
+                WMRecipeCust.treebaseDatasYml.Clear();
 
                 WMRecipeCust.MultiplayerApproved.Clear();
 
@@ -133,6 +135,14 @@ namespace wackydatabase.SetData
                         else if (word.Contains("mob_display_name"))
                         {
                         WMRecipeCust.creatureDatasYml.Add(deserializer.Deserialize<CreatureData>(word));
+                        }
+                        else if (word.Contains("itemPrefab"))
+                        {
+                        WMRecipeCust.pickableDatasYml.Add(deserializer.Deserialize<PickableData>(word));
+                        }
+                        else if (word.Contains("treeTealth"))
+                        {
+                        WMRecipeCust.treebaseDatasYml.Add(deserializer.Deserialize<TreeBaseData>(word));
                         }
 
                     }
@@ -189,7 +199,6 @@ namespace wackydatabase.SetData
 
         public void AddClonedItemstoObjectDB()
         {
-
             ObjectDB Instant = ObjectDB.instance;
             foreach (var citem in WMRecipeCust.ClonedI)
             {
@@ -492,6 +501,40 @@ namespace wackydatabase.SetData
             UPdateItemHashesWacky(Instant);
             //Instant.UpdateItemHashes();
 
+            Pickable[] pickAbles = Resources.FindObjectsOfTypeAll<Pickable>();
+            foreach (var data in WMRecipeCust.pickableDatasYml)
+            {
+
+                try
+                {
+                    SetData.SetPickables(data, pickAbles);
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"Set Pickables for {data.name} failed"); }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            TreeBase[] treeBases = Resources.FindObjectsOfTypeAll<TreeBase>();
+            foreach (var data in WMRecipeCust.treebaseDatasYml)
+            {
+                try
+                {
+                    SetData.SetTreeBase(data, treeBases);
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"Set TreeBase for {data.name} failed"); }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
             foreach (var data in WMRecipeCust.pieceDatasYml) // clones only first
             {
                 if (string.IsNullOrEmpty(data.clonePrefabName))
@@ -554,7 +597,7 @@ namespace wackydatabase.SetData
                     yield return new WaitForSeconds(WMRecipeCust.WaitTime);
                     processcount = 0;
                 }
-            }
+            }            
 
             //string currentplayer = Player.m_localPlayer.name;// save item cache
             WMRecipeCust.Dbgl($"Building Cloned Cache for Player Items/Mock");

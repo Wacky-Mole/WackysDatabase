@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using static Skills;
 using System.IO;
 using YamlDotNet.Serialization;
+using System.IO.Ports;
 
 namespace wackydatabase.GetData
 {
@@ -560,6 +561,28 @@ namespace wackydatabase.GetData
                 
 
             }
+            if (PieceID.TryGetComponent<Plant>(out var plant))
+            {
+                PlantData plantdata = new PlantData();
+
+                plantdata.m_name = plant.m_name;
+                plantdata.GrowTime = plant.m_growTime;
+                plantdata.MaxGrowTime = plant.m_growTimeMax;
+                plantdata.GrowPrefab = plant.m_grownPrefabs[0].name;
+                plantdata.MinSize = plant.m_minScale;
+                plantdata.MaxSize = plant.m_maxScale;
+                plantdata.GrowRadius = plant.m_growRadius;
+                plantdata.GrowRadiusVines = plant.m_growRadiusVines;
+                plantdata.CultivatedGround = plant.m_needCultivatedGround;
+                plantdata.DestoryIfCantGrow = plant.m_destroyIfCantGrow;
+                plantdata.TolerateHeat = plant.m_tolerateHeat;
+                plantdata.TolerateCold = plant.m_tolerateCold;
+                plantdata.Biomes = plant.m_biome;
+
+                data.plantData = plantdata;
+
+            }
+    
 
             if (PieceID.TryGetComponent<SapCollector>(out var sap))
             {
@@ -1197,7 +1220,6 @@ namespace wackydatabase.GetData
         internal CreatureData GetCreature(string name)
         {
             GameObject[] array = Resources.FindObjectsOfTypeAll<GameObject>();
-            GameObject cre = null;
             CreatureData creatureData = new CreatureData();
 
             foreach (GameObject obj in array)
@@ -1238,6 +1260,81 @@ namespace wackydatabase.GetData
         }
 
 
+
+        internal PickableData GetPickable(string name, Pickable[] array)
+        {
+            
+            PickableData picData = new PickableData();
+
+            foreach (var obj in array)
+            {
+                if (obj.name == (name))
+                {
+                    picData.name = obj.name;
+                    picData.itemPrefab = obj.m_itemPrefab.name;
+                    picData.amount = obj.m_amount;
+                    picData.minAmountScaled = obj.m_minAmountScaled;
+                    picData.overrideName = obj.m_overrideName;
+                    picData.respawnTimer = obj.m_respawnTimeMinutes;
+                    picData.spawnOffset = obj.m_spawnOffset;
+                    picData.enable = obj.enabled;
+
+                    return picData;
+                }
+            }
+            return null;
+        }
+        internal TreeBaseData GetTreeBase(string name, TreeBase[] array)
+        {
+            TreeBaseData picData = new TreeBaseData();
+
+            foreach (var obj in array)
+            {
+                if (obj.name == (name))
+                {
+                    picData.name = obj.name;
+                    picData.treeTealth = obj.m_health;
+
+                    return picData;
+                }
+            }
+            return null;
+        }
+
+        internal bool GetAllPickables()
+        {
+            var tod = ObjectDB.instance;
+            var serializer = new SerializerBuilder().WithNewLine("\n")
+                                        .Build();
+
+            Pickable[] array = Resources.FindObjectsOfTypeAll<Pickable>();
+            foreach (var obj in array)
+            {
+                PickableData picData = new PickableData();
+                picData.name = obj.name;
+                picData.itemPrefab = obj.m_itemPrefab.name;
+                picData.amount = obj.m_amount;
+                picData.minAmountScaled = obj.m_minAmountScaled;
+                picData.overrideName = obj.m_overrideName;
+                picData.respawnTimer = obj.m_respawnTimeMinutes;
+                picData.spawnOffset = obj.m_spawnOffset;
+                picData.enable = obj.enabled;
+
+                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Pickables" + picData.name + ".yml"), serializer.Serialize(picData));
+            }
+
+            TreeBase[] array2 = Resources.FindObjectsOfTypeAll<TreeBase>();
+            foreach (var obj2 in array2)
+            {
+                TreeBaseData picData = new TreeBaseData();
+                picData.name = obj2.name;
+                picData.treeTealth = obj2.m_health;
+
+                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Treebase" + picData.name + ".yml"), serializer.Serialize(picData));
+            }
+
+            return true;
+        }
 
 
     }

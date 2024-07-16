@@ -63,6 +63,8 @@ namespace wackydatabase.Datas
 
         public TeleportWorldData? teleportWorldData;
 
+        public PlantData? plantData;
+
         public List<string>? build = new List<string>();
 
     }
@@ -254,6 +256,23 @@ namespace wackydatabase.Datas
         public float? IgniteInterval;
         public float? IgniteChance;
         public int? IgniteSpread;
+    }
+
+    public class PlantData
+    {
+        public string? m_name;
+        public float? GrowTime;
+        public float? MaxGrowTime;
+        public string? GrowPrefab;
+        public float? MinSize;
+        public float? MaxSize;
+        public float? GrowRadius;
+        public float? GrowRadiusVines;
+        public bool? CultivatedGround;
+        public bool? DestoryIfCantGrow;
+        public bool? TolerateHeat;
+        public bool? TolerateCold;
+        public Heightmap.Biome? Biomes;
     }
 
     public class ObRequirementList

@@ -1281,6 +1281,38 @@ namespace wackydatabase.SetData
 
                
             }
+            if (data.plantData != null)
+            {
+                go.TryGetComponent<Plant>(out var plant);
+
+                plant.m_name = data.plantData.m_name ?? plant.m_name;
+                plant.m_growTime = data.plantData.GrowTime ?? plant.m_growTime;
+                plant.m_growTimeMax = data.plantData.MaxGrowTime ?? plant.m_growTimeMax;
+                if (data.plantData.GrowPrefab != null)
+                {
+                    GameObject searchfor = null;
+                    foreach (var plantID  in AllObjects)
+                    {
+                        if(plantID.name == data.plantData.GrowPrefab)
+                        {
+                            searchfor = plantID;
+                            break;
+                        }
+                    }
+                    // ouch by the way, so much work
+                    if (searchfor != null)
+                        plant.m_grownPrefabs[0] = searchfor;
+                }
+                plant.m_minScale = data.plantData.MinSize ?? plant.m_minScale;
+                plant.m_maxScale = data.plantData.MaxSize ?? plant.m_maxScale;
+                plant.m_growRadius = data.plantData.GrowRadius ?? plant.m_growRadius;
+                plant.m_growRadiusVines = data.plantData.GrowRadiusVines ?? plant.m_growRadiusVines;
+                plant.m_needCultivatedGround = data.plantData.CultivatedGround ?? plant.m_needCultivatedGround;
+                plant.m_destroyIfCantGrow = data.plantData.DestoryIfCantGrow ?? plant.m_destroyIfCantGrow;
+                plant.m_tolerateHeat = data.plantData.TolerateHeat ?? plant.m_tolerateHeat;
+                plant.m_tolerateCold = data.plantData.TolerateCold ?? plant.m_tolerateCold;
+                plant.m_biome = data.plantData.Biomes ?? plant.m_biome;
+            }
 
             if (data.cookingStationData != null)
             {
@@ -2866,10 +2898,10 @@ namespace wackydatabase.SetData
             }
             catch (System.Exception e) { WMRecipeCust.WLog.LogWarning($"Effect {name} had problems  {e.Message}"); return current; }
         }
-
         #endregion Items
 
         #region Creatures
+
 
         internal static void SetCreature(CreatureData data, GameObject[] arrayCreature)
         {
@@ -3021,7 +3053,263 @@ namespace wackydatabase.SetData
                 count++;
             }
         }
-    }
 
-    #endregion Creatures
+
+
+        #endregion Creatures
+
+
+
+        #region Pickables
+
+        internal static void SetPickables(PickableData data, Pickable[] array)
+        {
+            bool skip = false;
+            foreach (var citem in WMRecipeCust.ClonedPI)
+            {
+                if (citem == data.name)
+                    skip = true;
+            }
+
+            string tempname = data.name;
+            if (!string.IsNullOrEmpty(data.cloneOfWhatPickable) && !skip)
+            {
+                data.name = data.cloneOfWhatPickable;
+            }
+            Pickable go = null;
+            foreach (var tree in array)
+            {
+                if (tree.name == data.name)
+                    go = tree;
+            }
+            /*
+            if (go == null && !string.IsNullOrEmpty(data.cloneOfWhatPickable))
+            {
+                if (go != null)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Last ditch effort to catch {data.name} worked, restoring clone");
+                    skip = false;
+                    WMRecipeCust.ClonedPI.Remove(data.name);
+                    data.name = data.cloneOfWhatPickable;
+                }
+            }*/
+            if (go == null)
+            {
+                WMRecipeCust.WLog.LogWarning("Pickable is null " + data.name);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(data.cloneOfWhatPickable) && !skip) // object is a clone do clonethings
+            {
+                if (WMRecipeCust.BlacklistClone.Contains(data.cloneOfWhatPickable))
+                {
+                    WMRecipeCust.Dbgl($"Can not clone {data.cloneOfWhatPickable} ");
+                    return;
+                }
+
+                WMRecipeCust.Dbgl($"Pickable being set {tempname} is CLONE of {data.cloneOfWhatPickable}");
+                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
+                GameObject newItem = WMRecipeCust.Instantiate(go.gameObject, RootT, false);
+                Piece NewItemComp = newItem.GetComponent<Piece>();
+
+                WMRecipeCust.ClonedPI.Add(tempname); // check against
+                newItem.name = tempname; // resets the orginal name- needs to be unquie
+                NewItemComp.name = tempname; // ingame name
+                data.name = tempname; // putting back name
+
+                if (!WMRecipeCust.ClonedPrefabsMap.ContainsKey(tempname))
+                    WMRecipeCust.ClonedPrefabsMap.Add(tempname, data.cloneOfWhatPickable);
+
+                var hash = newItem.name.GetStableHashCode();
+                ZNetScene znet = ZNetScene.instance;
+                if (znet)
+                {
+                    string name = newItem.name;
+                    if (znet.m_namedPrefabs.ContainsKey(hash))
+                    {
+                        WMRecipeCust.Dbgl($"Prefab {name} already in ZNetScene");
+                    }
+                    else
+                    {
+                        if (newItem.GetComponent<ZNetView>() != null)
+                        {
+                            znet.m_prefabs.Add(newItem);
+                        }
+                        else
+                        {
+                            znet.m_nonNetViewPrefabs.Add(newItem);
+                        }
+                        znet.m_namedPrefabs.Add(hash, newItem);
+                        WMRecipeCust.Dbgl($"Added prefab {name}");
+                    }
+                }
+
+            }
+
+            if (!string.IsNullOrEmpty(data.material) ) 
+            {
+                WMRecipeCust.Dbgl($"Material name searching for {data.material} for pickable {data.name}"); // need to take in account worn at %50
+                try
+                {
+                    renderfinder = go.GetComponentsInChildren<Renderer>();
+                    renderfinder2 = go.GetComponentsInChildren<Renderer>(true); // include inactives
+                    if (data.material.Contains("same_mat") || data.material.Contains("no_wear"))
+                    {
+                        WMRecipeCust.Dbgl($"No Wear set for {data.name}");
+                        Material samematerial = null;
+                        foreach (Renderer renderitem in renderfinder) 
+                        {
+                            if (renderitem.receiveShadows)
+                            {
+                                samematerial = renderitem.material;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {                      
+                        Material mat = WMRecipeCust.originalMaterials[data.material];
+                        foreach (Renderer renderitem in renderfinder2)
+                        {
+                            if (renderitem.receiveShadows)
+                            {
+                                renderitem.material = mat;
+                            }
+                        }
+                        
+                    }
+                }
+                catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
+            } // mats
+
+
+        }
+        internal static void SetTreeBase( TreeBaseData data, TreeBase[] array)
+        {
+            bool skip = false;
+            foreach (var citem in WMRecipeCust.ClonedPTB)
+            {
+                if (citem == data.name)
+                    skip = true;
+            }
+            string tempname = data.name;
+            if (!string.IsNullOrEmpty(data.cloneOfWhatTree) && !skip)
+            {
+                data.name = data.cloneOfWhatTree;
+            }
+            TreeBase go = null;
+
+            foreach(var tree in array)
+            {
+                if (tree.name == data.name)
+                    go = tree;
+            }
+            /*
+            if (go == null && !string.IsNullOrEmpty(data.cloneOfWhatTree))
+            {
+                if (go != null)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Last ditch effort to catch {data.name} worked, restoring clone");
+                    skip = false;
+                    WMRecipeCust.ClonedPTB.Remove(data.name);
+                    data.name = data.cloneOfWhatTree;
+                }
+               
+            }*/
+            if (go == null)
+            {
+                WMRecipeCust.WLog.LogWarning("Tree is null " + data.name);
+                return;
+            }
+            if (!string.IsNullOrEmpty(data.cloneOfWhatTree) && !skip) // object is a clone do clonethings
+            {
+                if (WMRecipeCust.BlacklistClone.Contains(data.cloneOfWhatTree))
+                {
+                    WMRecipeCust.Dbgl($"Can not clone {data.cloneOfWhatTree} ");
+                    return;
+                }
+
+                WMRecipeCust.Dbgl($"Tree being set {tempname} is CLONE of {data.cloneOfWhatTree}");
+                Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
+                GameObject newItem = WMRecipeCust.Instantiate(go.gameObject, RootT, false);
+                Piece NewItemComp = newItem.GetComponent<Piece>();
+
+                WMRecipeCust.ClonedPTB.Add(tempname); // check against
+                newItem.name = tempname; // resets the orginal name- needs to be unquie
+                NewItemComp.name = tempname; // ingame name
+                data.name = tempname; // putting back name
+
+                if (!WMRecipeCust.ClonedPrefabsMap.ContainsKey(tempname))
+                    WMRecipeCust.ClonedPrefabsMap.Add(tempname, data.cloneOfWhatTree);
+
+                var hash = newItem.name.GetStableHashCode();
+                ZNetScene znet = ZNetScene.instance;
+                if (znet)
+                {
+                    string name = newItem.name;
+                    if (znet.m_namedPrefabs.ContainsKey(hash))
+                    {
+                        WMRecipeCust.Dbgl($"Prefab {name} already in ZNetScene");
+                    }
+                    else
+                    {
+                        if (newItem.GetComponent<ZNetView>() != null)
+                        {
+                            znet.m_prefabs.Add(newItem);
+                        }
+                        else
+                        {
+                            znet.m_nonNetViewPrefabs.Add(newItem);
+                        }
+                        znet.m_namedPrefabs.Add(hash, newItem);
+                        WMRecipeCust.Dbgl($"Added prefab {name}");
+                    }
+                }
+
+            }
+
+            if (!string.IsNullOrEmpty(data.material))
+            {
+                WMRecipeCust.Dbgl($"Material name searching for {data.material} for pickable {data.name}"); // need to take in account worn at %50
+                try
+                {
+                    renderfinder = go.GetComponentsInChildren<Renderer>();
+                    renderfinder2 = go.GetComponentsInChildren<Renderer>(true); // include inactives
+                    if (data.material.Contains("same_mat") || data.material.Contains("no_wear"))
+                    {
+                        WMRecipeCust.Dbgl($"No Wear set for {data.name}");
+                        Material samematerial = null;
+                        foreach (Renderer renderitem in renderfinder)
+                        {
+                            if (renderitem.receiveShadows)
+                            {
+                                samematerial = renderitem.material;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Material mat = WMRecipeCust.originalMaterials[data.material];
+                        foreach (Renderer renderitem in renderfinder2)
+                        {
+                            if (renderitem.receiveShadows)
+                            {
+                                renderitem.material = mat;
+                            }
+                        }
+
+                    }
+                }
+                catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
+            } // mats
+
+        }
+
+
+
+
+        #endregion Pickables
+
+    }
 }
