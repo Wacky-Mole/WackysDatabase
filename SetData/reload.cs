@@ -500,14 +500,14 @@ namespace wackydatabase.SetData
             }
             UPdateItemHashesWacky(Instant);
             //Instant.UpdateItemHashes();
-
+            WMRecipeCust.Dbgl($"Setting Pickables ");
             Pickable[] pickAbles = Resources.FindObjectsOfTypeAll<Pickable>();
             foreach (var data in WMRecipeCust.pickableDatasYml)
             {
 
                 try
                 {
-                    SetData.SetPickables(data, pickAbles);
+                    SetData.SetPickables(data, pickAbles, Instant);
                 }
                 catch { WMRecipeCust.WLog.LogWarning($"Set Pickables for {data.name} failed"); }
 
@@ -518,6 +518,7 @@ namespace wackydatabase.SetData
                     processcount = 0;
                 }
             }
+            WMRecipeCust.Dbgl($"Setting Treebase ");
             TreeBase[] treeBases = Resources.FindObjectsOfTypeAll<TreeBase>();
             foreach (var data in WMRecipeCust.treebaseDatasYml)
             {

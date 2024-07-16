@@ -1310,6 +1310,8 @@ namespace wackydatabase.GetData
             Pickable[] array = Resources.FindObjectsOfTypeAll<Pickable>();
             foreach (var obj in array)
             {
+                if (obj.name.Contains("Clone"))
+                    continue;
                 PickableData picData = new PickableData();
                 picData.name = obj.name;
                 picData.itemPrefab = obj.m_itemPrefab.name;
@@ -1320,17 +1322,20 @@ namespace wackydatabase.GetData
                 picData.spawnOffset = obj.m_spawnOffset;
                 picData.enable = obj.enabled;
 
-                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Pickables" + picData.name + ".yml"), serializer.Serialize(picData));
+                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Pickables_" + picData.name + ".yml"), serializer.Serialize(picData));
             }
 
             TreeBase[] array2 = Resources.FindObjectsOfTypeAll<TreeBase>();
             foreach (var obj2 in array2)
             {
+                if (obj2.name.Contains("Clone"))
+                    continue;
+
                 TreeBaseData picData = new TreeBaseData();
                 picData.name = obj2.name;
                 picData.treeTealth = obj2.m_health;
 
-                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Treebase" + picData.name + ".yml"), serializer.Serialize(picData));
+                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Treebase_" + picData.name + ".yml"), serializer.Serialize(picData));
             }
 
             return true;

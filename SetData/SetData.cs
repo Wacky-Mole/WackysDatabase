@@ -33,6 +33,9 @@ using System.Threading;
 using static MeleeWeaponTrail;
 using static Incinerator;
 using System.Collections;
+using static Minimap;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 namespace wackydatabase.SetData
 {
@@ -3062,7 +3065,7 @@ namespace wackydatabase.SetData
 
         #region Pickables
 
-        internal static void SetPickables(PickableData data, Pickable[] array)
+        internal static void SetPickables(PickableData data, Pickable[] array, ObjectDB Instant)
         {
             bool skip = false;
             foreach (var citem in WMRecipeCust.ClonedPI)
@@ -3110,7 +3113,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl($"Pickable being set {tempname} is CLONE of {data.cloneOfWhatPickable}");
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
                 GameObject newItem = WMRecipeCust.Instantiate(go.gameObject, RootT, false);
-                Piece NewItemComp = newItem.GetComponent<Piece>();
+                Pickable NewItemComp = newItem.GetComponent<Pickable>();
 
                 WMRecipeCust.ClonedPI.Add(tempname); // check against
                 newItem.name = tempname; // resets the orginal name- needs to be unquie
@@ -3143,6 +3146,7 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"Added prefab {name}");
                     }
                 }
+                go = NewItemComp;
 
             }
 
@@ -3182,7 +3186,15 @@ namespace wackydatabase.SetData
                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
             } // mats
 
-
+            go.m_itemPrefab = Instant.GetItemPrefab(data.itemPrefab) ?? go.m_itemPrefab;
+            WMRecipeCust.Dbgl("     ItemPrefab set to " + go.m_itemPrefab.name);
+            go.m_amount = data.amount ?? go.m_amount; 
+            go.m_minAmountScaled = data.minAmountScaled ?? go.m_minAmountScaled;  
+            if (!string.IsNullOrEmpty(data.overrideName))
+                go.m_overrideName = data.overrideName ?? go.m_overrideName;
+            go.m_respawnTimeMinutes = data.respawnTimer ?? go.m_respawnTimeMinutes;
+            go.m_spawnOffset = data.spawnOffset ?? go.m_spawnOffset;
+            go.enabled = data.enable ?? go.enabled;
         }
         internal static void SetTreeBase( TreeBaseData data, TreeBase[] array)
         {
@@ -3232,7 +3244,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl($"Tree being set {tempname} is CLONE of {data.cloneOfWhatTree}");
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
                 GameObject newItem = WMRecipeCust.Instantiate(go.gameObject, RootT, false);
-                Piece NewItemComp = newItem.GetComponent<Piece>();
+                TreeBase NewItemComp = newItem.GetComponent<TreeBase>();
 
                 WMRecipeCust.ClonedPTB.Add(tempname); // check against
                 newItem.name = tempname; // resets the orginal name- needs to be unquie
@@ -3265,6 +3277,7 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"Added prefab {name}");
                     }
                 }
+                go = NewItemComp;
 
             }
 
@@ -3303,9 +3316,10 @@ namespace wackydatabase.SetData
                 }
                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
             } // mats
-
+             go.m_health = data.treeTealth;
         }
 
+       
 
 
 

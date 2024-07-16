@@ -918,6 +918,32 @@ namespace wackydatabase.PatchClasses
                                 file = "Piece_" + clone.name;
 
                             }
+                            if (commandtype == "pickable" || commandtype == "Pickable")
+                            {
+                                Pickable[] pickAbles = Resources.FindObjectsOfTypeAll<Pickable>();
+                                PickableData clone = RecipeCheck.GetPickable(prefab, pickAbles);
+                                if (clone == null)
+                                    return;
+                                clone.name = newname;
+                                clone.cloneOfWhatPickable = prefab;
+
+                                WMRecipeCust.CheckModFolder();
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPickables, "Pickable_" + clone.name + ".yml"), serializer.Serialize(clone));
+                                file = "Pickable_" + clone.name;
+                            }
+                            if (commandtype == "treebase" || commandtype == "Treebase")
+                            {
+                                TreeBase[] treeBases = Resources.FindObjectsOfTypeAll<TreeBase>();
+                                TreeBaseData clone = RecipeCheck.GetTreeBase(prefab, treeBases);
+                                if (clone == null)
+                                    return;
+                                clone.name = newname;
+                                clone.cloneOfWhatTree = prefab;
+
+                                WMRecipeCust.CheckModFolder();
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Treebase_" + clone.name + ".yml"), serializer.Serialize(clone));
+                                file = "Treebase_" + clone.name;
+                            }
 
                             if (commandtype == "creature" || commandtype == "Creature" || commandtype == "mob")
                             {
