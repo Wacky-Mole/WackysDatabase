@@ -398,6 +398,8 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 - `customIcon` (string): The custom icon for the item. PNG 64x64, Icon needs to be in the Icon folder ( doesn't server sync)
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 
+
+- `materials` (string): "It's basically the same as material but it applies the materials specified for the entire renderer"
 - `customVisual` (CustomVisual): The custom visual data of the item.
 - `snapshotRotation` ((string) (x,y,z)int,int,int) - Default null - Changes  the angle of snapshot cam. 0-360 degrees. Can do 33,44,55 for example. </br> Very annoying to perfect, but it's an option now for the masochists. 
 -  `snapshotOnMaterialChange` (bool) - Default true - Makes a snapshot on item material change
