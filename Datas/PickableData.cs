@@ -18,9 +18,11 @@ namespace wackydatabase.Datas
         public string? material;
         public int? amount;
         public int? minAmountScaled;
+        public string? size;
         public string? overrideName;
         public float? respawnTimer;
         public float? spawnOffset;
+        public float? ifHasHealth;
         public bool? enable;
 
     }
@@ -32,5 +34,6 @@ namespace wackydatabase.Datas
         public float treeTealth;
         public string? cloneOfWhatTree;
         public string? material;
+        public string? size;
     }
 }

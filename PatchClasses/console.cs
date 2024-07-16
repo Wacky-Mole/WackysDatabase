@@ -918,7 +918,7 @@ namespace wackydatabase.PatchClasses
                                 file = "Piece_" + clone.name;
 
                             }
-                            if (commandtype == "pickable" || commandtype == "Pickable")
+                            if (commandtype == "pickable" || commandtype == "Pickable" || commandtype == "Pickables" || commandtype == "pickables")
                             {
                                 Pickable[] pickAbles = Resources.FindObjectsOfTypeAll<Pickable>();
                                 PickableData clone = RecipeCheck.GetPickable(prefab, pickAbles);

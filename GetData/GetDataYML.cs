@@ -1278,6 +1278,9 @@ namespace wackydatabase.GetData
                     picData.respawnTimer = obj.m_respawnTimeMinutes;
                     picData.spawnOffset = obj.m_spawnOffset;
                     picData.enable = obj.enabled;
+                    if (obj.TryGetComponent<Destructible>(out var yolo))
+                        picData.ifHasHealth = yolo.m_health;
+ 
 
                     return picData;
                 }
@@ -1321,8 +1324,11 @@ namespace wackydatabase.GetData
                 picData.respawnTimer = obj.m_respawnTimeMinutes;
                 picData.spawnOffset = obj.m_spawnOffset;
                 picData.enable = obj.enabled;
+                if (obj.TryGetComponent<Destructible>(out var yolo))
+                    picData.ifHasHealth = yolo.m_health;
 
-                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Pickables_" + picData.name + ".yml"), serializer.Serialize(picData));
+
+                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Pickable_" + picData.name + ".yml"), serializer.Serialize(picData));
             }
 
             TreeBase[] array2 = Resources.FindObjectsOfTypeAll<TreeBase>();

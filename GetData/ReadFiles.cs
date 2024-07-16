@@ -265,7 +265,7 @@ namespace wackydatabase.Read
                     processcount = 0;
                 }
             }
-            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ickables_*.yml", SearchOption.AllDirectories))
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?ickable_*.yml", SearchOption.AllDirectories))
             {
                 var ymlread = File.ReadAllText(file);
                 if (ymlread.Contains("itemPrefab"))

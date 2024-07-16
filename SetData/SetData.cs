@@ -3147,6 +3147,7 @@ namespace wackydatabase.SetData
                     }
                 }
                 go = NewItemComp;
+                
 
             }
 
@@ -3195,6 +3196,39 @@ namespace wackydatabase.SetData
             go.m_respawnTimeMinutes = data.respawnTimer ?? go.m_respawnTimeMinutes;
             go.m_spawnOffset = data.spawnOffset ?? go.m_spawnOffset;
             go.enabled = data.enable ?? go.enabled;
+
+            if (data.size != null)
+            {
+                var splitd = data.size.Split('|').ToList();
+                var count = splitd.Count;
+                List<float> list = new List<float>();
+                foreach (string m in splitd)
+                {
+                    m.Replace(",", ".");
+                    if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s))
+                        list.Add(s);
+                }
+                if (count == 1)
+                {
+                    if (list[0] != 1)
+                    {
+                        Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
+                        go.transform.localScale = NewScale;
+                    }
+                }
+                else if (count == 2)
+                {
+                    Vector3 NewScale = new Vector3(list[0], list[1], 1f);
+                    go.transform.localScale = NewScale;
+                }
+                else
+                {
+                    Vector3 NewScale = new Vector3(list[0], list[1], list[2]);
+                    go.transform.localScale = NewScale;
+                }
+            }
+            if (go.TryGetComponent<Destructible>(out var yolo))
+                yolo.m_health = data.ifHasHealth ?? yolo.m_health;
         }
         internal static void SetTreeBase( TreeBaseData data, TreeBase[] array)
         {
@@ -3317,6 +3351,37 @@ namespace wackydatabase.SetData
                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
             } // mats
              go.m_health = data.treeTealth;
+
+            if (data.size != null)
+            {
+                var splitd = data.size.Split('|').ToList();
+                var count = splitd.Count;
+                List<float> list = new List<float>();
+                foreach (string m in splitd)
+                {
+                    m.Replace(",", ".");
+                    if (float.TryParse(m, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out float s))
+                        list.Add(s);
+                }
+                if (count == 1)
+                {
+                    if (list[0] != 1)
+                    {
+                        Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
+                        go.transform.localScale = NewScale;
+                    }
+                }
+                else if (count == 2)
+                {
+                    Vector3 NewScale = new Vector3(list[0], list[1], 1f);
+                    go.transform.localScale = NewScale;
+                }
+                else
+                {
+                    Vector3 NewScale = new Vector3(list[0], list[1], list[2]);
+                    go.transform.localScale = NewScale;
+                }
+            }
         }
 
        

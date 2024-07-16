@@ -58,7 +58,7 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 <details><summary>General Knowledge</summary>
 
 
-    There are five (6) Objects that WackyDB touches. Items, Recipes, Pieces, Creatures,  Materials and Textures
+    There are five (7) Objects that WackyDB touches. Items, Recipes, Pieces, Creatures, Pickables(Pickables and Treebase) Materials and Textures
 
     Items are things in your inventory, you can pickup and maybe equip them.
 
@@ -67,6 +67,12 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
     Pieces are what you use in your hammer and hoe to construct or plant. piecehammers
 
     Creatures are mobs, bosses ect.
+
+    Pickables are plants that you can pick like mushrooms, carrots, ect. When you pick a pickable, it gives you the item associated to it. 
+    
+    Treebase are the final tree grown.
+
+    When you place pickable you are actually placing a piece in the (hoe usually). The piece controls how the plant will grow until it matures into a pickable. 
 
     Materials are the basic "colors" in the game, but hold a lot more than just RBG, can they can be tricky to get just right.
 
@@ -194,19 +200,22 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_save_piece [PieceName]`: Saves a piece YML in the wackysDatabase Piece folder.
 - `wackydb_save_item [ItemName]`: Saves an item YML in the wackysDatabase Item folder.
 - `wackydb_save_creature [CreatureName]`: Saves a Creature YML in the wackysDatabase Creature folder.
+- `wackydb_save_pickable [pickableOrTreebaseName]`: Saves a Pickable/Treebase YML in the wackysDatabase Pickable folder.
 - `wackydb_save_material[MaterialName]`: Saves a Material clone YML in the wackysDatabase Material folder. Usually has a _mat at end end. 
 - `wackydb_all_items`: Saves all items in the game into wackyDatabase-BulkYML.
 - `wackydb_all_recipes`: Saves all recipes in the game into wackyDatabase-BulkYML.
 - `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
 - `wackydb_all_se`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
 - `wackydb_all_creatures`: Saves all creatures in game into Bulk Creature folder. (Not deer or birds?)
+- `wackydb_all_pickables`: Saves all pickables(pickables and treebases) in Bulk Pickables folder.
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_TrollArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
-- `wackydb_clone [recipe/item/piece/creature/mat/materials/se] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
+- `wackydb_clone [recipe/item/piece/creature/mat/materials/se/pickable/treebase] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
 
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
+--Extremely powerful command that allows you design your world however you would like. 
 
 - `wackydb_clone_recipeitem [Prefab to clone] [clone name]`: Clones an item and recipe at the same time. The recipe name will be Rname.
 - `wackydb_vfx`: Saves a vfx.txt file with all vfx effects
@@ -701,13 +710,15 @@ To delete all existing Damage modifiers
 
 - `name` (string, required): The name of the piece.
 - `itemPrefab` (string, required): Item given when pickable is plucked.
-- `cloneOfWhatPickable` (string): Clone what for this new pickable?
-- `amount` (int): Amount items given.
-- `minAmountScaled` (int): Amount scaled with world configs
-- `overrideName` (string): Override name of pickable
-- `respawnTimer` (float): When does this pickable reappear, in miniutes?
-- `spawnOffset` (float):  Various wear the pickable pops up at. 
-- `enable` (bool):  Enable this pickable worldwide? - Unknown what effect this will have if changed.
+- `cloneOfWhatPickable` (string?): Clone what for this new pickable?
+- `amount` (int?): Amount items given.
+- `minAmountScaled` (int?): Amount scaled with world configs
+- `overrideName` (string?): Override name of pickable
+- `respawnTimer` (float?): When does this pickable reappear, in miniutes?
+- `spawnOffset` (float?):  Various wear the pickable pops up at. 
+- `enable` (bool?):  Enable this pickable worldwide? - Unknown what effect this will have if changed.
+- `size` (string?):  The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
+- `ifHasHealth` (float?):  If this plant has health, what is it's health? -Destructible-
 
 
 ### Treebase
@@ -715,6 +726,7 @@ To delete all existing Damage modifiers
 - `name` (string, required): The name of the tree.
 - `treeTealth` (int, required): health of the tree needed to cut down.
 - `cloneOfWhatTree` (string): Clone what Treebase for this.
+- `size` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
 
 
 </details>
@@ -940,6 +952,34 @@ Changing this dramtically allows the obliterator/incinerator to become a recycle
 - `IgniteSpread` (int): Not sure on this Spread value (Only applies to Biomes that have Fire Hazard)
 
 
+### PlantData
+
+
+- m_name (string?): The name of the plant.
+
+- GrowTime (float?):  The time required for the plant to grow.
+
+- MaxGrowTime (float?): The maximum time required for the plant to fully grow.
+
+- GrowPrefab (string?): The Pickable or Treebase prefab. 
+
+- MinSize (float?): The minimum size of the plant.
+
+- MaxSize (float?): The maximum size of the plant.
+
+- GrowRadius (float?):  The radius within which the plant can grow.
+
+- GrowRadiusVines (float?): The radius within which the plant's vines can grow.
+
+- CultivatedGround (bool?): Indicates whether the plant requires cultivated ground to grow.
+
+- DestoryIfCantGrow (bool?): Indicates whether the plant should be destroyed if it can't grow.
+
+- TolerateHeat (bool?): Indicates whether the plant can tolerate heat.
+
+- TolerateCold (bool?): Indicates whether the plant can tolerate cold.
+
+- Biomes (Heightmap.Biome?): The biomes where the plant can grow. Meadows, BlackForest, Plains, AshLands, Swamp, Mountain, None, Everything, All, DeepNorth, Ocean
 
 ### TeleportWorldData
 
