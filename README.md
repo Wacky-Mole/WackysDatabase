@@ -716,7 +716,7 @@ To delete all existing Damage modifiers
 - `amount` (int?): Amount items given.
 - `minAmountScaled` (int?): Amount scaled with world configs
 - `overrideName` (string?): Override name of pickable
-- `respawnTimer` (float?): When does this pickable reappear, in miniutes?
+- `respawnTimer` (float?): Dictates if the item disappears after being picked. If the item respawns, it stays in-world and non-interactable until the respawn timer lapses. In minutes
 - `spawnOffset` (float?):  Various wear the pickable pops up at. 
 - `enable` (bool?):  Enable this pickable worldwide? - Unknown what effect this will have if changed.
 - `size` (string?):  The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun

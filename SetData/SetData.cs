@@ -3082,6 +3082,8 @@ namespace wackydatabase.SetData
             Pickable go = null;
             foreach (var tree in array)
             {
+                if (tree.name.Contains("Clone"))
+                    continue;
                 if (tree.name == data.name)
                     go = tree;
             }
@@ -3247,6 +3249,8 @@ namespace wackydatabase.SetData
 
             foreach(var tree in array)
             {
+                if (tree.name.Contains("Clone"))
+                    continue;
                 if (tree.name == data.name)
                     go = tree;
             }
