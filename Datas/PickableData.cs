@@ -23,7 +23,7 @@ namespace wackydatabase.Datas
         public float? respawnTimer;
         public float? spawnOffset;
         public float? ifHasHealth;
-        public bool? enable;
+       // public bool? enable;
 
     }
     [Serializable]

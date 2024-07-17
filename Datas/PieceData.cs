@@ -269,7 +269,7 @@ namespace wackydatabase.Datas
         public float? GrowRadius;
         public float? GrowRadiusVines;
         public bool? CultivatedGround;
-        public bool? DestoryIfCantGrow;
+        public bool? DestroyIfCantGrow;
         public bool? TolerateHeat;
         public bool? TolerateCold;
         public Heightmap.Biome? Biomes;

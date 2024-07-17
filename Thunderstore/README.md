@@ -705,23 +705,24 @@ To delete all existing Damage modifiers
                     }
 </details>
 
-<details><summary> Pickables components</summary>
-
+<details><summary> Pickables Components</summary>
 
 ### Pickables
 
-- `name` (string, required): The name of the piece.
-- `itemPrefab` (string, required): Item given when pickable is plucked.
-- `cloneOfWhatPickable` (string?): Clone what for this new pickable?
-- `amount` (int?): Amount items given.
-- `overrideName` (string?): Override name of pickable
-- `respawnTimer` (float?): Dictates if the item disappears after being picked. If the item respawns, it stays in-world and non-interactable until the respawn timer lapses. In minutes
-- `spawnOffset` (float?):  Various wear the pickable pops up at. 
-- `enable` (bool?):  Enable this pickable worldwide? - Unknown what effect this will have if changed.
-- `size` (string?):  The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
-- `ifHasHealth` (float?):  If this plant has health, what is it's health? -Destructible-
+- `Name` (string): The unique name of the Pickable.
+- `itemPrefab` (string): The name of the item that spawns when picked.
+- `cloneOfWhatPickable` (string): If a clone, the name of the pickable Prefab to clone.
+- `material` (string): The material of the pickable. See Materials in README for more information.
+- `amount` (int): Amount of itemPrefab to spawn when picked.
+- `size` (float): Multiplier for the size of the pickable.
+- `overrideName` (string): The in game name of the pickable.
+- `respawnTimer` (float): Time in Minutes for the Pickable to respawn. Set to 0 to disable respawn.
+- `spawnOffset` (float): Vertical offset in meters from the pickable where the itemPrefab spawns.
+- `ifHasHealth` (float): Sets the health of the pickable. 
 
+</details>
 
+<details><summary> Treebase Components</summary>
 ### Treebase
 
 - `name` (string, required): The name of the tree.

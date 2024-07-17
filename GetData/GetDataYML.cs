@@ -574,7 +574,7 @@ namespace wackydatabase.GetData
                 plantdata.GrowRadius = plant.m_growRadius;
                 plantdata.GrowRadiusVines = plant.m_growRadiusVines;
                 plantdata.CultivatedGround = plant.m_needCultivatedGround;
-                plantdata.DestoryIfCantGrow = plant.m_destroyIfCantGrow;
+                plantdata.DestroyIfCantGrow = plant.m_destroyIfCantGrow;
                 plantdata.TolerateHeat = plant.m_tolerateHeat;
                 plantdata.TolerateCold = plant.m_tolerateCold;
                 plantdata.Biomes = plant.m_biome;
@@ -1277,7 +1277,7 @@ namespace wackydatabase.GetData
                     picData.overrideName = obj.m_overrideName;
                     picData.respawnTimer = obj.m_respawnTimeMinutes;
                     picData.spawnOffset = obj.m_spawnOffset;
-                    picData.enable = obj.enabled;
+                    //picData.enable = obj.enabled;
                     if (obj.TryGetComponent<Destructible>(out var yolo))
                         picData.ifHasHealth = yolo.m_health;
  
@@ -1323,7 +1323,7 @@ namespace wackydatabase.GetData
                 picData.overrideName = obj.m_overrideName;
                 picData.respawnTimer = obj.m_respawnTimeMinutes;
                 picData.spawnOffset = obj.m_spawnOffset;
-                picData.enable = obj.enabled;
+               // picData.enable = obj.enabled;
                 if (obj.TryGetComponent<Destructible>(out var yolo))
                     picData.ifHasHealth = yolo.m_health;
 

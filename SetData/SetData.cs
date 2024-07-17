@@ -1311,7 +1311,7 @@ namespace wackydatabase.SetData
                 plant.m_growRadius = data.plantData.GrowRadius ?? plant.m_growRadius;
                 plant.m_growRadiusVines = data.plantData.GrowRadiusVines ?? plant.m_growRadiusVines;
                 plant.m_needCultivatedGround = data.plantData.CultivatedGround ?? plant.m_needCultivatedGround;
-                plant.m_destroyIfCantGrow = data.plantData.DestoryIfCantGrow ?? plant.m_destroyIfCantGrow;
+                plant.m_destroyIfCantGrow = data.plantData.DestroyIfCantGrow ?? plant.m_destroyIfCantGrow;
                 plant.m_tolerateHeat = data.plantData.TolerateHeat ?? plant.m_tolerateHeat;
                 plant.m_tolerateCold = data.plantData.TolerateCold ?? plant.m_tolerateCold;
                 plant.m_biome = data.plantData.Biomes ?? plant.m_biome;
@@ -3201,7 +3201,7 @@ namespace wackydatabase.SetData
                 go.m_overrideName = data.overrideName ?? go.m_overrideName;
             go.m_respawnTimeMinutes = data.respawnTimer ?? go.m_respawnTimeMinutes;
             go.m_spawnOffset = data.spawnOffset ?? go.m_spawnOffset;
-            go.enabled = data.enable ?? go.enabled;
+          //  go.enabled = data.enable ?? go.enabled;
 
             if (data.size != null)
             {
@@ -3219,7 +3219,7 @@ namespace wackydatabase.SetData
                     if (list[0] != 1)
                     {
                         Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
-                        go.transform.localScale = NewScale;
+                        go.gameObject.transform.localScale = NewScale;
                     }
                 }
                 else if (count == 2)
@@ -3379,7 +3379,7 @@ namespace wackydatabase.SetData
                     if (list[0] != 1)
                     {
                         Vector3 NewScale = new Vector3(list[0], list[0], list[0]);
-                        go.transform.localScale = NewScale;
+                        go.gameObject.transform.localScale = NewScale;
                     }
                 }
                 else if (count == 2)

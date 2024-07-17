@@ -535,7 +535,7 @@ namespace wackydatabase.SetData
                     processcount = 0;
                 }
             }
-
+            AllObjects = Resources.FindObjectsOfTypeAll<GameObject>(); // need to call this again, for pickables and treebase
             foreach (var data in WMRecipeCust.pieceDatasYml) // clones only first
             {
                 if (string.IsNullOrEmpty(data.clonePrefabName))
