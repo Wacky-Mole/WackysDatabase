@@ -3084,8 +3084,12 @@ namespace wackydatabase.SetData
             {
                 if (tree.name.Contains("Clone"))
                     continue;
+               // WMRecipeCust.WLog.LogWarning(tree.name +" and looking for" +data.name);
                 if (tree.name == data.name)
+                {
                     go = tree;
+                    break;
+                }
             }
             /*
             if (go == null && !string.IsNullOrEmpty(data.cloneOfWhatPickable))
@@ -3192,7 +3196,7 @@ namespace wackydatabase.SetData
             go.m_itemPrefab = Instant.GetItemPrefab(data.itemPrefab) ?? go.m_itemPrefab;
             WMRecipeCust.Dbgl("     ItemPrefab set to " + go.m_itemPrefab.name);
             go.m_amount = data.amount ?? go.m_amount; 
-            go.m_minAmountScaled = data.minAmountScaled ?? go.m_minAmountScaled;  
+            //go.m_minAmountScaled = data.minAmountScaled ?? go.m_minAmountScaled;  
             if (!string.IsNullOrEmpty(data.overrideName))
                 go.m_overrideName = data.overrideName ?? go.m_overrideName;
             go.m_respawnTimeMinutes = data.respawnTimer ?? go.m_respawnTimeMinutes;
@@ -3252,7 +3256,10 @@ namespace wackydatabase.SetData
                 if (tree.name.Contains("Clone"))
                     continue;
                 if (tree.name == data.name)
+                {
                     go = tree;
+                    break;
+                }
             }
             /*
             if (go == null && !string.IsNullOrEmpty(data.cloneOfWhatTree))

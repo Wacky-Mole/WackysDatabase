@@ -17,7 +17,7 @@ namespace wackydatabase.Datas
         public string? cloneOfWhatPickable;
         public string? material;
         public int? amount;
-        public int? minAmountScaled;
+        //public int? minAmountScaled;
         public string? size;
         public string? overrideName;
         public float? respawnTimer;

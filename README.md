@@ -714,7 +714,6 @@ To delete all existing Damage modifiers
 - `itemPrefab` (string, required): Item given when pickable is plucked.
 - `cloneOfWhatPickable` (string?): Clone what for this new pickable?
 - `amount` (int?): Amount items given.
-- `minAmountScaled` (int?): Amount scaled with world configs
 - `overrideName` (string?): Override name of pickable
 - `respawnTimer` (float?): Dictates if the item disappears after being picked. If the item respawns, it stays in-world and non-interactable until the respawn timer lapses. In minutes
 - `spawnOffset` (float?):  Various wear the pickable pops up at. 

@@ -1273,7 +1273,7 @@ namespace wackydatabase.GetData
                     picData.name = obj.name;
                     picData.itemPrefab = obj.m_itemPrefab.name;
                     picData.amount = obj.m_amount;
-                    picData.minAmountScaled = obj.m_minAmountScaled;
+                   // picData.minAmountScaled = obj.m_minAmountScaled;
                     picData.overrideName = obj.m_overrideName;
                     picData.respawnTimer = obj.m_respawnTimeMinutes;
                     picData.spawnOffset = obj.m_spawnOffset;
@@ -1319,7 +1319,7 @@ namespace wackydatabase.GetData
                 picData.name = obj.name;
                 picData.itemPrefab = obj.m_itemPrefab.name;
                 picData.amount = obj.m_amount;
-                picData.minAmountScaled = obj.m_minAmountScaled;
+                //picData.minAmountScaled = obj.m_minAmountScaled;
                 picData.overrideName = obj.m_overrideName;
                 picData.respawnTimer = obj.m_respawnTimeMinutes;
                 picData.spawnOffset = obj.m_spawnOffset;
