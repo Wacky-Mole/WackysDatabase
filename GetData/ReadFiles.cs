@@ -283,7 +283,7 @@ namespace wackydatabase.Read
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?reebase_*.yml", SearchOption.AllDirectories))
             {
                 var ymlread = File.ReadAllText(file);
-                if (ymlread.Contains("treeTealth"))
+                if (ymlread.Contains("treeHealth"))
                 {
                     yaml.Load<TreeBaseData>(file, WMRecipeCust.treebaseDatasYml, ymlread);
                 }

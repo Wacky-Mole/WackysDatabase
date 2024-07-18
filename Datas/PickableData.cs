@@ -23,6 +23,7 @@ namespace wackydatabase.Datas
         public float? respawnTimer;
         public float? spawnOffset;
         public float? ifHasHealth;
+        public string? hiddenChildWhenPicked;
        // public bool? enable;
 
     }
@@ -31,9 +32,10 @@ namespace wackydatabase.Datas
     public class TreeBaseData
     {
         public string name;
-        public float treeTealth;
+        public float treeHealth;
         public string? cloneOfWhatTree;
         public string? material;
         public string? size;
+        public int? minToolTier;
     }
 }

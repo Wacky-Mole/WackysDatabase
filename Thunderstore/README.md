@@ -709,27 +709,28 @@ To delete all existing Damage modifiers
 
 ### Pickables
 
-- `Name` (string): The unique name of the Pickable.
-- `itemPrefab` (string): The name of the item that spawns when picked.
+- `Name` (string, required): The unique name of the Pickable.
+- `itemPrefab` (string, required): The name of the item that spawns when picked.
 - `cloneOfWhatPickable` (string): If a clone, the name of the pickable Prefab to clone.
 - `material` (string): The material of the pickable. See Materials in README for more information.
 - `amount` (int): Amount of itemPrefab to spawn when picked.
-- `size` (float): Multiplier for the size of the pickable.
+- `size` (float): Multiplier for the size of the pickable. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0" 
 - `overrideName` (string): The in game name of the pickable.
 - `respawnTimer` (float): Time in Minutes for the Pickable to respawn. Set to 0 to disable respawn.
 - `spawnOffset` (float): Vertical offset in meters from the pickable where the itemPrefab spawns.
 - `ifHasHealth` (float): Sets the health of the pickable. 
+- `hiddenChildWhenPicked` (string): Child Gameobject that is hidden when pickable is picked, has respawn timer usually.
 
-</details>
 
-<details><summary> Treebase Components</summary>
 ### Treebase
 
 - `name` (string, required): The name of the tree.
 - `treeTealth` (int, required): health of the tree needed to cut down.
 - `cloneOfWhatTree` (string): Clone what Treebase for this.
-- `size` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
+- `size` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0" 
+- `minToolTier` (int): Min Axe Tool Tier to cut down tree.
 
+Pickables are compatible with other mods, but mods like PlantEverything will override pretty much all non clones.
 
 </details>
 
@@ -956,32 +957,20 @@ Changing this dramtically allows the obliterator/incinerator to become a recycle
 
 ### PlantData
 
+- `m_name` (string): In game name of the plant.
+- `GrowTime` (int): Minimum time in seconds for the plant to transition into a Prefab. Exact time chosen randomly within the range of MaxGrowTime.
+- `MaxGrowTime` (float): Maximum time in seconds for the plant to transition into a Prefab.
+- `GrowPrefab` (string): Name of the prefab the plant turns into after the timer. Can be pretty much anything. Anything anything.
+- `MinSize` (float): Minimum size multiplier of the prefab spawned. Overrides Pickable `size.
+- `MaxSize` (float): Maximum size multiplier of the prefab spawned. Overrides Pickable `size`.
+- `GrowRadius` (float): Radius in meters from center that the plant needs clearance to grow.
+- `GrowRadiusVines` (float): Radius from center that the plant needs clearance from other vines to grow. Inverse, higher numbers reduces the range.
+- `CultivatedGround` (bool): Whether or not the plant needs cultivated ground to grow.
+- `DestroyIfCantGrow` (bool): Whether or not the plant disappears if growing is restricted.
+- `TolerateHeat` (bool): Whether or not the plant can survive hot climates. Overrides Biomes.
+- `TolerateCold` (bool): Whether or not the plant can survive cold climates. Overrides Biomes.
+- `Biomes` (string): List of Biomes that the plant is allowed to grow in. Meadows, BlackForest, Plains, AshLands, Swamp, Mountain, None, Everything, All, DeepNorth, Ocean
 
-- m_name (string?): The name of the plant.
-
-- GrowTime (float?):  The time required for the plant to grow.
-
-- MaxGrowTime (float?): The maximum time required for the plant to fully grow.
-
-- GrowPrefab (string?): The Pickable or Treebase prefab. 
-
-- MinSize (float?): The minimum size of the plant.
-
-- MaxSize (float?): The maximum size of the plant.
-
-- GrowRadius (float?):  The radius within which the plant can grow.
-
-- GrowRadiusVines (float?): The radius within which the plant's vines can grow.
-
-- CultivatedGround (bool?): Indicates whether the plant requires cultivated ground to grow.
-
-- DestoryIfCantGrow (bool?): Indicates whether the plant should be destroyed if it can't grow.
-
-- TolerateHeat (bool?): Indicates whether the plant can tolerate heat.
-
-- TolerateCold (bool?): Indicates whether the plant can tolerate cold.
-
-- Biomes (Heightmap.Biome?): The biomes where the plant can grow. Meadows, BlackForest, Plains, AshLands, Swamp, Mountain, None, Everything, All, DeepNorth, Ocean
 
 ### TeleportWorldData
 

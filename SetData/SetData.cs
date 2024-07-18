@@ -3235,7 +3235,14 @@ namespace wackydatabase.SetData
             }
             if (go.TryGetComponent<Destructible>(out var yolo))
                 yolo.m_health = data.ifHasHealth ?? yolo.m_health;
+
+            if (!string.IsNullOrEmpty(data.hiddenChildWhenPicked)){
+                var childf = go.gameObject.transform.FindChild(data.hiddenChildWhenPicked);
+                if (childf != null)
+                    go.m_hideWhenPicked = childf.gameObject;
+            }
         }
+
         internal static void SetTreeBase( TreeBaseData data, TreeBase[] array)
         {
             bool skip = false;
@@ -3361,7 +3368,8 @@ namespace wackydatabase.SetData
                 }
                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
             } // mats
-             go.m_health = data.treeTealth;
+             go.m_health = data.treeHealth;
+            go.m_minToolTier = data.minToolTier ?? go.m_minToolTier;
 
             if (data.size != null)
             {

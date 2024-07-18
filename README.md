@@ -719,17 +719,18 @@ To delete all existing Damage modifiers
 - `respawnTimer` (float): Time in Minutes for the Pickable to respawn. Set to 0 to disable respawn.
 - `spawnOffset` (float): Vertical offset in meters from the pickable where the itemPrefab spawns.
 - `ifHasHealth` (float): Sets the health of the pickable. 
+- `hiddenChildWhenPicked` (string): Child Gameobject that is hidden when pickable is picked, has respawn timer usually.
 
-</details>
 
-<details><summary> Treebase Components</summary>
 ### Treebase
 
 - `name` (string, required): The name of the tree.
 - `treeTealth` (int, required): health of the tree needed to cut down.
 - `cloneOfWhatTree` (string): Clone what Treebase for this.
 - `size` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0" 
+- `minToolTier` (int): Min Axe Tool Tier to cut down tree.
 
+Pickables are compatible with other mods, but mods like PlantEverything will override pretty much all non clones.
 
 </details>
 

@@ -1277,6 +1277,7 @@ namespace wackydatabase.GetData
                     picData.overrideName = obj.m_overrideName;
                     picData.respawnTimer = obj.m_respawnTimeMinutes;
                     picData.spawnOffset = obj.m_spawnOffset;
+                    picData.hiddenChildWhenPicked = obj.m_hideWhenPicked.name;
                     //picData.enable = obj.enabled;
                     if (obj.TryGetComponent<Destructible>(out var yolo))
                         picData.ifHasHealth = yolo.m_health;
@@ -1296,7 +1297,8 @@ namespace wackydatabase.GetData
                 if (obj.name == (name))
                 {
                     picData.name = obj.name;
-                    picData.treeTealth = obj.m_health;
+                    picData.treeHealth = obj.m_health;
+                    picData.minToolTier = obj.m_minToolTier;
 
                     return picData;
                 }
@@ -1323,7 +1325,8 @@ namespace wackydatabase.GetData
                 picData.overrideName = obj.m_overrideName;
                 picData.respawnTimer = obj.m_respawnTimeMinutes;
                 picData.spawnOffset = obj.m_spawnOffset;
-               // picData.enable = obj.enabled;
+                picData.hiddenChildWhenPicked = obj.m_hideWhenPicked.name;
+                // picData.enable = obj.enabled;
                 if (obj.TryGetComponent<Destructible>(out var yolo))
                     picData.ifHasHealth = yolo.m_health;
 
@@ -1339,7 +1342,8 @@ namespace wackydatabase.GetData
 
                 TreeBaseData picData = new TreeBaseData();
                 picData.name = obj2.name;
-                picData.treeTealth = obj2.m_health;
+                picData.treeHealth = obj2.m_health;
+                picData.minToolTier = obj2.m_minToolTier;
 
                 File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Treebase_" + picData.name + ".yml"), serializer.Serialize(picData));
             }

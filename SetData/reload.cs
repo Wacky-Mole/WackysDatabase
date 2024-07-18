@@ -140,7 +140,7 @@ namespace wackydatabase.SetData
                         {
                         WMRecipeCust.pickableDatasYml.Add(deserializer.Deserialize<PickableData>(word));
                         }
-                        else if (word.Contains("treeTealth"))
+                        else if (word.Contains("treeHealth"))
                         {
                         WMRecipeCust.treebaseDatasYml.Add(deserializer.Deserialize<TreeBaseData>(word));
                         }
