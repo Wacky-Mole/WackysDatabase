@@ -1277,7 +1277,8 @@ namespace wackydatabase.GetData
                     picData.overrideName = obj.m_overrideName;
                     picData.respawnTimer = obj.m_respawnTimeMinutes;
                     picData.spawnOffset = obj.m_spawnOffset;
-                    picData.hiddenChildWhenPicked = obj.m_hideWhenPicked.name;
+                    if (obj.m_hideWhenPicked)
+                        picData.hiddenChildWhenPicked = obj.m_hideWhenPicked.name;
                     //picData.enable = obj.enabled;
                     if (obj.TryGetComponent<Destructible>(out var yolo))
                         picData.ifHasHealth = yolo.m_health;

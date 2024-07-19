@@ -357,19 +357,19 @@ namespace wackydatabase.PatchClasses
                     PickableData pics = PickableCheck.GetPickable(file, array);
                     TreeBase[] array2 = Resources.FindObjectsOfTypeAll<TreeBase>();
                     TreeBaseData pics2 = PickableCheck.GetTreeBase(file, array2);
-                    string tag = "Pickables";
+                    string tag = "Pickable";
                     if (pics == null)
                     {                   
-                        tag = "Treebase";
+                        tag = "Treebase_";
                         if (pics2 == null)
                             return;
                     }
                     WMRecipeCust.CheckModFolder();
                     var serializer = new SerializerBuilder().WithNewLine("\n")
                         .Build();
-                    if (tag == "Pickables")
+                    if (tag == "Pickable")
                     {
-                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPickables, "Pickables" + pics.name + ".yml"), serializer.Serialize(pics));
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPickables, "Pickable_" + pics.name + ".yml"), serializer.Serialize(pics));
                     }
                     else
                     {
