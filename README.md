@@ -68,7 +68,7 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 
     Creatures are mobs, bosses ect.
 
-    Pickables are plants that you can pick like mushrooms, carrots, ect. When you pick a pickable, it gives you the item associated to it. 
+    Pickable are plants that you can pick like mushrooms, carrots, flint, ect. When you pick a pickable, it gives you the item associated to it. 
     
     Treebase are the final tree grown.
 
@@ -164,6 +164,9 @@ Frequently Asked Questions
         A: 0.0.1 is a security feature that prevents people loading into a singleplayer world and then immediately connecting to a multiplayer world. It does seem to have some problems in COOP.
             Just disable it on client and server if you are having problems. ExtraSecurity = false
 
+    Q: Can I clone or adjust Projectiles?
+        A: No, wackydb doesn't do projectiles, it may someday.
+
 </details>
 
 <details><summary>Configuration</summary>
@@ -207,7 +210,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
 - `wackydb_all_se`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
 - `wackydb_all_creatures`: Saves all creatures in game into Bulk Creature folder. (Not deer or birds?)
-- `wackydb_all_pickables`: Saves all pickables(pickables and treebases) in Bulk Pickables folder.
+- `wackydb_all_pickables`: Saves all pickables(pickable and treebase) in Bulk Pickables folder.
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_TrollArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
@@ -1293,11 +1296,10 @@ If you null out piece WearNTearData, unexpected things might happen to your worl
 <details><summary>Credits</summary>
 
 Credits:
-Aedenthorn and all of his Many Mods! https://github.com/aedenthorn/ValheimMods </br>
+Aedenthorn, former modder and inspiration for a lot of old mods! https://github.com/aedenthorn/ValheimMods </br>
 Thank you AzumattDev for the template. It is very good https://github.com/AzumattDev/ItemManagerModTemplate </br>
 Also thanks to Blaxx and Azu for code like Snapshot and Piece Categories. </br>
 Thanks to the Odin Discord server, for being active and good for the valheim community.</br>
-CustomArmor code from https://github.com/aedenthorn/ValheimMods/blob/master/CustomArmorStats/BepInExPlugin.cs </br>
 An extra thank you to Azumatt and the Odin team. </br>
 Special thank you to @KG for Mock System </br>
 A Huge thank you to Rexabit and his Visual Modifier https://github.com/Rexabit/valheim-visuals-modifier
