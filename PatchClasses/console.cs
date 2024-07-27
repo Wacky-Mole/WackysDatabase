@@ -1162,17 +1162,26 @@ namespace wackydatabase.PatchClasses
 
             Terminal.ConsoleCommand WackySaveMaterial = new("wackydb_save_material", "Export default material settings for a material", args =>
             {
-                string name = args[1];
-                string clonedName = PrefabAssistant.SaveMaterial(name);
-
-                if (clonedName != null)
+                if (args.Length - 1 < 1)
                 {
-                    args.Context?.AddString($"Saved in the Material folder, as {clonedName}.yml");
-                } else
-                {
-                    args.Context?.AddString($"Material '{name}' not found.");
+                    args.Context?.AddString("<color=red>Not enough arguments</color>");
+                    return;
                 }
-            }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                else
+                {
+                    string name = args[1];
+                    string clonedName = PrefabAssistant.SaveMaterial(name);
+
+                    if (clonedName != null)
+                    {
+                        args.Context?.AddString($"Saved in the Material folder, as {clonedName}.yml");
+                    }
+                    else
+                    {
+                        args.Context?.AddString($"Material '{name}' not found.");
+                    }
+                }
+            }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false);
         }
     }
 }
