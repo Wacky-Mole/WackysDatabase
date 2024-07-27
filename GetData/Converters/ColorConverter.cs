@@ -1,5 +1,7 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
@@ -23,8 +25,9 @@ namespace wackydatabase.Datas
             while (!parser.TryConsume<SequenceEnd>(out var sequenceEnd))
             {
                 var v = parser.Consume<Scalar>().Value;
+                v = v.Replace(',', '.');
 
-                segments.Add(float.Parse(v));
+                segments.Add(float.Parse(v, NumberFormatInfo.InvariantInfo));
             }
 
             Color color = new Color(
@@ -43,10 +46,10 @@ namespace wackydatabase.Datas
            
             Color i = (Color)value;
 
-            emitter.Emit(new Scalar(i.r.ToString()));
-            emitter.Emit(new Scalar(i.g.ToString()));
-            emitter.Emit(new Scalar(i.b.ToString()));
-            emitter.Emit(new Scalar(i.a.ToString()));
+            emitter.Emit(new Scalar(i.r.ToString(NumberFormatInfo.InvariantInfo)));
+            emitter.Emit(new Scalar(i.g.ToString(NumberFormatInfo.InvariantInfo)));
+            emitter.Emit(new Scalar(i.b.ToString(NumberFormatInfo.InvariantInfo)));
+            emitter.Emit(new Scalar(i.a.ToString(NumberFormatInfo.InvariantInfo)));
 
             emitter.Emit(new SequenceEnd());
         }
