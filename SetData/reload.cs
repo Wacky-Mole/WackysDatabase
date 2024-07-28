@@ -107,6 +107,7 @@ namespace wackydatabase.SetData
 
                     var deserializer = new DeserializerBuilder()
                         .WithTypeConverter(new ColorConverter())
+                        .WithTypeConverter(new TextureConverter())
                         .WithTypeConverter(new ValheimTimeConverter())
                         .IgnoreUnmatchedProperties() // future proofing
                         .Build(); // make sure to include all

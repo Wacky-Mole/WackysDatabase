@@ -1028,7 +1028,7 @@ namespace wackydatabase.PatchClasses
                                                 {
                                                     if (t != null)
                                                     {
-                                                        mi.changes.textures.Add(propertyName, t.name);
+                                                        mi.changes.textures.Add(propertyName, (Texture2D) t);
                                                         TextureDataManager.SaveTexture(t.name, t);
                                                     }
                                                 }

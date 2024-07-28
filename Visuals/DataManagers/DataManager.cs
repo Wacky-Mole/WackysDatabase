@@ -20,6 +20,7 @@ namespace wackydatabase
     public abstract class DataManager<T>
     {
         protected static readonly ColorConverter cc = new ColorConverter();
+        protected static readonly TextureConverter tc = new TextureConverter();
         protected static readonly ValheimTimeConverter vtc = new ValheimTimeConverter();
 
         protected FileSystemWatcher fileSystemWatcher;
@@ -27,12 +28,14 @@ namespace wackydatabase
         public static readonly ISerializer Serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .WithTypeConverter(cc)
+            .WithTypeConverter(tc)
             .WithTypeConverter(vtc)
             .Build();
 
         public static readonly IDeserializer Deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .WithTypeConverter(cc)
+            .WithTypeConverter(tc)
             .WithTypeConverter(vtc)
             .Build();
 

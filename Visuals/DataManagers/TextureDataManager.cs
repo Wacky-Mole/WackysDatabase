@@ -58,13 +58,13 @@ namespace wackydatabase
             return textureCache[name];
         }
 
-        public static Dictionary<string, Texture2D> GetTextures(Dictionary<string, string> textures)
+        public static Dictionary<string, Texture2D> GetTextures(Dictionary<string, Texture2D> textures)
         {
             Dictionary<string, Texture2D> data = new Dictionary<string, Texture2D>();
 
-            foreach (KeyValuePair<string, string> entry in textures)
+            foreach (KeyValuePair<string, Texture2D> entry in textures)
             {
-                data[entry.Key] = GetTexture(entry.Value);
+                data[entry.Key] = entry.Value;
             }
 
             return data;

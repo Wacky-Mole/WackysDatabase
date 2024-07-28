@@ -18,6 +18,6 @@ namespace wackydatabase.Datas
     {
         public Dictionary<string, Color> colors = new Dictionary<string, Color>();
         public Dictionary<string, float> floats = new Dictionary<string, float>();
-        public Dictionary<string, string> textures = new Dictionary<string, string>();
+        public Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
     }
 }
