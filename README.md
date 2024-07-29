@@ -366,6 +366,11 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 - `colors` (Dictionary<MaterialProperty: string, MaterialValue: Array<int>[4]>, optional) : A collection of keys (property names) and their associated value. The value is in array format [RED, GREEN, BLUE, ALPHA]. Values should range from 0 to 1 but can exceed 1.
 - `floats` (Dictionary<MaterialProperty: string, MaterialValue: float>, optional): A collection of keys (property names) and their associated float value. The value can be any float value but it is recommended to stay within the range specified by describing the prefab that has this material.
 - `textures` (Dictionary<MaterialProperty: string, MaterialValue: string>, optional): A collection of keys (property names) and their associated string value. The string value is the name of the texture to be used. The image should be a .png file stores in the 'Textures' section in the configuration folder. Do not include '.png', if the file is `my_texture.png` specify `my_texture` as the value here.
+</br> </br> Inside of Textures you can also set filterMode: Point(default), Trilinear,Bilinear. </br>
+
+                    _MainTex:
+                      name: Oven_d
+                      filterMode: Trilinear
 
 ### Custom Visual Definition
 - `base_mat`: (string, optional): The name of the material, generally this applies to the model for the prefab.
