@@ -16,6 +16,7 @@ namespace wackydatabase.Datas {
         {
             _deserializer = new DeserializerBuilder()
                 .WithTypeConverter(new ColorConverter())
+                .WithTypeConverter(new TextureConverter())
                 .WithTypeConverter(new ValheimTimeConverter())
                 .IgnoreUnmatchedProperties() // future proofing
                 .Build();
@@ -23,6 +24,7 @@ namespace wackydatabase.Datas {
             _serializer = new SerializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .WithTypeConverter(new ColorConverter())
+                .WithTypeConverter(new TextureConverter())
                 .WithTypeConverter(new ValheimTimeConverter())
                 .Build();
 

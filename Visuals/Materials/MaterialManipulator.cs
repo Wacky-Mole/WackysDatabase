@@ -45,7 +45,7 @@ namespace wackydatabase
 
         public void ForceTextures(MaterialData data)
         {
-            foreach (KeyValuePair<string, string> entry in data.textures)
+            foreach (KeyValuePair<string, Texture2D> entry in data.textures)
             {
                 AddValue(new MaterialTextureEffect(entry.Key, TextureDataManager.GetTexture(entry.Key)));
             }
