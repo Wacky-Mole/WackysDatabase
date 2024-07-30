@@ -195,8 +195,8 @@ namespace wackydatabase.Datas
         public float? Launch_Angle;
         public int? Projectile_Burst;
         public float? Burst_Interval;
-        public bool? Destory_Previous_Projectile;
-        public bool? PerBurst_Resourse_usage;
+        public bool? Destroy_Previous_Projectile;
+        public bool? PerBurst_Resource_usage;
         public bool? Looping_Attack;
         public bool? Consume_Item;
 

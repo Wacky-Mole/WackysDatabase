@@ -2205,8 +2205,8 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_launchAngle = data.Primary_Attack.Launch_Angle ?? PrimaryItemData.m_shared.m_attack.m_launchAngle;
                         PrimaryItemData.m_shared.m_attack.m_projectileBursts = data.Primary_Attack.Projectile_Burst ?? PrimaryItemData.m_shared.m_attack.m_projectileBursts;
                         PrimaryItemData.m_shared.m_attack.m_burstInterval = data.Primary_Attack.Burst_Interval ?? PrimaryItemData.m_shared.m_attack.m_burstInterval;
-                        PrimaryItemData.m_shared.m_attack.m_destroyPreviousProjectile = data.Primary_Attack.Destory_Previous_Projectile ?? PrimaryItemData.m_shared.m_attack.m_destroyPreviousProjectile;
-                        PrimaryItemData.m_shared.m_attack.m_perBurstResourceUsage = data.Primary_Attack.PerBurst_Resourse_usage ?? PrimaryItemData.m_shared.m_attack.m_perBurstResourceUsage;
+                        PrimaryItemData.m_shared.m_attack.m_destroyPreviousProjectile = data.Primary_Attack.Destroy_Previous_Projectile ?? PrimaryItemData.m_shared.m_attack.m_destroyPreviousProjectile;
+                        PrimaryItemData.m_shared.m_attack.m_perBurstResourceUsage = data.Primary_Attack.Destroy_Previous_Projectile ?? PrimaryItemData.m_shared.m_attack.m_perBurstResourceUsage;
                         PrimaryItemData.m_shared.m_attack.m_loopingAttack = data.Primary_Attack.Looping_Attack ?? PrimaryItemData.m_shared.m_attack.m_loopingAttack;
                         PrimaryItemData.m_shared.m_attack.m_consumeItem = data.Primary_Attack.Consume_Item ?? PrimaryItemData.m_shared.m_attack.m_consumeItem;
 
@@ -2373,8 +2373,8 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_launchAngle = data.Secondary_Attack.Launch_Angle ?? PrimaryItemData.m_shared.m_secondaryAttack.m_launchAngle;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileBursts = data.Secondary_Attack.Projectile_Burst ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileBursts;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_burstInterval = data.Secondary_Attack.Burst_Interval ?? PrimaryItemData.m_shared.m_secondaryAttack.m_burstInterval;
-                        PrimaryItemData.m_shared.m_secondaryAttack.m_destroyPreviousProjectile = data.Secondary_Attack.Destory_Previous_Projectile ?? PrimaryItemData.m_shared.m_secondaryAttack.m_destroyPreviousProjectile;
-                        PrimaryItemData.m_shared.m_secondaryAttack.m_perBurstResourceUsage = data.Secondary_Attack.PerBurst_Resourse_usage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_perBurstResourceUsage;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_destroyPreviousProjectile = data.Secondary_Attack.Destroy_Previous_Projectile ?? PrimaryItemData.m_shared.m_secondaryAttack.m_destroyPreviousProjectile;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_perBurstResourceUsage = data.Secondary_Attack.PerBurst_Resource_usage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_perBurstResourceUsage;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_loopingAttack = data.Secondary_Attack.Looping_Attack ?? PrimaryItemData.m_shared.m_secondaryAttack.m_loopingAttack;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_consumeItem = data.Secondary_Attack.Consume_Item ?? PrimaryItemData.m_shared.m_secondaryAttack.m_consumeItem;
 

@@ -1072,8 +1072,8 @@ namespace wackydatabase.GetData
                     Launch_Angle = data.m_shared.m_attack.m_launchAngle,
                     Projectile_Burst = data.m_shared.m_attack.m_projectileBursts,
                     Burst_Interval = data.m_shared.m_attack.m_burstInterval,
-                    Destory_Previous_Projectile = data.m_shared.m_attack.m_destroyPreviousProjectile,
-                    PerBurst_Resourse_usage = data.m_shared.m_attack.m_perBurstResourceUsage,
+                    Destroy_Previous_Projectile = data.m_shared.m_attack.m_destroyPreviousProjectile,
+                    PerBurst_Resource_usage = data.m_shared.m_attack.m_perBurstResourceUsage,
                     Looping_Attack = data.m_shared.m_attack.m_loopingAttack,
                     Consume_Item = data.m_shared.m_attack.m_consumeItem,
 
@@ -1143,8 +1143,8 @@ namespace wackydatabase.GetData
                     Launch_Angle = data.m_shared.m_secondaryAttack.m_launchAngle,
                     Projectile_Burst = data.m_shared.m_secondaryAttack.m_projectileBursts,
                     Burst_Interval = data.m_shared.m_secondaryAttack.m_burstInterval,
-                    Destory_Previous_Projectile = data.m_shared.m_secondaryAttack.m_destroyPreviousProjectile,
-                    PerBurst_Resourse_usage = data.m_shared.m_secondaryAttack.m_perBurstResourceUsage,
+                    Destroy_Previous_Projectile = data.m_shared.m_secondaryAttack.m_destroyPreviousProjectile,
+                    PerBurst_Resource_usage = data.m_shared.m_secondaryAttack.m_perBurstResourceUsage,
                     Looping_Attack = data.m_shared.m_secondaryAttack.m_loopingAttack,
                     Consume_Item = data.m_shared.m_secondaryAttack.m_consumeItem,
 
