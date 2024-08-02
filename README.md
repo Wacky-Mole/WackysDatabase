@@ -488,6 +488,16 @@ if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels -
 - `Projectile_Vel` (float): The velocity of the projectile.
 - `Projectile_Accuraccy` (float): The accuracy of the projectile.
 - `Projectiles` (int): The number of projectiles.
+- `Skill_Accuracy` (bool): Skill increases Accuracy?
+- `Launch_Angle` (float):
+- `Projectile_Burst` (int):
+- `Burst_Interval` (float):
+- `Destroy_Previous_Projectile` (bool)
+- `PerBurst_Resource_usage` (bool)
+- `Looping_Attack` (bool)
+- `Consume_Item` (bool): Consume item on use. (Usually food)
+
+
 - `AEffects` (AEffects): The additional effects of the attack. OLD
 - `AEffectsPLUS` (AEffectsPLUS): The additional effects of the attack PLUS version- more.
 

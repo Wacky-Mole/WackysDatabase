@@ -1,6 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.4.23  | Updated PerBurst_Resource_usage and Destroy_Previous_Projectile for misspellings. 
+| 2.4.23  | Updated PerBurst_Resource_usage and Destroy_Previous_Projectile for misspellings. If you use these, please regenerate your yaml files or rename fields, otherwise can be ignored. </br> Bug fixes for pickables with other plant mods.
 | 2.4.22  | Bug fixes for materials. </br> AlanDrake added filterMode to textures for advanced texturing. 
 | 2.4.21  | Incoming Big Update sponsored by Lughbaloo: Pickables and Plants! </br> PlantData is saved in pieces, which point to either Pickable or Treebase when matured. When you pick a pickable it becomes an item. You can of course clone and change size/material. Enjoy this wacky expansion.|
 | 2.4.13  | Bug fix for attack_status_effect|

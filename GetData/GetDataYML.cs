@@ -14,6 +14,7 @@ using static Skills;
 using System.IO;
 using YamlDotNet.Serialization;
 using System.IO.Ports;
+using System.Configuration;
 
 namespace wackydatabase.GetData
 {
@@ -1266,27 +1267,30 @@ namespace wackydatabase.GetData
             
             PickableData picData = new PickableData();
 
-            foreach (var obj in array)
+            try
             {
-                if (obj.name == (name))
+                foreach (var obj in array)
                 {
-                    picData.name = obj.name;
-                    picData.itemPrefab = obj.m_itemPrefab.name;
-                    picData.amount = obj.m_amount;
-                   // picData.minAmountScaled = obj.m_minAmountScaled;
-                    picData.overrideName = obj.m_overrideName;
-                    picData.respawnTimer = obj.m_respawnTimeMinutes;
-                    picData.spawnOffset = obj.m_spawnOffset;
-                    if (obj.m_hideWhenPicked)
-                        picData.hiddenChildWhenPicked = obj.m_hideWhenPicked.name;
-                    //picData.enable = obj.enabled;
-                    if (obj.TryGetComponent<Destructible>(out var yolo))
-                        picData.ifHasHealth = yolo.m_health;
- 
+                    if (obj.name == (name))
+                    {
+                        picData.name = obj.name;
+                        picData.itemPrefab = obj.m_itemPrefab.name;
+                        picData.amount = obj.m_amount;
+                        // picData.minAmountScaled = obj.m_minAmountScaled;
+                        picData.overrideName = obj.m_overrideName;
+                        picData.respawnTimer = obj.m_respawnTimeMinutes;
+                        picData.spawnOffset = obj.m_spawnOffset;
+                        if (obj.m_hideWhenPicked)
+                            picData.hiddenChildWhenPicked = obj.m_hideWhenPicked.name;
+                        //picData.enable = obj.enabled;
+                        if (obj.TryGetComponent<Destructible>(out var yolo))
+                            picData.ifHasHealth = yolo.m_health;
 
-                    return picData;
+
+                        return picData;
+                    }
                 }
-            }
+            } catch { WMRecipeCust.WLog.LogWarning("An Error happened with " + picData.name); }
             return null;
         }
         internal TreeBaseData GetTreeBase(string name, TreeBase[] array)
@@ -1314,41 +1318,48 @@ namespace wackydatabase.GetData
                                         .Build();
 
             Pickable[] array = Resources.FindObjectsOfTypeAll<Pickable>();
-            foreach (var obj in array)
+            try
             {
-                if (obj.name.Contains("Clone"))
-                    continue;
-                PickableData picData = new PickableData();
-                picData.name = obj.name;
-                picData.itemPrefab = obj.m_itemPrefab.name;
-                picData.amount = obj.m_amount;
-                //picData.minAmountScaled = obj.m_minAmountScaled;
-                picData.overrideName = obj.m_overrideName;
-                picData.respawnTimer = obj.m_respawnTimeMinutes;
-                picData.spawnOffset = obj.m_spawnOffset;
-                if(obj.m_hideWhenPicked)
-                    picData.hiddenChildWhenPicked = obj.m_hideWhenPicked.name;
-                // picData.enable = obj.enabled;
-                if (obj.TryGetComponent<Destructible>(out var yolo))
-                    picData.ifHasHealth = yolo.m_health;
+                foreach (var obj in array)
+                {
+                    if (obj.name.Contains("Clone"))
+                        continue;
+                    PickableData picData = new PickableData();
+                    picData.name = obj?.name;
+                    WMRecipeCust.WLog.LogInfo("Saving " + obj?.name);
+                    picData.itemPrefab = obj?.m_itemPrefab?.name;
+                    picData.amount = obj?.m_amount;
+                    //picData.minAmountScaled = obj.m_minAmountScaled;
+                    picData.overrideName = obj?.m_overrideName;
+                    picData.respawnTimer = obj?.m_respawnTimeMinutes;
+                    picData.spawnOffset = obj?.m_spawnOffset;
+                    if (obj?.m_hideWhenPicked)
+                        picData.hiddenChildWhenPicked = obj?.m_hideWhenPicked?.name;
+                    // picData.enable = obj.enabled;
+                    if (obj.TryGetComponent<Destructible>(out var yolo))
+                        picData.ifHasHealth = yolo?.m_health;
 
+                    
+                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Pickable_" + picData.name + ".yml"), serializer.Serialize(picData));
+                }
 
-                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Pickable_" + picData.name + ".yml"), serializer.Serialize(picData));
+                TreeBase[] array2 = Resources.FindObjectsOfTypeAll<TreeBase>();
+                foreach (var obj2 in array2)
+                {
+                    if (obj2.name.Contains("Clone"))
+                        continue;
+
+                    TreeBaseData picData = new TreeBaseData();
+                    WMRecipeCust.WLog.LogInfo("Saving " + obj2.name);
+                    picData.name = obj2.name;
+                    picData.treeHealth = obj2.m_health;
+                    picData.minToolTier = obj2.m_minToolTier;
+
+                    
+                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Treebase_" + picData.name + ".yml"), serializer.Serialize(picData));
+                }
             }
-
-            TreeBase[] array2 = Resources.FindObjectsOfTypeAll<TreeBase>();
-            foreach (var obj2 in array2)
-            {
-                if (obj2.name.Contains("Clone"))
-                    continue;
-
-                TreeBaseData picData = new TreeBaseData();
-                picData.name = obj2.name;
-                picData.treeHealth = obj2.m_health;
-                picData.minToolTier = obj2.m_minToolTier;
-
-                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Treebase_" + picData.name + ".yml"), serializer.Serialize(picData));
-            }
+            catch (Exception e) { WMRecipeCust.WLog.LogWarning("An Error happened with Getallpickables " + e); }
 
             return true;
         }
