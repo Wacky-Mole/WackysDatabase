@@ -2127,19 +2127,27 @@ namespace wackydatabase.SetData
                             {
                                 PrimaryItemData.m_shared.m_attack.m_spawnOnHit = null;
                             }
-                            GameObject found = null;
-                            foreach (var ob in AllObjects)
+                            else
                             {
-                                if (ob.name == data.Primary_Attack.SpawnOnHit)
+                                WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit m_attack added ");
+                                GameObject found = null;
+                                try
                                 {
-                                    if (found == null)
-                                        found = ob;
-                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                        found = ob;
-                                    else { }
+                                    foreach (var ob in AllObjects)
+                                    {
+                                        if (ob.name == data.Primary_Attack.SpawnOnHit)
+                                        {
+                                            if (found == null)
+                                                found = ob;
+                                            else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                                found = ob;
+                                            else { }
+                                        }
+                                    }
                                 }
+                                catch (Exception ex) { WMRecipeCust.WLog.LogInfo("Error catch " + ex); }
+                                    PrimaryItemData.m_shared.m_attack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHit;
                             }
-                            PrimaryItemData.m_shared.m_attack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHit;
                         }
 
                         PrimaryItemData.m_shared.m_attack.m_spawnOnHitChance = data.Primary_Attack.SpawnOnHit_Chance ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHitChance;
@@ -2323,19 +2331,27 @@ namespace wackydatabase.SetData
                             {
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit = null;
                             }
-                            GameObject found = null;
-                            foreach (var ob in AllObjects)
+                            else
                             {
-                                if (ob.name == data.Secondary_Attack.SpawnOnHit)
+                                WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit m_secondaryAttack added ");
+                                GameObject found = null;
+                                try
                                 {
-                                    if (found == null)
-                                        found = ob;
-                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                        found = ob;
-                                    else { }
+                                    foreach (var ob in AllObjects)
+                                    {
+                                        if (ob.name == data.Secondary_Attack.SpawnOnHit)
+                                        {
+                                            if (found == null)
+                                                found = ob;
+                                            else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                                found = ob;
+                                            else { }
+                                        }
+                                    }
                                 }
+                                catch (Exception ex) { WMRecipeCust.WLog.LogInfo("Error catch " + ex); }
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit;
                             }
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit;
                         }
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHitChance = data.Secondary_Attack.SpawnOnHit_Chance ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHitChance;
@@ -2532,19 +2548,23 @@ namespace wackydatabase.SetData
                         else
                         {
 
-                            WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit added ");
+                            WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit Main added ");
                             GameObject found = null;
-                            foreach (var ob in AllObjects)
+                            try
                             {
-                                if (ob.name == data.spawn_on_hit)
+                                foreach (var ob in AllObjects)
                                 {
-                                    if (found == null)
-                                        found = ob;
-                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                        found = ob;
-                                    else { }
+                                    if (ob.name == data.spawn_on_hit)
+                                    {
+                                        if (found == null)
+                                            found = ob;
+                                        else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
+                                            found = ob;
+                                        else { }
+                                    }
                                 }
                             }
+                            catch (Exception ex) { WMRecipeCust.WLog.LogInfo("Error catch " + ex); }
                             PrimaryItemData.m_shared.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_spawnOnHit;
                         }
                     }
