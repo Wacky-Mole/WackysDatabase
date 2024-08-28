@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.25  | 
 | 2.4.24  | PerBurst_Resource_usage bug fix.
 | 2.4.23  | Updated PerBurst_Resource_usage and Destroy_Previous_Projectile for misspellings. If you use these, please regenerate your yaml files or rename fields, otherwise can be ignored. </br> Bug fixes for pickables with other plant mods.
 | 2.4.22  | Bug fixes for materials. </br> AlanDrake added filterMode to textures for advanced texturing. 

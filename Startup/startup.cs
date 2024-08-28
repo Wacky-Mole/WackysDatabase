@@ -135,14 +135,7 @@ namespace wackydatabase.Startup
 
                     if (!ZNet.instance.IsServer() && WMRecipeCust.HasLobbied    ) // is client now
                     {
-                        WMRecipeCust.ForceLogout = true;
-                        // Has Lobbied in Past and could try to use this to get around lockout. 
-                        // issettoSinglePlayer = true;
-                        if (WMRecipeCust.extraSecurity.Value)
-                        {
-                            WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                            WMRecipeCust.WLog.LogWarning("You hosted a COOP game before trying to connect to a server - LOCKOUT - 0.0.1 - Restart Game " + WMRecipeCust.ConfigSync.CurrentVersion);
-                        }
+                            WMRecipeCust.ForceLogout = true;                       
                     }
                 }
             }
@@ -197,7 +190,7 @@ namespace wackydatabase.Startup
                                 nameof(gamepassServer))));
 
                     }
-                    else if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
+                     if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
                     {
                         WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.RegisterServer)),
                             postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
@@ -253,17 +246,27 @@ namespace wackydatabase.Startup
             }
         }
 
+        public static bool CheckSecurity()
+        {
+            ZNet Net = new ZNet();
+            if (WMRecipeCust.extraSecurity.Value && WMRecipeCust.ForceLogout  )
+            { 
+                WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+                WMRecipeCust.WLog.LogWarning("You Will be kicked from Multiplayer Servers! " + WMRecipeCust.ConfigSync.CurrentVersion);
+                ServerSync.VersionCheck.Logout();
+                return false;
+            }
+
+            return true;
+        }
+
         public static bool IsLocalInstance(ZNet znet)
         {
             if (znet.IsServer() && !znet.IsDedicated() && !WMRecipeCust.LobbyRegistered)
             {
                 WMRecipeCust.issettoSinglePlayer = true;
                 WMRecipeCust.ForceLogout = true;
-                if (WMRecipeCust.extraSecurity.Value)
-                {
-                    WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                    WMRecipeCust.WLog.LogWarning("You Will be kicked from Multiplayer Servers! " + WMRecipeCust.ConfigSync.CurrentVersion);
-                }
+                
             }
 
             if (WMRecipeCust.LobbyRegistered)
@@ -273,7 +276,6 @@ namespace wackydatabase.Startup
 
 
             }
-
 
             return WMRecipeCust.issettoSinglePlayer;
         }
@@ -290,6 +292,8 @@ namespace wackydatabase.Startup
 
                     if (!ZNet.instance.IsServer())
                     {
+                        if (!CheckSecurity()) return;
+
                         WMRecipeCust.Dbgl($" Now loading SERVER Files");
                         WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
                         WMRecipeCust.FirstSS = false; // reset in a destory patch

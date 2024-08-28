@@ -1261,7 +1261,7 @@ public class VersionCheck
         return versionChecks.Where(check => check.ModRequired && !check.ValidatedClients.Contains(rpc)).ToArray();
     }
 
-    private static void Logout()
+    public static void Logout()
     {
         Game.instance.Logout();
         AccessTools.DeclaredField(typeof(ZNet), "m_connectionStatus").SetValue(null, ZNet.ConnectionStatus.ErrorVersion);
