@@ -176,25 +176,27 @@ namespace wackydatabase.SetData
             if (znet) {
 
                 WMRecipeCust.WLog.LogInfo($"Setting Cloned ZDO Data");
-                foreach (var item in WMRecipeCust.MasterCloneList)
+                try
                 {
-                    string name = item.Key;
-                    int hash = name.GetStableHashCode();
-                    if (znet.m_namedPrefabs.ContainsKey(hash))
-                        WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
-                    else
+                    foreach (var item in WMRecipeCust.MasterCloneList)
                     {
-                        if (item.Value.GetComponent<ZNetView>() != null)
-                            znet.m_prefabs.Add(item.Value);
+                        string name = item.Key;
+                        int hash = name.GetStableHashCode();
+                        if (znet.m_namedPrefabs.ContainsKey(hash))
+                            WMRecipeCust.WLog.LogWarning($"Prefab {name} already in ZNetScene");
                         else
-                            znet.m_nonNetViewPrefabs.Add(item.Value);
+                        {
+                            if (item.Value.GetComponent<ZNetView>() != null)
+                                znet.m_prefabs.Add(item.Value);
+                            else
+                                znet.m_nonNetViewPrefabs.Add(item.Value);
 
-                        znet.m_namedPrefabs.Add(hash, item.Value);
-                        WMRecipeCust.WLog.LogDebug($"Added prefab {name}");
+                            znet.m_namedPrefabs.Add(hash, item.Value);
+                            WMRecipeCust.WLog.LogDebug($"Added prefab {name}");
+                        }
+                        znet.m_namedPrefabs[hash].gameObject.SetActive(false);  
                     }
-                    znet.m_namedPrefabs[hash].gameObject.SetActive(false);
-                    
-                }         
+                } catch { WMRecipeCust.WLog.LogError("Cloned ZDO failed badly "); WMRecipeCust.MasterCloneList.Clear();  }
             }
         }
 
@@ -355,7 +357,7 @@ namespace wackydatabase.SetData
             }
         }
 
-        internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
+        internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false, bool forcepush= false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
         {
 
             if (reload)
@@ -379,7 +381,7 @@ namespace wackydatabase.SetData
                     WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
                 }else if (WMRecipeCust.LobbyRegistered) // COOP
                 {
-                    WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+                   // WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; // doesn't fire because lobbyReg happens after reload
                 }
             }           
 
@@ -402,6 +404,12 @@ namespace wackydatabase.SetData
             }
             else
                 WMRecipeCust.WLog.LogInfo($"Beginning Update");
+
+
+            if (forcepush)
+            {
+                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+            }
 
             int processcount = 0;
             // effects first
@@ -655,6 +663,7 @@ namespace wackydatabase.SetData
 
             if (!WMRecipeCust.dedLoad) 
              removeLocalData();
+
 
             UPdateItemHashesWacky(ObjectDB.instance);
 

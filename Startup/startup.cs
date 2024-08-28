@@ -173,6 +173,7 @@ namespace wackydatabase.Startup
         {
             static void Postfix(FejdStartup __instance)
             {
+
                 if (!WMRecipeCust.IsDedServer) // everyone except ded
                 {
                     WMRecipeCust.WLog.LogInfo("extra YML read");
@@ -181,20 +182,27 @@ namespace wackydatabase.Startup
 
                 try
                 {
-
+                    
                     if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
                     {
+                        //gamepassServer();
+                        WMRecipeCust.WLog.LogInfo("Zplay Lobby");
 
                         WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.CreateLobby)),
                             postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
-                                nameof(gamepassServer))));
+                                nameof(gamepassServer)))); 
 
                     }
-                     if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
+                     else if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
                     {
+                        WMRecipeCust.WLog.LogInfo("Steam Lobby ");
+
                         WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.RegisterServer)),
                             postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
                                 nameof(steamServer))));
+                        
+                        //steamServer(); 
+                    
                     }
                 } catch { WMRecipeCust.WLog.LogWarning("Steam or Gamepass wasn't found"); }
 
@@ -204,12 +212,14 @@ namespace wackydatabase.Startup
             {
                 WMRecipeCust.WLog.LogWarning("Steam Lobby is active");
                 WMRecipeCust.LobbyRegistered = true;
+                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
             }
 
             private static void gamepassServer()
             {
                 WMRecipeCust.WLog.LogWarning("Zplay Lobby is active");
                 WMRecipeCust.LobbyRegistered = true;
+                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
             }
 
         }
@@ -252,8 +262,12 @@ namespace wackydatabase.Startup
             if (WMRecipeCust.extraSecurity.Value && WMRecipeCust.ForceLogout  )
             { 
                 WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
-                WMRecipeCust.WLog.LogWarning("You Will be kicked from Multiplayer Servers! " + WMRecipeCust.ConfigSync.CurrentVersion);
-                ServerSync.VersionCheck.Logout();
+                WMRecipeCust.WLog.LogError("You ARE kicked from Multiplayer Servers! " +" 0.0.1");
+                WMRecipeCust.ConnectionError =$"{WMRecipeCust.ModName} You started a Local Game before Multiplayer. That is Not allowed. -Restart Game";
+                WMRecipeCust.WLog.LogError(WMRecipeCust.ConnectionError);
+                //ServerSync.VersionCheck.Logout();
+                Game.instance.Logout();
+                AccessTools.DeclaredField(typeof(ZNet), "m_connectionStatus").SetValue(null, ZNet.ConnectionStatus.ErrorVersion);
                 return false;
             }
 
@@ -273,7 +287,6 @@ namespace wackydatabase.Startup
             {
                 WMRecipeCust.ConfigSync.CurrentVersion = WMRecipeCust.ModVersion; // Just in case goes from singleplayer to hosting. 
                 WMRecipeCust.HasLobbied = true;
-
 
             }
 

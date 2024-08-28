@@ -1413,6 +1413,11 @@ public class VersionCheck
                 failedCheck = true;
             }
         }
+        if (WMRecipeCust.ConnectionError != "")
+        {
+            __instance.m_connectionFailedError.text += $"\n {WMRecipeCust.ConnectionError} 0.0.1";
+            failedCheck = true;
+        }
 
         if (failedCheck)
         {

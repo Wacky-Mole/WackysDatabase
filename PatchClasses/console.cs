@@ -210,12 +210,18 @@ namespace wackydatabase.PatchClasses
                                  WMRecipeCust.CurrentReload = josh;
 
                                  WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true));
+                                 if (WMRecipeCust.HasLobbied)
+                                 {
+                                     WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true, true));
+                                     wackydatabase.WMRecipeCust.Dbgl("Admin: Forcing Push after reload");
+                                     args.Context?.AddString($"Admin: Forcing Push after reload");
+                                 }
+                                 else
+                                 {
+                                     WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true));
+                                 }
 
-                                 //josh.LoadAllRecipeData(true); // console singleplayer reload
 
-
-                                 //args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
-                                 //wackydatabase.WMRecipeCust.Dbgl("WackyDatabase reloaded recipes/items/pieces from files");
                              }
                              else if(WMRecipeCust.Admin)
                              {
