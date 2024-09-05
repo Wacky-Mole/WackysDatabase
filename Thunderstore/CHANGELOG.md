@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.26  | Fix for rare unarmed attack causing error and no dmg.
 | 2.4.25  | Coop sync fix</br> Rewrote how 'ExtraSecurity on Servers' works. Should sync from Servers to clients better now.  </br> Send logs for any issues
 | 2.4.24  | PerBurst_Resource_usage bug fix.
 | 2.4.23  | Updated PerBurst_Resource_usage and Destroy_Previous_Projectile for misspellings. If you use these, please regenerate your yaml files or rename fields, otherwise can be ignored. </br> Bug fixes for pickables with other plant mods.

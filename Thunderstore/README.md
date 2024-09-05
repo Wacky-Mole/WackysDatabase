@@ -1015,6 +1015,7 @@ Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 ## Recipes
 
 Most recipes are saved with itemname in name for recipe. For actual recipes they will have Recipe_ in the name like Recipe_Bronze or Recipe_Bronze5.
+<br/>You should try to avoid actual recipes when possible.
 <br/></br>Actual recipes can be found in bulk save now and with JVL docs.  https://valheim-modding.github.io/Jotunn/data/objects/recipe-list.html They have no for clonePrefabName: NO . Actual Recipes can NOT be cloned.
 
 - `name` (string, required): The name of the recipe.
