@@ -240,6 +240,8 @@ To use the console commands, press F5 in the game to open the game console. Make
 <details><summary>Video Tutorials</summary>
 <h4> Thank Majestic for these basic Video Tutorials!</h4>
 
+<video src="https://wackymole.com/hosts/WDB_Save_Item.mp4" width="600" />
+
 </br><h2>Save Items </h2>
 <video width="600"  controls>
   <source src="https://wackymole.com/hosts/WDB_Save_Item.mp4" type="video/mp4">
