@@ -284,7 +284,7 @@ Setting the Class: AEffects and GEffects. This YML   Spawn_On_Trigger: Boar spaw
 
 <a href="https://wackymole.com/hosts/Item_SwordIron.yml" download> SwordIron YML</a>
 
-<a href="https://wackymole.com/hosts/fastattack.mov"><h2> Fast Attack</h2></a>
+<h2><a href="https://wackymole.com/hosts/fastattack.mov"> Fast Attack</a></h2>
 
 
 Custom_AttackSpeed: 5 . 500% faster goes brrr 
