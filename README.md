@@ -239,6 +239,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 <details><summary>Video Tutorials</summary>
 <h4> Thank Majestic for these basic Video Tutorials!</h4>
+<h5> VNEI mod is a great tool.  https://thunderstore.io/c/valheim/p/MSchmoecker/VNEI/ </h5>
 
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Save_Item.mp4" >Save Items </a></h2>
