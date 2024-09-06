@@ -241,25 +241,25 @@ To use the console commands, press F5 in the game to open the game console. Make
 <h4> Thank Majestic for these basic Video Tutorials!</h4>
 
 
-</br><a href="https://wackymole.com/hosts/WDB_Save_Item.mp4" ><h2>Save Items </h2></a>
+</br><h2><a href="https://wackymole.com/hosts/WDB_Save_Item.mp4" >Save Items </a></h2>
 <video width="600"  controls>
   <source src="https://wackymole.com/hosts/WDB_Save_Item.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
-</br><a href="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" ><h2>Save Recipes </h2></a>
+</br><h2><a href="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" >Save Recipes </a></h2>
 <video width="600"  controls>
   <source src="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
-</br><a href="https://wackymole.com/hosts/WDB_Clone_Item.mp4" ><h2>Clone Items </h2></a>
+</br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Item.mp4" >Clone Items </a></h2>
 <video width="600"  controls>
   <source src="https://wackymole.com/hosts/WDB_Clone_Item.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
-</br><a href="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" ><h2>Clone Recipes </h2></a>
+</br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" >Clone Recipes </a></h2>
 <video width="600"  controls>
   <source src="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" type="video/mp4">
   Your browser does not support the video tag.
