@@ -235,8 +235,38 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 </details>
 
-<details><summary>Get Wacky </summary>
 
+
+<details><summary>Video Tutorials</summary>
+<h4> Thank Majestic for these basic Video Tutorials!</h4>
+
+</br><h2>Save Items </h2>
+<video width="600"  controls>
+  <source src="https://wackymole.com/hosts/WDB_Save_Item.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+</br><h2>Save Recipes </h2>
+<video width="600"  controls>
+  <source src="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+</br><h2>Clone Items </h2>
+<video width="600"  controls>
+  <source src="https://wackymole.com/hosts/WDB_Clone_Item.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+</br><h2>Clone Recipes </h2>
+<video width="600"  controls>
+  <source src="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+</details>
+
+<details><summary>Get Wacky </summary>
 
 ![LongSwordBlueRed](https://wackymole.com/hosts/LongSwordBlueRed.png)
 
@@ -252,8 +282,13 @@ Setting the Class: AEffects and GEffects. This YML   Spawn_On_Trigger: Boar spaw
 
 <a href="https://wackymole.com/hosts/Item_SwordIron.yml" download> SwordIron YML</a>
 
-
-<a href="https://wackymole.com/hosts/fastattack.mov"> Fast attack </a>
+<h2> Fast Attack</h2>
+<video width="600"  controls>
+  <source src="https://wackymole.com/hosts/fastattack.mov" type="video/mov">
+  Your browser does not support the video tag.
+</video>
+</br>
+<a href="https://wackymole.com/hosts/fastattack.mov"> Or Use this Link </a>
 
 Custom_AttackSpeed: 5 . 500% faster goes brrr 
 
