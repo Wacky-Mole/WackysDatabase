@@ -2061,6 +2061,16 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_attackHealth = data.Primary_Attack.AttackHealthCost ?? PrimaryItemData.m_shared.m_attack.m_attackHealth;
                         PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.Primary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage;
 
+
+                        PrimaryItemData.m_shared.m_attack.m_attackStartNoise = data.Primary_Attack.Attack_Start_Noise ?? PrimaryItemData.m_shared.m_attack.m_attackStartNoise;
+                        PrimaryItemData.m_shared.m_attack.m_attackHitNoise = data.Primary_Attack.Attack_Hit_Noise ?? PrimaryItemData.m_shared.m_attack.m_attackHitNoise;
+                        PrimaryItemData.m_shared.m_attack.m_damageMultiplierPerMissingHP = data.Primary_Attack.Dmg_Multiplier_Per_Missing_Health ?? PrimaryItemData.m_shared.m_attack.m_damageMultiplierPerMissingHP;
+                        PrimaryItemData.m_shared.m_attack.m_damageMultiplierByTotalHealthMissing = data.Primary_Attack.Dmg_Multiplier_Per_Total_Health ?? PrimaryItemData.m_shared.m_attack.m_damageMultiplierByTotalHealthMissing;
+                        PrimaryItemData.m_shared.m_attack.m_staminaReturnPerMissingHP = data.Primary_Attack.Stamina_Return_Per_Missing_HP ?? PrimaryItemData.m_shared.m_attack.m_staminaReturnPerMissingHP;
+                        PrimaryItemData.m_shared.m_attack.m_selfDamage = data.Primary_Attack.SelfDamage ?? PrimaryItemData.m_shared.m_attack.m_selfDamage;
+                        PrimaryItemData.m_shared.m_attack.m_attackKillsSelf = data.Primary_Attack.Attack_Kills_Self ?? PrimaryItemData.m_shared.m_attack.m_attackKillsSelf;
+
+
                         PrimaryItemData.m_shared.m_attack.m_speedFactor = data.Primary_Attack.SpeedFactor ?? PrimaryItemData.m_shared.m_attack.m_speedFactor;
                         PrimaryItemData.m_shared.m_attack.m_damageMultiplier = data.Primary_Attack.DmgMultiplier ?? PrimaryItemData.m_shared.m_attack.m_damageMultiplier;
                         PrimaryItemData.m_shared.m_attack.m_forceMultiplier = data.Primary_Attack.ForceMultiplier ?? PrimaryItemData.m_shared.m_attack.m_forceMultiplier;
@@ -2263,6 +2273,14 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.Secondary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealth = data.Secondary_Attack.AttackHealthCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealth;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage = data.Secondary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage;
+
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackStartNoise = data.Secondary_Attack.Attack_Start_Noise ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackStartNoise;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackHitNoise = data.Secondary_Attack.Attack_Hit_Noise ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHitNoise;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplierPerMissingHP = data.Secondary_Attack.Dmg_Multiplier_Per_Missing_Health ?? PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplierPerMissingHP;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplierByTotalHealthMissing = data.Secondary_Attack.Dmg_Multiplier_Per_Total_Health ?? PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplierByTotalHealthMissing;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_staminaReturnPerMissingHP = data.Secondary_Attack.Stamina_Return_Per_Missing_HP ?? PrimaryItemData.m_shared.m_secondaryAttack.m_staminaReturnPerMissingHP;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_selfDamage = data.Secondary_Attack.SelfDamage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_selfDamage;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackKillsSelf = data.Secondary_Attack.Attack_Kills_Self ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackKillsSelf;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_speedFactor = data.Secondary_Attack.SpeedFactor ?? PrimaryItemData.m_shared.m_secondaryAttack.m_speedFactor;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplier = data.Secondary_Attack.DmgMultiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_damageMultiplier;

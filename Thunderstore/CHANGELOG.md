@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.27  | Fix for Primary/Secondary Status Effect. </br> Added `Attack_Start_Noise`(float),       `Attack_Hit_Noise`(float),        `Dmg_Multiplier_Per_Missing_Health`(float),        `Dmg_Multiplier_Per_Total_Health`(float), `Stamina_Return_Per_Missing_HP`(float),     `SelfDamage`(int), `Attack_Kills_Self`(bool)
 | 2.4.26  | Fix for rare unarmed attack causing error and no dmg.
 | 2.4.25  | Coop sync fix</br> Rewrote how 'ExtraSecurity on Servers' works. Should sync from Servers to clients better now.  </br> Send logs for any issues
 | 2.4.24  | PerBurst_Resource_usage bug fix.

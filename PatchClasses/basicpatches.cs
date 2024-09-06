@@ -104,7 +104,7 @@ namespace wackydatabase.PatchClasses
             {
                if ( __instance.m_character.m_rightItem == null && __instance.m_character.m_leftItem == null)
                     return;
-                if ((bool)__instance.m_character.m_unarmedWeapon)
+                if (__instance.m_weapon?.m_dropPrefab?.name == null)
                     return;
 
 

@@ -1023,6 +1023,14 @@ namespace wackydatabase.GetData
                     AttackHealthCost = data.m_shared.m_attack.m_attackHealth,
                     m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
 
+                    Attack_Start_Noise = data.m_shared.m_attack.m_attackStartNoise,
+                    Attack_Hit_Noise = data.m_shared.m_attack.m_attackHitNoise,
+                    Dmg_Multiplier_Per_Missing_Health = data.m_shared.m_attack.m_damageMultiplierPerMissingHP,
+                    Dmg_Multiplier_Per_Total_Health = data.m_shared.m_attack.m_damageMultiplierByTotalHealthMissing,
+                    Stamina_Return_Per_Missing_HP = data.m_shared.m_attack.m_staminaReturnPerMissingHP,
+                    SelfDamage = data.m_shared.m_attack.m_selfDamage,
+                    Attack_Kills_Self = data.m_shared.m_attack.m_attackKillsSelf,
+
                     SpeedFactor = data.m_shared.m_attack.m_speedFactor,
                     DmgMultiplier = data.m_shared.m_attack.m_damageMultiplier,
                     ForceMultiplier = data.m_shared.m_attack.m_forceMultiplier,
@@ -1095,6 +1103,14 @@ namespace wackydatabase.GetData
                     m_eitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
                     AttackHealthCost = data.m_shared.m_secondaryAttack.m_attackHealth,
                     m_attackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
+
+                    Attack_Start_Noise = data.m_shared.m_secondaryAttack.m_attackStartNoise,
+                    Attack_Hit_Noise = data.m_shared.m_secondaryAttack.m_attackHitNoise,
+                    Dmg_Multiplier_Per_Missing_Health = data.m_shared.m_secondaryAttack.m_damageMultiplierPerMissingHP,
+                    Dmg_Multiplier_Per_Total_Health = data.m_shared.m_secondaryAttack.m_damageMultiplierByTotalHealthMissing,
+                    Stamina_Return_Per_Missing_HP = data.m_shared.m_secondaryAttack.m_staminaReturnPerMissingHP,
+                    SelfDamage = data.m_shared.m_secondaryAttack.m_selfDamage,
+                    Attack_Kills_Self = data.m_shared.m_secondaryAttack.m_attackKillsSelf,
 
                     SpeedFactor = data.m_shared.m_secondaryAttack.m_speedFactor,
                     DmgMultiplier = data.m_shared.m_secondaryAttack.m_damageMultiplier,
