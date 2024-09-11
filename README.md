@@ -162,7 +162,7 @@ Frequently Asked Questions
 
     Q: What is 0.0.1 Error message when I try to connect? I keep getting this one COOP.
         A: 0.0.1 is a security feature that prevents people loading into a singleplayer world and then immediately connecting to a multiplayer world. It does seem to have some problems in COOP.
-            Just disable it on client and server if you are having problems. ExtraSecurity = false
+            Just disable it on the server if you are having problems. ExtraSecurity = false
 
     Q: Can I clone or adjust Projectiles?
         A: No, wackydb doesn't do projectiles, it may someday.
@@ -243,28 +243,16 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Save_Item.mp4" >Save Items </a></h2>
-<video width="600"  controls>
-  <source src="https://wackymole.com/hosts/WDB_Save_Item.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" >Save Recipes </a></h2>
-<video width="600"  controls>
-  <source src="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Item.mp4" >Clone Items </a></h2>
-<video width="600"  controls>
-  <source src="https://wackymole.com/hosts/WDB_Clone_Item.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" >Clone Recipes </a></h2>
-<video width="600"  controls>
-  <source src="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
 
 </br>
 </details>
@@ -440,16 +428,20 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 
 
-- `materials` (string): "It's basically the same as material but it applies the materials specified for the entire renderer"
+- `materials` (string): "It's basically the same as material but it applies the materials specified for the entire renderer" 
+
+ </br>
+ Changing material or CustomVisual automatically calls snapshot to generate a new Icon or give it a customIcon
+
+![SnapShot](https://wackymole.com/hosts/snapshotGoes.png)
+
 - `customVisual` (CustomVisual): The custom visual data of the item.
 - `snapshotRotation` ((string) (x,y,z)int,int,int) - Default null - Changes  the angle of snapshot cam. 0-360 degrees. Can do 33,44,55 for example. </br> Very annoying to perfect, but it's an option now for the masochists. 
 -  `snapshotOnMaterialChange` (bool) - Default true - Makes a snapshot on item material change
 - `sizeMultiplier` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
 
-![LongSwordBlueRed](https://wackymole.com/hosts/snapshotGoes.png)
 
-Changing material or CustomVisual automatically calls snapshot to generate a new Icon or give it a customIcon
 ### CustomVisual
 
 - `base_mat` (string): The base material of the custom visual.
@@ -459,7 +451,8 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 
 
 `Primary_Attack` (AttackArm): The primary attack data.
-### Primary Attack
+`Secondary_Attack` (AttackArm): The secondary(middle mouse) attack data.
+### Primary/Secondary_Attack AttackArm
 
 - `AttackType` (Attack.AttackType): The type of attack.
 - `Attack_Animation` (string): The animation for the attack.
@@ -471,13 +464,28 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `m_eitrCost` (float): The eitr cost of the attack.
 - `AttackHealthCost` (float): The health cost of the attack.
 - `m_attackHealthPercentage` (float): The health cost percentage of the attack.
+
+
+- `Attack_Start_Noise` (float): The noise of swinging a weapon.
+- `Attack_Hit_Noise` (float): How much noise a attack hit makes.
+- `Dmg_Multiplier_Per_Missing_Health` (float): A dmg multiplier by health remaining. <code> hitData.m_damage.Modify(1f + (m_character.GetMaxHealth() - m_character.GetHealth()) * m_damageMultiplierPerMissingHP)</code>
+- `Damage_Multiplier_By_Health_Deficit_Percent` (float): A dmg multiplier by health remaining (percentage wise). <code>hitData.m_damage.Modify(1f + (1f - m_character.GetHealthPercentage()) * m_damageMultiplierByTotalHealthMissing);</code>
+- `Stamina_Return_Per_Missing_HP` (float): This reduces the stamina used for an attack based on how much health this missing. <code>staminaUse -= (m_character.GetMaxHealth() - m_character.GetHealth()) * m_staminaReturnPerMissingHP; </code>
+- `SelfDamage` (int): Damage the player recieves on an attack.
+- `Attack_Kills_Self` (bool):  This attack kills player. (lol)
+
+</br>
+
 - `SpeedFactor` (float): The speed up of a character's movements when they are actively attacking.
 - `DmgMultiplier` (float): The damage multiplier of the attack.
 - `ForceMultiplier` (float): The force multiplier of the attack.
 - `StaggerMultiplier` (float): The stagger multiplier of the attack.
 - `RecoilMultiplier` (float): The recoil multiplier of the attack.
+
+
 - `AttackRange` (float): The range of the attack.
 - `AttackHeight` (float): The height of the attack.
+
 - `Spawn_On_Trigger` (string): The spawn-on-trigger effect of the attack.
 - `Requires_Reload` (bool): Indicates whether the attack requires reloading.
 - `Reload_Animation` (string): The animation for reloading.
@@ -485,20 +493,29 @@ Changing material or CustomVisual automatically calls snapshot to generate a new
 - `ReloadTimeMultiplier` (float): "Multiplier for reload speed of crossbows. Does not affect Vanilla scaling with skill level. Values 0.1 to 2.0. Default 1.0
 - `Reload_Stamina_Drain` (float): The stamina drain during reloading.
 - `Reload_Eitr_Drain` (float): The Eitr drain during reloading.
+
+</br>
+
 - `Bow_Draw` (bool): Indicates whether the bow is drawn for the attack.
 - `Bow_Duration_Min` (float): The minimum duration of the bow.
 - `Bow_Stamina_Drain` (float): The stamina drain during bow usage.
 - `Bow_Animation_State` (string): The animation state for the bow.
 - `Attack_Angle` (float): The angle of the attack.
 - `Attack_Ray_Width` (float): The width of the attack ray.
+
 - `Lower_Dmg_Per_Hit` (bool): Indicates whether the attack lowers damage per hit.
 - `Hit_Through_Walls` (bool): Indicates whether the attack can hit through walls.
 - `Multi_Hit` (bool): Indicates whether the attack can hit multiple times.
 - `Pickaxe_Special` (bool): Indicates whether it is a special pickaxe attack.
 - `Last_Chain_Dmg_Multiplier` (float): The damage multiplier for the last chain attack.
-- 'Attack_status_effect' (string) - SE - The attack status effect of the item. This is a custom patch for wackydb. You can now set primary and secondary differently. Setting this will override the normal Attack_status_effect.
-- 'Attack_status_effect_chance' (float) 0.0 to 1 (100%) Set a different chance for primary and secondary
-- The vanilla Code for chain multiplier <code>
+
+- `Attack_status_effect` (string) - SE - The attack status effect of the item. This is a custom patch for wackydb. You can now set primary and secondary differently. Setting this will override the normal Attack_status_effect.
+- `Attack_status_effect_chance` (float) 0.0 to 1 (100%) Set a different chance for primary and secondary
+
+</br>
+
+- `Reset_Chain_If_hit` (DestructibleType): The damage multiplier for the last chain attack. 
+</br>The vanilla Code for chain multiplier <code>
 if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels - 1 && m_lastChainDamageMultiplier > 1f)
                 {
                     hitData.m_damage.Modify(m_lastChainDamageMultiplier);
@@ -506,30 +523,34 @@ if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels -
                 }
                 </code>
 
-- `Reset_Chain_If_hit` (DestructibleType): The damage multiplier for the last chain attack. 
-
-
 - `SpawnOnHit` (string): Spawn any Gameobject/Mob ect..
 - `SpawnOnHit_Chance` (float): Chance Values 0 to 1.0 (100%)
 
-- `Raise_Skill_Amount` (float): Raise a skill this amount with the weapon in hand or when used?
-- `Skill_Hit_Type` (DestructibleType): Skill to Raise.
-- `Special_Hit_Skill` (SkillType): I don't know what it means by special hit. 
-- `Special_Hit_Type` (DestructibleType): The Special Hit Type.   I don't know what these last 4 fields do, if you figure it out, let me know. 
+</br> These four fields are for raising skills that they are not primary used for. For example Tree cutting with an Axe. (values)
+- `Raise_Skill_Amount` (float): The XP added on a hit. (1)
+- `Skill_Hit_Type` (DestructibleType):  This will pretty much always be Character. Who gets the skill raise. (Character)
+- `Special_Hit_Skill` (SkillType):  What skill gets raised? (Wood Cutting)
+- `Special_Hit_Type` (DestructibleType):  What was hit to trigger this? (Tree)
+
+</br>
+
 
 - `Attack_Projectile` (string): The Gameobject projectile has to have Projectile Componenent. Disabled for now. 
 - `Projectile_Vel` (float): The velocity of the projectile.
 - `Projectile_Accuraccy` (float): The accuracy of the projectile.
 - `Projectiles` (int): The number of projectiles.
-- `Skill_Accuracy` (bool): Skill increases Accuracy?
-- `Launch_Angle` (float):
-- `Projectile_Burst` (int):
-- `Burst_Interval` (float):
-- `Destroy_Previous_Projectile` (bool)
-- `PerBurst_Resource_usage` (bool)
-- `Looping_Attack` (bool)
+- `Skill_Accuracy` (bool): Skill increases Accuracy. true or false
+
+
+- `Launch_Angle` (float): This parameter defines the angle at which the projectile is launched relative to the horizontal axis.
+- `Projectile_Burst` (int): This parameter specifies the number of projectiles released in a single burst.
+- `Burst_Interval` (float): This parameter indicates the time delay between each projectile in a burst. 
+- `Destroy_Previous_Projectile` (bool) This boolean parameter determines whether or not to destroy the previous projectile before launching a new one. 
+- `PerBurst_Resource_usage` (bool) This boolean parameter specifies whether resource consumption is applied per burst of projectiles. 
+- `Looping_Attack` (bool) This boolean parameter determines whether the attack or effect is repeated in a continuous loop. 
 - `Consume_Item` (bool): Consume item on use. (Usually food)
 
+</br>
 
 - `AEffects` (AEffects): The additional effects of the attack. OLD
 - `AEffectsPLUS` (AEffectsPLUS): The additional effects of the attack PLUS version- more.
@@ -865,7 +886,7 @@ To make something free. build:
 
 ###  ContainerData
 
- Don't mess with the container size (width and height): I added for someone, but this will mess up things. Use AzuContainers
+ Don't mess with the container size (width and height): I added for someone, but this will mess up things and lose items. Use AzuContainers
 - `Width` (int): The width of the container.
 - `Height` (int): The height of the container.
 - `CheckWard` (bool): Indicates whether the container checks for ward placement.
@@ -1048,8 +1069,9 @@ Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 ## Recipes
 
 Most recipes are saved with itemname in name for recipe. For actual recipes they will have Recipe_ in the name like Recipe_Bronze or Recipe_Bronze5.
-<br/>You should try to avoid actual recipes when possible.
-<br/></br>Actual recipes can be found in bulk save now and with JVL docs.  https://valheim-modding.github.io/Jotunn/data/objects/recipe-list.html They have no for clonePrefabName: NO . Actual Recipes can NOT be cloned.
+<br/>You should try to <b>avoid </b> actual recipes when possible. </br> wackydb_all_recipes should list both normal recipes and actual recipes
+<br/></br>Actual recipes can be found in bulk save now and with JVL docs.  https://valheim-modding.github.io/Jotunn/data/objects/recipe-list.html
+</br>They have no for clonePrefabName: NO . Actual Recipes can NOT be cloned.
 
 - `name` (string, required): The name of the recipe.
 - `clonePrefabName` (string):  The name of the Item prefab to craft. 

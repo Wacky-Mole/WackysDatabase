@@ -148,7 +148,7 @@ namespace wackydatabase.Datas
         public float? Attack_Start_Noise;
         public float? Attack_Hit_Noise;
         public float? Dmg_Multiplier_Per_Missing_Health;
-        public float? Dmg_Multiplier_Per_Total_Health;
+        public float? Damage_Multiplier_By_Health_Deficit_Percent;
         public float? Stamina_Return_Per_Missing_HP;
         public float? DmgMultiplier;
         public float? ForceMultiplier;
