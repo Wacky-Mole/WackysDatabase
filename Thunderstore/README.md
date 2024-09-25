@@ -239,32 +239,20 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 <details><summary>Video Tutorials</summary>
 <h4> Thank Majestic for these basic Video Tutorials!</h4>
-<h5> VNEI mod is a great tool.  https://thunderstore.io/c/valheim/p/MSchmoecker/VNEI/ </h5>
+<h5> VNEI mod is a great tool.  <a href=" https://thunderstore.io/c/valheim/p/MSchmoecker/VNEI/ "> https://thunderstore.io/c/valheim/p/MSchmoecker/VNEI/ </a></h5>
 
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Save_Item.mp4" >Save Items </a></h2>
-<video width="600"  controls>
-  <source src="https://wackymole.com/hosts/WDB_Save_Item.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" >Save Recipes </a></h2>
-<video width="600"  controls>
-  <source src="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Item.mp4" >Clone Items </a></h2>
-<video width="600"  controls>
-  <source src="https://wackymole.com/hosts/WDB_Clone_Item.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
 
 </br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" >Clone Recipes </a></h2>
-<video width="600"  controls>
-  <source src="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
 
 </br>
 </details>
@@ -1096,9 +1084,15 @@ Most recipes are saved with itemname in name for recipe. For actual recipes they
 - `disabledUpgrade` (bool): Disables allowing upgrades in the upgrade tab, can be used in combination with disable to only allow upgrading and not crafting.
 - `requireOnlyOneIngredient` (bool): Indicates whether the recipe requires only one ingredient.
 - `upgrade_reqs ` (List<string>): By default will be empty, it allows you to speficy complete different requirements to upgrade than craft. </br>Actually adds a second hidden recipe to game with the name + _upgrade. 
-</br>(upgrade_reqs) requirements to upgrade: Item:amountPerLevel
+</br>(upgrade_reqs) requirements to upgrade: Item:amountPerLevel:[optional - starts at 2]level 
 </br>
-![upgrade_reqs ](https://wackymole.com/hosts/upgrade_reqs.png)
+![upgrade_reqs ](https://wackymole.com/hosts/upgrade_reqs.png) If you just want have one upgrade recipe that doubles with every level.
+</br></br>
+![upgrade_reqs ](https://wackymole.com/hosts/recipe_upgrade_levels.png) 
+You can leave the level out to always double for each upgrade or specify for that level only.
+</br> 
+
+
 </br>
 
 
@@ -1145,7 +1139,7 @@ You can replace all Boars in the game with this Dude.
 - `FlashIcon` (bool): Indicates whether the icon should flash.
 - `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
 - `Tooltip` (string): The tooltip for the status effect.
-- `Attributes` (StatusEffect.StatusAttribute): The attributes of the status effect.
+- `Attributes` (StatusEffect.StatusAttribute): The attributes of the status effect. /// Sailing Power // Cold Resistance // Double Impact Damage
 - `StartMessageLoc` (MessageHud.MessageType): The localization message type for the start message.
 - `StartMessage` (string): The start message of the status effect.
 - `StopMessageLoc` (MessageHud.MessageType): The localization message type for the stop message.

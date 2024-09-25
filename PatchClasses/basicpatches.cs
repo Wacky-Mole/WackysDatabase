@@ -169,25 +169,7 @@ namespace wackydatabase.PatchClasses
             {
                 return;
             }
-         /*   
-            foreach (var re in WMRecipeCust.RequiredCraftItemsString)
-            {
-                WMRecipeCust.WLog.LogWarning("RequiredCraftItemsString " + re.Key.name );
-                if (InventoryGui.instance.InCraftTab())
-                {
-                    if (!__instance.m_knownRecipes.Contains(re.Key.name))
-                    {
-                        WMRecipeCust.WLog.LogWarning("known recipes is false " + re.Key.name);
-                        hidden[re.Key] = false;
-                    }
-                    else
-                    {
-                        WMRecipeCust.WLog.LogWarning("known recipes is true " + re.Key.name);
-                        hidden[re.Key] = true;
-                    }
-                }
-            } 
-         */
+
             foreach (Recipe recipe in hidden.Keys)
             {
                 recipe.m_enabled = false;
@@ -210,6 +192,23 @@ namespace wackydatabase.PatchClasses
 
     }
 
+    [HarmonyPatch(typeof(Piece.Requirement))]
+    internal static class PieceUpgradeReq 
+    {
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(Piece.Requirement.GetAmount))]
+
+        internal static bool Patch_RequirementGetAmountWM(Piece.Requirement __instance, int qualityLevel, ref int __result)
+        {
+            if (WMRecipeCust.requirementQuality.TryGetValue(__instance, out RequirementQuality quality))
+            {
+                __result = quality.quality == qualityLevel ? __instance.m_amountPerLevel : 0;
+                return false;
+            }
+
+            return true;
+        }
+    }
 
 
     [HarmonyPatch(typeof(ItemDrop.ItemData))]

@@ -37,6 +37,11 @@ using static Minimap;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 
+
+ public class RequirementQuality
+{
+    public int quality;
+}
 namespace wackydatabase.SetData
 {
     [HarmonyPatch(typeof(Player), "OnSpawned")]
@@ -69,7 +74,7 @@ namespace wackydatabase.SetData
         public static Component[] renderfinder;
         internal static Renderer[] renderfinder2;
         internal static Dictionary<GameObject, GameObject> DisabledPieceandHam = new Dictionary<GameObject, GameObject>();
-
+        
         #region Effects
 
         internal static void SetStatusData(StatusData data, ObjectDB Instant)
@@ -352,18 +357,32 @@ namespace wackydatabase.SetData
                         string itemname = array[0];  // and a three tier directonary
                         if (Instant.GetItemPrefab(itemname))
                         {
-                            int amount = ((array.Length < 2) ? 1 : int.Parse(array[1]));
-                            //int amountPerLevel = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+                            //int amount = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+                            int amountPerLevel = ((array.Length < 2) ? 1 : int.Parse(array[1]));                  
                             //bool recover = array.Length != 4 || bool.Parse(array[3].ToLower());
-                            //int quality = ((array.Length < 5) ? 1 : int.Parse(array[4]));
-                            Piece.Requirement item = new Piece.Requirement
+                            int quality = ((array.Length < 3) ? 1 : int.Parse(array[2]));
+
+                            if (quality > 1)
                             {
-                               // m_amount = amount,
-                                //m_recover = recover,
-                                m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
-                                m_amountPerLevel = amount
-                            };
-                            UpgradeReqs.Add(item);
+                                Piece.Requirement item = new Piece.Requirement
+                                {
+                                    m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
+                                    m_amountPerLevel = amountPerLevel,
+                                    m_amount = 0
+                                };
+                                WMRecipeCust.requirementQuality.Add(item, new RequirementQuality { quality = quality });
+                                UpgradeReqs.Add(item);
+                            }
+                            else
+                            {
+                                Piece.Requirement item = new Piece.Requirement
+                                {
+                                    m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
+                                    m_amountPerLevel = amountPerLevel,
+                                    m_amount = 0
+                                };
+                                UpgradeReqs.Add(item);
+                            }
 
                         }else
                         {
@@ -371,6 +390,7 @@ namespace wackydatabase.SetData
                         }
                     }
                 }
+
                 Recipe RecipeRUPGRADE = null;
                 var upgadename = RecipeR.name + "_Upgrade"; // try to find
                 foreach (var rec in Instant.m_recipes)
@@ -384,14 +404,6 @@ namespace wackydatabase.SetData
                 if (RecipeRUPGRADE == null)
                 {
                     RecipeRUPGRADE = ScriptableObject.Instantiate(RecipeR);
-                    /*
-                    RecipeRUPGRADE = ScriptableObject.CreateInstance<Recipe>();
-                    RecipeRUPGRADE.m_item = RecipeR.m_item;
-                    RecipeRUPGRADE.m_amount = RecipeR.m_amount;
-                    RecipeRUPGRADE.m_craftingStation = RecipeR.m_craftingStation;
-                    RecipeRUPGRADE.m_repairStation = RecipeR.m_repairStation;
-                    RecipeRUPGRADE.m_minStationLevel = RecipeR.m_minStationLevel;
-                    */
 
                     RecipeRUPGRADE.name = RecipeR.name + "_Upgrade";
                     RecipeRUPGRADE.m_resources = UpgradeReqs.ToArray();

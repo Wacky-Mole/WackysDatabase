@@ -33,6 +33,7 @@ using UnityEngine.Rendering;
 using API;
 using wackydatabase.OBJimporter;
 using RainbowTrollArmor;
+using System.Runtime.CompilerServices;
 
 namespace wackydatabase
 {
@@ -41,7 +42,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.28";
+        internal const string ModVersion = "2.4.31";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -53,7 +54,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.28" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.4.31" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -72,6 +73,7 @@ namespace wackydatabase
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
         internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Experimental
+        public static readonly ConditionalWeakTable<Piece.Requirement, RequirementQuality> requirementQuality = new();
 
         internal static bool issettoSinglePlayer = false;
         internal static bool isSettoAutoReload = false;
