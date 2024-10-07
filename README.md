@@ -254,7 +254,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 </br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" >Clone Recipes </a></h2>
 
 
-</br><h2><a href="https://wackymole.com/hosts/WDB_CustomRecipeUpgrade.mp4" >Custom Recipe Upgrades</a></h2>
+</br><h2><a href="https://wackymole.com/hosts/WDB_CustomRecipeUpgrade1.mp4" >Custom Recipe Upgrades</a></h2>
 
 
 </br>
