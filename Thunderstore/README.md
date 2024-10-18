@@ -242,16 +242,20 @@ To use the console commands, press F5 in the game to open the game console. Make
 <h5> VNEI mod is a great tool.  <a href=" https://thunderstore.io/c/valheim/p/MSchmoecker/VNEI/ "> https://thunderstore.io/c/valheim/p/MSchmoecker/VNEI/ </a></h5>
 
 
-</br><h2><a href="https://wackymole.com/hosts/WDB_Save_Item.mp4" >Save Items </a></h2>
+<h2><a href="https://wackymole.com/hosts/WDB_Save_Item.mp4" >Save Items </a></h2>
+
+<h2><a href="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" >Save Recipes </a></h2>
 
 
-</br><h2><a href="https://wackymole.com/hosts/WDB_Save_Recipe.mp4" >Save Recipes </a></h2>
+<h2><a href="https://wackymole.com/hosts/WDB_Clone_Item.mp4" >Clone Items </a></h2>
 
 
-</br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Item.mp4" >Clone Items </a></h2>
+<h2><a href="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" >Clone Recipes </a></h2>
 
 
-</br><h2><a href="https://wackymole.com/hosts/WDB_Clone_Recipe.mp4" >Clone Recipes </a></h2>
+<h2><a href="https://wackymole.com/hosts/WDB_CustomRecipeUpgrade1.mp4" >Custom Recipe Upgrades</a></h2>
+
+<h2><a href="https://wackymole.com/hosts/WDB_CustomRecipeUpgradeMax.mp4" >Custom Recipe Upgrades Past Limit</a></h2>
 
 
 </br>
@@ -327,7 +331,7 @@ Anyway, it's hard to find a good spot so that you touch all base objects and not
 </details>
 
 
-<details><summary>Materials and CustomVisuals </summary>
+<details><summary>Materials and CustomVisuals By Wacky</summary>
 
 </br>
 
@@ -405,8 +409,48 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 
 </br></br>
 
-#### Future Guide by Lughbaloo
+Public Service Annoucement: I just create a copy of the material with a new texture (mat1, mat2, mat3... ) and when I find the right one, I keep it and delete the rest. This allows you to not have to restart the game for texture changes. 
+</br></br>
+</details>
+<details><summary>Materials and CustomVisuals By Lughbaloo</summary>
+####  Guide by Lughbaloo
 </br>
+
+#### The Way Items Render </br>
+
+The way an item looks falls into two categories: its `Model`, and its `Render`. </br> A `Model` describes the three-dimensional shape of the item. A `Render` describes the visual appearance of that 3D model and consists of one or more `Materials`. `Materials` have associated `Shaders` and `Properties`. WackyDB can clone EXISTING `Materials` and their associated shaders/properties, but it cannot create brand new materials with an associated shader. It also cannot add/remove properties to existing materials. These are important considerations when making custom materials with WackyDB.
+</br></br>Most items in Valheim use a single `Material`, but more complex things like armors can utilize multiple materials. And remember, each material has associated `Shaders` and `Properties`. Manipulating this can affect values like glossiness, metallic shine, emissions, and bumpiness.
+#### Knowing where to look
+</br>The first step is to find out more information about a material. In the examples, we’ll compare the Two Handed Swords Krom and Slayer and learn what is different between them. Run the following command in-game.
+</br></br>‘Wackydb_describe [Item or Prefab name]’</br></br>
+Examples:
+‘wackydb_describe THSwordKrom’ </br></br>
+‘wackydb_describe THSwordSlayer’</br></br>
+This will create 2 new files in your config/wackydatabase/ folder, called Describe_THSSwordKrom.yml and Describe_THSwordSlayer.yml. These files list every material the item uses, the shader associated with that material, and the properties of that material. Both of these items have only 1 material, which is listed at the top. This material name is what we’ll clone. To clone these materials, go back in-game and run the following command.
+</br></br>[wackydb_clone material [Material] [ClonedMaterial]</br></br>
+Examples:
+</br></br>‘wackydb_clone material Krom_mat Krom_mat_clone`
+</br></br>‘wackydb_clone material NiedhoggSlayer_mat NiedhoggSlayer_mat’
+#### Materials and their values</br></br>
+Materials are a list of values that are used to dictate what an item looks like. When you clone a material, it will save a Material yml file in the wackyDatabase/Materials/ folder. These material files list different variables, and depending on the shader that the original material used, you may have different variables. In the example using Krom and Slayer, note that Krom has RGBA values for MetalColor, while Slayer has an EmissionMap. Depending on what you’re trying to accomplish with your item, it is recommended to experiment with different donor materials for the values you want.
+</br></br>Most commonly, you'll be working with colors. You can make adjustments to the _Colors RGBA values to overlay the color of your item. Do note that all values of 1 equals white, and will be the brightest version of the weapon. Use https://rgbcolorpicker.com/0-1 to find the 0-1 values RGBA.
+</br></br>Your Glossiness value will determine how shiny your item is in-game; how much it reflects light. A Metallic value will determine how metallic a part looks. This will also darken the material quite a bit. 
+
+There are many other values here you can change depending on the shader from the original material. Some examples are how impactful the Bump map is, the color of your metallic parts, what texture channel you use, and more. Another important consideration is that a lot of these values are referencing values within Unity, and a value of 0-1 doesn’t necessarily equate on/off. An example is the SmoothnessTextureChannel: a value of 0 means “Metallic alpha” where a value of 1 means “Albedo alpha”.
+#### Let’s talk about maps.</br></br>
+Maps are a type of texture file, saved as a .png file. When you clone a material, it will save these texture maps in the wackyDatabase/Textures/ folder. Most of these texture maps can be edited in any paint program. Further, the resolution of each of these maps scales automatically, so you can increase the resolution of a map to increase the level of detail on an item. 
+
+</br></br>MainTex: Also known as an Albedo map, this is the primary texture map for colors and design. These maps are sometimes denoted by the letter “d”.
+
+</br></br>MetallicGloss: Also known as a Metal map or Metallic map, this map is either a grayscale map or an Transparency map (Alpha map) used to dictate which parts of the item appear metallic or glossy. The more towards white on the map, the more metallic on the texture. These maps are sometimes denoted by the letter “m”.
+
+</br></br>BumpMap: Also known as a Normal map, this texture map uses either grayscale, alpha, or RGB channels to dictate roughness on the item. These maps are sometimes denoted by the letter “n”. You will not likely be editing these, as you’ll need to use Blender or some other tool  like https://smart-page.net/smartnormal/ to effectively create them.
+
+</br></br>missionMap: The Emissive map is used to dictate a simulated light effect from the item using a grayscale map. The more towards white on the map, the brighter the texture on the item. Note this is not an actual light-source. But you will be able to see it in the dark. These maps are sometimes denoted by the letter “e”.
+</br></br>https://valheim-modding.Prefab material listgithub.io/Jotunn/data/prefabs/material-list.html
+
+
+
 </details>
 
 <details><summary> Item components</summary>

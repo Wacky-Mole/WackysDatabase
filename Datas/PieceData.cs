@@ -43,7 +43,9 @@ namespace wackydatabase.Datas
 
         public CraftingStationData? craftingStationData;
 
-        public CSExtensionData? cSExtensionData;
+        public CSExtensionData? cSExtensionData; // Old
+
+        public List<CSExtensionData>? cSExtensionDataList;
 
         public ContainerData? contData;
 

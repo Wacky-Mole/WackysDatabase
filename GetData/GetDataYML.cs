@@ -16,6 +16,7 @@ using YamlDotNet.Serialization;
 using System.IO.Ports;
 using System.Configuration;
 
+
 namespace wackydatabase.GetData
 {
     public class GetDataYML     {
@@ -295,6 +296,36 @@ namespace wackydatabase.GetData
         }
 
 
+        internal GameObject GetJustThePieceRecipeByName(string name, ObjectDB tod, bool warn = true)
+        {
+            Piece piece = null;
+            WMRecipeCust.selectedPiecehammer = null; // makes sure doesn't use an old one. 
+            GameObject go = DataHelpers.GetPieces(tod).Find(g => Utils.GetPrefabName(g) == name); // vanilla search  replace with FindPieceObjectName(data.name) in the future
+            if (go == null)
+            {
+                go = DataHelpers.GetModdedPieces(name); // known modded Hammer search
+                if (go == null)
+                {
+                    go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
+                    if (go == null) // 3th layer
+                    {
+                        WMRecipeCust.Dbgl($"Piece {name} not found! 3 layer search");
+                        return null;
+                    }
+                }
+                else // 2nd layer
+                    WMRecipeCust.Dbgl($"Piece {name} from known hammer {WMRecipeCust.selectedPiecehammer}");
+            }
+            piece = go.GetComponent<Piece>();
+            if (piece == null) // final check
+            {
+                WMRecipeCust.Dbgl("Piece data not found!");
+                return null;
+            }
+
+            return go;
+        }
+
         internal PieceData GetPieceRecipeByName(string name, ObjectDB tod, bool warn = true)
         {
             Piece piece = null;
@@ -460,16 +491,37 @@ namespace wackydatabase.GetData
 
             if (PieceID.TryGetComponent<StationExtension>(out var ex))
             {
-               // WMRecipeCust.WLog.LogWarning("Piece StationExtension");
+                // WMRecipeCust.WLog.LogWarning("Piece StationExtension");
                 //var ex = PieceID.GetComponent<StationExtension>();
-                CSExtensionData cSExtension = new CSExtensionData
+
+                if (PieceID.GetComponents<StationExtension>().Count() > 1)
                 {
-                     MainCraftingStationName = ex.m_craftingStation.name,
-                     maxStationDistance = ex.m_maxStationDistance,
-                     continousConnection = ex.m_continousConnection,
-                     stack = ex.m_stack,
-                 };
-                 data.cSExtensionData = cSExtension;
+                    //WMRecipeCust.WLog.LogWarning("Station Count is " + PieceID.GetComponents<StationExtension>().Count());
+                    data.cSExtensionDataList = new List<CSExtensionData>();
+                    foreach (var ext in PieceID.GetComponents<StationExtension>())
+                    {
+                        CSExtensionData cSExtension2 = new();
+                        cSExtension2.MainCraftingStationName = ext.m_craftingStation?.name ?? ext.m_craftingStation.ToString();                                             
+                        cSExtension2.maxStationDistance = ext.m_maxStationDistance;
+                        cSExtension2.continousConnection = ext.m_continousConnection; 
+                        cSExtension2.stack = ext.m_stack;
+                        
+                        data.cSExtensionDataList.Add(cSExtension2);
+                    }
+                }
+                else
+                {
+                    data.cSExtensionDataList = new List<CSExtensionData>();
+                    CSExtensionData cSExtension = new CSExtensionData
+                    {
+                        MainCraftingStationName = ex.m_craftingStation.name,
+                        maxStationDistance = ex.m_maxStationDistance,
+                        continousConnection = ex.m_continousConnection,
+                        stack = ex.m_stack,
+                    };
+                    data.cSExtensionDataList.Add(cSExtension);
+                    
+                }
             }
 
             if (PieceID.TryGetComponent<Container>(out var cont))

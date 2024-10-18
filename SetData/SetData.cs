@@ -36,9 +36,10 @@ using System.Collections;
 using static Minimap;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using wackydatabase.GetData;
 
 
- public class RequirementQuality
+public class RequirementQuality
 {
     public int quality;
 }
@@ -1104,6 +1105,7 @@ namespace wackydatabase.SetData
                 station.m_useDistance = data.craftingStationData.useDistance ?? station.m_useDistance;
                 station.m_useAnimation = data.craftingStationData.useAnimation ?? station.m_useAnimation;
             }
+            /*
             if (data.cSExtensionData != null)
             {
                 go.TryGetComponent<StationExtension>(out var ex);
@@ -1113,6 +1115,62 @@ namespace wackydatabase.SetData
                 ex.m_maxStationDistance = data.cSExtensionData.maxStationDistance ?? ex.m_maxStationDistance;
                 ex.m_continousConnection = data.cSExtensionData.continousConnection ?? ex.m_continousConnection;
                 ex.m_stack = data.cSExtensionData.stack ?? ex.m_stack;
+            }
+            */
+            if (data.cSExtensionDataList != null || data.cSExtensionData != null)
+            {
+                var current = go.GetComponents<StationExtension>();
+
+                if (data.cSExtensionData != null)
+                {
+                    data.cSExtensionDataList = new List<CSExtensionData>();
+                    data.cSExtensionDataList.Add(data.cSExtensionData);
+                }
+
+                foreach (var ext in data.cSExtensionDataList)
+                {
+                    bool found = false;
+                    CraftingStation luckysearch = null;
+
+                    if (DataHelpers.GetCraftingStation(ext.MainCraftingStationName) == null)
+                    {
+                        WMRecipeCust.WLog.LogInfo("   CraftingStation is null so extra search enabled" + ext.MainCraftingStationName);
+                        GetDataYML ObjectCheck = new GetDataYML();
+                        GameObject temp1 = ObjectCheck.GetJustThePieceRecipeByName(ext.MainCraftingStationName, ObjectDB.instance);
+                        if (temp1 != null && temp1.TryGetComponent<CraftingStation>(out var lucky))
+                        {
+                            luckysearch = lucky;
+                            WMRecipeCust.WLog.LogInfo("   Found in extra search");
+                        }
+                    }
+
+                    foreach (var stat in current)
+                    {
+                        if (stat.m_craftingStation == DataHelpers.GetCraftingStation(ext.MainCraftingStationName) || stat.m_craftingStation == luckysearch)
+                        {
+                            found = true;
+                            WMRecipeCust.WLog.LogInfo("   Piece has extension on it for " + ext.MainCraftingStationName);
+                            //stat.m_craftingStation = DataHelpers.GetCraftingStation(data.cSExtensionData.MainCraftingStationName) ?? ex.m_craftingStation;
+                            stat.m_maxStationDistance = ext.maxStationDistance ?? stat.m_maxStationDistance;
+                            stat.m_continousConnection = ext.continousConnection ?? stat.m_continousConnection;
+                            stat.m_stack = ext.stack ?? stat.m_stack;
+                            break;
+                        }
+                    }
+
+                   // WMRecipeCust.WLog.LogInfo("   End Loop " + ext.MainCraftingStationName + " found is " +found);
+
+                    if (!found && DataHelpers.GetCraftingStation(ext.MainCraftingStationName) != null)
+                    {
+                        WMRecipeCust.WLog.LogInfo("   Making Piece into Extension for " + ext.MainCraftingStationName);
+                        var newext = go.AddComponent<StationExtension>();
+                        newext.m_craftingStation = DataHelpers.GetCraftingStation(ext.MainCraftingStationName);
+                        newext.m_maxStationDistance = ext.maxStationDistance ?? 5;
+                        newext.m_continousConnection = ext.continousConnection ?? false;
+                        newext.m_stack = ext.stack ?? false;
+
+                    }
+                }
             }
 
             if (data.contData != null)
