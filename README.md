@@ -885,7 +885,8 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `canBeRemoved` (bool): Indicates whether the piece can be removed.
 - `wearNTearData` (WearNTearData): The wear and tear data of the piece.
 - `craftingStationData` (CraftingStationData): The crafting station data of the piece.
-- `cSExtensionData` (CSExtensionData): The crafting station extension data of the piece.
+- `cSExtensionData` (CSExtensionData): The crafting station extension data of the piece. - OLD
+- `cSExtensionDataList` (cSExtensionData) The crafting station extensions data of the piece. LIST
 - `contData` (ContainerData): The container data of the piece.
 - `smelterData` (SmelterData): The smelter data of the piece.
 - `build` (List<string>): The list of requirement items for the piece.
@@ -923,10 +924,14 @@ To make something free. build:
 
 ### CSExtensionData
 
+With CSExtensionDataList, wackydb can now handle multiple extension upgrades. For example Wizardry does this for multiple craftingstations.</br>
+You can also make any pieces into extensions by writing in this section yourself. </br>
+![Lists](https://wackymole.com/hosts/csExtenList.png)
+
 - `MainCraftingStationName` (string): The name of the main crafting station.
 - `maxStationDistance` (float): The maximum distance for the extension to connect to the main station.
-- `continousConnection` (bool): Indicates whether the extension provides continuous connection.
-- `stack` (bool): Indicates whether the extension can stack.
+- `continousConnection` (bool): Indicates whether chain effect (bonded) shows up all the time. 
+- `stack` (bool): Indicates whether multiple of this extension can stack to gain levels.
 
 ###  ContainerData
 
@@ -1102,6 +1107,7 @@ Delete all by using "-"
 
 
 ![Marble Sizes](https://wackymole.com/hosts/Marblesizes.png)
+
 
 Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 
