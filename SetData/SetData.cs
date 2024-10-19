@@ -1134,13 +1134,20 @@ namespace wackydatabase.SetData
 
                     if (DataHelpers.GetCraftingStation(ext.MainCraftingStationName) == null)
                     {
-                        WMRecipeCust.WLog.LogInfo("   CraftingStation is null so extra search enabled" + ext.MainCraftingStationName);
-                        GetDataYML ObjectCheck = new GetDataYML();
-                        GameObject temp1 = ObjectCheck.GetJustThePieceRecipeByName(ext.MainCraftingStationName, ObjectDB.instance);
-                        if (temp1 != null && temp1.TryGetComponent<CraftingStation>(out var lucky))
+                        if (DataHelpers.GetCraftingStation("$" + ext.MainCraftingStationName) == null)
                         {
-                            luckysearch = lucky;
-                            WMRecipeCust.WLog.LogInfo("   Found in extra search");
+                            WMRecipeCust.WLog.LogInfo("   CraftingStation is null so extra search enabled " + ext.MainCraftingStationName);
+                            GetDataYML ObjectCheck = new GetDataYML();
+                            GameObject temp1 = ObjectCheck.GetJustThePieceRecipeByName(ext.MainCraftingStationName, ObjectDB.instance);
+                            if (temp1 != null && temp1.TryGetComponent<CraftingStation>(out var lucky))
+                            {
+                                luckysearch = lucky;
+                                WMRecipeCust.WLog.LogInfo("   Found in extra search");
+                            }
+                        }else
+                        {
+                            ext.MainCraftingStationName = "$" + ext.MainCraftingStationName;
+                            WMRecipeCust.WLog.LogInfo("   Adding $ worked " + ext.MainCraftingStationName);
                         }
                     }
 
