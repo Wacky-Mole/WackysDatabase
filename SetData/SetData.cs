@@ -1094,16 +1094,21 @@ namespace wackydatabase.SetData
 
             if (data.craftingStationData != null)
             {
-                go.TryGetComponent<CraftingStation>(out var station);
+                if (go.TryGetComponent<CraftingStation>(out var station))
+                {
 
-                //station.name = data.craftingStationData.cStationName ?? station.m_name;
-                station.m_discoverRange = data.craftingStationData.discoveryRange ?? station.m_discoverRange;
-                station.m_rangeBuild = data.craftingStationData.buildRange ?? station.m_rangeBuild;
-                station.m_craftRequireRoof = data.craftingStationData.craftRequiresRoof ?? station.m_craftRequireRoof;
-                station.m_craftRequireFire = data.craftingStationData.craftRequiresFire ?? station.m_craftRequireFire;
-                station.m_showBasicRecipies = data.craftingStationData.showBasicRecipes ?? station.m_showBasicRecipies;
-                station.m_useDistance = data.craftingStationData.useDistance ?? station.m_useDistance;
-                station.m_useAnimation = data.craftingStationData.useAnimation ?? station.m_useAnimation;
+                    //station.name = data.craftingStationData.cStationName ?? station.m_name;
+                    station.m_discoverRange = data.craftingStationData.discoveryRange ?? station.m_discoverRange;
+                    station.m_rangeBuild = data.craftingStationData.buildRange ?? station.m_rangeBuild;
+                    station.m_craftRequireRoof = data.craftingStationData.craftRequiresRoof ?? station.m_craftRequireRoof;
+                    station.m_craftRequireFire = data.craftingStationData.craftRequiresFire ?? station.m_craftRequireFire;
+                    station.m_showBasicRecipies = data.craftingStationData.showBasicRecipes ?? station.m_showBasicRecipies;
+                    station.m_useDistance = data.craftingStationData.useDistance ?? station.m_useDistance;
+                    station.m_useAnimation = data.craftingStationData.useAnimation ?? station.m_useAnimation;
+                }else
+                {
+
+                }
             }
             /*
             if (data.cSExtensionData != null)
@@ -1117,7 +1122,7 @@ namespace wackydatabase.SetData
                 ex.m_stack = data.cSExtensionData.stack ?? ex.m_stack;
             }
             */
-            if (data.cSExtensionDataList != null || data.cSExtensionData != null)
+            if (data.cSExtensionDataList != null || data.cSExtensionData != null) // new
             {
                 var current = go.GetComponents<StationExtension>();
 
@@ -1127,7 +1132,7 @@ namespace wackydatabase.SetData
                     data.cSExtensionDataList.Add(data.cSExtensionData);
                 }
 
-                foreach (var ext in data.cSExtensionDataList)
+                foreach (var ext in data.cSExtensionDataList) 
                 {
                     bool found = false;
                     CraftingStation luckysearch = null;
