@@ -1112,7 +1112,7 @@ namespace wackydatabase.SetData
                     GameObject temp1 = ObjectCheck.GetJustThePieceRecipeByName("forge", ObjectDB.instance);
                     var copyme = temp1.GetComponent<CraftingStation>();
                     var newstation = go.AddComponent<CraftingStation>();
-                    newstation.name ="$"+data.name;
+                    newstation.name =data.name;
                     newstation.m_icon = pi.m_icon;
                     newstation.m_roofCheckPoint = null;
                     newstation.m_connectionPoint = null;
@@ -1120,7 +1120,8 @@ namespace wackydatabase.SetData
                     var FindAreaMarker = copyme.transform.Find("PlayerBase").gameObject;
                     var newAreaMarker = GameObject.Instantiate(FindAreaMarker);
                     newAreaMarker.transform.SetParent(go.transform);
-                    pi.m_name = pi.m_name + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use ";
+                    if (data.cSExtensionDataList != null || data.cSExtensionData != null)
+                        pi.m_name = pi.m_name + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use ";
 
 
 
