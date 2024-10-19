@@ -913,6 +913,8 @@ To make something free. build:
 
 ### CraftingStationData
 
+Wackydb can now handle making normal pieces craftingstations. This is pretty barebones, but it should work if you really need it. Much better to clone an existing craftingstation.
+
 - `cStationCustomIcon` (string): The custom icon for the crafting station. May remove - Not really useful
 - `discoveryRange` (float): The discovery range of the crafting station. Range that you discovery the piece for the first time
 - `buildRange` (float): The build range of the crafting station.
@@ -924,7 +926,7 @@ To make something free. build:
 
 ### CSExtensionData
 
-With CSExtensionDataList, wackydb can now handle multiple extension upgrades. For example Wizardry does this for multiple craftingstations.</br>
+With CSExtensionDataList, wackydb can now handle multiple extension upgrades for multiple craftingstations. For example Wizardry does this for multiple craftingstations.</br>
 You can also make any pieces into extensions by writing in this section yourself. </br>
 ![Lists](https://wackymole.com/hosts/csExtenList.png)
 

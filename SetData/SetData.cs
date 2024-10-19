@@ -1107,6 +1107,41 @@ namespace wackydatabase.SetData
                     station.m_useAnimation = data.craftingStationData.useAnimation ?? station.m_useAnimation;
                 }else
                 {
+                    WMRecipeCust.WLog.LogInfo("   Attemping to making Piece into CraftingStation ");
+                    GetDataYML ObjectCheck = new GetDataYML();
+                    GameObject temp1 = ObjectCheck.GetJustThePieceRecipeByName("forge", ObjectDB.instance);
+                    var copyme = temp1.GetComponent<CraftingStation>();
+                    var newstation = go.AddComponent<CraftingStation>();
+                    newstation.name ="$"+data.name;
+                    newstation.m_icon = pi.m_icon;
+                    newstation.m_roofCheckPoint = null;
+                    newstation.m_connectionPoint = null;
+                    newstation.m_effectAreaCollider = null;
+                    var FindAreaMarker = copyme.transform.Find("PlayerBase").gameObject;
+                    var newAreaMarker = GameObject.Instantiate(FindAreaMarker);
+                    newAreaMarker.transform.SetParent(go.transform);
+                    pi.m_name = pi.m_name + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use ";
+
+
+
+                    newstation.m_areaMarker = null;
+                    newstation.m_inUseObject = null;
+                    newstation.m_craftItemDoneEffects = null;
+                    newstation.m_repairItemDoneEffects = null;
+                    newstation.m_craftItemEffects = null;
+                    newstation.m_useAnimation = 2;
+                    newstation.m_name = data.m_name;
+                    newstation.m_buildRange = 5;
+
+                    newstation.m_discoverRange = data.craftingStationData.discoveryRange ?? newstation.m_discoverRange;
+                    newstation.m_rangeBuild = data.craftingStationData.buildRange ?? newstation.m_rangeBuild;
+                    newstation.m_craftRequireRoof = false;
+                    newstation.m_craftRequireFire = false;
+                    newstation.m_showBasicRecipies = data.craftingStationData.showBasicRecipes ?? newstation.m_showBasicRecipies;
+                    newstation.m_useDistance = data.craftingStationData.useDistance ?? newstation.m_useDistance;
+                    newstation.m_useAnimation = data.craftingStationData.useAnimation ?? newstation.m_useAnimation;
+
+
 
                 }
             }
