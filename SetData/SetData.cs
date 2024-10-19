@@ -1163,7 +1163,12 @@ namespace wackydatabase.SetData
                     if (!found && DataHelpers.GetCraftingStation(ext.MainCraftingStationName) != null)
                     {
                         WMRecipeCust.WLog.LogInfo("   Making Piece into Extension for " + ext.MainCraftingStationName);
+
+                        GetDataYML ObjectCheck = new GetDataYML();
+                        GameObject temp1 = ObjectCheck.GetJustThePieceRecipeByName("forge_ext5", ObjectDB.instance);
+                        var copyme = temp1.GetComponent<StationExtension>();
                         var newext = go.AddComponent<StationExtension>();
+                        newext.m_connectionPrefab = copyme.m_connectionPrefab;
                         newext.m_craftingStation = DataHelpers.GetCraftingStation(ext.MainCraftingStationName);
                         newext.m_maxStationDistance = ext.maxStationDistance ?? 5;
                         newext.m_continousConnection = ext.continousConnection ?? false;
