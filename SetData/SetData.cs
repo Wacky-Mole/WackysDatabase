@@ -1123,7 +1123,7 @@ namespace wackydatabase.SetData
                     if (data.cSExtensionDataList != null || data.cSExtensionData != null)
                         pi.m_name = pi.m_name + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use ";
 
-
+                    WMRecipeCust.NewCraftingStations.Add(newstation);
 
                     newstation.m_areaMarker = null;
                     newstation.m_inUseObject = null;
