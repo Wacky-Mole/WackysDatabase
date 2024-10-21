@@ -60,6 +60,10 @@ namespace wackydatabase.Datas
             {
                 if (station.name == name)
                     return station;
+
+                var extra = "$"+ station.name;
+                if (extra == name)
+                    return station;
             }
 
 
