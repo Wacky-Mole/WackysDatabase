@@ -836,7 +836,15 @@ To delete all existing Damage modifiers
 - `spawnOffset` (float): Vertical offset in meters from the pickable where the itemPrefab spawns.
 - `ifHasHealth` (float): Sets the health of the pickable. 
 - `hiddenChildWhenPicked` (string): Child Gameobject that is hidden when pickable is picked, has respawn timer usually.
+- `extradrops` (extradrops): extra drop list
 
+#### extradrops
+
+- `drops` (string, required): List of extra items to be dropped.
+- `dropMin` (int): List of extra items to be dropped.
+- `dropMax` (int): List of extra items to be dropped.
+- `dropChance` (float): List of extra items to be dropped.
+- `dropOneOfEach` (bool): List of extra items to be dropped.
 
 ### Treebase
 
@@ -845,6 +853,9 @@ To delete all existing Damage modifiers
 - `cloneOfWhatTree` (string): Clone what Treebase for this.
 - `size` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0" 
 - `minToolTier` (int): Min Axe Tool Tier to cut down tree.
+
+
+
 
 Pickables are compatible with other mods, but mods like PlantEverything will override pretty much all non clones.
 

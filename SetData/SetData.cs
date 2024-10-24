@@ -629,6 +629,9 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl("Piece data not found!");
                 return;
             }
+            if (DisabledPieceandHam.ContainsKey(go) && (data.disabled == true) || data.adminonly == true)
+                return;
+
             if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
             {
                 if (WMRecipeCust.BlacklistClone.Contains(data.clonePrefabName))
@@ -3316,6 +3319,9 @@ namespace wackydatabase.SetData
                 go = NewItemComp;
                 
 
+            }else
+            {
+                WMRecipeCust.Dbgl($"Pickable being set {tempname}");
             }
 
             if (!string.IsNullOrEmpty(data.material) ) 
@@ -3363,14 +3369,15 @@ namespace wackydatabase.SetData
             go.m_respawnTimeMinutes = data.respawnTimer ?? go.m_respawnTimeMinutes;
             go.m_spawnOffset = data.spawnOffset ?? go.m_spawnOffset;
             //  go.enabled = data.enable ?? go.enabled;
-            var extras = go.m_extraDrops;
-            extras.m_dropMin = data.extraDrops.dropMin ?? extras.m_dropMin;
-            extras.m_dropMax = data.extraDrops.dropMax ?? extras.m_dropMax;
-            extras.m_dropChance = data.extraDrops.dropChance ?? extras.m_dropChance;
-            extras.m_oneOfEach = data.extraDrops.dropOneOfEach ?? extras.m_oneOfEach;
-
-            if (data.extraDrops.drops != null)
+            
+            if (data.extraDrops != null)
             {
+                var extras = go.m_extraDrops;
+                extras.m_dropMin = data.extraDrops.dropMin ?? extras.m_dropMin;
+                extras.m_dropMax = data.extraDrops.dropMax ?? extras.m_dropMax;
+                extras.m_dropChance = data.extraDrops.dropChance ?? extras.m_dropChance;
+                extras.m_oneOfEach = data.extraDrops.dropOneOfEach ?? extras.m_oneOfEach;
+
                 extras.m_drops.Clear();
 
                 foreach (var d in data.extraDrops.drops)

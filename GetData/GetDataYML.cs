@@ -1355,6 +1355,24 @@ namespace wackydatabase.GetData
                             picData.ifHasHealth = yolo.m_health;
 
 
+                        if (obj?.m_extraDrops != null && obj?.m_extraDrops.m_drops.Count() > 0)
+                        {
+                            ExtraDrops ExtraDrops = new ExtraDrops();
+                            ExtraDrops.dropChance = obj.m_extraDrops.m_dropChance;
+                            ExtraDrops.dropMin = obj.m_extraDrops.m_dropMin;
+                            ExtraDrops.dropMax = obj.m_extraDrops.m_dropMax;
+                            ExtraDrops.dropOneOfEach = obj.m_extraDrops.m_oneOfEach;
+                            List<string> extradropspre = new List<string>();
+                            foreach (var d in obj.m_extraDrops.m_drops)
+                            {
+                                extradropspre.Add(d.m_item.name);
+                            }
+
+                            ExtraDrops.drops = extradropspre;
+                            picData.extraDrops = ExtraDrops;
+                        }
+
+
                         return picData;
                     }
                 }
@@ -1407,22 +1425,24 @@ namespace wackydatabase.GetData
                     if (obj.TryGetComponent<Destructible>(out var yolo))
                         picData.ifHasHealth = yolo?.m_health;
 
-                    if (obj?.m_extraDrops != null && obj?.m_extraDrops.m_drops.Count > 0) {
-                        picData.extraDrops.dropChance = obj.m_extraDrops.m_dropChance;
-                        picData.extraDrops.dropMin = obj.m_extraDrops.m_dropMin;
-                        picData.extraDrops.dropMax = obj.m_extraDrops.m_dropMax;
-                        picData.extraDrops.dropOneOfEach = obj.m_extraDrops.m_oneOfEach;
-
+                    if (obj?.m_extraDrops != null && obj?.m_extraDrops.m_drops.Count() > 0)
+                    {
+                        ExtraDrops ExtraDrops = new ExtraDrops();
+                        ExtraDrops.dropChance = obj.m_extraDrops.m_dropChance;
+                        ExtraDrops.dropMin = obj.m_extraDrops.m_dropMin;
+                        ExtraDrops.dropMax = obj.m_extraDrops.m_dropMax;
+                        ExtraDrops.dropOneOfEach = obj.m_extraDrops.m_oneOfEach;
                         List<string> extradropspre = new List<string>();
-                         foreach ( var d in obj.m_extraDrops.m_drops)
+                        foreach (var d in obj.m_extraDrops.m_drops)
                         {
                             extradropspre.Add(d.m_item.name);
                         }
 
-                        picData.extraDrops.drops = extradropspre;
-                       }
+                        ExtraDrops.drops = extradropspre;
+                        picData.extraDrops = ExtraDrops;
+                    }
 
-                    
+
                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Pickable_" + picData.name + ".yml"), serializer.Serialize(picData));
                 }
 
