@@ -836,7 +836,7 @@ To delete all existing Damage modifiers
 - `spawnOffset` (float): Vertical offset in meters from the pickable where the itemPrefab spawns.
 - `ifHasHealth` (float): Sets the health of the pickable. 
 - `hiddenChildWhenPicked` (string): Child Gameobject that is hidden when pickable is picked, has respawn timer usually.
-- `extradrops` (extradrops): extra drop list
+- `extradrops` (extradrops): extra drop list. ( you can add this to other pickables if you want. )
 
 #### extradrops
 
