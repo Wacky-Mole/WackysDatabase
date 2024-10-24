@@ -24,6 +24,7 @@ namespace wackydatabase.Datas
         public float? spawnOffset;
         public float? ifHasHealth;
         public string? hiddenChildWhenPicked;
+        public ExtraDrops? extraDrops;
        // public bool? enable;
 
     }
@@ -37,5 +38,16 @@ namespace wackydatabase.Datas
         public string? material;
         public string? size;
         public int? minToolTier;
+    }
+
+    [Serializable]
+    [CanBeNull]
+    public class ExtraDrops
+    {
+        public List<string> drops;
+        public int? dropMin;
+        public int? dropMax;
+        public float? dropChance;
+        public bool? dropOneOfEach;
     }
 }

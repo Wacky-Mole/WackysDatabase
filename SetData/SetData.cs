@@ -3362,7 +3362,26 @@ namespace wackydatabase.SetData
                 go.m_overrideName = data.overrideName ?? go.m_overrideName;
             go.m_respawnTimeMinutes = data.respawnTimer ?? go.m_respawnTimeMinutes;
             go.m_spawnOffset = data.spawnOffset ?? go.m_spawnOffset;
-          //  go.enabled = data.enable ?? go.enabled;
+            //  go.enabled = data.enable ?? go.enabled;
+            var extras = go.m_extraDrops;
+            extras.m_dropMin = data.extraDrops.dropMin ?? extras.m_dropMin;
+            extras.m_dropMax = data.extraDrops.dropMax ?? extras.m_dropMax;
+            extras.m_dropChance = data.extraDrops.dropChance ?? extras.m_dropChance;
+            extras.m_oneOfEach = data.extraDrops.dropOneOfEach ?? extras.m_oneOfEach;
+
+            if (data.extraDrops.drops != null)
+            {
+                extras.m_drops.Clear();
+
+                foreach (var d in data.extraDrops.drops)
+                {
+                    DropTable.DropData newd = new DropTable.DropData();
+                    newd.m_item = Instant.GetItemPrefab(d);
+                    extras.m_drops.Add(newd);
+                }               
+            }
+
+
 
             if (data.size != null)
             {
