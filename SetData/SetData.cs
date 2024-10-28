@@ -1120,6 +1120,9 @@ namespace wackydatabase.SetData
                     newstation.m_roofCheckPoint = null;
                     newstation.m_connectionPoint = null;
                     newstation.m_effectAreaCollider = null;
+                    newstation.m_craftRequireRoof = false;
+                    newstation.m_craftRequireFire = false;
+
                     var FindAreaMarker = copyme.transform.Find("PlayerBase").gameObject;
                     var newAreaMarker = GameObject.Instantiate(FindAreaMarker);
                     newAreaMarker.transform.SetParent(go.transform);
@@ -1139,8 +1142,7 @@ namespace wackydatabase.SetData
 
                     newstation.m_discoverRange = data.craftingStationData.discoveryRange ?? newstation.m_discoverRange;
                     newstation.m_rangeBuild = data.craftingStationData.buildRange ?? newstation.m_rangeBuild;
-                    newstation.m_craftRequireRoof = false;
-                    newstation.m_craftRequireFire = false;
+
                     newstation.m_showBasicRecipies = data.craftingStationData.showBasicRecipes ?? newstation.m_showBasicRecipies;
                     newstation.m_useDistance = data.craftingStationData.useDistance ?? newstation.m_useDistance;
                     newstation.m_useAnimation = data.craftingStationData.useAnimation ?? newstation.m_useAnimation;
