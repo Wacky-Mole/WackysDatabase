@@ -83,7 +83,7 @@ namespace wackydatabase.SetData.SetOldData
                 catch { WMRecipeCust.WLog.LogWarning($"SetItem Data for {data.name} failed"); }
 
             }
-            Instant.UpdateItemHashes();
+            Instant.UpdateRegisters();
             foreach (var data in WMRecipeCust.PieceDatas)
             {
                 try
@@ -103,7 +103,7 @@ namespace wackydatabase.SetData.SetOldData
             WMRecipeCust.Dbgl($"Item Hashes Ready to Update");
             try
             {
-                ObjectDB.instance.UpdateItemHashes();
+                ObjectDB.instance.UpdateRegisters();
             }
             catch
             {
