@@ -2175,6 +2175,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_attackRandomAnimations = data.Primary_Attack.Attack_Random_Animation ?? PrimaryItemData.m_shared.m_attack.m_attackRandomAnimations;
                         PrimaryItemData.m_shared.m_attack.m_attackChainLevels = data.Primary_Attack.Chain_Attacks ?? PrimaryItemData.m_shared.m_attack.m_attackChainLevels;
                         PrimaryItemData.m_shared.m_attack.m_hitTerrain = data.Primary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_attack.m_hitTerrain;
+                        PrimaryItemData.m_shared.m_attack.m_hitFriendly = data.Primary_Attack.Hit_Friendly ?? PrimaryItemData.m_shared.m_attack.m_hitFriendly;
                         if (!WMRecipeCust.AttackSpeed.ContainsKey(tempname))
                         {
                             WMRecipeCust.AttackSpeed.Add(tempname, new Dictionary<bool, float>());
@@ -2394,6 +2395,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations = data.Secondary_Attack.Attack_Random_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackChainLevels = data.Secondary_Attack.Chain_Attacks ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackChainLevels;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain = data.Secondary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_hitFriendly = data.Secondary_Attack.Hit_Friendly ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitFriendly;
                         if (data.Primary_Attack.Custom_AttackSpeed != null)
                             WMRecipeCust.AttackSpeed[tempname][true] = (float)data.Secondary_Attack.Custom_AttackSpeed;
 

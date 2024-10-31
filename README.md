@@ -503,6 +503,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `Attack_Random_Animation` (int): The random animation for the attack.
 - `Chain_Attacks` (int): The number of chain attacks.
 - `Hit_Terrain` (bool): Indicates whether the attack can hit terrain.
+- `Hit_Friendly` (bool): Indicates whether the attack can friendly targets. I am not sure what this will do, but have fun. 
 - `Custom_AttackSpeed` (float): This mod keeps track of this adjustment 1.0 is normal speed. 2.0 is twice as fast. Should be compatible with most other mods that increase speed.
 - `m_attackStamina` (float): The stamina cost of the attack.
 - `m_eitrCost` (float): The eitr cost of the attack.
