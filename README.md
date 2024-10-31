@@ -425,7 +425,7 @@ The way an item looks falls into two categories: its `Model`, and its `Render`. 
 </br></br>'Wackydb_describe [Item or Prefab name]'</br></br>
 Examples:
 'wackydb_describe THSwordKrom' </br></br>
-'wackydb_describe THSwordSlayer</br></br>
+'wackydb_describe THSwordSlayer'</br></br>
 This will create 2 new files in your config/wackydatabase/ folder, called Describe_THSSwordKrom.yml and Describe_THSwordSlayer.yml. These files list every material the item uses, the shader associated with that material, and the properties of that material. Both of these items have only 1 material, which is listed at the top. This material name is what we'll clone. To clone these materials, go back in-game and run the following command.
 </br></br>[wackydb_clone material [Material] [ClonedMaterial]</br></br>
 Examples:
@@ -436,17 +436,17 @@ Materials are a list of values that are used to dictate what an item looks like.
 </br></br>Most commonly, you'll be working with colors. You can make adjustments to the _Colors RGBA values to overlay the color of your item. Do note that all values of 1 equals white, and will be the brightest version of the weapon. Use https://rgbcolorpicker.com/0-1 to find the 0-1 values RGBA.
 </br></br>Your Glossiness value will determine how shiny your item is in-game; how much it reflects light. A Metallic value will determine how metallic a part looks. This will also darken the material quite a bit. 
 
-There are many other values here you can change depending on the shader from the original material. Some examples are how impactful the Bump map is, the color of your metallic parts, what texture channel you use, and more. Another important consideration is that a lot of these values are referencing values within Unity, and a value of 0-1 doesn't necessarily equate on/off. An example is the SmoothnessTextureChannel: a value of 0 means “Metallic alpha” where a value of 1 means “Albedo alpha”.
+There are many other values here you can change depending on the shader from the original material. Some examples are how impactful the Bump map is, the color of your metallic parts, what texture channel you use, and more. Another important consideration is that a lot of these values are referencing values within Unity, and a value of 0-1 doesn't necessarily equate on/off. An example is the SmoothnessTextureChannel: a value of 0 means "Metallic alpha" where a value of 1 means "Albedo alpha".
 #### Let's talk about maps.</br></br>
 Maps are a type of texture file, saved as a .png file. When you clone a material, it will save these texture maps in the wackyDatabase/Textures/ folder. Most of these texture maps can be edited in any paint program. Further, the resolution of each of these maps scales automatically, so you can increase the resolution of a map to increase the level of detail on an item. 
 
-</br></br>MainTex: Also known as an Albedo map, this is the primary texture map for colors and design. These maps are sometimes denoted by the letter “d”.
+</br></br>MainTex: Also known as an Albedo map, this is the primary texture map for colors and design. These maps are sometimes denoted by the letter "d".
 
-</br></br>MetallicGloss: Also known as a Metal map or Metallic map, this map is either a grayscale map or an Transparency map (Alpha map) used to dictate which parts of the item appear metallic or glossy. The more towards white on the map, the more metallic on the texture. These maps are sometimes denoted by the letter “m”.
+</br></br>MetallicGloss: Also known as a Metal map or Metallic map, this map is either a grayscale map or an Transparency map (Alpha map) used to dictate which parts of the item appear metallic or glossy. The more towards white on the map, the more metallic on the texture. These maps are sometimes denoted by the letter "m".
 
-</br></br>BumpMap: Also known as a Normal map, this texture map uses either grayscale, alpha, or RGB channels to dictate roughness on the item. These maps are sometimes denoted by the letter “n”. You will not likely be editing these, as you'll need to use Blender or some other tool  like https://smart-page.net/smartnormal/ to effectively create them.
+</br></br>BumpMap: Also known as a Normal map, this texture map uses either grayscale, alpha, or RGB channels to dictate roughness on the item. These maps are sometimes denoted by the letter "n". You will not likely be editing these, as you'll need to use Blender or some other tool  like https://smart-page.net/smartnormal/ to effectively create them.
 
-</br></br>missionMap: The Emissive map is used to dictate a simulated light effect from the item using a grayscale map. The more towards white on the map, the brighter the texture on the item. Note this is not an actual light-source. But you will be able to see it in the dark. These maps are sometimes denoted by the letter “e”.
+</br></br>missionMap: The Emissive map is used to dictate a simulated light effect from the item using a grayscale map. The more towards white on the map, the brighter the texture on the item. Note this is not an actual light-source. But you will be able to see it in the dark. These maps are sometimes denoted by the letter "e".
 </br></br>https://valheim-modding.Prefab material listgithub.io/Jotunn/data/prefabs/material-list.html
 
 
