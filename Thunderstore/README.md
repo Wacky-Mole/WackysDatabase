@@ -422,15 +422,15 @@ The way an item looks falls into two categories: its `Model`, and its `Render`. 
 </br></br>Most items in Valheim use a single `Material`, but more complex things like armors can utilize multiple materials. And remember, each material has associated `Shaders` and `Properties`. Manipulating this can affect values like glossiness, metallic shine, emissions, and bumpiness.
 #### Knowing where to look
 </br>The first step is to find out more information about a material. In the examples, we'll compare the Two Handed Swords Krom and Slayer and learn what is different between them. Run the following command in-game.
-</br></br>‘Wackydb_describe [Item or Prefab name]'</br></br>
+</br></br>'Wackydb_describe [Item or Prefab name]'</br></br>
 Examples:
-‘wackydb_describe THSwordKrom' </br></br>
-‘wackydb_describe THSwordSlayer</br></br>
+'wackydb_describe THSwordKrom' </br></br>
+'wackydb_describe THSwordSlayer</br></br>
 This will create 2 new files in your config/wackydatabase/ folder, called Describe_THSSwordKrom.yml and Describe_THSwordSlayer.yml. These files list every material the item uses, the shader associated with that material, and the properties of that material. Both of these items have only 1 material, which is listed at the top. This material name is what we'll clone. To clone these materials, go back in-game and run the following command.
 </br></br>[wackydb_clone material [Material] [ClonedMaterial]</br></br>
 Examples:
-</br></br>‘wackydb_clone material Krom_mat Krom_mat_clone`
-</br></br>‘wackydb_clone material NiedhoggSlayer_mat NiedhoggSlayer_mat'
+</br></br>'wackydb_clone material Krom_mat Krom_mat_clone`
+</br></br>'wackydb_clone material NiedhoggSlayer_mat NiedhoggSlayer_mat'
 #### Materials and their values</br></br>
 Materials are a list of values that are used to dictate what an item looks like. When you clone a material, it will save a Material yml file in the wackyDatabase/Materials/ folder. These material files list different variables, and depending on the shader that the original material used, you may have different variables. In the example using Krom and Slayer, note that Krom has RGBA values for MetalColor, while Slayer has an EmissionMap. Depending on what you're trying to accomplish with your item, it is recommended to experiment with different donor materials for the values you want.
 </br></br>Most commonly, you'll be working with colors. You can make adjustments to the _Colors RGBA values to overlay the color of your item. Do note that all values of 1 equals white, and will be the brightest version of the weapon. Use https://rgbcolorpicker.com/0-1 to find the 0-1 values RGBA.
