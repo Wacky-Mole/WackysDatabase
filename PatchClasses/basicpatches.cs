@@ -260,12 +260,12 @@ namespace wackydatabase.PatchClasses
     }
 
     [HarmonyPatch(typeof(Player), "PlacePiece")]
-    static class Player_MessageforPortal_Patch
+    static class Player_MessageforWackyDB
     {
         private static Vector3 tempvalue;
 
         [HarmonyPrefix]
-        private static bool Prefix(ref Player __instance, ref Piece piece)
+        private static bool Prefix(ref Player __instance, ref Piece piece, Vector3 pos, Quaternion rot, bool doAttack)
 
         {
             if (piece == null) return true;

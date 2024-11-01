@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.42  | Bug fix. 
 | 2.4.41  | Bog The Witch Update </br> Add support for multiple Piece CSExtensionData. You can now also make (almost) any piece into an extension for a craftingstation. </br> Added support for Pieces to become craftingstations. </br> Added Pickable m_extraDrops stuff </br> Removed unnecessary warning for disabled pieces. </br> Added Hit_Friendly to attack
 | 2.4.31  | Expanded upgrade_reqs for recipes levels!  You can now specify completely different recipes for all upgrades. Rejoice, no more hacks. 
 | 2.4.28  | Renamed a field to Damage_Multiplier_By_Health_Deficit_Percent </br> Updated Readme with some (light) video tutorial links.
