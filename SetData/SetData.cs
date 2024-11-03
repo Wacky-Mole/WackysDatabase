@@ -1127,7 +1127,7 @@ namespace wackydatabase.SetData
                     var newAreaMarker = GameObject.Instantiate(FindAreaMarker);
                     newAreaMarker.transform.SetParent(go.transform);
                     if (data.cSExtensionDataList != null || data.cSExtensionData != null)
-                        pi.m_name = pi.m_name + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use ";
+                     pi.m_name = pi.m_name + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use ";
 
                     WMRecipeCust.NewCraftingStations.Add(newstation);
 

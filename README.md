@@ -6,7 +6,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![GreenMan](https://wackymole.com/hosts/Greenman.png)
 
 Version: 
-Features
+2.0 Features
 
 
     SetEffects: All of them!
@@ -27,7 +27,7 @@ Features
 <!-- ![WackysDatabase](https://wackymole.com/hosts/lightblue%20Sword.webp) ![WackysDatabase](https://wackymole.com/hosts/1825-1648309710-715635595.png) ![WackysDatabase](https://wackymole.com/hosts/orangeish%20bow.jpg) -->
 Description
 
-WackysDatabase, or Wackydb, allows you to modify and customize items, pieces, recipes, effects, materials and creatures in Valheim without coding. With this mod, you can **clone** items, change their colors, create new items, and even translate language. It offers a wide range of possibilities for customization.
+WackysDatabase, or Wackydb, allows you to modify, create, customize: items, pieces, recipes, effects, materials, creatures, pickables in Valheim without coding. With this mod, you can **clone** items, change their colors, create new items, and even translate language. It offers a wide range of possibilities for customization.
 
 
 YML Knowledge
@@ -58,7 +58,7 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 <details><summary>General Knowledge</summary>
 
 
-    There are five (7) Objects that WackyDB touches. Items, Recipes, Pieces, Creatures, Pickables(Pickables and Treebase) Materials and Textures
+    There are seven (7) Objects that WackyDB touches. Items, Recipes, Pieces, Creatures, Pickables(Pickables and Treebase) Materials and Textures
 
     Items are things in your inventory, you can pickup and maybe equip them.
 
@@ -78,9 +78,9 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 
     Textures are .pngs that hold the feel, appearance, or consistency of a surface or substance.
 
-    Nost lines in the YAMLS can be deleted. Only the required ones need to be in the files, when the line is deleted the computer interprets that as a null value.
+    Most lines in the YAMLS can be deleted. Only the required ones need to be in the files, when the line is deleted the computer interprets that as a null value.
 
-    Null is like I don't know, so I don't care, use the orginal values. 
+    Null is like, I don't know, so I don't care, use the orginal values. 
     
     To delete the existing values you will use either '' for strings, "delete" for SE Effects or "-" for multiliners. 
 
@@ -166,6 +166,12 @@ Frequently Asked Questions
 
     Q: Can I clone or adjust Projectiles?
         A: No, wackydb doesn't do projectiles, it may someday.
+
+    Q: Wackydb object failed hashes, Please fix yaml or Bug, removing from ObjectDB, rerunning
+        A: So this can be any number of things. First make sure you clear your cache! It might mean that the yaml is not be correct,
+             missing info/mods or I an actual bug I haven't fixed.  I usually only see it on relogging a character.
+             Please clear your cache and if it is reproducible and not a basic yaml error, send me your log and yaml.
+
 
 </details>
 
@@ -304,7 +310,7 @@ If a cloned is not cached for the first run, errors may appear for users as othe
 
 The next load logon should fix the issues. 
 
-Feel free to removed the cache folder for big changes, but try to leave it for normal usage
+Feel free to removed the cache folder for big changes, but try to leave it for normal usage. If you see any hash errors, remove cache.
 
 </br>
 
