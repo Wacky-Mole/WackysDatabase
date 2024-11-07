@@ -87,7 +87,7 @@ namespace wackydatabase.PatchClasses
             new("wackydb_clearcache", "ClearCache",
              args =>
              {
-                 WMRecipeCust.WLog.LogWarning(" deleteing Cache");
+                 WMRecipeCust.WLog.LogWarning(" deleting Cache");
                  WMRecipeCust.DeleteCache();
 
                  //WMRecipeCust.Dbgl("Checking Cache Folder and Loading Any Item/Mock Clones");
@@ -96,7 +96,7 @@ namespace wackydatabase.PatchClasses
                  MaterialDataManager.Instance.materials.Clear();
                  TextureDataManager.textureCache.Clear();
 
-                 args.Context?.AddString(" deleteing Cache");
+                 args.Context?.AddString("deleting Cache");
 
              });
 
