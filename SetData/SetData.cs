@@ -1166,12 +1166,14 @@ namespace wackydatabase.SetData
             if (data.cSExtensionDataList != null || data.cSExtensionData != null) // new
             {
                 var current = go.GetComponents<StationExtension>();
+                var count = current.Count();
 
                 if (data.cSExtensionData != null)
                 {
                     data.cSExtensionDataList = new List<CSExtensionData>();
                     data.cSExtensionDataList.Add(data.cSExtensionData);
                 }
+                var newcount = data.cSExtensionDataList.Count();
 
                 foreach (var ext in data.cSExtensionDataList) 
                 {
@@ -1199,11 +1201,11 @@ namespace wackydatabase.SetData
 
                     foreach (var stat in current)
                     {
-                        if (stat.m_craftingStation == DataHelpers.GetCraftingStation(ext.MainCraftingStationName) || stat.m_craftingStation == luckysearch)
+                        if (stat.m_craftingStation == DataHelpers.GetCraftingStation(ext.MainCraftingStationName) || stat.m_craftingStation == luckysearch || count == newcount)
                         {
                             found = true;
                             WMRecipeCust.WLog.LogInfo("   Piece has extension on it for " + ext.MainCraftingStationName);
-                            //stat.m_craftingStation = DataHelpers.GetCraftingStation(data.cSExtensionData.MainCraftingStationName) ?? ex.m_craftingStation;
+                            stat.m_craftingStation = DataHelpers.GetCraftingStation(ext.MainCraftingStationName) ?? stat.m_craftingStation;
                             stat.m_maxStationDistance = ext.maxStationDistance ?? stat.m_maxStationDistance;
                             stat.m_continousConnection = ext.continousConnection ?? stat.m_continousConnection;
                             stat.m_stack = ext.stack ?? stat.m_stack;
