@@ -1199,8 +1199,8 @@ You can replace all Boars in the game with this Dude.
 
 ### SE_Effects
 
-- `Name` (string): The name of the status effect.
-- `Status_m_name` (string): In Game Name
+- `Name` (string, required): The name of the status effect.
+- `Status_m_name` (string, required): In Game Name
 - `Category` (string): The category of the status effect. Prevents other SEs in this category from being active while one is active. "" is default with no category, so no restrictions.
 - `IconName` (string): The name of the icon for the status effect. Doesn't do much, can't change.
 - `ClonedSE` (string): Holds the name of the SE you are cloning. Otherwise new SE's will use SetEffect_TrollArmor
