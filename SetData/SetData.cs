@@ -1789,7 +1789,7 @@ namespace wackydatabase.SetData
 
             bool skip = false;
             bool mockskip = false;
-
+            
 
             foreach (var citem in WMRecipeCust.ClonedI)
             {
@@ -1821,6 +1821,8 @@ namespace wackydatabase.SetData
                         ItemDrop itemDrop = newObj.GetComponent<ItemDrop>();
                         itemDrop.name = data.name;
                         itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "Cube";
+
+                  
 
                         if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
@@ -2168,7 +2170,7 @@ namespace wackydatabase.SetData
                             go.transform.GetChild(0).localScale = NewScale;
                         }
                     }
-
+               
                     if (data.Primary_Attack != null)
                     {
                         WMRecipeCust.Dbgl($"   {data.name} Item attacks ");

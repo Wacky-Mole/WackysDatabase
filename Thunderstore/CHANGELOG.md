@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.45  | Expanded saving Attack classes for non attack items that still have important fields. Like Hoe and Shields. </br> Update for possible bug on latest version. 
 | 2.4.44  | Bug fix for cSExtensionDataList
 | 2.4.43  | Update for PieceManager
 | 2.4.42  | Bug fix. 

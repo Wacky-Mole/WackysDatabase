@@ -1056,6 +1056,15 @@ namespace wackydatabase.GetData
             if(go.name == "StaffShield" || go.name == "StaffSkeleton") // for the special cases
                 hasdmg = true;
 
+            if (go.TryGetComponent<Attack>(out var attackcheck) )
+            {
+                if (attackcheck != null)
+                {
+                    if (attackcheck.m_attackAnimation != null || attackcheck.m_attackAnimation != "")
+                        hasdmg = true;
+                }
+            }
+
             if (hasdmg)
             {
                 WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " attack ");
