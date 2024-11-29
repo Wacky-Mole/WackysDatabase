@@ -259,13 +259,13 @@ namespace wackydatabase.PatchClasses
         }
     }
 
-    [HarmonyPatch(typeof(Player), "PlacePiece")]
-    static class Player_MessageforWackyDB
+    [HarmonyPatch(typeof(Player), "TryPlacePiece")]
+    static class Player_MessageforWackyDBTry
     {
         private static Vector3 tempvalue;
 
         [HarmonyPrefix]
-        private static bool Prefix(ref Player __instance, ref Piece piece, Vector3 pos, Quaternion rot, bool doAttack)
+        private static bool Prefix(ref Player __instance, ref Piece piece)
 
         {
             if (piece == null) return true;
@@ -280,7 +280,7 @@ namespace wackydatabase.PatchClasses
                     if (__instance.transform.position != null)
                         tempvalue = __instance.transform.position; // save position //must be assigned
                     else
-                        tempvalue = new Vector3(0, 0, 0); // shouldn't ever be called 
+                        tempvalue = new Vector3(0, 0, 0); 
 
                     var paulstation = CraftingStation.HaveBuildStationInRange(piece.m_craftingStation.m_name, tempvalue);
                     var paullvl = paulstation.GetLevel();
