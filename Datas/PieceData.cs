@@ -67,6 +67,8 @@ namespace wackydatabase.Datas
 
         public PlantData? plantData;
 
+        public ShipData? shipData; 
+
         public List<string>? build = new List<string>();
 
     }
@@ -87,6 +89,11 @@ namespace wackydatabase.Datas
         public bool? supports;
         public bool? triggerPrivateArea;
 
+    }
+
+    public class ShipData
+    {
+        public bool? ashlandProof;
     }
 
 

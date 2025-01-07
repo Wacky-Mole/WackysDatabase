@@ -151,7 +151,7 @@ namespace wackydatabase.Datas
         internal static GameObject CheckforSpecialObjects(string name) // should handle all times of special cases, manual entry
         {
             GameObject go = null;
-            string ZnetName = null;
+            string ZnetName = "";
             int hash = 0;
             switch (name)
             {
@@ -166,10 +166,10 @@ namespace wackydatabase.Datas
                     break;
                 case "SpearBronze":
                     ZnetName = "SpearBronze";
-                    break;
+                    break;               
                 case "ShieldBronzeBuckler":
                     ZnetName = "ShieldBronzeBuckler";
-                    break;
+                    break;                
                 case "HelmetBronze":
                     ZnetName = "HelmetBronze";
                     break;
@@ -188,6 +188,7 @@ namespace wackydatabase.Datas
                         }                      
                     }
                     WMRecipeCust.Dbgl("Found " + count + " For CrossbowArbalest in DB");
+                    ZnetName = "CrossbowArbalest";
                     //ZnetName = "CrossbowArbalest";
                     // hash = -1556386686;
                     break;
@@ -200,25 +201,26 @@ namespace wackydatabase.Datas
                     go = null;
                     break;
             }
-            if (ZnetName != null)
+            if (ZnetName == "")
+                return null;
+
+            try
             {
-                try
+                WMRecipeCust.WLog.LogInfo($"   ZnetScene Special Object Search with {ZnetName}");
+                go = ZNetScene.instance.GetPrefab(ZnetName); // damn why didn't I discover this sooner// that is sooo brutal. 
+                // no loginfo for this
+
+                if (hash != 0)
                 {
+                    go = ZNetScene.instance.GetPrefab(hash);
 
-                    go = ZNetScene.instance.GetPrefab(ZnetName); // damn why didn't I discover this sooner// that is sooo brutal. 
-                    if (hash != 0)
-                    {
-                        go = ZNetScene.instance.GetPrefab(hash);
-
-                        if (go != null)
-                            WMRecipeCust.WLog.LogInfo($"Found Special Object with Hash {go.name} known issue");
-                    }
-
+                    if (go != null)
+                        WMRecipeCust.WLog.LogInfo($"Found Special Object with Hash {go.name} known issue");
                 }
-                catch { }
 
             }
-
+            catch { }
+          
             return go;
         }
 

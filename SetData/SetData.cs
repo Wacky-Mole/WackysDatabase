@@ -37,6 +37,7 @@ using static Minimap;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using wackydatabase.GetData;
+using static ItemDrop;
 
 
 public class RequirementQuality
@@ -629,7 +630,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl("Piece data not found!");
                 return;
             }
-            if (DisabledPieceandHam.ContainsKey(go) && (data.disabled == true) || data.adminonly == true)
+            if (DisabledPieceandHam.ContainsKey(go) && ((data.disabled == true) || data.adminonly == true))
                 return;
 
             if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
@@ -848,47 +849,64 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_craftingStation = craft;
             }
 
-            if (!skip)
-            { // Cats // if just added cloned doesn't need to be category changed.
+            if (!skip)// Cats // if just added cloned doesn't need to be category changed.
+            { 
                 Piece ItemComp = go.GetComponent<Piece>();
+                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer);
 
-                GameObject piecehammer = Instant.GetItemPrefab(data.piecehammer); // need to check to make sure hammer didn't change, if it did then needs to disable piece in certain cat before moving to next
-                                                                                  // Can't check the hammer easily, so checking the PieceCategory, hopefully someone doesn't make two Misc
-                if (data.piecehammerCategory != null && data.piecehammer != null) // check that category and hammer is actually set
+                // Validate piecehammer category and hammer
+                if (data.piecehammerCategory != null && data.piecehammer != null)
                 {
-                    if (data.piecehammer == "Hoe" || data.piecehammer == "_CultivatorPieceTable") // Hoe and Cultivator
+                    // Handle specific cases for Hoe and Cultivator
+                    if (data.piecehammer == "Hoe" || data.piecehammer == "_CultivatorPieceTable")
                     {
                         if (!string.IsNullOrEmpty(data.piecehammerCategory))
                         {
                             try
-                            { ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory); }
-                            catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
-                        }
-                        piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go); // if piecehammer is the actual item and not the PieceTable
-                    }
-                    else if (ItemComp.m_category != PieceManager.PiecePrefabManager.GetCategory(data.piecehammerCategory))// (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory))
-                    { // now disable old
-                        WMRecipeCust.Dbgl($"Category change has been detected for {data.name}, disabling old piece and setting new piece location");
-                        if (piecehammer == null)
-                        {
-                            if (WMRecipeCust.selectedPiecehammer == null) // selectedPiecehammer is set in
                             {
-                                piecehammer = ObjectDB.instance.GetItemPrefab("Hammer"); // default add // default delete
-                                piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                                ItemComp.m_category = (Piece.PieceCategory)Enum.Parse(typeof(Piece.PieceCategory), data.piecehammerCategory);
                             }
-                            else WMRecipeCust.selectedPiecehammer.m_pieces.Remove(go); // found in modded hammers
+                            catch
+                            {
+                                WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly");
+                            }
                         }
-                        else piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go); // if piecehammer is the actual item and not the PieceTable
 
-                        // Now add to new Cat and hammer
+                        piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                    }
+                    else if (ItemComp.m_category != PieceManager.PiecePrefabManager.GetCategory(data.piecehammerCategory))
+                    {
+                        // Handle category change
+                        WMRecipeCust.Dbgl($"Category change detected for {data.name}. Disabling old piece and setting new piece location.");
+
                         if (piecehammer == null)
                         {
                             if (WMRecipeCust.selectedPiecehammer == null)
                             {
-                                WMRecipeCust.Dbgl($"piecehammer named {data.piecehammer} will not be used because the Item prefab was not found and it is not a PieceTable, so setting the piece to Hammer in Misc");
-                                piecehammer = Instant.GetItemPrefab("Hammer");
+                                // Default to Hammer if no piecehammer is found
+                                piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
+                                piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                            }
+                            else
+                            {
+                                // Remove from modded hammers
+                                WMRecipeCust.selectedPiecehammer.m_pieces.Remove(go);
+                            }
+                        }
+                        else
+                        {
+                            // Remove piece from the current piecehammer
+                            piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                        }
 
-                                ItemComp.m_category = Piece.PieceCategory.Misc; // set the category
+                        // Add to the new category and hammer
+                        if (piecehammer == null)
+                        {
+                            if (WMRecipeCust.selectedPiecehammer == null)
+                            {
+                                WMRecipeCust.Dbgl($"piecehammer named {data.piecehammer} not found. Defaulting to Hammer in Misc category.");
+                                piecehammer = Instant.GetItemPrefab("Hammer");
+                                ItemComp.m_category = Piece.PieceCategory.Misc;
                                 piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
                             }
                             else
@@ -896,10 +914,16 @@ namespace wackydatabase.SetData
                                 if (!string.IsNullOrEmpty(data.piecehammerCategory))
                                 {
                                     try
-                                    { PieceManager.BuildPiece.BuildTableConfigChangedWacky(ItemComp, data.piecehammerCategory); }
-                                    catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                                    {
+                                        PieceManager.BuildPiece.BuildTableConfigChangedWacky(ItemComp, data.piecehammerCategory);
+                                    }
+                                    catch
+                                    {
+                                        WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly");
+                                    }
                                 }
-                                WMRecipeCust.selectedPiecehammer.m_pieces.Add(go); // adding item to PiceTable
+
+                                WMRecipeCust.selectedPiecehammer.m_pieces.Add(go);
                             }
                         }
                         else
@@ -907,10 +931,16 @@ namespace wackydatabase.SetData
                             if (!string.IsNullOrEmpty(data.piecehammerCategory))
                             {
                                 try
-                                { PieceManager.BuildPiece.BuildTableConfigChangedWacky(ItemComp, data.piecehammerCategory); }
-                                catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
+                                {
+                                    PieceManager.BuildPiece.BuildTableConfigChangedWacky(ItemComp, data.piecehammerCategory);
+                                }
+                                catch
+                                {
+                                    WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly");
+                                }
                             }
-                            piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go); // if piecehammer is the actual item and not the PieceTable
+
+                            piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
                         }
                     }
                 }
@@ -1267,6 +1297,13 @@ namespace wackydatabase.SetData
                 sap.m_drainingSlowText = data.sapData.drainingSlowText;
                 sap.m_notConnectedText = data.sapData.notConnectedText;
                 sap.m_fullText = data.sapData.fullText;
+            }
+
+            if (data.shipData != null)
+            {
+                go.TryGetComponent<Ship>(out var ship);
+
+                ship.m_ashlandsReady = data.shipData.ashlandProof ?? ship.m_ashlandsReady;
             }
 
             if (data.fermStationData != null)
@@ -2594,6 +2631,38 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_foodRegen = data.FoodStats.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
                         PrimaryItemData.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
                         PrimaryItemData.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
+
+                        if (go.TryGetComponent<Feast>(out var feastme))
+                        {
+                            WMRecipeCust.Dbgl("   Feast Found, Complicated Setting, Setting Feast _Material at same time");
+                            feastme.m_eatStacks = data.FoodStats.feastStacks ?? feastme.m_eatStacks;
+
+                            var stablename = ZNetScene.instance.GetPrefabHash(go);
+                            var feastItem = ZNetScene.instance.GetPrefab(stablename);
+                            var feastdat = feastItem.GetComponent<ItemDrop>().m_itemData;
+                            feastdat.m_shared.m_food = data.FoodStats.m_foodHealth ?? PrimaryItemData.m_shared.m_food;
+                            feastdat.m_shared.m_foodStamina = data.FoodStats.m_foodStamina ?? PrimaryItemData.m_shared.m_foodStamina;
+                            feastdat.m_shared.m_foodRegen = data.FoodStats.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
+                            feastdat.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
+                            feastdat.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
+                            GameObject feastMat = Instant.GetItemPrefab(go.name + "_Material");
+                            var feastMatItemDrop = feastMat.GetComponent<ItemDrop>().m_itemData.m_shared;
+                            feastdat.m_shared.m_name = data.m_name;
+                            feastMatItemDrop.m_description = data.m_description;
+                            feastMatItemDrop.m_maxStackSize = data.m_maxStackSize ?? feastMatItemDrop.m_maxStackSize;
+                            feastMatItemDrop.m_weight = data.m_weight;
+                            feastMatItemDrop.m_appendToolTip =  go.GetComponent<ItemDrop>();
+                            feastMatItemDrop.m_food = 0;
+                            feastMatItemDrop.m_foodStamina = 0;
+                            feastMatItemDrop.m_foodRegen = 0;
+                            feastMatItemDrop.m_foodBurnTime = 0;
+                            feastMatItemDrop.m_foodEitr = 0;
+                            feastMatItemDrop.m_itemType = ItemData.ItemType.Material;
+                            //PrimaryItemData.m_shared.m_itemType = ItemData.ItemType.Material;
+                            WMRecipeCust.Dbgl("    Finished Feast _Material");
+                            return;
+
+                        }
                     }
 
 

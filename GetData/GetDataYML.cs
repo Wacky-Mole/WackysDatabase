@@ -614,6 +614,15 @@ namespace wackydatabase.GetData
                 
 
             }
+            if (PieceID.TryGetComponent<Ship>(out var ship))
+            {
+                ShipData shipdata = new ShipData();
+                shipdata.ashlandProof = ship.m_ashlandsReady;
+
+                data.shipData = shipdata;
+
+            }
+
             if (PieceID.TryGetComponent<Plant>(out var plant))
             {
                 PlantData plantdata = new PlantData();
@@ -1258,7 +1267,24 @@ namespace wackydatabase.GetData
                     m_foodStamina = data.m_shared.m_foodStamina,
                     m_FoodEitr = data.m_shared.m_foodEitr,
                 };
+                
+
+                if (go.TryGetComponent<Feast>(out var feastme))
+                {
+                    WMRecipeCust.Dbgl("  Feast Found - Starting complicated fixing scheme");
+                    FoodStats.feastStacks = feastme.m_eatStacks;
+
+                    GameObject feastMat = tod.GetItemPrefab(go.name + "_Material");
+                    var feastMatItemDrop = feastMat.GetComponent<ItemDrop>().m_itemData.m_shared;
+                    ItemData.m_description = feastMatItemDrop.m_description;
+                    ItemData.m_maxStackSize = feastMatItemDrop.m_maxStackSize;
+                    ItemData.m_weight = feastMatItemDrop.m_weight;
+
+                }
+
                 ItemData.FoodStats = FoodStats;
+
+
             }
 
 

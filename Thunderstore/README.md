@@ -659,11 +659,15 @@ To delete existing Effects
 `FoodStats` (FoodData): The food-related statistics of the item.
 ### FoodData
 
+
 - `m_foodHealth` (float): The health provided by the food.
 - `m_foodStamina` (float): The stamina provided by the food.
 - `m_foodRegen` (float): The regeneration rate of the food.
 - `m_foodBurnTime` (float): The burn time of the food.
 - `m_FoodEitr` (float): The eitr provided by the food.
+- `feastStacks` (int): How many stacks/portions of food each feasts gives. 
+
+You Can NOT clone feasts, they are very complicated. 
 
 </br>
 
@@ -1408,7 +1412,7 @@ Wackymole
 <details><summary>Feedback</summary>
 
 
-For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus) or my discord at [Wolf Den](https://discord.gg/yPj7xjs3Xf)
+For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus) or my discord at [Wolf Den](https://discord.gg/uPjjH8y52j)
 
 Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole
 
@@ -1460,5 +1464,7 @@ Known issues: </br>
  Creature material is not working
  </br>
  CrossbowArbalest item not changing, recommend cloning and replacing
+ </br>
+ Making any piece into a craftingstation is a bit buggy
  </br>
 Stay Wacky.

@@ -659,11 +659,15 @@ To delete existing Effects
 `FoodStats` (FoodData): The food-related statistics of the item.
 ### FoodData
 
+
 - `m_foodHealth` (float): The health provided by the food.
 - `m_foodStamina` (float): The stamina provided by the food.
 - `m_foodRegen` (float): The regeneration rate of the food.
 - `m_foodBurnTime` (float): The burn time of the food.
 - `m_FoodEitr` (float): The eitr provided by the food.
+- `feastStacks` (int): How many stacks/portions of food each feasts gives. 
+
+You Can NOT clone feasts, they are very complicated. 
 
 </br>
 
@@ -1460,5 +1464,7 @@ Known issues: </br>
  Creature material is not working
  </br>
  CrossbowArbalest item not changing, recommend cloning and replacing
+ </br>
+ Making any piece into a craftingstation is a bit buggy
  </br>
 Stay Wacky.

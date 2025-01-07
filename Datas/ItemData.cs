@@ -288,6 +288,7 @@ namespace wackydatabase.Datas
     [Serializable]
     public class FoodData
     {
+        public int? feastStacks;
         public float? m_foodHealth;
         public float? m_foodStamina;
         public float? m_foodRegen;

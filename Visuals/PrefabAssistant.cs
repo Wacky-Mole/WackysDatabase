@@ -87,7 +87,7 @@ namespace wackydatabase
             }
 
             // Try and fetch the skin (works for weapons & armors)
-            Transform skin = item.transform.Find("attach_skin") ?? item.transform.Find("attach");
+            Transform skin = item.transform.Find("attach_skin") ?? item.transform.Find("attach") ?? item.transform;
 
             Renderer[] skin_renderers = skin != null ? skin.GetComponentsInChildren<Renderer>(true) : item.GetComponentsInChildren<Renderer>(true);
 

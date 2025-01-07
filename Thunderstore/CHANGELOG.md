@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.47  | Added Feast editing feastStacks to FoodStats. Feasts have a Item and Piece component and then a Material object. Most people should just edit the Item. Can't clone because they are too complicated. </br> Added ashlandProof to ships(pieces) (Majestic request)
 | 2.4.46  | Minor bug fix for extra resource consumption with recipes.
 | 2.4.45  | Expanded saving Attack classes for non attack items that still have important fields. Like Hoe and Shields. 
 | 2.4.44  | Bug fix for cSExtensionDataList
