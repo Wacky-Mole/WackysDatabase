@@ -630,8 +630,15 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl("Piece data not found!");
                 return;
             }
-            if (DisabledPieceandHam.ContainsKey(go) && ((data.disabled == true) || data.adminonly == true))
-                return;
+            if (DisabledPieceandHam.ContainsKey(go))
+            {
+                if (data.disabled == true)
+                    return;
+
+                if (data.adminonly == true && !WMRecipeCust.Admin)
+                    return;
+
+            } 
 
             if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
             {
@@ -2897,6 +2904,24 @@ namespace wackydatabase.SetData
                         WMRecipeCust.Dbgl($"   {data.name} Item ConsumableStatusEffect added ");
                         PrimaryItemData.m_shared.m_consumeStatusEffect = Instant.GetStatusEffect(data.ConsumableStatusEffect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_consumeStatusEffect;
                     }
+
+                    if (data.AppendToolTip != null && !go.TryGetComponent<Feast>(out var feastme2))           
+                    {
+
+                        if (data.AppendToolTip == "delete")
+                        {
+                            WMRecipeCust.Dbgl($"   {data.name} Item AppendToolTip removed ");
+                            PrimaryItemData.m_shared.m_appendToolTip = null;
+                        }
+                        else
+                        {
+
+                            WMRecipeCust.Dbgl($"   {data.name} Item AppendToolTip added ");
+                            PrimaryItemData.m_shared.m_appendToolTip = Instant.GetItemPrefab(data.AppendToolTip).GetComponent<ItemDrop>() ?? PrimaryItemData.m_shared.m_appendToolTip;
+                        }
+                    }
+
+
                     return;
                 }
             }

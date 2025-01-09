@@ -106,6 +106,7 @@ namespace wackydatabase
         public static List<TreeBaseData> treebaseDatasYml = new List<TreeBaseData>();
         public static List<WItemData> cacheItemsYML = new List<WItemData>();// cacheonly
         public static List<MaterialInstance> cacheMaterials = new List<MaterialInstance>();// cacheonly
+        public static List<StatusData> cacheStatusYML = new List<StatusData>();// cacheonly
 
         public static List<string> ClonedI = new List<string>(); // items
         public static List<string> ClonedINoZ = new List<string>(); // items No Znet // not used

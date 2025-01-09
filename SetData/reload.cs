@@ -232,14 +232,8 @@ namespace wackydatabase.SetData
             }
 
         }
-
-        public void LoadClonedCachedItems(bool WithZdo =false) // cached items and item mocks for main menu
+        public void LoadCacheStatus()
         {
-             
-            ObjectDB Instant = ObjectDB.instance;
-            UPdateItemHashesWacky(Instant);
-
-            //load material cache .mats here
 
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
             {
@@ -247,6 +241,24 @@ namespace wackydatabase.SetData
                 WMRecipeCust.GetAllMaterials();
 
             }
+            WMRecipeCust.WLog.LogInfo($"Setting Cache SEs");
+            ObjectDB Instant = ObjectDB.instance;
+            foreach (var data in WMRecipeCust.cacheStatusYML)
+            {
+                try
+                {
+                    SetData.SetStatusData(data, Instant);// has issues sometimes
+                }
+                catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
+            }
+
+        }
+
+        public void LoadClonedCachedItems(bool WithZdo =false) // cached items and item mocks for main menu
+        {
+             
+            ObjectDB Instant = ObjectDB.instance;
+            UPdateItemHashesWacky(Instant);
        
             foreach (var data in WMRecipeCust.cacheItemsYML) 
             {
@@ -610,7 +622,7 @@ namespace wackydatabase.SetData
             }            
 
             //string currentplayer = Player.m_localPlayer.name;// save item cache
-            WMRecipeCust.Dbgl($"Building Cloned Cache for Player Items/Mock");
+            WMRecipeCust.Dbgl($"Building Cloned Cache for Player Items/Mock/Status");
             var serializer = new SerializerBuilder()
                         .Build();
             var rand = new System.Random();
@@ -633,6 +645,25 @@ namespace wackydatabase.SetData
                 catch { WMRecipeCust.WLog.LogWarning($"Item Cache save for {data.name} failed"); }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode )
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            foreach( var data2 in WMRecipeCust.effectDataYml)
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(data2.Name))
+                    {
+                        int hash = data2.Name.GetStableHashCode(); // hash for the name now
+                        File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCache, "_" + hash + ".se"), serializer.Serialize(data2));
+                    }
+                } catch { WMRecipeCust.WLog.LogWarning($"Status Cache save for {data2.Name} failed"); }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
                 {
                     yield return new WaitForSeconds(WMRecipeCust.WaitTime);
                     processcount = 0;

@@ -110,7 +110,7 @@ Frequently Asked Questions
         A: Water is a DamageModifiers that I added from Aedenthorn mod.  I don't have plans to add it to m_mods.
         
     Q: Do you have a Video;
-        A: Not yet, but YOU could make one!
+        A: Not yet, but YOU could make one! Majestic has some short ones linked.
 
     Q: Is it possible to add a recipe for each upgrade of an item?
         A: You can now have a crafting recipe and an upgrading recipe. You can't have a different recipe for each upgrade, unless you do item cloning/recipe cloning hack.
@@ -300,7 +300,7 @@ Custom_AttackSpeed: 5 . 500% faster goes brrr
 ## Cache Folder
 
 
-The cache system is very important for Item/mock clones. 
+The cache system is very important for Item/mock clones and SEs. 
 
 It allows material colors to show up on main menu and allows cloned items to be touched by other mods and treated like normal items.
 
@@ -667,7 +667,7 @@ To delete existing Effects
 - `m_FoodEitr` (float): The eitr provided by the food.
 - `feastStacks` (int): How many stacks/portions of food each feasts gives. 
 
-You Can NOT clone feasts, they are very complicated. 
+You Can NOT clone feasts, they are complicated. 
 
 </br>
 
@@ -748,6 +748,7 @@ To delete existing
 - `m_maxQuality` (int): The maximum quality of the item.
 - `m_value` (int): The value of the item. The value of the item. if value is >0. Then the object becomes salable at Trader. 
         The Object Description gets a yellow Valuable notice. Just like base game you don't know what object you are selling to Trader.
+- `AppendToolTip` (string): (name of item) Appends the tooltip of another item onto this item. Useful for non editable foods etc. (Use "delete" to remove existing.) (This is ignored for feasts, as I have to do it a differnt way)
 - `damageModifiers` (List<string>): The list of damage modifiers for the item.
 
 ### DamageModifiers
@@ -1203,6 +1204,8 @@ You can replace all Boars in the game with this Dude.
 
 ### SE_Effects
 
+ SEs are now Cached, so keep that in mind. 
+
 - `Name` (string, required): The name of the status effect.
 - `Status_m_name` (string, required): In Game Name
 - `Category` (string): The category of the status effect. Prevents other SEs in this category from being active while one is active. "" is default with no category, so no restrictions.
@@ -1465,6 +1468,6 @@ Known issues: </br>
  </br>
  CrossbowArbalest item not changing, recommend cloning and replacing
  </br>
- Making any piece into a craftingstation is a bit buggy
+ Making any piece into a craftingstation is a bit buggy. (It's really at the limit to what wackydb can do without Unity)
  </br>
 Stay Wacky.

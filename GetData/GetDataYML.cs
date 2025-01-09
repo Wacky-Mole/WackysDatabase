@@ -1314,6 +1314,7 @@ namespace wackydatabase.GetData
                 ItemData.spawn_on_terrain_hit = data.m_shared.m_spawnOnHitTerrain?.name;
 
             ItemData.ConsumableStatusEffect = data.m_shared.m_consumeStatusEffect?.name ?? null;
+            ItemData.AppendToolTip = data.m_shared.m_appendToolTip?.name?.ToString() ?? null;
 
             ItemData.snapshotOnMaterialChange = true;
             //ItemData.snapshotVisualRotation = Quaternion.Euler(90, 30, 30);
