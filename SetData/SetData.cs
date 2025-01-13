@@ -2901,8 +2901,16 @@ namespace wackydatabase.SetData
 
                     if (data.ConsumableStatusEffect != null)
                     {
-                        WMRecipeCust.Dbgl($"   {data.name} Item ConsumableStatusEffect added ");
-                        PrimaryItemData.m_shared.m_consumeStatusEffect = Instant.GetStatusEffect(data.ConsumableStatusEffect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_consumeStatusEffect;
+                        if (data.ConsumableStatusEffect == "delete")
+                        {
+                            WMRecipeCust.Dbgl($"   {data.name} Item ConsumeEffect removed ");
+                            PrimaryItemData.m_shared.m_consumeStatusEffect = null;
+                        }
+                        else
+                        {
+                            WMRecipeCust.Dbgl($"   {data.name} Item ConsumableStatusEffect added ");
+                            PrimaryItemData.m_shared.m_consumeStatusEffect = Instant.GetStatusEffect(data.ConsumableStatusEffect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_consumeStatusEffect;
+                        }
                     }
 
                     if (data.AppendToolTip != null && !go.TryGetComponent<Feast>(out var feastme2))           

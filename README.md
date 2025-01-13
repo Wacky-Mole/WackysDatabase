@@ -671,7 +671,7 @@ You Can NOT clone feasts, they are complicated.
 
 </br>
 
-- `ConsumableStatusEffect` (string): On consumption (eating), give this status effect.  - Doesn't make things Edible 
+- `ConsumableStatusEffect` (string): On consumption (eating), give this status effect.  - Doesn't make things Edible. Delete with "delete". 
 </br>
 
 `Moddifiers` (StatMods): The stat modifiers of the item.
