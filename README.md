@@ -933,7 +933,7 @@ To make something free. build:
 - `noSupportWear` (bool): Indicates whether the piece does not wear when supported.
 - `supports` (bool): Indicates whether the piece provides support.
 - `triggerPrivateArea` (bool): Indicates whether the piece triggers the private area.
-- `materialType` (materialType): What is the material made out of? Different materials have different strengths. 
+- `materialType` (materialType): What is the material made out of? Different materials have different strengths. This should not change the look of the piece.
 
 ![MaterialTypoe](https://wackymole.com/hosts/MaterialType.png)
 

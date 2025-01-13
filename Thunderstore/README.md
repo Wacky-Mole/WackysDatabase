@@ -671,7 +671,7 @@ You Can NOT clone feasts, they are complicated.
 
 </br>
 
-- `ConsumableStatusEffect` (string): On consumption (eating), give this status effect.  - Doesn't make things Edible 
+- `ConsumableStatusEffect` (string): On consumption (eating), give this status effect.  - Doesn't make things Edible. Delete with "delete". 
 </br>
 
 `Moddifiers` (StatMods): The stat modifiers of the item.
@@ -933,6 +933,9 @@ To make something free. build:
 - `noSupportWear` (bool): Indicates whether the piece does not wear when supported.
 - `supports` (bool): Indicates whether the piece provides support.
 - `triggerPrivateArea` (bool): Indicates whether the piece triggers the private area.
+- `materialType` (materialType): What is the material made out of? Different materials have different strengths. This should not change the look of the piece.
+
+![MaterialTypoe](https://wackymole.com/hosts/MaterialType.png)
 
 ### CraftingStationData
 
