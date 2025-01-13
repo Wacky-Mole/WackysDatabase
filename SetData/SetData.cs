@@ -1130,6 +1130,7 @@ namespace wackydatabase.SetData
                 wear.m_noSupportWear = data.wearNTearData.noSupportWear ?? wear.m_noSupportWear;
                 wear.m_supports = data.wearNTearData.supports ?? wear.m_supports;
                 wear.m_triggerPrivateArea = data.wearNTearData.triggerPrivateArea ?? wear.m_triggerPrivateArea;
+                wear.m_materialType = data.wearNTearData.materialType ?? wear.m_materialType;
             }
 
             if (data.craftingStationData != null)

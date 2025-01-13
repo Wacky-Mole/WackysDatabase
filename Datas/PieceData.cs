@@ -88,6 +88,7 @@ namespace wackydatabase.Datas
         public bool? noSupportWear;
         public bool? supports;
         public bool? triggerPrivateArea;
+        public WearNTear.MaterialType? materialType;
 
     }
 

@@ -465,6 +465,7 @@ namespace wackydatabase.GetData
                  noSupportWear = wear.m_noSupportWear,
                  supports = wear.m_supports,
                  triggerPrivateArea = wear.m_triggerPrivateArea,
+                 materialType = wear.m_materialType,
                  };
 
                 data.wearNTearData = wearNTearData;
