@@ -1229,7 +1229,7 @@ You can replace all Boars in the game with this Dude.
 - `TimeToLive` (float): The time to live of the status effect.
 - `StartEffect_` (string[]): The string of start effects for the status effect.
 - `StopEffect_` (string[]): The string of stop effects for the status effect.
-- `Cooldown` (float): The cooldown of the status effect.
+- `Cooldown` (float): The cooldown of the gaurdian power status effect.
 - `ActivationAnimation` (string): The animation for the activation of the status effect.
 - `SeData` (SEdata): The additional data for the status effect.
 - `SeShield` (SEShield): The additional data for the shield status effect.
