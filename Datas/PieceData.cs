@@ -67,7 +67,11 @@ namespace wackydatabase.Datas
 
         public PlantData? plantData;
 
-        public ShipData? shipData; 
+        public ShipData? shipData;
+
+        public ShieldGenData? shieldGenData;
+
+        public BatteringRamData? batteringRamData;
 
         public List<string>? build = new List<string>();
 
@@ -95,6 +99,33 @@ namespace wackydatabase.Datas
     public class ShipData
     {
         public bool? ashlandProof;
+       // public float? shipHealth;
+    }
+
+    public class ShieldGenData
+    {
+        public string? name;
+        public string? nameAdd;
+
+        public int? maxFuel;
+        public int? spawnWithFuel;
+        public float? fuelPerDamage;
+        public float? minRadius;
+        public float? maxRadius;
+        public bool? offWhenOutofFuel;
+
+        public bool? attack;
+        public float? attackChargeTime;
+        public bool? attackPlayers;
+
+        public List<string>? fuel;
+
+    }
+
+    public class BatteringRamData
+    {
+        public float? chargeTime;
+        public int? maxFuel;
     }
 
 

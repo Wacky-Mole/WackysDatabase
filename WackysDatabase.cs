@@ -34,6 +34,7 @@ using API;
 using wackydatabase.OBJimporter;
 using RainbowTrollArmor;
 using System.Runtime.CompilerServices;
+using LocalizationManager;
 
 namespace wackydatabase
 {
@@ -42,7 +43,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.48";
+        internal const string ModVersion = "2.4.50";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -54,7 +55,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.48" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.4.50" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -199,6 +200,7 @@ namespace wackydatabase
 
         public void Awake() // start
         {
+           // Localizer.Load();// Does not work because wackydb needs to key what to look for
             StartupConfig(); // startup varables
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
             assetPathconfig = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase");

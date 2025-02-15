@@ -619,12 +619,48 @@ namespace wackydatabase.GetData
             {
                 ShipData shipdata = new ShipData();
                 shipdata.ashlandProof = ship.m_ashlandsReady;
+                //shipdata.shipHealth = ship.m_
 
                 data.shipData = shipdata;
 
             }
 
-            if (PieceID.TryGetComponent<Plant>(out var plant))
+            if (PieceID.TryGetComponent<ShieldGenerator>(out var shield))
+            {
+                ShieldGenData shielddata = new ShieldGenData();
+                shielddata.name = shield.m_name;
+                shielddata.nameAdd  = shield.m_add;
+                shielddata.fuelPerDamage  = shield.m_fuelPerDamage;
+                shielddata.offWhenOutofFuel  = shield.m_offWhenNoFuel;
+                shielddata.maxFuel  = shield.m_maxFuel;
+                shielddata.spawnWithFuel = shield.m_defaultFuel;
+                shielddata.maxRadius = shield.m_maxShieldRadius;
+                shielddata.minRadius = shield.m_minShieldRadius;
+                shielddata.attack = shield.m_enableAttack;
+                shielddata.attackChargeTime = shield.m_attackChargeTime;
+                shielddata.attackPlayers = shield.m_damagePlayers;
+                    
+                List<string> sup = new List<string>();
+                foreach(var it in shield.m_fuelItems)
+                {
+                    sup.Add(it.name);
+                }
+                shielddata.fuel = sup;
+
+                data.shieldGenData = shielddata;
+
+            }
+
+            if (PieceID.TryGetComponent<SiegeMachine>(out var siege))
+            {
+                BatteringRamData siegeData = new BatteringRamData();
+                siegeData.chargeTime = siege.m_chargeTime;
+                siegeData.maxFuel = PieceID.GetComponentInChildren<Smelter>().m_maxOre;
+
+                data.batteringRamData = siegeData;
+            }
+
+                if (PieceID.TryGetComponent<Plant>(out var plant))
             {
                 PlantData plantdata = new PlantData();
 

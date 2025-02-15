@@ -1439,7 +1439,42 @@ namespace wackydatabase.SetData
                 tpW.m_allowAllItems = data.teleportWorldData.AllowAllItems ?? tpW.m_allowAllItems;
             }
 
+            if (data.shieldGenData != null)
+            {
+                go.TryGetComponent<ShieldGenerator>(out var shield);
 
+                shield.m_name = data.shieldGenData.name ?? shield.m_name;
+                shield.m_add = data.shieldGenData.nameAdd ?? shield.m_add;
+                shield.m_fuelPerDamage = data.shieldGenData.fuelPerDamage ?? shield.m_fuelPerDamage;
+                shield.m_offWhenNoFuel = data.shieldGenData.offWhenOutofFuel ?? shield.m_offWhenNoFuel;
+                shield.m_maxFuel = data.shieldGenData.maxFuel ?? shield.m_maxFuel;
+                shield.m_defaultFuel = data.shieldGenData.spawnWithFuel ?? shield.m_defaultFuel;
+                shield.m_maxShieldRadius = data.shieldGenData.maxRadius ?? shield.m_maxShieldRadius;
+                shield.m_minShieldRadius = data.shieldGenData.minRadius ?? shield.m_minShieldRadius;
+                shield.m_enableAttack = data.shieldGenData.attack ?? shield.m_enableAttack;
+                shield.m_attackChargeTime = data.shieldGenData.attackChargeTime ?? shield.m_attackChargeTime;
+                shield.m_damagePlayers = data.shieldGenData.attackPlayers ?? shield.m_damagePlayers;
+
+                if (data.shieldGenData.fuel != null)
+                {
+                    shield.m_fuelItems.Clear();
+                    foreach (var fuel in data.shieldGenData.fuel) {
+                        shield.m_fuelItems.Add(Instant.GetItemPrefab(fuel).GetComponent<ItemDrop>());
+                    }
+                }
+
+            }
+
+            if (data.batteringRamData != null)
+            {
+                go.TryGetComponent<SiegeMachine>(out var siedge);
+
+                siedge.m_chargeTime = data.batteringRamData.chargeTime ?? siedge.m_chargeTime;
+
+                var smeltram = go.GetComponentInChildren<Smelter>();
+                smeltram.m_maxOre = data.batteringRamData.maxFuel ?? smeltram.m_maxOre;
+
+            }
 
             if (data.fireplaceData != null)
             {

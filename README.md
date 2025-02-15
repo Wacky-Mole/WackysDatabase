@@ -990,6 +990,34 @@ The **BeehiveData** class represents data for a beehive in the game. It contains
 
 </br>
 
+### ShieldGenData
+
+The **ShieldGenData** class represents data for a shield generator in the game. It contains the following properties:
+
+- `name` (string): m_name of the sheild
+- `nameAdd` (string): Name for adding fuel
+- `fuelPerDamage` (float): The amount of fuel consumed per unit of damage absorbed.
+- `offWhenOutofFuel` (bool): Indicates whether the shield deactivates when out of fuel.
+- `maxFuel` (int): The maximum fuel capacity of the shield.
+- `spawnWithFuel` (int): The initial amount of fuel when the shield generator is spawned.
+- `maxRadius` (float): The maximum shield radius.
+- `minRadius` (float): The minimum shield radius.
+- `attack` (bool): Indicates whether the shield can perform attacks. (Unknown functionality, Doesn't appear to do anything)
+- `attackChargeTime` (float): The time required to charge an attack, in seconds. (Unknown functionality, Doesn't appear to do anything)
+- `attackPlayers` (bool): Determines whether the shield can damage players.(Unknown functionality, Doesn't appear to do anything)
+- `fuel` List(string[]): A list of fuel item names that the shield can use.
+
+</br>
+
+### BatteringRamData
+
+The **BatteringRamData** class represents data for the batteringRam
+
+- `chargeTime` (float): Charge time in seconds until ready to fire. 
+- `maxFuel` (int): Max fuel that the ram can store'
+
+
+</br>
 ### SapData 
 
 - `secPerUnit` (float): Secs per unit
