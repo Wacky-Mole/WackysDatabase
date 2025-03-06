@@ -1002,9 +1002,9 @@ The **ShieldGenData** class represents data for a shield generator in the game. 
 - `spawnWithFuel` (int): The initial amount of fuel when the shield generator is spawned.
 - `maxRadius` (float): The maximum shield radius.
 - `minRadius` (float): The minimum shield radius.
-- `attack` (bool): Indicates whether the shield can perform attacks. (Unknown functionality, Doesn't appear to do anything)
-- `attackChargeTime` (float): The time required to charge an attack, in seconds. (Unknown functionality, Doesn't appear to do anything)
-- `attackPlayers` (bool): Determines whether the shield can damage players.(Unknown functionality, Doesn't appear to do anything)
+- `attack` (bool): Indicates whether the shield can perform attacks. When the shield is fully charged (filled up), an activation button will appear. Once activated, it will generate an area-of-effect lightning damage with a value of 800, and the damage area is as large as the shield's range
+- `attackChargeTime` (float): The time required to charge an attack, in seconds. 
+- `attackPlayers` (bool): Determines whether the shield can damage players.
 - `fuel` List(string[]): A list of fuel item names that the shield can use.
 
 </br>

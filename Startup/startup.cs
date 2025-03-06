@@ -181,31 +181,33 @@ namespace wackydatabase.Startup
                     WMRecipeCust.context.StartCoroutine(WMRecipeCust.readFiles.GetDataFromFiles(false, true));
                 }
 
-                try
-                {
-                    
-                    if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
+
+            }
+        }
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.OpenServer))]
+        public static class OpenServerWacky
+        {
+            static void Postfix(ZNet __instance)
+            {
+                if (ZNet.m_isServer) {
+                    try
                     {
-                        //gamepassServer();
-                        WMRecipeCust.WLog.LogInfo("Zplay Lobby");
 
-                        WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.CreateLobby)),
-                            postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
-                                nameof(gamepassServer)))); 
+                        if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
+                        {
+                            gamepassServer();
+                           //  WMRecipeCust.WLog.LogInfo("Zplay Lobby");
 
-                    }
-                     else if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
-                    {
-                        WMRecipeCust.WLog.LogInfo("Steam Lobby ");
+                        }
+                        else if (ZNet.m_onlineBackend == OnlineBackendType.Steamworks)
+                        {
+                            //WMRecipeCust.WLog.LogInfo("Steam Lobby ");
+                            steamServer();
 
-                        WMRecipeCust.context._harmony.Patch(AccessTools.DeclaredMethod(typeof(ZSteamMatchmaking), nameof(ZSteamMatchmaking.RegisterServer)),
-                            postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(FejdStartupPatch),
-                                nameof(steamServer))));
-                        
-                        //steamServer(); 
-                    
-                    }
-                } catch { WMRecipeCust.WLog.LogWarning("Steam or Gamepass wasn't found"); }
+
+                        }
+                    } catch { WMRecipeCust.WLog.LogWarning("Steam or Gamepass wasn't found"); }
+                }
 
             }
 
