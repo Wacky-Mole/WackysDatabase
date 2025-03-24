@@ -133,9 +133,9 @@ namespace wackydatabase.PatchClasses
             CheckArmorData(ref __instance.m_itemData);
         }
     }
-
-    [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]
-        static class GetDamageModifiersTooltipString_Patch
+// public static string GetDamageModifiersTooltipString(List<HitData.DamageModPair> mods)
+    [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]  
+    static class GetDamageModifiersTooltipString_Patch
         {
             static void Postfix(ref string __result, List<HitData.DamageModPair> mods)
             {
@@ -145,7 +145,8 @@ namespace wackydatabase.PatchClasses
                 __result = Regex.Replace(__result, @"\n.*<color=orange></color>", "");
                 foreach (HitData.DamageModPair damageModPair in mods)
                 {
-                    if (Enum.IsDefined(typeof(HitData.DamageType), damageModPair.m_type))
+                //WMRecipeCust.WLog.LogInfo("Tooltip type " + (int)damageModPair.m_type);
+                if (Enum.IsDefined(typeof(HitData.DamageType), damageModPair.m_type) && (int)damageModPair.m_type != 1024)
                         continue;
 
                     if (damageModPair.m_modifier != HitData.DamageModifier.Ignore && damageModPair.m_modifier != HitData.DamageModifier.Normal)
@@ -168,6 +169,7 @@ namespace wackydatabase.PatchClasses
                                 __result += "\n$inventory_dmgmod: <color=orange>$inventory_veryweak</color> VS ";
                                 break;
                         }
+                   
                         if ((int)damageModPair.m_type == (int)ArmorHelpers.NewDamageTypes.Water)
                         {
                             __result += "<color=orange>" + wackydatabase.WMRecipeCust.WaterName.Value + "</color>";
