@@ -190,6 +190,7 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 - ExtraSecurity on Servers: true (prevents loading into singleplayer and then loading into multiplayer)
 - FileWatcher for YMLs: true (reloads the mod on any changes to the wackydatabase folder on the server)
 - List of Extra Effects: "lightningAOE" (extra effects to look for from the base game or mods)
+- Display Normal Logs - Turn on or off most of wackydb logs. - 2000+ yamls could affect performance. 
 
 
 </details>
