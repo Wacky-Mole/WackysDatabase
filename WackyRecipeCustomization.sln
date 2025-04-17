@@ -20,10 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-<<<<<<< HEAD:WackysRecipeCustomization.sln
-		SolutionGuid = {F37ECA67-4A8A-4067-9171-FBD3E3697835}
-=======
 		SolutionGuid = {E581D12F-A681-4092-8F25-921F25EFACE5}
->>>>>>> 2f680ab7e308c8a04882fb8a57e99d66c621f18d:WackyRecipeCustomization.sln
 	EndGlobalSection
 EndGlobal
