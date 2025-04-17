@@ -81,7 +81,7 @@ namespace wackydatabase.Datas
         //Confort
         public int? comfort;
         public Piece.ComfortGroup? comfortGroup;
-        public GameObject? comfortObject;
+        public string? comfortObjectName;
     }
 
     public class WearNTearData {

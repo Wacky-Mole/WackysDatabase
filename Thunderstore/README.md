@@ -923,7 +923,7 @@ To make something free. build:
 
 - `comfort` (int): The comfort value of the piece.
 - `comfortGroup` (Piece.ComfortGroup): The comfort group of the piece.
-- `comfortObject` (GameObject): The comfort object of the piece.
+- `comfortObjectName` (string): The name of the comfort object of the piece. Removed the old comfortObject in 2.4.53
 
 ### WearNTearData
 

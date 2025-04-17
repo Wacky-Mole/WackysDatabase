@@ -447,7 +447,7 @@ namespace wackydatabase.GetData
                 {
                     comfort = piece.m_comfort,
                     comfortGroup = piece.m_comfortGroup,
-                    comfortObject = piece.m_comfortObject,
+                    comfortObjectName = piece.m_comfortObject?.name,
                 };
                 data.comfort = comfort;
              }

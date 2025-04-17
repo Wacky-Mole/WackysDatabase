@@ -1114,7 +1114,8 @@ namespace wackydatabase.SetData
             {
                 pi.m_comfort = data.comfort.comfort ?? pi.m_comfort;
                 pi.m_comfortGroup = data.comfort.comfortGroup ?? pi.m_comfortGroup;
-                pi.m_comfortObject = data.comfort.comfortObject ?? pi.m_comfortObject;
+                if (!string.IsNullOrEmpty(data.comfort.comfortObjectName))
+                    pi.m_comfortObject = Instant.GetItemPrefab(data.comfort.comfortObjectName) ?? pi.m_comfortObject;
             }
 
             if (data.wearNTearData != null)
