@@ -70,6 +70,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> extraSecurity;
         public static ConfigEntry<bool> enableYMLWatcher;
         public static ConfigEntry<bool> clonedcache;
+        public static ConfigEntry<bool> showLogs;
         public static ConfigEntry<string> extraEffectList;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
@@ -298,6 +299,7 @@ namespace wackydatabase
             isautoreload = config<bool>("General", "IsAutoReload", false, new ConfigDescription("Enable auto reload after wackydb_save or wackydb_clone for singleplayer", null, new ConfigurationManagerAttributes { Browsable = false })); // not browseable and can only be set before launch
             WaterName = config<string>("Armor", "WaterName", "Water", "Water name for Armor Resistance", false);
             ServerDedLoad = config<bool>("General", "DedServer load Memory", true, "Dedicated Servers will load wackydb files as a client would");
+            showLogs = config<bool>("General", "Display Normal Logs", true, "This should be left on, unless you have 2000+ yamls");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
             // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
