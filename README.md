@@ -1494,12 +1494,19 @@ Do whatever you want with this mod.
 </details>
 
 Known issues: </br>
- Bug on moving stuff from one hammer to another - disable orginal and make a clone for now
+ Bug on moving stuff from one hammer to another - It may work/ It may not - disable orginal and make a clone for now
+ </br> 
  </br> 
  Creature material is not working
  </br>
- CrossbowArbalest item not changing, recommend cloning and replacing
+ </br>
+ CrossbowArbalest item not changing, recommend cloning and replacing. - If anyone has any ideas on this one, please let me know.
+ </br>
  </br>
  Making any piece into a craftingstation is a bit buggy. (It's really at the limit to what wackydb can do without Unity)
+ </br>
+ </br>
+ Piece snapshot sometimes doesn't work and spawns pieces below ground, apparently they can break and the items rise to the surface. </br>
+ While I can't fix the main issue right now, you can resolve the issue by not using piece snapshot and use customIcons for any material changes.
  </br>
 Stay Wacky.
