@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.54  | Added burnable to WearnTear. 
 | 2.4.53  | Added Display Normal Logs config. If you want to turn off most of wackydb logs. You shouldn't do this unless you have a good reason. ie 1000+ yamls </br> Removed comfortObject and replaced with comfortObjectName. </br> Lowered some warnings to just info logs. 
 | 2.4.52  | Fixed Tooltip for Water
 | 2.4.51  | Update 220.3 - ServerSync update. Fixed Startup Error on GamePass Crossplay |

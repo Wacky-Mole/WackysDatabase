@@ -1153,6 +1153,7 @@ namespace wackydatabase.SetData
                 wear.m_supports = data.wearNTearData.supports ?? wear.m_supports;
                 wear.m_triggerPrivateArea = data.wearNTearData.triggerPrivateArea ?? wear.m_triggerPrivateArea;
                 wear.m_materialType = data.wearNTearData.materialType ?? wear.m_materialType;
+                wear.m_burnable = data.wearNTearData.burnable ?? wear.m_burnable;
             }
 
             if (data.craftingStationData != null)

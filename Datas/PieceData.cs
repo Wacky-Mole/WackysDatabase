@@ -93,6 +93,7 @@ namespace wackydatabase.Datas
         public bool? supports;
         public bool? triggerPrivateArea;
         public WearNTear.MaterialType? materialType;
+        public bool? burnable;
 
     }
 
