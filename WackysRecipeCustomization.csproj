@@ -219,6 +219,7 @@
     <Content Include="Libs\LocalizationManager.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Libs\ServerSync.dll" />
     <Content Include="Libs\YamlDotNet.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

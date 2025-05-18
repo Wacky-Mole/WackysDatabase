@@ -263,8 +263,6 @@ namespace wackydatabase.PatchClasses
     static class Player_MessageforWackyDBTry
     {
         private static Vector3 tempvalue;
-
-        [HarmonyPrefix]
         private static bool Prefix(ref Player __instance, ref Piece piece)
 
         {
@@ -331,5 +329,25 @@ namespace wackydatabase.PatchClasses
             }
         }
     }
+
+    [HarmonyPatch(typeof(StatusEffect), "Stop")]
+    static class StatusEffectChainCheck
+    {
+        private static void Postfix(StatusEffect __instance)
+        {
+            if (__instance.m_character is Player player && player == Player.m_localPlayer)
+            {
+                if (__instance.m_ttl > 0f && __instance.m_time > __instance.m_ttl)
+                {
+                    if (WMRecipeCust.EndingStatusEffect.TryGetValue(__instance.name, out var newSEChain))
+                    {
+                        player.m_seman.AddStatusEffect(newSEChain.GetStableHashCode());
+                    }
+                }
+
+            }
+        }
+    }
+
 
 }

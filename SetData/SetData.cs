@@ -130,6 +130,17 @@ namespace wackydatabase.SetData
             go.m_repeatMessageType = data.RepeatMessageLoc ?? go.m_repeatMessageType;
             go.m_repeatMessage = data.RepeatMessage ?? go.m_repeatMessage;
             go.m_ttl = data.TimeToLive ?? go.m_ttl;
+            if (!string.IsNullOrEmpty(data.EndingStatusEffect)) {
+
+                if (WMRecipeCust.EndingStatusEffect.TryGetValue(data.Name, out var useless)) {
+                    WMRecipeCust.EndingStatusEffect[data.Name] = data.EndingStatusEffect;
+                }
+                else
+                {
+                    WMRecipeCust.EndingStatusEffect.Add(data.Name, data.EndingStatusEffect);
+                }
+            }
+
             if (data.StartEffect_ != null)
                 go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_);
 
