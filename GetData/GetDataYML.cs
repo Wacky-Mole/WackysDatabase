@@ -198,6 +198,28 @@ namespace wackydatabase.GetData
 
              }
 
+            SEPoison posion = new SEPoison();
+            if (Functions.getCast<float>(f2, "m_TTLPerDamagePlayer", effect) > 0)
+            { // the Skill levelup could work LevelUpSkillOnBreak
+                posion.m_damageInterval = Functions.getCast<float>(f2, "m_damageInterval", effect);
+                posion.m_baseTTL = Functions.getCast<float>(f2, "m_baseTTL", effect);
+                posion.m_TTLPerDamagePlayer = Functions.getCast<float>(f2, "m_TTLPerDamagePlayer", effect);
+                posion.m_TTLPerDamage = Functions.getCast<float>(f2, "m_TTLPerDamage", effect);
+                posion.m_TTLPower = Functions.getCast<float>(f2, "m_TTLPower", effect);
+
+            }
+
+            SEFrost frost = new SEFrost();
+            if (Functions.getCast<float>(f2, "m_freezeTimeEnemy", effect) > 0)
+            { // the Skill levelup could work LevelUpSkillOnBreak
+                frost.m_freezeTimeEnemy = Functions.getCast<float>(f2, "m_freezeTimeEnemy", effect);
+                frost.m_freezeTimePlayer = Functions.getCast<float>(f2, "m_freezeTimePlayer", effect);
+                frost.m_minSpeedFactor = Functions.getCast<float>(f2, "m_minSpeedFactor", effect);
+              
+
+            }
+
+
             SEdata stats = new SEdata
             {
                 //m_tickInterval = f2.GetField("m_tickInterval", BindingFlags.Instance | BindingFlags.Public)?.GetValue(effect)
@@ -214,6 +236,14 @@ namespace wackydatabase.GetData
                 m_staminaDrainPerSec = Functions.getCast<float>(f2, "m_staminaDrainPerSec", effect),
                 m_runStaminaDrainModifier = Functions.getCast<float>(f2, "m_runStaminaDrainModifier", effect),
                 m_jumpStaminaUseModifier = Functions.getCast<float>(f2, "m_jumpStaminaUseModifier", effect),
+                m_attackStaminaUseModifier = Functions.getCast<float>(f2, "m_attackStaminaUseModifier", effect),
+                m_blockStaminaUseModifier = Functions.getCast<float>(f2, "m_blockStaminaUseModifier", effect),
+                m_dodgeStaminaUseModifier = Functions.getCast<float>(f2, "m_dodgeStaminaUseModifier", effect),
+                m_swimStaminaUseModifier = Functions.getCast<float>(f2, "m_swimStaminaUseModifier", effect),
+                m_homeItemStaminaUseModifier = Functions.getCast<float>(f2, "m_homeItemStaminaUseModifier", effect),
+                m_sneakStaminaUseModifier = Functions.getCast<float>(f2, "m_sneakStaminaUseModifier", effect),
+                m_runStaminaUseModifier = Functions.getCast<float>(f2, "m_runStaminaUseModifier", effect),
+
                 m_eitrOverTime = Functions.getCast<float>(f2, "m_eitrOverTime", effect),
                 m_eitrOverTimeDuration = Functions.getCast<float>(f2, "m_eitrOverTimeDuration", effect),
                 m_healthRegenMultiplier = Functions.getCast<float>(f2, "m_healthRegenMultiplier", effect),
@@ -240,12 +270,11 @@ namespace wackydatabase.GetData
                 m_healthOverTimeTicks =Functions.getCast<float>(f2, "m_healthOverTimeTicks", effect),
                 m_healthOverTimeTickHP = Functions.getCast<float>(f2, "m_healthOverTimeTickHP", effect),
 
+                m_windMovementModifier = Functions.getCast<float>(f2, "m_windMovementModifier", effect),
+
             };
 
-
-
-
-            StatusData statusData = new StatusData
+        StatusData statusData = new StatusData
             {
 
                 Name = effect.name ?? "",
@@ -274,6 +303,14 @@ namespace wackydatabase.GetData
             if(Functions.getCast<float>(f2, "m_absorbDamage", effect) > 0)
             {
                 statusData.SeShield = shield; 
+            }
+            if (Functions.getCast<float>(f2, "m_TTLPerDamagePlayer", effect) > 0)
+            {
+                statusData.SePoison = posion;
+            }            
+            if (Functions.getCast<float>(f2, "m_freezeTimeEnemy", effect) > 0)
+            {
+                statusData.SeFrost = frost;
             }
 
 

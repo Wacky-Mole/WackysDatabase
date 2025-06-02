@@ -259,6 +259,19 @@ namespace wackydatabase.PatchClasses
         }
     }
 
+/*
+    [HarmonyPatch(typeof(ItemDrop), "Eat")]
+    static class ItemDropConsumeGameobject
+    {
+        private static void Postfix(ref bool __result)
+        {
+            if (__result)
+            {
+
+            }
+        }
+    } */
+
     [HarmonyPatch(typeof(Player), "TryPlacePiece")]
     static class Player_MessageforWackyDBTry
     {

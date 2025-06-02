@@ -42,6 +42,8 @@ namespace wackydatabase.Datas
         public string? ActivationAnimation;
         public SEdata? SeData;
         public SEShield SeShield;
+        public SEPoison SePoison;
+        public SEFrost SeFrost;
         //public FieldInfo? fld = typeof(StatusEffect).GetField("m_tickInterval").GetValue;
 
     }
@@ -55,6 +57,27 @@ namespace wackydatabase.Datas
         public float? LevelUpSkillFactor;
         public int? TtlPerItemLevel;
         public float? AbsorbDmgPerSkill;
+
+    }
+
+    [Serializable]
+    [CanBeNull]
+    public class SEPoison
+    {
+        public float? m_damageInterval;
+        public float? m_baseTTL;
+        public float? m_TTLPerDamagePlayer;
+        public float? m_TTLPerDamage;
+        public float? m_TTLPower;
+
+    }    
+    [Serializable]
+    [CanBeNull]
+    public class SEFrost
+    {
+        public float? m_freezeTimeEnemy;
+        public float? m_freezeTimePlayer;
+        public float? m_minSpeedFactor;
 
     }
 
@@ -86,6 +109,22 @@ namespace wackydatabase.Datas
         public float? m_runStaminaDrainModifier;
 
         public float? m_jumpStaminaUseModifier;
+
+        // new ones
+        public float? m_attackStaminaUseModifier;
+
+        public float? m_blockStaminaUseModifier;
+
+        public float? m_dodgeStaminaUseModifier;
+
+        public float? m_swimStaminaUseModifier;
+
+        public float? m_homeItemStaminaUseModifier;
+
+        public float? m_sneakStaminaUseModifier;
+
+        public float? m_runStaminaUseModifier;
+
 
         //[Header("Eitr")]
         public float? m_eitrOverTime;
@@ -139,6 +178,8 @@ namespace wackydatabase.Datas
 
         public float? m_fallDamageModifier;
 
+
+        //HP Per Tick // deleted?
         public float? m_tickTimer;
 
         public float? m_healthOverTimeTimer;
@@ -148,9 +189,12 @@ namespace wackydatabase.Datas
         public float? m_healthOverTimeTickHP;
 
 
+        //[Header("Wind")]
+
+        public float? m_windMovementModifier;
     }
 
 
 
-    
+
 }

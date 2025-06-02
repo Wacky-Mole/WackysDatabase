@@ -1265,29 +1265,71 @@ You can replace all Boars in the game with this Dude.
 - `SeData` (SEdata): The additional data for the status effect.
 - `SeShield` (SEShield): The additional data for the shield status effect.
 
-### Class: SEShield
- Only for Staff_shield at the moment
+Here's a completed and cleaned-up version of your README:
 
- - `AbsorbDmg` (float): How much the shield protects against.
- - `AbsorbDmgWorldLevel` (float): No idea, maybe future plans?
- - `LevelUpSkillFactor` (float): How much you can level up per usage. 
- - `TtlPerItemLevel` (int): How long the shield lasts.
- - `AbsorbDmgPerSkill` (float): How much additional shield you get per skill level.
+---
+
+## Status Effect Reference
+
+### Class: `SEShield`
+
+Applies a protective shield to the player. Only functional with `Staff_shield` currently.
+
+* `AbsorbDmg` (float): Base damage absorption provided by the shield.
+* `AbsorbDmgWorldLevel` (float): Reserved for future scaling based on world level (currently unused).
+* `LevelUpSkillFactor` (float): Skill XP gained per successful shield usage.
+* `TtlPerItemLevel` (int): Time-to-live duration of the shield per item level.
+* `AbsorbDmgPerSkill` (float): Additional absorption granted per skill level.
 
 
-### Class: SEdata
+### Class: `SEPoison`
 
-- `m_tickInterval` (float): The tick interval for the status effect.
-- `m_healthPerTickMinHealthPercentage` (float): The minimum health percentage per tick.
-- `m_healthPerTick` (float): The health per tick.
-- `m_healthOverTime` (float): The health over time value.
-- `m_healthOverTimeDuration` (float): The duration of health over time.
-- `m_healthOverTimeInterval` (float): The time interval for health over time.
-- `m_staminaOverTime` (float): The stamina over time value.
-- `m_staminaOverTimeDuration` (float): The duration of stamina over time.
-- `m_staminaDrainPerSec` (float): The stamina drain per second.
-- `m_runStaminaDrainModifier` (float): The stamina drain modifier for running.
-- `m_jumpStaminaUseModifier` (float): The stamina use modifier for jumping.
+Applies damage over time and potentially extends duration based on damage dealt.
+
+* `m_damageInterval` (float?): Time in seconds between each tick of poison damage.
+* `m_baseTTL` (float?): Base duration of the poison effect.
+* `m_TTLPerDamagePlayer` (float?): Additional duration gained per damage dealt to players.
+* `m_TTLPerDamage` (float?): Additional duration gained per damage dealt (to any target).
+* `m_TTLPower` (float?): Scaling factor applied to TTL calculations; modifies poison duration gain behavior.
+
+
+
+### Class: `SEFrost`
+
+Applies freezing and slows based on context.
+
+* `m_freezeTimeEnemy` (float?): Duration enemies are frozen.
+* `m_freezeTimePlayer` (float?): Duration the player is frozen (likely PvP).
+* `m_minSpeedFactor` (float?): Minimum speed multiplier while frozen (e.g., 0.3 = 30% speed).
+
+
+
+### Class: `SEData`
+
+Core properties used by many status effects for health and stamina manipulation.
+
+
+* `m_tickInterval` (float): Interval in seconds for effect ticks.
+* `m_healthPerTickMinHealthPercentage` (float): Percentage-based minimum health restored/lost per tick.
+* `m_healthPerTick` (float): Flat health value restored/lost per tick.
+* `m_healthOverTime` (float): Total health restored/lost over time.
+* `m_healthOverTimeDuration` (float): Duration over which `m_healthOverTime` is applied.
+* `m_healthOverTimeInterval` (float): Interval between each application of `m_healthOverTime`.
+
+* `m_staminaOverTime` (float): Total stamina restored over time.
+* `m_staminaOverTimeDuration` (float): Duration over which `m_staminaOverTime` is applied.
+* `m_staminaDrainPerSec` (float): Constant stamina drain per second.
+
+* `m_runStaminaDrainModifier` (float): Affects stamina use while running.
+* `m_jumpStaminaUseModifier` (float): Affects stamina use while jumping.
+* `m_attackStaminaUseModifier` (float): Affects stamina use during attacks.
+* `m_blockStaminaUseModifier` (float): Affects stamina used to block.
+* `m_dodgeStaminaUseModifier` (float): Affects stamina used to dodge.
+* `m_swimStaminaUseModifier` (float): Affects stamina use while swimming.
+* `m_homeItemStaminaUseModifier` (float): Affects stamina use with placeables/home items.
+* `m_sneakStaminaUseModifier` (float): Affects stamina use while sneaking.
+* `m_runStaminaUseModifier` (float): Additional modifier when running (combined with drain modifier).
+
 - `m_eitrOverTime` (float): The eitr over time value.
 - `m_eitrOverTimeDuration` (float): The duration of eitr over time.
 - `m_healthRegenMultiplier` (float): The health regeneration multiplier.
@@ -1309,10 +1351,11 @@ You can replace all Boars in the game with this Dude.
 - `m_jumpModifier` (Vector3): Allows you to control how much a charcter can jump or not. Very small values make big difference. Usual range is -1 to 1. You can delete the normalized. You only need the x,y,z lines.
 - `m_maxMaxFallSpeed` (float): The maximum maximum fall speed.
 - `m_fallDamageModifier` (float): The fall damage modifier.
-- `m_tickTimer` (float): The tick timer.
+- `m_tickTimer` (float): The tick timer. - I forgot what these tick timers do. -
 - `m_healthOverTimeTimer` (float): The health over time timer.
 - `m_healthOverTimeTicks` (float): The health over time ticks.
-- `m_healthOverTimeTickHP` (float): The health over time tick health points.
+- `m_healthOverTimeTickHP` (float): The health over time tick health points. --
+- `m_windMovementModifier;` (float): 
 
 
 You should be able to delete existing m_mods, by

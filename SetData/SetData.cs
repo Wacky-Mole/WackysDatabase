@@ -174,6 +174,14 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_runStaminaDrainModifier", data.SeData.m_runStaminaDrainModifier);
             Functions.setValue(type, go, "m_jumpStaminaUseModifier", data.SeData.m_jumpStaminaUseModifier);
 
+            Functions.setValue(type, go, "m_attackStaminaUseModifier", data.SeData.m_attackStaminaUseModifier);
+            Functions.setValue(type, go, "m_blockStaminaUseModifier", data.SeData.m_blockStaminaUseModifier);
+            Functions.setValue(type, go, "m_dodgeStaminaUseModifier", data.SeData.m_dodgeStaminaUseModifier);
+            Functions.setValue(type, go, "m_swimStaminaUseModifier", data.SeData.m_swimStaminaUseModifier);
+            Functions.setValue(type, go, "m_homeItemStaminaUseModifier", data.SeData.m_homeItemStaminaUseModifier);
+            Functions.setValue(type, go, "m_sneakStaminaUseModifier", data.SeData.m_sneakStaminaUseModifier);
+            Functions.setValue(type, go, "m_runStaminaUseModifier", data.SeData.m_runStaminaUseModifier);
+
             Functions.setValue(type, go, "m_eitrOverTime", data.SeData.m_eitrOverTime);
             Functions.setValue(type, go, "m_eitrOverTimeDuration", data.SeData.m_eitrOverTimeDuration);
             Functions.setValue(type, go, "m_healthRegenMultiplier", data.SeData.m_healthRegenMultiplier);
@@ -208,6 +216,8 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_healthOverTimeTicks", data.SeData.m_healthOverTimeTicks);
             Functions.setValue(type, go, "m_healthOverTimeTickHP", data.SeData.m_healthOverTimeTickHP);
 
+            Functions.setValue(type, go, "m_windMovementModifier", data.SeData.m_windMovementModifier);
+
 
             if (data.SeShield != null)
             {
@@ -216,6 +226,22 @@ namespace wackydatabase.SetData
                 Functions.setValue(type, go,"m_levelUpSkillFactor",data.SeShield.LevelUpSkillFactor);
                 Functions.setValue(type, go, "m_ttlPerItemLevel",null, data.SeShield.TtlPerItemLevel);
                 Functions.setValue(type, go, "m_absorbDamagePerSkillLevel", data.SeShield.AbsorbDmgPerSkill);
+
+            }            
+            if (data.SePoison != null)
+            {
+                Functions.setValue(type, go, "m_damageInterval", data.SePoison.m_damageInterval);
+                Functions.setValue(type, go, "m_baseTTL", data.SePoison.m_baseTTL);
+                Functions.setValue(type, go, "m_TTLPerDamagePlayer", data.SePoison.m_TTLPerDamagePlayer);
+                Functions.setValue(type, go, "m_TTLPerDamage", data.SePoison.m_TTLPerDamage);
+                Functions.setValue(type, go, "m_TTLPower", data.SePoison.m_TTLPower);
+
+            }            
+            if (data.SeFrost != null)
+            {
+                Functions.setValue(type, go, "m_freezeTimeEnemy", data.SeFrost.m_freezeTimeEnemy);
+                Functions.setValue(type, go, "m_freezeTimePlayer", data.SeFrost.m_freezeTimePlayer);
+                Functions.setValue(type, go, "m_minSpeedFactor", data.SeFrost.m_minSpeedFactor);
 
             }
         }

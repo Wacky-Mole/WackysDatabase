@@ -118,6 +118,8 @@ namespace wackydatabase.Datas
 
         public string? ConsumableStatusEffect;
 
+      //  public string? ConsumableGameObjectSpawn;
+
         public string? AppendToolTip;
 
         public List<string>? damageModifiers = new List<string>();
