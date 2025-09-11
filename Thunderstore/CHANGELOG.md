@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.57  | 
 | 2.4.56  | Added SeFrost and SePoison. Also added - `m_attackStaminaUseModifier, m_blockStaminaUseModifier, m_dodgeStaminaUseModifier, m_swimStaminaUseModifier, m_homeItemStaminaUseModifier, m_sneakStaminaUseModifier, m_runStaminaUseModifier for SEs
 | 2.4.55  | Added EndingStatusEffect to SE's, you can now chain SEs together. Don't forget to use Category. </br> Updated ServerSync.
 | 2.4.54  | Added burnable to WearnTear. 

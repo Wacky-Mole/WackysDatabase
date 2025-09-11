@@ -1248,7 +1248,7 @@ You can replace all Boars in the game with this Dude.
 - `FlashIcon` (bool): Indicates whether the icon should flash.
 - `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
 - `Tooltip` (string): The tooltip for the status effect.
-- `Attributes` (StatusEffect.StatusAttribute): The attributes of the status effect. /// Sailing Power // Cold Resistance // Double Impact Damage
+- `Attributes` (StatusEffect.StatusAttribute): The attributes of the status effect.  None, ColdResistance, DoubleImpactDamage, SailingPower, TamingBoost
 - `StartMessageLoc` (MessageHud.MessageType): The localization message type for the start message.
 - `StartMessage` (string): The start message of the status effect.
 - `StopMessageLoc` (MessageHud.MessageType): The localization message type for the stop message.
