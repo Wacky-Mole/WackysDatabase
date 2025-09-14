@@ -224,13 +224,19 @@ namespace wackydatabase.GetData
             {
                 //m_tickInterval = f2.GetField("m_tickInterval", BindingFlags.Instance | BindingFlags.Public)?.GetValue(effect)
 
-                
+                m_heatlhUpFront= Functions.getCast<float>(f2, "m_healthUpFront", effect),
                 m_tickInterval = Functions.getCast<float>(f2, "m_tickInterval", effect),
                 m_healthPerTickMinHealthPercentage = Functions.getCast<float>(f2, "m_healthPerTickMinHealthPercentage", effect),
                 m_healthPerTick = Functions.getCast<float>(f2, "m_healthPerTick", effect),
                 m_healthOverTime = Functions.getCast<float>(f2, "m_healthOverTime", effect),
                 m_healthOverTimeDuration = Functions.getCast<float>(f2, "m_healthOverTimeDuration", effect),
                 m_healthOverTimeInterval = Functions.getCast<float>(f2, "m_healthOverTimeInterval", effect),
+
+                m_healthOverTimeTimer = Functions.getCast<float>(f2, "m_healthOverTimeTimer", effect),
+                m_healthOverTimeTicks = Functions.getCast<float>(f2, "m_healthOverTimeTicks", effect),
+                m_healthOverTimeTickHP = Functions.getCast<float>(f2, "m_healthOverTimeTickHP", effect),
+
+                m_staminaUpFront = Functions.getCast<float>(f2, "m_staminaUpFront", effect),
                 m_staminaOverTime = Functions.getCast<float>(f2, "m_staminaOverTime", effect),
                 m_staminaOverTimeDuration = Functions.getCast<float>(f2, "m_staminaOverTimeDuration", effect),
                 m_staminaDrainPerSec = Functions.getCast<float>(f2, "m_staminaDrainPerSec", effect),
@@ -244,11 +250,23 @@ namespace wackydatabase.GetData
                 m_sneakStaminaUseModifier = Functions.getCast<float>(f2, "m_sneakStaminaUseModifier", effect),
                 m_runStaminaUseModifier = Functions.getCast<float>(f2, "m_runStaminaUseModifier", effect),
 
+                m_adrenalineUpFront = Functions.getCast<float>(f2, "m_adrenalineUpFront", effect),
+                m_adrenalineModifier = Functions.getCast<float>(f2, "m_adrenalineModifier", effect),
+
+                m_staggerModifier = Functions.getCast<float>(f2, "m_staggerModifier", effect),
+                m_staggerTimeBlockBonus = Functions.getCast<float>(f2, "m_timedBlockBonus", effect),
+
+                m_eitrUpFront = Functions.getCast<float>(f2, "m_eitrUpFront", effect),
                 m_eitrOverTime = Functions.getCast<float>(f2, "m_eitrOverTime", effect),
                 m_eitrOverTimeDuration = Functions.getCast<float>(f2, "m_eitrOverTimeDuration", effect),
                 m_healthRegenMultiplier = Functions.getCast<float>(f2, "m_healthRegenMultiplier", effect),
                 m_staminaRegenMultiplier = Functions.getCast<float>(f2, "m_staminaRegenMultiplier", effect),
                 m_eitrRegenMultiplier = Functions.getCast<float>(f2, "m_eitrRegenMultiplier", effect),
+
+                
+                m_armorAdd = Functions.getCast<float>(f2, "m_addArmor", effect),
+                m_armorMultiplier = Functions.getCast<float>(f2, "m_armorMultiplier", effect),
+
                 m_raiseSkill = Functions.getCast<Skills.SkillType>(f2, "m_raiseSkill", effect),
                 m_raiseSkillModifier = Functions.getCast<float>(f2, "m_raiseSkillModifier", effect),
                 m_skillLevel = Functions.getCast<Skills.SkillType>(f2, "m_skillLevel", effect),
@@ -266,10 +284,6 @@ namespace wackydatabase.GetData
                 m_maxMaxFallSpeed = Functions.getCast<float>(f2, "m_maxMaxFallSpeed", effect),
                 m_fallDamageModifier = Functions.getCast<float>(f2, "m_fallDamageModifier", effect),
                 m_tickTimer = Functions.getCast<float>(f2, "m_tickTimer", effect),
-                m_healthOverTimeTimer = Functions.getCast<float>(f2, "m_healthOverTimeTimer", effect),
-                m_healthOverTimeTicks =Functions.getCast<float>(f2, "m_healthOverTimeTicks", effect),
-                m_healthOverTimeTickHP = Functions.getCast<float>(f2, "m_healthOverTimeTickHP", effect),
-
                 m_windMovementModifier = Functions.getCast<float>(f2, "m_windMovementModifier", effect),
 
             };
@@ -1092,6 +1106,7 @@ namespace wackydatabase.GetData
                 m_weight = data.m_shared.m_weight,
                 m_destroyBroken = data.m_shared.m_destroyBroken,
                 m_dodgeable = data.m_shared.m_dodgeable,
+                blockable = data.m_shared.m_blockable,
                 m_canBeReparied = data.m_shared.m_canBeReparied,
                 m_name = data.m_shared.m_name,
                 m_questItem = data.m_shared.m_questItem,
@@ -1162,12 +1177,16 @@ namespace wackydatabase.GetData
                     Chain_Attacks = data.m_shared.m_attack.m_attackChainLevels,
                     Hit_Terrain = data.m_shared.m_attack.m_hitTerrain,
                     Hit_Friendly = data.m_shared.m_attack.m_hitFriendly,
+                    is_HomeItem = data.m_shared.m_attack.m_isHomeItem,
                     Custom_AttackSpeed = 1,
 
                     m_attackStamina = data.m_shared.m_attack.m_attackStamina,
+                    m_attackAdrenaline = data.m_shared.m_attack.m_attackAdrenaline,
+                    m_attackUseAdrenaline = data.m_shared.m_attack.m_attackUseAdrenaline,
                     m_eitrCost = data.m_shared.m_attack.m_attackEitr,
                     AttackHealthCost = data.m_shared.m_attack.m_attackHealth,
                     m_attackHealthPercentage = data.m_shared.m_attack.m_attackHealthPercentage,
+                    attack_Health_Low_BlockUsage = data.m_shared.m_attack.m_attackHealthLowBlockUse,
 
                     Attack_Start_Noise = data.m_shared.m_attack.m_attackStartNoise,
                     Attack_Hit_Noise = data.m_shared.m_attack.m_attackHitNoise,
@@ -1186,6 +1205,7 @@ namespace wackydatabase.GetData
                     AttackRange = data.m_shared.m_attack.m_attackRange,
                     AttackHeight = data.m_shared.m_attack.m_attackHeight,
                     Spawn_On_Trigger = data.m_shared.m_attack.m_spawnOnTrigger?.name,
+                    cant_Use_InDungeon = data.m_shared.m_attack.m_cantUseInDungeon,
 
                     Requires_Reload = data.m_shared.m_attack.m_requiresReload,
                     Reload_Animation = data.m_shared.m_attack.m_reloadAnimation,
@@ -1244,12 +1264,16 @@ namespace wackydatabase.GetData
                     Chain_Attacks = data.m_shared.m_secondaryAttack.m_attackChainLevels,
                     Hit_Terrain = data.m_shared.m_secondaryAttack.m_hitTerrain,
                     Hit_Friendly = data.m_shared.m_secondaryAttack.m_hitFriendly,
+                    is_HomeItem = data.m_shared.m_secondaryAttack.m_isHomeItem,
                     Custom_AttackSpeed = 1,
 
                     m_attackStamina = data.m_shared.m_secondaryAttack.m_attackStamina,
+                    m_attackAdrenaline = data.m_shared.m_secondaryAttack.m_attackAdrenaline,
+                    m_attackUseAdrenaline = data.m_shared.m_secondaryAttack.m_attackUseAdrenaline,
                     m_eitrCost = data.m_shared.m_secondaryAttack.m_attackEitr,
                     AttackHealthCost = data.m_shared.m_secondaryAttack.m_attackHealth,
                     m_attackHealthPercentage = data.m_shared.m_secondaryAttack.m_attackHealthPercentage,
+                    attack_Health_Low_BlockUsage = data.m_shared.m_secondaryAttack.m_attackHealthLowBlockUse,
 
                     Attack_Start_Noise = data.m_shared.m_secondaryAttack.m_attackStartNoise,
                     Attack_Hit_Noise = data.m_shared.m_secondaryAttack.m_attackHitNoise,
@@ -1268,6 +1292,7 @@ namespace wackydatabase.GetData
                     AttackRange = data.m_shared.m_secondaryAttack.m_attackRange,
                     AttackHeight = data.m_shared.m_secondaryAttack.m_attackHeight,
                     Spawn_On_Trigger = data.m_shared.m_secondaryAttack.m_spawnOnTrigger?.name,
+                    cant_Use_InDungeon = data.m_shared.m_secondaryAttack.m_cantUseInDungeon,
 
                     Requires_Reload = data.m_shared.m_secondaryAttack.m_requiresReload,
                     Reload_Animation = data.m_shared.m_secondaryAttack.m_reloadAnimation,
@@ -1341,6 +1366,8 @@ namespace wackydatabase.GetData
                     m_foodRegen = data.m_shared.m_foodRegen,
                     m_foodStamina = data.m_shared.m_foodStamina,
                     m_FoodEitr = data.m_shared.m_foodEitr,
+                    eatAnimationTime = data.m_shared.m_foodEatAnimTime,
+                    isDrink = data.m_shared.m_isDrink
                 };
                 
 
@@ -1362,6 +1389,19 @@ namespace wackydatabase.GetData
 
             }
 
+            if (data.m_shared.m_maxAdrenaline != 0)
+            {
+                AdrenalineData AdrenalineStats = new AdrenalineData
+                {
+                    maxAdrenaline = data.m_shared.m_maxAdrenaline,
+                    fullAdrenalineSE = data.m_shared.m_fullAdrenalineSE?.name,
+                    blockAdrenaline = data.m_shared.m_blockAdrenaline,
+                    perfectBlockAdrenaline = data.m_shared.m_perfectBlockAdrenaline,
+
+                };
+                ItemData.AdrenalineStats = AdrenalineStats;
+            }
+
 
             if (data.m_shared.m_blockPower != 0)
             {
@@ -1372,6 +1412,12 @@ namespace wackydatabase.GetData
                     m_timedBlockBonus = data.m_shared.m_timedBlockBonus,
                     m_deflectionForce = data.m_shared.m_deflectionForce,
                     m_deflectionForcePerLevel = data.m_shared.m_deflectionForcePerLevel,
+                    m_perfectBlockStaminaRegen = data.m_shared.m_perfectBlockStaminaRegen,
+                    m_perfectBlockStatusEffect = data.m_shared.m_perfectBlockStatusEffect?.name,
+                    m_buildBlockCharges = data.m_shared.m_buildBlockCharges,
+                    m_maxBlockCharges = data.m_shared.m_maxBlockCharges,
+                    m_blockChargeDecayTime = data.m_shared.m_blockChargeDecayTime
+
                 };
                 ItemData.ShieldStats = ShieldData;
             }

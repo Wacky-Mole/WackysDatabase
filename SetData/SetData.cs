@@ -164,10 +164,12 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_healthPerTickMinHealthPercentage", data.SeData.m_healthPerTickMinHealthPercentage);
             Functions.setValue(type, go, "m_healthPerTick", data.SeData.m_healthPerTick);
 
+            Functions.setValue(type, go, "m_healthUpFront", data.SeData.m_heatlhUpFront);
             Functions.setValue(type, go, "m_healthOverTime", data.SeData.m_healthOverTime);
             Functions.setValue(type, go, "m_healthOverTimeDuration", data.SeData.m_healthOverTimeDuration);
             Functions.setValue(type, go, "m_healthOverTimeInterval", data.SeData.m_healthOverTimeInterval);
 
+            Functions.setValue(type, go, "m_staminaOverTime", data.SeData.m_staminaUpFront);
             Functions.setValue(type, go, "m_staminaOverTime", data.SeData.m_staminaOverTime);
             Functions.setValue(type, go, "m_staminaOverTimeDuration", data.SeData.m_staminaOverTimeDuration);
             Functions.setValue(type, go, "m_staminaDrainPerSec", data.SeData.m_staminaDrainPerSec);
@@ -182,11 +184,21 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_sneakStaminaUseModifier", data.SeData.m_sneakStaminaUseModifier);
             Functions.setValue(type, go, "m_runStaminaUseModifier", data.SeData.m_runStaminaUseModifier);
 
+            Functions.setValue(type, go, "m_adrenalineUpFront", data.SeData.m_adrenalineUpFront);
+            Functions.setValue(type, go, "m_adrenalineModifier", data.SeData.m_adrenalineModifier);
+
+            Functions.setValue(type, go, "m_staggerModifier", data.SeData.m_staggerModifier);
+            Functions.setValue(type, go, "m_timedBlockBonus", data.SeData.m_staggerTimeBlockBonus);
+
+            Functions.setValue(type, go, "m_eitrUpFront", data.SeData.m_eitrUpFront);
             Functions.setValue(type, go, "m_eitrOverTime", data.SeData.m_eitrOverTime);
             Functions.setValue(type, go, "m_eitrOverTimeDuration", data.SeData.m_eitrOverTimeDuration);
             Functions.setValue(type, go, "m_healthRegenMultiplier", data.SeData.m_healthRegenMultiplier);
             Functions.setValue(type, go, "m_staminaRegenMultiplier", data.SeData.m_staminaRegenMultiplier);
             Functions.setValue(type, go, "m_eitrRegenMultiplier", data.SeData.m_eitrRegenMultiplier);
+
+            Functions.setValue(type, go, "m_addArmor", data.SeData.m_armorAdd);
+            Functions.setValue(type, go, "m_armorMultiplier", data.SeData.m_armorMultiplier);
 
             Functions.setValue(type, go, "m_raiseSkill", null, null, null, null, data.SeData.m_raiseSkill);
             Functions.setValue(type, go, "m_raiseSkillModifier", data.SeData.m_raiseSkillModifier);
@@ -2339,6 +2351,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_attackChainLevels = data.Primary_Attack.Chain_Attacks ?? PrimaryItemData.m_shared.m_attack.m_attackChainLevels;
                         PrimaryItemData.m_shared.m_attack.m_hitTerrain = data.Primary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_attack.m_hitTerrain;
                         PrimaryItemData.m_shared.m_attack.m_hitFriendly = data.Primary_Attack.Hit_Friendly ?? PrimaryItemData.m_shared.m_attack.m_hitFriendly;
+                        PrimaryItemData.m_shared.m_attack.m_isHomeItem = data.Primary_Attack.is_HomeItem ?? PrimaryItemData.m_shared.m_attack.m_isHomeItem;
                         if (!WMRecipeCust.AttackSpeed.ContainsKey(tempname))
                         {
                             WMRecipeCust.AttackSpeed.Add(tempname, new Dictionary<bool, float>());
@@ -2349,10 +2362,12 @@ namespace wackydatabase.SetData
                             WMRecipeCust.AttackSpeed[tempname][false] = (float)data.Primary_Attack.Custom_AttackSpeed;
 
                         PrimaryItemData.m_shared.m_attack.m_attackStamina = data.Primary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_attack.m_attackStamina;
+                        PrimaryItemData.m_shared.m_attack.m_attackAdrenaline = data.Primary_Attack.m_attackAdrenaline ?? PrimaryItemData.m_shared.m_attack.m_attackAdrenaline;
+                        PrimaryItemData.m_shared.m_attack.m_attackUseAdrenaline = data.Primary_Attack.m_attackUseAdrenaline ?? PrimaryItemData.m_shared.m_attack.m_attackUseAdrenaline;
                         PrimaryItemData.m_shared.m_attack.m_attackEitr = data.Primary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_attack.m_attackEitr;
                         PrimaryItemData.m_shared.m_attack.m_attackHealth = data.Primary_Attack.AttackHealthCost ?? PrimaryItemData.m_shared.m_attack.m_attackHealth;
                         PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage = data.Primary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_attack.m_attackHealthPercentage;
-
+                        PrimaryItemData.m_shared.m_attack.m_attackHealthLowBlockUse = data.Primary_Attack.attack_Health_Low_BlockUsage ?? PrimaryItemData.m_shared.m_attack.m_attackHealthLowBlockUse;
 
                         PrimaryItemData.m_shared.m_attack.m_attackStartNoise = data.Primary_Attack.Attack_Start_Noise ?? PrimaryItemData.m_shared.m_attack.m_attackStartNoise;
                         PrimaryItemData.m_shared.m_attack.m_attackHitNoise = data.Primary_Attack.Attack_Hit_Noise ?? PrimaryItemData.m_shared.m_attack.m_attackHitNoise;
@@ -2392,6 +2407,7 @@ namespace wackydatabase.SetData
                             }
                             PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
                         }
+                        PrimaryItemData.m_shared.m_attack.m_cantUseInDungeon = data.Primary_Attack.cant_Use_InDungeon ?? PrimaryItemData.m_shared.m_attack.m_cantUseInDungeon;
 
                         PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
                         PrimaryItemData.m_shared.m_attack.m_reloadAnimation = data.Primary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_attack.m_reloadAnimation;
@@ -2560,13 +2576,17 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackChainLevels = data.Secondary_Attack.Chain_Attacks ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackChainLevels;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain = data.Secondary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_hitFriendly = data.Secondary_Attack.Hit_Friendly ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitFriendly;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_isHomeItem = data.Secondary_Attack.is_HomeItem ?? PrimaryItemData.m_shared.m_secondaryAttack.m_isHomeItem;
                         if (data.Primary_Attack.Custom_AttackSpeed != null)
                             WMRecipeCust.AttackSpeed[tempname][true] = (float)data.Secondary_Attack.Custom_AttackSpeed;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.Secondary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackAdrenaline = data.Secondary_Attack.m_attackAdrenaline ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAdrenaline;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackUseAdrenaline = data.Secondary_Attack.m_attackUseAdrenaline ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackUseAdrenaline;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr = data.Secondary_Attack.m_eitrCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackEitr;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealth = data.Secondary_Attack.AttackHealthCost ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealth;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage = data.Secondary_Attack.m_attackHealthPercentage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthPercentage;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthLowBlockUse = data.Secondary_Attack.attack_Health_Low_BlockUsage ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHealthLowBlockUse;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackStartNoise = data.Secondary_Attack.Attack_Start_Noise ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackStartNoise;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHitNoise = data.Secondary_Attack.Attack_Hit_Noise ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHitNoise;
@@ -2605,7 +2625,7 @@ namespace wackydatabase.SetData
                             }
                             PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
                         }
-
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_cantUseInDungeon = data.Secondary_Attack.cant_Use_InDungeon ?? PrimaryItemData.m_shared.m_secondaryAttack.m_cantUseInDungeon;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime = data.Secondary_Attack.ReloadTime ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadTime; // IDK man
@@ -2756,6 +2776,8 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_foodRegen = data.FoodStats.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
                         PrimaryItemData.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
                         PrimaryItemData.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
+                        PrimaryItemData.m_shared.m_foodEatAnimTime = data.FoodStats.eatAnimationTime ?? PrimaryItemData.m_shared.m_foodEatAnimTime;
+                        PrimaryItemData.m_shared.m_isDrink = data.FoodStats.isDrink ?? PrimaryItemData.m_shared.m_isDrink;
 
                         if (go.TryGetComponent<Feast>(out var feastme))
                         {
@@ -2854,12 +2876,34 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_timedBlockBonus = data.ShieldStats.m_timedBlockBonus ?? PrimaryItemData.m_shared.m_timedBlockBonus;
                         PrimaryItemData.m_shared.m_deflectionForce = data.ShieldStats.m_deflectionForce ?? PrimaryItemData.m_shared.m_deflectionForce;
                         PrimaryItemData.m_shared.m_deflectionForcePerLevel = data.ShieldStats.m_deflectionForcePerLevel ?? PrimaryItemData.m_shared.m_deflectionForcePerLevel;
+                        if (data.ShieldStats.m_perfectBlockStatusEffect != null)
+                        {
+                            PrimaryItemData.m_shared.m_perfectBlockStatusEffect = data.ShieldStats.m_perfectBlockStatusEffect == "delete" ? null : Instant.GetStatusEffect(data.ShieldStats.m_perfectBlockStatusEffect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_perfectBlockStatusEffect;
+                        }                     
+                        PrimaryItemData.m_shared.m_buildBlockCharges = data.ShieldStats.m_buildBlockCharges ?? PrimaryItemData.m_shared.m_buildBlockCharges;
+                        PrimaryItemData.m_shared.m_maxBlockCharges = data.ShieldStats.m_maxBlockCharges ?? PrimaryItemData.m_shared.m_maxBlockCharges;
+                        PrimaryItemData.m_shared.m_blockChargeDecayTime = data.ShieldStats.m_blockChargeDecayTime ?? PrimaryItemData.m_shared.m_blockChargeDecayTime;
+                    }
+
+                    if(data.AdrenalineStats != null)
+                    {
+                        if (WMRecipeCust.showLogs.Value)
+                            WMRecipeCust.Dbgl($"   {data.name} Item Adrenaline ");
+                        PrimaryItemData.m_shared.m_maxAdrenaline = data.AdrenalineStats.maxAdrenaline ?? PrimaryItemData.m_shared.m_maxAdrenaline;
+                        if(PrimaryItemData.m_shared.m_fullAdrenalineSE != null)
+                        {
+                            PrimaryItemData.m_shared.m_fullAdrenalineSE = data.AdrenalineStats.fullAdrenalineSE == "delete" ? null : Instant.GetStatusEffect(data.AdrenalineStats.fullAdrenalineSE.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_fullAdrenalineSE;
+                        }
+                        
+                        PrimaryItemData.m_shared.m_blockAdrenaline = data.AdrenalineStats.blockAdrenaline ?? PrimaryItemData.m_shared.m_blockAdrenaline;
+                        PrimaryItemData.m_shared.m_perfectBlockAdrenaline = data.AdrenalineStats.perfectBlockAdrenaline ?? PrimaryItemData.m_shared.m_perfectBlockAdrenaline;
                     }
 
                     PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize ?? PrimaryItemData.m_shared.m_maxStackSize;
                     PrimaryItemData.m_shared.m_canBeReparied = data.m_canBeReparied ?? PrimaryItemData.m_shared.m_canBeReparied;
                     PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken ?? PrimaryItemData.m_shared.m_destroyBroken;
                     PrimaryItemData.m_shared.m_dodgeable = data.m_dodgeable ?? PrimaryItemData.m_shared.m_dodgeable;
+                    PrimaryItemData.m_shared.m_blockable = data.blockable ?? PrimaryItemData.m_shared.m_blockable;
                     PrimaryItemData.m_shared.m_questItem = data.m_questItem ?? PrimaryItemData.m_shared.m_questItem;
                     PrimaryItemData.m_shared.m_teleportable = data.m_teleportable ?? PrimaryItemData.m_shared.m_teleportable;
                     PrimaryItemData.m_shared.m_backstabBonus = data.m_backstabbonus ?? PrimaryItemData.m_shared.m_backstabBonus;
@@ -2873,7 +2917,6 @@ namespace wackydatabase.SetData
                         }
                         else
                             PrimaryItemData.m_shared.m_attackStatusEffect = Instant.GetStatusEffect(data.Attack_status_effect.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_attackStatusEffect;
-
                         
                     }
                     PrimaryItemData.m_shared.m_attackStatusEffectChance = data.Attack_status_effect_chance ?? PrimaryItemData.m_shared.m_attackStatusEffectChance;

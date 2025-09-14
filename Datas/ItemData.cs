@@ -63,6 +63,8 @@ namespace wackydatabase.Datas
 
         public ShieldData? ShieldStats;
 
+        public AdrenalineData? AdrenalineStats;
+
         public int? m_maxStackSize;
 
         public bool? m_canBeReparied;
@@ -70,6 +72,8 @@ namespace wackydatabase.Datas
         public bool? m_destroyBroken;
 
         public bool? m_dodgeable;
+
+        public bool? blockable;
 
         public string? Attack_status_effect;
 
@@ -142,12 +146,16 @@ namespace wackydatabase.Datas
         public int? Chain_Attacks;
         public bool? Hit_Terrain;
         public bool? Hit_Friendly;
+        public bool? is_HomeItem;
         public float? Custom_AttackSpeed;
 
         public float? m_attackStamina;
+        public float? m_attackAdrenaline;
+        public float? m_attackUseAdrenaline;
         public float? m_eitrCost;
         public float? AttackHealthCost;
         public float? m_attackHealthPercentage;
+        public bool? attack_Health_Low_BlockUsage;
 
         public float? SpeedFactor;
         public float? Attack_Start_Noise;
@@ -165,6 +173,7 @@ namespace wackydatabase.Datas
         public float? AttackRange;
         public float? AttackHeight;
         public string? Spawn_On_Trigger;
+        public bool? cant_Use_InDungeon;
 
         public bool? Requires_Reload;
         public string? Reload_Animation;
@@ -203,7 +212,7 @@ namespace wackydatabase.Datas
         public float? Projectile_Accuraccy;
         public int? Projectiles;
 
-        public bool? Skill_Accuracy; // new
+        public bool? Skill_Accuracy; 
         public float? Launch_Angle;
         public int? Projectile_Burst;
         public float? Burst_Interval;
@@ -299,6 +308,8 @@ namespace wackydatabase.Datas
         public float? m_foodBurnTime;
         //public string? m_foodColor;
         public float? m_FoodEitr;
+        public float? eatAnimationTime;
+        public bool? isDrink;
     }
     [Serializable]
     public class StatMods
@@ -341,9 +352,23 @@ namespace wackydatabase.Datas
         public float? m_timedBlockBonus;
         public float? m_deflectionForce;
         public float? m_deflectionForcePerLevel;
+        public float? m_perfectBlockStaminaRegen;
+        public string? m_perfectBlockStatusEffect;
+        public bool? m_buildBlockCharges;
+        public int? m_maxBlockCharges;
+        public float? m_blockChargeDecayTime;
+
     }
 
+    [Serializable]
+    public class AdrenalineData
+    {
+        public float? maxAdrenaline;
+        public string? fullAdrenalineSE;
+        public float? blockAdrenaline;
+        public float? perfectBlockAdrenaline;
 
+    }
 
     [Serializable]
     public class ArmorData

@@ -510,12 +510,16 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `Attack_Random_Animation` (int): The random animation for the attack.
 - `Chain_Attacks` (int): The number of chain attacks.
 - `Hit_Terrain` (bool): Indicates whether the attack can hit terrain.
+- `is_HomeItem` (bool): Indicates whether the item is a home item.
 - `Hit_Friendly` (bool): Indicates whether the attack can friendly targets. I am not sure what this will do, but have fun. 
 - `Custom_AttackSpeed` (float): This mod keeps track of this adjustment 1.0 is normal speed. 2.0 is twice as fast. Should be compatible with most other mods that increase speed.
 - `m_attackStamina` (float): The stamina cost of the attack.
 - `m_eitrCost` (float): The eitr cost of the attack.
+- `m_attackAdrenaline` (float): The Adrenaline gained for using attack?
+- `m_attackUseAdrenaline` (float): The Adrenaline cost of the attack.
 - `AttackHealthCost` (float): The health cost of the attack.
 - `m_attackHealthPercentage` (float): The health cost percentage of the attack.
+- `attack_Health_Low_BlockUsage` (bool): Determines if low health stops usage.
 
 
 - `Attack_Start_Noise` (float): The noise of swinging a weapon.
@@ -537,6 +541,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 
 - `AttackRange` (float): The range of the attack.
 - `AttackHeight` (float): The height of the attack.
+- `cant_Use_InDungeon` (bool): Can't use this attack in dungeons.
 
 - `Spawn_On_Trigger` (string): The spawn-on-trigger effect of the attack.
 - `Requires_Reload` (bool): Indicates whether the attack requires reloading.
@@ -666,6 +671,8 @@ To delete existing Effects
 - `m_foodRegen` (float): The regeneration rate of the food.
 - `m_foodBurnTime` (float): The burn time of the food.
 - `m_FoodEitr` (float): The eitr provided by the food.
+- `eatAnimationTime` (float): Time to eat the food.
+- `isDrink` (bool): Is drink.
 - `feastStacks` (int): How many stacks/portions of food each feasts gives. 
 
 You Can NOT clone feasts, they are complicated. 
@@ -721,12 +728,25 @@ To delete existing
 - `m_timedBlockBonus` (float): The timed block bonus of the shield.
 - `m_deflectionForce` (float): The deflection force of the shield.
 - `m_deflectionForcePerLevel` (float): The deflection force per level of the shield.
+- `m_perfectBlockStaminaRegen` (float): How much stamina is regenerated on a perfect block.
+- `m_perfectBlockStatusEffect` (string): Activate this status effect on a perfect block.
+- `m_buildBlockCharges` (bool): Enable block charges for shield.
+- `m_maxBlockCharges` (int): Max Block charges for shield.
+- `m_blockChargeDecayTime` (float): Decay time for block charges.
+
+### Adrenaline
+
+- `maxAdrenaline` (float): Adrenaline required to activate or maximum adrenaline.
+- `fullAdrenalineSE` (string): SE to apply when adrenaline is full.
+- `blockAdrenaline` (float): How much adrenaline is gained per block.
+- `perfectBlockAdrenaline` (float): How much adrenaline is gained per perfect block.
 
 ###  Properties Continued
 - `m_maxStackSize` (int): The maximum stack size of the item.
 - `m_canBeReparied` (bool): Indicates whether the item can be repaired.
 - `m_destroyBroken` (bool): Indicates whether the item gets destroyed when broken.
 - `m_dodgeable` (bool): Indicates whether the item can be dodged.
+- `blockable` (bool): Indicates whether the item can be blocked.
 - `Attack_status_effect` (string): The attack status effect of the item.  (Can remove current status with 'delete')
 - `Attack_status_effect_chance` (float): Chance of attack status effect of the item.
 - `spawn_on_hit` (string): The spawn-on-hit effect of the item. ('delete' to remove)
@@ -1308,18 +1328,25 @@ Applies freezing and slows based on context.
 
 Core properties used by many status effects for health and stamina manipulation.
 
+- `m_tickTimer` (float): The tick timer. - timer for tick
+- `m_healthOverTimeTimer` (float): The health over time timer.
+- `m_healthOverTimeTicks` (float): The health over time ticks.
+- `m_healthOverTimeTickHP` (float): The health over time tick health points. 
+#### Health Related
 
+* `m_heatlhUpFront` (float): Health given up front when effect starts.
 * `m_tickInterval` (float): Interval in seconds for effect ticks.
 * `m_healthPerTickMinHealthPercentage` (float): Percentage-based minimum health restored/lost per tick.
 * `m_healthPerTick` (float): Flat health value restored/lost per tick.
 * `m_healthOverTime` (float): Total health restored/lost over time.
 * `m_healthOverTimeDuration` (float): Duration over which `m_healthOverTime` is applied.
 * `m_healthOverTimeInterval` (float): Interval between each application of `m_healthOverTime`.
-
+#### Stamina Related
+* `m_staminaUpFront` (float): Stamina given up front when effect starts.
 * `m_staminaOverTime` (float): Total stamina restored over time.
 * `m_staminaOverTimeDuration` (float): Duration over which `m_staminaOverTime` is applied.
 * `m_staminaDrainPerSec` (float): Constant stamina drain per second.
-
+#### Modifiers Stamina Related
 * `m_runStaminaDrainModifier` (float): Affects stamina use while running.
 * `m_jumpStaminaUseModifier` (float): Affects stamina use while jumping.
 * `m_attackStaminaUseModifier` (float): Affects stamina use during attacks.
@@ -1329,19 +1356,32 @@ Core properties used by many status effects for health and stamina manipulation.
 * `m_homeItemStaminaUseModifier` (float): Affects stamina use with placeables/home items.
 * `m_sneakStaminaUseModifier` (float): Affects stamina use while sneaking.
 * `m_runStaminaUseModifier` (float): Additional modifier when running (combined with drain modifier).
-
+#### Adrenaline Related
+* `m_adrenalineUpFront` (float): adrenaline given up front when effect starts.
+* `m_adrenalineModifier` (float): Adrenaline modifier.
+#### Blocking/Stagger Related
+* `m_staggerModifier` (float): How much stagger is reduced? or inflicted?
+* `m_staggerTimeBlockBonus` (float): How much extra adrenaline you get for blocking.
+#### Eitr Related
+- `m_eitrUpFront` (float): Eitr given up front when effect starts.
 - `m_eitrOverTime` (float): The eitr over time value.
 - `m_eitrOverTimeDuration` (float): The duration of eitr over time.
 - `m_healthRegenMultiplier` (float): The health regeneration multiplier.
 - `m_staminaRegenMultiplier` (float): The stamina regeneration multiplier.
 - `m_eitrRegenMultiplier` (float): The eitr regeneration multiplier.
+#### Armor Related
+- `m_armorAdd` (float): Extra armor added.
+- `m_armorMultiplier` (float): Armor multiplier.
+#### Raise Skill Related
 - `m_raiseSkill` (Skills.SkillType): The skill type to raise as a multiplier or %
 - `m_raiseSkillModifier` (float): The skill modifier to raise as a multiplier.
 - `m_skillLevel` (Skills.SkillType): The skill type to modify the level.- Flat Rate
 - `m_skillLevelModifier` (float): The skill level modifier.
 - `m_skillLevel2` (Skills.SkillType): Another skill type to modify the level.Flat Rate
 - `m_skillLevelModifier2` (float): Another skill level modifier.
+#### Mods
 - `m_mods` (List<HitData.DamageModPair>): The list of damage modifiers for hit.
+#### Modifiers
 - `m_modifyAttackSkill` (Skills.SkillType): The skill type to modify the attack.
 - `m_damageModifier` (float): The damage modifier for the attack.
 - `m_noiseModifier` (float): The noise modifier for sneaking.
@@ -1351,10 +1391,7 @@ Core properties used by many status effects for health and stamina manipulation.
 - `m_jumpModifier` (Vector3): Allows you to control how much a charcter can jump or not. Very small values make big difference. Usual range is -1 to 1. You can delete the normalized. You only need the x,y,z lines.
 - `m_maxMaxFallSpeed` (float): The maximum maximum fall speed.
 - `m_fallDamageModifier` (float): The fall damage modifier.
-- `m_tickTimer` (float): The tick timer. - I forgot what these tick timers do. -
-- `m_healthOverTimeTimer` (float): The health over time timer.
-- `m_healthOverTimeTicks` (float): The health over time ticks.
-- `m_healthOverTimeTickHP` (float): The health over time tick health points. --
+
 - `m_windMovementModifier;` (float): 
 
 

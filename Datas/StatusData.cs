@@ -86,6 +86,20 @@ namespace wackydatabase.Datas
     [CanBeNull]
     public class SEdata 
     {
+
+        //HP Per Tick 
+        public float? m_tickTimer;
+
+        public float? m_healthOverTimeTimer;
+
+        public float? m_healthOverTimeTicks;
+
+        public float? m_healthOverTimeTickHP;
+
+        // Health
+
+        public float? m_heatlhUpFront;
+
         public float? m_tickInterval;
 
         public float? m_healthPerTickMinHealthPercentage;
@@ -100,6 +114,8 @@ namespace wackydatabase.Datas
         public float? m_healthOverTimeInterval;
 
         //[Header("Stamina")]
+        public float? m_staminaUpFront;
+
         public float? m_staminaOverTime;
 
         public float? m_staminaOverTimeDuration;
@@ -125,8 +141,19 @@ namespace wackydatabase.Datas
 
         public float? m_runStaminaUseModifier;
 
+        // Adrenaline
+        public float? m_adrenalineUpFront;
+
+        public float? m_adrenalineModifier;       
+        
+        // Stagger
+        public float? m_staggerModifier;
+
+        public float? m_staggerTimeBlockBonus;
 
         //[Header("Eitr")]
+        public float? m_eitrUpFront;
+
         public float? m_eitrOverTime;
 
         public float? m_eitrOverTimeDuration;
@@ -138,7 +165,12 @@ namespace wackydatabase.Datas
 
         public float? m_eitrRegenMultiplier ;
 
-       // [Header("Modify raise skill")]
+        // Armor
+        public float? m_armorAdd;
+
+        public float? m_armorMultiplier;
+
+        // [Header("Modify raise skill")]
         public Skills.SkillType? m_raiseSkill;
 
         public float? m_raiseSkillModifier;
@@ -177,16 +209,6 @@ namespace wackydatabase.Datas
         public float? m_maxMaxFallSpeed;
 
         public float? m_fallDamageModifier;
-
-
-        //HP Per Tick // deleted?
-        public float? m_tickTimer;
-
-        public float? m_healthOverTimeTimer;
-
-        public float? m_healthOverTimeTicks;
-
-        public float? m_healthOverTimeTickHP;
 
 
         //[Header("Wind")]
