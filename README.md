@@ -776,13 +776,17 @@ To delete existing
 The first value is the damage type, the second value is the resistance level.</br>
 Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
  
+
+    VeryWeak - 200% of base dmg. Prolongs Status effect by 66%
+    Weak - 150% of base dmg. Prolongs Status Effect by 33%
+    SlightlyWeak - 125% of base dmg
     Normal - no change
-    Resistant - increases status countdown speed by 100%
-    Weak - Decreases status countdown speed by 1/3
-    Immune - prevents status effect
-    Ignore - prevents status effect
-    VeryResistant - Prevent status effect application except when actively in, and increases status countdown speed by 100%
-    VeryWeak - Decreases status countdown speed by 2/3
+    SlightlyResistant - 75% of base dmg
+    Resistant - -50% of base dmg
+    VeryResistant - 25% of base dmg. Prevent status effect application except when actively in, and increases status countdown speed by 100%
+    Immune - prevents status effect or 0% of base dmg
+    Ignore - prevents status effects
+
 
 ![Delete all Damage Mod](https://wackymole.com/hosts/damagemod_delete.png)
 To delete all existing Damage modifiers
@@ -819,29 +823,33 @@ To delete all existing Damage modifiers
 
 
                         public enum SkillType
-                        {
-                            None = 0,
-                            Swords = 1,
-                            Knives = 2,
-                            Clubs = 3,
-                            Polearms = 4,
-                            Spears = 5,
-                            Blocking = 6,
-                            Axes = 7,
-                            Bows = 8,
-                            ElementalMagic = 9,
-                            BloodMagic = 10,
-                            Unarmed = 11,
-                            Pickaxes = 12,
-                            WoodCutting = 13,
-                            Crossbows = 14,
-                            Jump = 100,
-                            Sneak = 101,
-                            Run = 102,
-                            Swim = 103,
-                            Fishing = 104,
-                            Ride = 110,
-                            All = 999
+                        {                       
+	                        None = 0,
+	                        Swords = 1,
+	                        Knives = 2,
+	                        Clubs = 3,
+	                        Polearms = 4,
+	                        Spears = 5,
+	                        Blocking = 6,
+	                        Axes = 7,
+	                        Bows = 8,
+	                        ElementalMagic = 9,
+	                        BloodMagic = 10,
+	                        Unarmed = 11,
+	                        Pickaxes = 12,
+	                        WoodCutting = 13,
+	                        Crossbows = 14,
+	                        Jump = 100,
+	                        Sneak = 101,
+	                        Run = 102,
+	                        Swim = 103,
+	                        Fishing = 104,
+	                        Cooking = 105,
+	                        Farming = 106,
+	                        Crafting = 107,
+	                        Dodge = 108,
+	                        Ride = 110,
+	                        All = 999
                         }
 
                     public enum DestructibleType
