@@ -445,11 +445,12 @@ namespace wackydatabase.SetData
             // CLONE PASS FIRST - only for craftingStation
             foreach (var data3 in WMRecipeCust.pieceDatasYml)
             {
-                if (data3 != null && !string.IsNullOrEmpty(data3.clonePrefabName) && data3.craftingStationData != null)
+                if (data3 != null && ((!string.IsNullOrEmpty(data3.clonePrefabName) && data3.craftingStationData != null)))
                 {
                     try
                     {
                         CraftingStation checkifStation = null;
+
                         GameObject go = DataHelpers.FindPieceObjectName(data3.clonePrefabName);
                         
                          
@@ -463,6 +464,23 @@ namespace wackydatabase.SetData
                         }
                     }
                     catch { WMRecipeCust.WLog.LogWarning($"Setting Early Cloned CraftingStation for {data3.name} didn't complete"); } // spams just catch any empty
+                }
+
+                else if ( data3.craftingStationData != null && DataHelpers.GetCraftingStation(data3.m_name) == null){
+
+                    
+                    try
+                    {
+                        CraftingStation checkifStation = null;
+                        checkifStation = DataHelpers.GetCraftingStation(data3.m_name); 
+                        if (checkifStation == null)
+                        {
+                          //  WMRecipeCust.WLog.LogWarning($"Checking " + data3.m_name);
+                            SetData.SetPieceRecipeData(data3, Instant, AllObjects);
+                        }
+
+                    }
+                    catch { WMRecipeCust.WLog.LogWarning($"Setting CraftingStation for {data3.name} didn't complete"); } // spams just catch any empty
                 }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)

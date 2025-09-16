@@ -5,9 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
-
-using System.Threading.Tasks;
-
 using UnityEngine.SceneManagement;
 using BepInEx;
 using BepInEx.Configuration;
@@ -1100,7 +1097,6 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_description = data.m_description ?? go.GetComponent<Piece>().m_description;
             }
 
-            bool CStationAdded = false;
             if (!string.IsNullOrEmpty(data.clonePrefabName) && go.TryGetComponent<CraftingStation>(out var station3))
             {
                 if (!WMRecipeCust.NewCraftingStations.Contains(station3))
