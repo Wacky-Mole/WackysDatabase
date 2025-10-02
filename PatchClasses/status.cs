@@ -227,6 +227,8 @@ namespace wackydatabase.PatchClasses
 
             // Apply totals
             hp += addHp;
+            if (hp < 1f) hp = 1f;
+
             stamina += addStamina;
             eitr += addEitr;
         }

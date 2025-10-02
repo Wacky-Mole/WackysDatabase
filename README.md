@@ -1293,7 +1293,7 @@ You can replace all Boars in the game with this Dude.
 - `ActivationAnimation` (string): The animation for the activation of the status effect.
 - `SeData` (SEdata): The additional data for the status effect.
 - `SeShield` (SEShield): The additional data for the shield status effect.
-- `AddHP` (float): The amount of health to add to base stats. Be careful with negative numbers! A player normal starting HP is 25. If > -24 then a player will die and character will permanently lose all HP and have to be manually restored.
+- `AddHP` (float): The amount of health to add to base stats. Be careful with negative numbers! A player normal starting HP is 25. Added a check that should prevent a player from going below 1 HP from SEs.
 - `AddStamina` (float): The amount of stamina to add to base stats.  Negative stamina is okay!
 - `AddEitr` (float): The amount of Eitr to add to base stats. Negative Eitr is okay!
 
