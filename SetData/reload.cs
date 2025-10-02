@@ -95,6 +95,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.treebaseDatasYml.Clear();
 
                 WMRecipeCust.MultiplayerApproved.Clear();
+                WMRecipeCust.SEaddBonus.Clear();
 
                 //WMRecipeCust.RequiredCraftItemsString.Clear();
                 //WMRecipeCust.RequiredUpgradeItemsString.Clear();

@@ -44,6 +44,9 @@ namespace wackydatabase.Datas
         public SEShield SeShield;
         public SEPoison SePoison;
         public SEFrost SeFrost;
+        public float? AddHP;
+        public float? AddStamina;
+        public float? AddEitr;
         //public FieldInfo? fld = typeof(StatusEffect).GetField("m_tickInterval").GetValue;
 
     }

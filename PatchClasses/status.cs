@@ -1,18 +1,19 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.IO;
-using System.Security.Cryptography;
-using wackydatabase.Datas;
-using wackydatabase.Util;
-using System.Reflection.Emit;
-using System.Text.RegularExpressions;
 using wackydatabase.Armor;
+using wackydatabase.Datas;
+using wackydatabase.SetData;
+using wackydatabase.Util;
 using static wackydatabase.Armor.ArmorHelpers;
 
 namespace wackydatabase.PatchClasses
@@ -75,6 +76,12 @@ namespace wackydatabase.PatchClasses
                         ___m_seman.RemoveStatusEffect(wet, true);
                     }
                     else if (water == HitData.DamageModifier.Resistant)
+                    {
+                        t.Field("m_time").SetValue(t.Field("m_time").GetValue<float>() + dt);
+                        ___m_seman.RemoveStatusEffect(wet, true);
+                        ___m_seman.AddStatusEffect(wet);
+                    }
+                    else if (water == HitData.DamageModifier.SlightlyResistant)
                     {
                         t.Field("m_time").SetValue(t.Field("m_time").GetValue<float>() + dt);
                         ___m_seman.RemoveStatusEffect(wet, true);
@@ -153,6 +160,9 @@ namespace wackydatabase.PatchClasses
                     {
                         switch (damageModPair.m_modifier)
                         {
+                            case HitData.DamageModifier.SlightlyResistant:
+                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_resistant</color> VS ";
+                                break;
                             case HitData.DamageModifier.Resistant:
                                 __result += "\n$inventory_dmgmod: <color=orange>$inventory_resistant</color> VS ";
                                 break;
@@ -179,4 +189,58 @@ namespace wackydatabase.PatchClasses
             }          // water patch  https://www.nexusmods.com/valheim/mods/1162
         }
 
+
+
+
+    [HarmonyPatch(typeof(Player), nameof(Player.GetTotalFoodValue))]
+    public static class Add_goodies_Wackydb
+    {
+        // Player instance is needed to read SEs; Harmony will pass it if we include it.
+        public static void Postfix(Player __instance, ref float hp, ref float stamina, ref float eitr)
+        {
+            if (!__instance) return;
+            if (WMRecipeCust.SEaddBonus.Count == 0) return;
+            if (__instance != Player.m_localPlayer) return;
+
+
+            var seMan = __instance.GetSEMan();
+            if (seMan == null) return;
+
+            var list = seMan.GetStatusEffects();
+            if (list == null || list.Count == 0) return;
+
+            float addHp = 0f, addStamina = 0f, addEitr = 0f;
+
+            // Sum contributions of all active status effects that are defined in WackyDB
+            for (int i = 0; i < list.Count; ++i)
+            {
+                var se = list[i];
+                if (se == null) continue;
+
+                if (TryGetBonus(se, out var b))
+                {
+                    if (b.AddHP.HasValue) addHp += b.AddHP.Value;
+                    if (b.AddStamina.HasValue) addStamina += b.AddStamina.Value;
+                    if (b.AddEitr.HasValue) addEitr += b.AddEitr.Value;
+                }
+            }
+
+            // Apply totals
+            hp += addHp;
+            stamina += addStamina;
+            eitr += addEitr;
+        }
+   
+         private static bool TryGetBonus(StatusEffect se, out WackyStatusEffectBonus bonus)
+        {
+            bonus = null;
+
+            // 1) prefab/internal name
+            if (!string.IsNullOrEmpty(se.name) && WMRecipeCust.SEaddBonus.TryGetValue(se.name, out bonus))
+                return true;
+
+            return false;
+        }
     }
+
+}

@@ -43,7 +43,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.58";
+        internal const string ModVersion = "2.4.60";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -55,7 +55,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.58" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.4.60" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -179,6 +179,8 @@ namespace wackydatabase
         public static Dictionary<Recipe, bool> RequiredUpgradeItemsString = new(); // holding
         public static Dictionary<Recipe, bool> RequiredCraftItemsString = new(); // holding
         public static Dictionary<string, string> EndingStatusEffect = new(); // For SEs that want to chain
+                                                                             // when you define it:
+        public static readonly Dictionary<string, WackyStatusEffectBonus> SEaddBonus =  new Dictionary<string, WackyStatusEffectBonus>(StringComparer.Ordinal);// status effect addHP/stam/eitr
 
         internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();

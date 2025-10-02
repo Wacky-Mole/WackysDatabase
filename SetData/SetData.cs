@@ -68,6 +68,14 @@ namespace wackydatabase.SetData
         }
     }
 
+    public class WackyStatusEffectBonus
+    {
+        public float? AddHP;
+        public float? AddStamina;
+        public float? AddEitr;
+
+    }
+
     public class SetData
     {
         public static Component[] renderfinder;
@@ -154,6 +162,26 @@ namespace wackydatabase.SetData
 
             go.m_cooldown = data.Cooldown ?? go.m_cooldown;
             go.m_activationAnimation = data.ActivationAnimation ?? go.m_activationAnimation;
+
+            if (data.AddHP.HasValue || data.AddStamina.HasValue || data.AddEitr.HasValue)
+            {
+                var key = data.Name; // use your YAML SE key
+                if (!WMRecipeCust.SEaddBonus.TryGetValue(key, out var bonus) || bonus == null)
+                {
+                    bonus = new WackyStatusEffectBonus();
+                    WMRecipeCust.SEaddBonus[key] = bonus;
+                }
+
+                if (data.AddHP.HasValue)
+                    bonus.AddHP = data.AddHP.Value;
+
+                if (data.AddStamina.HasValue)
+                    bonus.AddStamina =  data.AddStamina.Value;
+
+                if (data.AddEitr.HasValue)
+                    bonus.AddEitr = data.AddEitr.Value;
+            }
+
 
             Type type = go.GetType();
 
