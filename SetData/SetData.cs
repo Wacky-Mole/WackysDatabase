@@ -180,6 +180,19 @@ namespace wackydatabase.SetData
 
                 if (data.AddEitr.HasValue)
                     bonus.AddEitr = data.AddEitr.Value;
+
+                static string ColorizeSigned(float v)
+                {
+                    var s = v.ToString("+0.##;-0.##;0");
+                    var c = v < 0 ? "red" : "orange";
+                    return $"<color={c}>{s}</color>";
+                }
+
+                go.m_tooltip += "\n"
+                    + (data.AddHP.HasValue ? $" Health: {ColorizeSigned(data.AddHP.Value)}" : "") 
+                    + (data.AddStamina.HasValue ? "\n" + $"Stamina: {ColorizeSigned(data.AddStamina.Value)} " : "")
+                    + (data.AddEitr.HasValue ? "\n" + $" Eitr: {ColorizeSigned(data.AddEitr.Value)}" : "");
+
             }
 
 
