@@ -85,7 +85,7 @@ namespace wackydatabase.Util
             }
         }
 
-        internal static void setValue(Type type,object go, string name, float? value=null, int? value2 = null, string? value3 = null, List<HitData.DamageModPair>? value4 =null, Skills.SkillType? value5 = null, Vector3? value6 = null )
+        internal static void setValue(Type type,object go, string name, float? value=null, int? value2 = null, string? value3 = null, List<HitData.DamageModPair>? value4 =null, Skills.SkillType? value5 = null, Vector3? value6 = null, HitData.DamageTypes? value7 = null)
         {
             var field = Functions.CompField(type, name);
             if (field == null)
@@ -123,6 +123,9 @@ namespace wackydatabase.Util
             
             if (value6 != null)
                 field.SetValue(go, value6);
+
+            if (value7 != null)
+                field.SetValue(go, value7);
 
         }
 

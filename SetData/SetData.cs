@@ -294,6 +294,13 @@ namespace wackydatabase.SetData
                 Functions.setValue(type, go, "m_minSpeedFactor", data.SeFrost.m_minSpeedFactor);
 
             }
+
+            if (data.SeData?.m_percentDamageModifiers != null)
+            {
+                Functions.setValue(type, go, "m_percentDamageModifiers", null, null, null, null, null, null, data.SeData.m_percentDamageModifiers.Value);
+            }
+
+
         }
 
         #endregion Effects

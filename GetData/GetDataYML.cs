@@ -276,6 +276,8 @@ namespace wackydatabase.GetData
                 m_mods = Functions.getCast<List<HitData.DamageModPair>>(f2, "m_mods", effect),
                 m_modifyAttackSkill = Functions.getCast<Skills.SkillType>(f2, "m_modifyAttackSkill", effect),
                 m_damageModifier = Functions.getCast<float>(f2, "m_damageModifier",effect),
+                m_percentDamageModifiers = Functions.getCast<HitData.DamageTypes>(f2, "m_percentigeDamageModifiers", effect),
+
                 m_noiseModifier = Functions.getCast<float>(f2, "m_noiseModifier", effect),
                 m_stealthModifier = Functions.getCast<float>(f2, "m_stealthModifier", effect),
                 m_addMaxCarryWeight = Functions.getCast<float>(f2, "m_addMaxCarryWeight", effect),
@@ -286,9 +288,14 @@ namespace wackydatabase.GetData
                 m_tickTimer = Functions.getCast<float>(f2, "m_tickTimer", effect),
                 m_windMovementModifier = Functions.getCast<float>(f2, "m_windMovementModifier", effect),
 
+                
+
+
+
             };
 
-        StatusData statusData = new StatusData
+
+            StatusData statusData = new StatusData
             {
 
                 Name = effect.name ?? "",

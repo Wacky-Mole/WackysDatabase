@@ -195,6 +195,8 @@ namespace wackydatabase.Datas
 
         public float? m_damageModifier;
 
+        public HitData.DamageTypes? m_percentDamageModifiers { get; set; }
+
         //[Header("Sneak")]
         public float? m_noiseModifier;
 
