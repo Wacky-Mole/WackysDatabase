@@ -295,9 +295,9 @@ namespace wackydatabase.SetData
 
             }
 
-            if (data.SeData?.m_percentDamageModifiers != null)
+            if (data.SeData.m_percentDamageModifiers != null)
             {
-                Functions.setValue(type, go, "m_percentDamageModifiers", null, null, null, null, null, null, data.SeData.m_percentDamageModifiers.Value);
+                Functions.setValue(type, go, "m_percentigeDamageModifiers", null, null, null, null, null, null, data.SeData.m_percentDamageModifiers);
             }
 
 

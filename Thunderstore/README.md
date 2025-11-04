@@ -1393,6 +1393,7 @@ Core properties used by many status effects for health and stamina manipulation.
 #### Modifiers
 - `m_modifyAttackSkill` (Skills.SkillType): The skill type to modify the attack.
 - `m_damageModifier` (float): The damage modifier for the attack.
+- `m_percentDamageModifiers` (HitData.DamageTypes): The damage modifer percentages for attack. Used in SET effects and Yagluth ect. 0.1 = 10% more damage
 - `m_noiseModifier` (float): The noise modifier for sneaking.
 - `m_stealthModifier` (float): The stealth modifier for sneaking.
 - `m_addMaxCarryWeight` (float): The additional maximum carry weight.
