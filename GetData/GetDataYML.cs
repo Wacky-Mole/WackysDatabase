@@ -236,7 +236,7 @@ namespace wackydatabase.GetData
                 m_healthOverTimeTicks = Functions.getCast<float>(f2, "m_healthOverTimeTicks", effect),
                 m_healthOverTimeTickHP = Functions.getCast<float>(f2, "m_healthOverTimeTickHP", effect),
 
-                m_staminaUpFront = Functions.getCast<float>(f2, "m_staminaUpFront", effect),
+                m_staminaUpFront = Functions.getCast<float>(f2, "m_staminaUpFront", effect),             
                 m_staminaOverTime = Functions.getCast<float>(f2, "m_staminaOverTime", effect),
                 m_staminaOverTimeDuration = Functions.getCast<float>(f2, "m_staminaOverTimeDuration", effect),
                 m_staminaDrainPerSec = Functions.getCast<float>(f2, "m_staminaDrainPerSec", effect),
@@ -1159,7 +1159,7 @@ namespace wackydatabase.GetData
                 };
                 ItemData.SE_SET_Equip = SE_SET_Equip2;
             }
-            if(go.name == "StaffShield" || go.name == "StaffSkeleton") // for the special cases
+            if(go.name == "StaffShield" || go.name == "StaffSkeleton" ||  go.name == "StaffRedTroll") // for the special cases
                 hasdmg = true;
 
             if (go.TryGetComponent<Attack>(out var attackcheck) )
