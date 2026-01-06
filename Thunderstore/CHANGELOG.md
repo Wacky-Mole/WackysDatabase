@@ -1,33 +1,34 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.4.63  | Bug Fix.
-| 2.4.62  | Percent Damage Modifiers Percentage m_percentDamageModifiers added to SEs. 
-| 2.4.61  | Added a check that prevents the player from going below 1HP from the SE health. You can still die, but not because the admin owner was dumb. Well.. you can still die from a dumb admin...
-| 2.4.60  | Your cries have been heard and answered. I have added addHP, addStamina, addEitr to SEs. You can now make SEs add base stats! You can also make them negative. - Yes it adds mores patches (same patches as epicmmo), but they are minor and don't run if you don't use any. </br> Also added SlightlyResistant to wet, same as Resistant. </br> Will remove the old json conversion soon. Not that anyone is still using wackydb 1.0, but here is your last chance to upgrade. 
-| 2.4.58  | Update to allow non cloned pieces to become craftingstations. 
-| 2.4.57  | Added New stuff from 221.4. Resave YMLs to see new fields. </br> SE fields:  m_heatlhUpFront,m_staminaUpFront, m_eitrUpFront. m_adrenalineUpFront,m_adrenalineModifier, m_staggerModifier, m_staggerTimeBlockBonus, m_armorAdd, m_armorMultiplier </br> New to Items: blockable, AdrenalineStats: maxAdrenaline fullAdrenalineSE,blockAdrenaline,perfectBlockAdrenaline .  Shields:m_perfectBlockStaminaRegen, m_perfectBlockStatusEffect, m_buildBlockCharges,m_maxBlockCharges,m_blockChargeDecayTime. To Food: eatAnimationTime, isDrink. ToAttack: is_HomeItem, m_attackAdrenaline, m_attackUseAdrenaline, attack_Health_Low_BlockUsage, cant_Use_InDungeon. </br> Updated TranslationManager.
-| 2.4.56  | Added SeFrost and SePoison. Also added - `m_attackStaminaUseModifier, m_blockStaminaUseModifier, m_dodgeStaminaUseModifier, m_swimStaminaUseModifier, m_homeItemStaminaUseModifier, m_sneakStaminaUseModifier, m_runStaminaUseModifier for SEs
-| 2.4.55  | Added EndingStatusEffect to SE's, you can now chain SEs together. Don't forget to use Category. </br> Updated ServerSync.
-| 2.4.54  | Added burnable to WearnTear. 
-| 2.4.53  | Added Display Normal Logs config. If you want to turn off most of wackydb logs. You shouldn't do this unless you have a good reason. ie 1000+ yamls </br> Removed comfortObject and replaced with comfortObjectName. </br> Lowered some warnings to just info logs. 
-| 2.4.52  | Fixed Tooltip for Water
+| 2.4.64  | Updated Readme </br> Added StaffRedTroll to item exception list for full stats </br> Made is so short SE's don't give warning. 
+| 2.4.63  | Bug Fix.|
+| 2.4.62  | Percent Damage Modifiers Percentage m_percentDamageModifiers added to SEs. |
+| 2.4.61  | Added a check that prevents the player from going below 1HP from the SE health. You can still die, but not because the admin owner was dumb. Well.. you can still die from a dumb admin...|
+| 2.4.60  | Your cries have been heard and answered. I have added addHP, addStamina, addEitr to SEs. You can now make SEs add base stats! You can also make them negative. - Yes it adds mores patches (same patches as epicmmo), but they are minor and don't run if you don't use any. </br> Also added SlightlyResistant to wet, same as Resistant. </br> Will remove the old json conversion soon. Not that anyone is still using wackydb 1.0, but here is your last chance to upgrade. |
+| 2.4.58  | Update to allow non cloned pieces to become craftingstations. |
+| 2.4.57  | Added New stuff from 221.4. Resave YMLs to see new fields. </br> SE fields:  m_heatlhUpFront,m_staminaUpFront, m_eitrUpFront. m_adrenalineUpFront,m_adrenalineModifier, m_staggerModifier, m_staggerTimeBlockBonus, m_armorAdd, m_armorMultiplier </br> New to Items: blockable, AdrenalineStats: maxAdrenaline fullAdrenalineSE,blockAdrenaline,perfectBlockAdrenaline .  Shields:m_perfectBlockStaminaRegen, m_perfectBlockStatusEffect, m_buildBlockCharges,m_maxBlockCharges,m_blockChargeDecayTime. To Food: eatAnimationTime, isDrink. ToAttack: is_HomeItem, m_attackAdrenaline, m_attackUseAdrenaline, attack_Health_Low_BlockUsage, cant_Use_InDungeon. </br> Updated TranslationManager.|
+| 2.4.56  | Added SeFrost and SePoison. Also added - `m_attackStaminaUseModifier, m_blockStaminaUseModifier, m_dodgeStaminaUseModifier, m_swimStaminaUseModifier, m_homeItemStaminaUseModifier, m_sneakStaminaUseModifier, m_runStaminaUseModifier for SEs|
+| 2.4.55  | Added EndingStatusEffect to SE's, you can now chain SEs together. Don't forget to use Category. </br> Updated ServerSync.|
+| 2.4.54  | Added burnable to WearnTear. |
+| 2.4.53  | Added Display Normal Logs config. If you want to turn off most of wackydb logs. You shouldn't do this unless you have a good reason. ie 1000+ yamls </br> Removed comfortObject and replaced with comfortObjectName. </br> Lowered some warnings to just info logs. |
+| 2.4.52  | Fixed Tooltip for Water|
 | 2.4.51  | Update 220.3 - ServerSync update. Fixed Startup Error on GamePass Crossplay |
 | 2.4.50  | Added ShieldGenData </br>Added BatteringRamData </br>Okay, I’ve had some questions about icons being in folders over the past few weeks. You can specify the relative file path of the icon. For example, if your icon is in the folder `Icons/Items/wacky.png`, just use `"Items/wacky.png"`. Will revealing the "secret" forward slash come back to haunt me? Absolutely. |
 | 2.4.48  | ConsumableStatusEffect can be deleted now ("delete"). </br> Added materialType to WearNTear on pieces. You can now change the material the piece is made out of and it's support strength as a result. 
-| 2.4.47  | Added Feast editing feastStacks to FoodStats. Feasts have a Item and Piece component and then an another _Material item. Most people should just edit the normal Item. Can't clone because they are too complicated. </br> Added ashlandProof to ships(pieces) (Majestic request) </br> Added SE cache(ing) for mods like MonsterDB. </br> Added AppendToolTip to items. It's not used too much, but essential when needed (mostly foods)(ignore this for feasts) </br>  Cleaned up some code.
-| 2.4.46  | Minor bug fix for extra resource consumption with recipes.
-| 2.4.45  | Expanded saving Attack classes for non attack items that still have important fields. Like Hoe and Shields. 
-| 2.4.44  | Bug fix for cSExtensionDataList
-| 2.4.43  | Update for PieceManager
-| 2.4.42  | Bug fix. 
-| 2.4.41  | Bog The Witch Update </br> Add support for multiple Piece CSExtensionData. You can now also make (almost) any piece into an extension for a craftingstation. </br> Added support for Pieces to become craftingstations. </br> Added Pickable m_extraDrops stuff </br> Removed unnecessary warning for disabled pieces. </br> Added Hit_Friendly to attack
-| 2.4.31  | Expanded upgrade_reqs for recipes levels!  You can now specify completely different recipes for all upgrades. Rejoice, no more hacks. 
-| 2.4.28  | Renamed a field to Damage_Multiplier_By_Health_Deficit_Percent </br> Updated Readme with some (light) video tutorial links.
-| 2.4.27  | Fix for Primary/Secondary Status Effect. </br> Added `Attack_Start_Noise`(float),       `Attack_Hit_Noise`(float),        `Dmg_Multiplier_Per_Missing_Health`(float),        `Dmg_Multiplier_Per_Total_Health`(float), `Stamina_Return_Per_Missing_HP`(float),     `SelfDamage`(int), `Attack_Kills_Self`(bool)
-| 2.4.26  | Fix for rare unarmed attack causing error and no dmg.
-| 2.4.25  | Coop sync fix</br> Rewrote how 'ExtraSecurity on Servers' works. Should sync from Servers to clients better now.  </br> Send logs for any issues
-| 2.4.24  | PerBurst_Resource_usage bug fix.
-| 2.4.23  | Updated PerBurst_Resource_usage and Destroy_Previous_Projectile for misspellings. If you use these, please regenerate your yaml files or rename fields, otherwise can be ignored. </br> Bug fixes for pickables with other plant mods.
+| 2.4.47  | Added Feast editing feastStacks to FoodStats. Feasts have a Item and Piece component and then an another _Material item. Most people should just edit the normal Item. Can't clone because they are too complicated. </br> Added ashlandProof to ships(pieces) (Majestic request) </br> Added SE cache(ing) for mods like MonsterDB. </br> Added AppendToolTip to items. It's not used too much, but essential when needed (mostly foods)(ignore this for feasts) </br>  Cleaned up some code.|
+| 2.4.46  | Minor bug fix for extra resource consumption with recipes.|
+| 2.4.45  | Expanded saving Attack classes for non attack items that still have important fields. Like Hoe and Shields. |
+| 2.4.44  | Bug fix for cSExtensionDataList|
+| 2.4.43  | Update for PieceManager|
+| 2.4.42  | Bug fix. |
+| 2.4.41  | Bog The Witch Update </br> Add support for multiple Piece CSExtensionData. You can now also make (almost) any piece into an extension for a craftingstation. </br> Added support for Pieces to become craftingstations. </br> Added Pickable m_extraDrops stuff </br> Removed unnecessary warning for disabled pieces. </br> Added Hit_Friendly to attack|
+| 2.4.31  | Expanded upgrade_reqs for recipes levels!  You can now specify completely different recipes for all upgrades. Rejoice, no more hacks. |
+| 2.4.28  | Renamed a field to Damage_Multiplier_By_Health_Deficit_Percent </br> Updated Readme with some (light) video tutorial links.|
+| 2.4.27  | Fix for Primary/Secondary Status Effect. </br> Added `Attack_Start_Noise`(float),       `Attack_Hit_Noise`(float),        `Dmg_Multiplier_Per_Missing_Health`(float),        `Dmg_Multiplier_Per_Total_Health`(float), `Stamina_Return_Per_Missing_HP`(float),     `SelfDamage`(int), `Attack_Kills_Self`(bool)|
+| 2.4.26  | Fix for rare unarmed attack causing error and no dmg.|
+| 2.4.25  | Coop sync fix</br> Rewrote how 'ExtraSecurity on Servers' works. Should sync from Servers to clients better now.  </br> Send logs for any issues|
+| 2.4.24  | PerBurst_Resource_usage bug fix.|
+| 2.4.23  | Updated PerBurst_Resource_usage and Destroy_Previous_Projectile for misspellings. If you use these, please regenerate your yaml files or rename fields, otherwise can be ignored. </br> Bug fixes for pickables with other plant mods.|
 | 2.4.22  | Bug fixes for materials. </br> AlanDrake added filterMode to textures for advanced texturing. 
 | 2.4.21  | Incoming Big Update sponsored by Lughbaloo: Pickables and Plants! </br> PlantData is saved in pieces, which point to either Pickable or Treebase when matured. When you pick a pickable it becomes an item. You can of course clone and change size/material. Enjoy this wacky expansion.|
 | 2.4.13  | Bug fix for attack_status_effect|
