@@ -1351,7 +1351,7 @@ Core properties used by many status effects for health and stamina manipulation.
 * `m_healthOverTimeDuration` (float): Duration over which `m_healthOverTime` is applied.
 * `m_healthOverTimeInterval` (float): Interval between each application of `m_healthOverTime`.
 #### Stamina Related
-* `m_staminaUpFront` (float): Stamina given up front when effect starts.
+* `m_staminaUpFront` (float): Stamina given up front when effect starts. - ( If you can't get this to work, try  m_staminaOverTime: 50 m_staminaOverTimeDuration: 0.1)
 * `m_staminaOverTime` (float): Total stamina restored over time.
 * `m_staminaOverTimeDuration` (float): Duration over which `m_staminaOverTime` is applied.
 * `m_staminaDrainPerSec` (float): Constant stamina drain per second.

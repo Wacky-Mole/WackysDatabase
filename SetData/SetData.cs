@@ -195,6 +195,8 @@ namespace wackydatabase.SetData
 
             }
 
+            if (data.SeData == null)
+                return;
 
             Type type = go.GetType();
 
