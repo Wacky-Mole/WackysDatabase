@@ -517,7 +517,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `m_attackStamina` (float): The stamina cost of the attack.
 - `m_eitrCost` (float): The eitr cost of the attack.
 - `m_attackAdrenaline` (float): The Adrenaline gained for using attack?
-- `m_attackUseAdrenaline` (float): The Adrenaline cost of the attack.( It doesn't seem like they actually added the code for this yet, I guess the devs thought about it, but never finished it)
+- `m_attackUseAdrenaline` (float): The Adrenaline cost of the attack.( It doesn't seem like they actually added the code for this yet, I guess the devs thought about it, but never finished it)( It seems to directly restore the Adrenaline at point X.)
 - `AttackHealthCost` (float): The health cost of the attack.
 - `m_attackHealthPercentage` (float): The health cost percentage of the attack.
 - `attack_Health_Low_BlockUsage` (bool): Determines if low health stops usage.
