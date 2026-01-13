@@ -1,6 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.4.64  | Updated Readme </br> Added StaffRedTroll to item exception list for full stats </br> Made is so short SE's don't give warning. 
+| 2.4.64  | Updated Readme </br> Added StaffRedTroll to item exception list for full stats </br> Made is so short SE's don't give warning.  </br> Fix for m_staminaUpFront
 | 2.4.63  | Bug Fix.|
 | 2.4.62  | Percent Damage Modifiers Percentage m_percentDamageModifiers added to SEs. |
 | 2.4.61  | Added a check that prevents the player from going below 1HP from the SE health. You can still die, but not because the admin owner was dumb. Well.. you can still die from a dumb admin...|

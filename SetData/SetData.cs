@@ -153,7 +153,7 @@ namespace wackydatabase.SetData
                 go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_);
 
 
-             if (data.StopEffect_PLUS  != null  && data.StartEffect_PLUS.Length > 0)
+            if (data.StartEffect_PLUS != null && data.StartEffect_PLUS.Length > 0)
                     go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_PLUS);
 
              if (data.StopEffect_PLUS != null && data.StopEffect_PLUS.Length > 0 )
@@ -209,7 +209,8 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_healthOverTimeDuration", data.SeData.m_healthOverTimeDuration);
             Functions.setValue(type, go, "m_healthOverTimeInterval", data.SeData.m_healthOverTimeInterval);
 
-            Functions.setValue(type, go, "m_staminaOverTime", data.SeData.m_staminaUpFront);
+            // set immediate stamina change (vanilla field is m_staminaUpFront)
+            Functions.setValue(type, go, "m_staminaUpFront", data.SeData.m_staminaUpFront);
             Functions.setValue(type, go, "m_staminaOverTime", data.SeData.m_staminaOverTime);
             Functions.setValue(type, go, "m_staminaOverTimeDuration", data.SeData.m_staminaOverTimeDuration);
             Functions.setValue(type, go, "m_staminaDrainPerSec", data.SeData.m_staminaDrainPerSec);

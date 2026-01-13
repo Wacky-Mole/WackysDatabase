@@ -57,12 +57,9 @@ namespace wackydatabase.Util
 
         internal static FieldInfo CompField(Type ClassTyp, string fieldname)
         {
-            FieldInfo hello = ClassTyp.GetField(fieldname, BindingFlags.Instance | BindingFlags.Public);
-            if (hello == null)
-            {
-                return null;
-            }
-            return hello;
+            // Look for public or non-public instance fields
+            FieldInfo hello = ClassTyp.GetField(fieldname, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            return hello; // may be null
         }
 
         internal static T getCast<T>(Type ClassTyp, string fieldname, StatusEffect effect)
@@ -85,48 +82,80 @@ namespace wackydatabase.Util
             }
         }
 
-        internal static void setValue(Type type,object go, string name, float? value=null, int? value2 = null, string? value3 = null, List<HitData.DamageModPair>? value4 =null, Skills.SkillType? value5 = null, Vector3? value6 = null, HitData.DamageTypes? value7 = null)
+        internal static void setValue(Type type, object go, string name, float? value = null, int? value2 = null, string? value3 = null, List<HitData.DamageModPair>? value4 = null, Skills.SkillType? value5 = null, Vector3? value6 = null, HitData.DamageTypes? value7 = null)
         {
             var field = Functions.CompField(type, name);
             if (field == null)
                 return;
 
-            if (value != null)
-            {
-                field.SetValue(go, value);
+            // choose the first non-null input
+            object? raw = null;
+            if (value != null) raw = value.Value;
+            else if (value2 != null) raw = value2.Value;
+            else if (value3 != null) raw = value3;
+            else if (value4 != null) raw = value4;
+            else if (value5 != null) raw = value5.Value;
+            else if (value6 != null) raw = value6.Value;
+            else if (value7 != null) raw = value7.Value;
+
+            if (raw == null)
                 return;
+
+            try
+            {
+                // determine target type (handle Nullable<T>)
+                Type targetType = field.FieldType;
+                Type nonNullableTarget = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+                // If raw is already assignable, set directly
+                if (nonNullableTarget.IsInstanceOfType(raw))
+                {
+                    field.SetValue(go, raw);
+                    return;
+                }
+
+                object? converted = null;
+
+                // handle enums from string or numeric
+                if (nonNullableTarget.IsEnum)
+                {
+                    if (raw is string rs)
+                    {
+                        converted = Enum.Parse(nonNullableTarget, rs);
+                    }
+                    else
+                    {
+                        converted = Enum.ToObject(nonNullableTarget, raw);
+                    }
+                }
+                else if (raw is IConvertible)
+                {
+                    // convert primitives and common value types
+                    converted = Convert.ChangeType(raw, nonNullableTarget, System.Globalization.CultureInfo.InvariantCulture);
+                }
+                else if (nonNullableTarget == typeof(Vector3) && raw is Vector3)
+                {
+                    converted = raw;
+                }
+                else if (nonNullableTarget.IsAssignableFrom(raw.GetType()))
+                {
+                    converted = raw;
+                }
+
+                if (converted != null)
+                {
+                    field.SetValue(go, converted);
+                }
+                else
+                {
+                    // last resort: attempt direct set (may throw)
+                    field.SetValue(go, raw);
+                }
             }
-
-            if (value2 != null)
+            catch (Exception ex)
             {
-                field.SetValue(go, value2);
-                return;
-            }        
-
-            if (value3 != null)
-            {
-                field.SetValue(go, value3);
-                return;
-            }          
-
-            if (value4 != null)
-            {
-                field.SetValue(go, value4);
-                return;
+                WMRecipeCust.WLog.LogDebug($"Reflection setValue failed for field '{name}' on '{type.FullName}': {ex.Message}");
             }
-
-            if (value5 != null)
-            {
-                field.SetValue(go, value5);
-                return;
-            }
-            
-            if (value6 != null)
-                field.SetValue(go, value6);
-
-            if (value7 != null)
-                field.SetValue(go, value7);
-
         }
 
 

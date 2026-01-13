@@ -517,7 +517,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `m_attackStamina` (float): The stamina cost of the attack.
 - `m_eitrCost` (float): The eitr cost of the attack.
 - `m_attackAdrenaline` (float): The Adrenaline gained for using attack?
-- `m_attackUseAdrenaline` (float): The Adrenaline cost of the attack.( It doesn't seem like they actually added the code for this yet, I guess the devs thought about it, but never finished it)
+- `m_attackUseAdrenaline` (float): The Adrenaline cost of the attack.( It doesn't seem like they actually added the code for this yet, I guess the devs thought about it, but never finished it)( It seems to directly restore the Adrenaline at point X.)
 - `AttackHealthCost` (float): The health cost of the attack.
 - `m_attackHealthPercentage` (float): The health cost percentage of the attack.
 - `attack_Health_Low_BlockUsage` (bool): Determines if low health stops usage.
@@ -1351,7 +1351,7 @@ Core properties used by many status effects for health and stamina manipulation.
 * `m_healthOverTimeDuration` (float): Duration over which `m_healthOverTime` is applied.
 * `m_healthOverTimeInterval` (float): Interval between each application of `m_healthOverTime`.
 #### Stamina Related
-* `m_staminaUpFront` (float): Stamina given up front when effect starts.
+* `m_staminaUpFront` (float): Stamina given up front when effect starts. - ( If you can't get this to work, try  m_staminaOverTime: 50 m_staminaOverTimeDuration: 0.1)
 * `m_staminaOverTime` (float): Total stamina restored over time.
 * `m_staminaOverTimeDuration` (float): Duration over which `m_staminaOverTime` is applied.
 * `m_staminaDrainPerSec` (float): Constant stamina drain per second.
