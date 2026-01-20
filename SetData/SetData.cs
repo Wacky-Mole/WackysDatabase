@@ -78,9 +78,10 @@ namespace wackydatabase.SetData
 
     public class SetData
     {
-        public static Component[] renderfinder;
-        internal static Renderer[] renderfinder2;
         internal static Dictionary<GameObject, GameObject> DisabledPieceandHam = new Dictionary<GameObject, GameObject>();
+        // legacy shared renderer caches used in several places in the codebase.
+        internal static Renderer[] renderfinder;
+        internal static Renderer[] renderfinder2;
         
         #region Effects
 
@@ -864,60 +865,73 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($"Material name searching for {data.material} for piece {data.name}"); // need to take in account worn at %50
                 try
                 {
-                    renderfinder = go.GetComponentsInChildren<Renderer>();
-                    renderfinder2 = go.GetComponentsInChildren<Renderer>(true); // include inactives
-                    if (data.material.Contains("same_mat") || data.material.Contains("no_wear"))
+                    var renderers = go.GetComponentsInChildren<Renderer>();
+                    var renderersAll = go.GetComponentsInChildren<Renderer>(true); // include inactives
+
+                    if (!string.IsNullOrEmpty(data.material) && (data.material.Contains("same_mat") || data.material.Contains("no_wear")))
                     {
                         WMRecipeCust.Dbgl($"No Wear set for {data.name}");
                         Material samematerial = null;
-                        foreach (Renderer renderitem in renderfinder) // get for piece at full heatlh
+                        foreach (Renderer renderitem in renderers) // get for piece at full heatlh
                         {
                             if (renderitem.receiveShadows)
                             {
-                                samematerial = renderitem.material;
+                                samematerial = renderitem.sharedMaterial;
                                 break;
                             }
                         }
-                        foreach (Renderer renderitem in renderfinder2) // set for Pieces @ 50%
+                        if (samematerial != null)
                         {
-                            if (renderitem.receiveShadows)
-                                renderitem.material = samematerial;
+                            foreach (Renderer renderitem in renderersAll) // set for Pieces @ 50%
+                            {
+                                if (renderitem.receiveShadows)
+                                    PrefabAssistant.UpdateMaterialReference(renderitem, samematerial);
+                            }
                         }
                     }
-                    else
+                    else if (!string.IsNullOrEmpty(data.material))
                     {
                         if (data.material.Contains(','))
                         {
                             string[] materialstr = data.material.Split(',');
-                            Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
-                            Material part = WMRecipeCust.originalMaterials[materialstr[1]];
+                            WMRecipeCust.originalMaterials.TryGetValue(materialstr[0], out Material mat);
+                            WMRecipeCust.originalMaterials.TryGetValue(materialstr[1], out Material part);
 
-                            foreach (Renderer renderitem in renderfinder2) // for Pieces @ 50%
-                            {
-                                if (renderitem.receiveShadows)
-                                    renderitem.material = part;
-                            }
-
-                            foreach (Renderer renderitem in renderfinder) // set after all of the piece for %50
-                            {
-                                if (renderitem.receiveShadows)
-                                    renderitem.material = mat;
-                            }
-                        }
-                        else
-                        {
-                            Material mat = WMRecipeCust.originalMaterials[data.material];
-                            foreach (Renderer renderitem in renderfinder2)
+                            foreach (Renderer renderitem in renderersAll) // for Pieces @ 50%
                             {
                                 if (renderitem.receiveShadows)
                                 {
-                                    renderitem.material = mat;
+                                    if (mat != null && materialstr[0] != "none")
+                                        PrefabAssistant.UpdateMaterialReference(renderitem, mat);
                                 }
+                                else
+                                {
+                                    if (part != null)
+                                        PrefabAssistant.UpdateMaterialReference(renderitem, part);
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            if (WMRecipeCust.originalMaterials.TryGetValue(data.material, out Material mat))
+                            {
+                                foreach (Renderer renderitem in renderersAll)
+                                {
+                                    if (renderitem.receiveShadows)
+                                    {
+                                        PrefabAssistant.UpdateMaterialReference(renderitem, mat);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                WMRecipeCust.WLog.LogWarning(data.material + " was not found");
                             }
                         }
                     }
                 }
-                catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
+                catch (Exception e) { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly: " + e.Message); }
             } // mats
 
             bool usecustom = false;
@@ -1840,30 +1854,40 @@ namespace wackydatabase.SetData
                             var renderers = newObj.GetComponentsInChildren<Renderer>(true);
                             if (data.material.Contains(','))
                             {
-                                renderfinder = newObj.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
                                 string[] materialstr = data.material.Split(',');
-                                Material mat = WMRecipeCust.originalMaterials[materialstr[0]];
-                                Material part = WMRecipeCust.originalMaterials[materialstr[1]];
+                                WMRecipeCust.originalMaterials.TryGetValue(materialstr[0], out Material mat);
+                                WMRecipeCust.originalMaterials.TryGetValue(materialstr[1], out Material part);
 
-                                foreach (Renderer renderitem in renderfinder)
+                                foreach (Renderer renderitem in renderers)
                                 {
-                                    if (renderitem.receiveShadows && materialstr[0] != "none")
-                                        renderitem.sharedMaterial = mat;
-                                    else if (!renderitem.receiveShadows)
-                                        renderitem.sharedMaterial = part;
+                                    if (renderitem.receiveShadows)
+                                    {
+                                        if (mat != null && materialstr[0] != "none")
+                                            PrefabAssistant.UpdateMaterialReference(renderitem, mat);
+                                    }
+                                    else
+                                    {
+                                        if (part != null)
+                                            PrefabAssistant.UpdateMaterialReference(renderitem, part);
+                                    }
                                 }
                             }
                             else
                             {
-                                Material mat = WMRecipeCust.originalMaterials[data.material];
-
-                                foreach (Renderer r in PrefabAssistant.GetRenderers(newObj))
+                                if (WMRecipeCust.originalMaterials.TryGetValue(data.material, out Material mat))
                                 {
-                                    PrefabAssistant.UpdateMaterialReference(r, mat);
+                                    foreach (Renderer r in PrefabAssistant.GetRenderers(newObj))
+                                    {
+                                        PrefabAssistant.UpdateMaterialReference(r, mat);
+                                    }
+                                }
+                                else
+                                {
+                                    WMRecipeCust.WLog.LogWarning(data.material + " was not found");
                                 }
                             }
                         }
-                        catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
+                        catch (Exception e) { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly: " + e.Message); }
                     }
                     return newObj;
                 }
@@ -1967,9 +1991,9 @@ namespace wackydatabase.SetData
                             foreach (Renderer renderitem in renderfinder)
                             {
                                 if (renderitem.receiveShadows && materialstr[0] != "none")
-                                    renderitem.sharedMaterial = mat;
+                                    PrefabAssistant.UpdateMaterialReference(renderitem, mat);
                                 else if (!renderitem.receiveShadows)
-                                    renderitem.sharedMaterial = part;
+                                    PrefabAssistant.UpdateMaterialReference(renderitem, part);
                             }
                         }
                         else
@@ -2265,9 +2289,9 @@ namespace wackydatabase.SetData
                                 foreach (Renderer renderitem in renderfinder)
                                 {
                                     if (renderitem.receiveShadows && materialstr[0] != "none")
-                                        renderitem.material = mat;
+                                        PrefabAssistant.UpdateMaterialReference(renderitem, mat);
                                     else if (!renderitem.receiveShadows)
-                                        renderitem.material = part;
+                                        PrefabAssistant.UpdateMaterialReference(renderitem, part);
                                 }
                             }
                             else
@@ -2625,7 +2649,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain = data.Secondary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrain;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_hitFriendly = data.Secondary_Attack.Hit_Friendly ?? PrimaryItemData.m_shared.m_secondaryAttack.m_hitFriendly;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_isHomeItem = data.Secondary_Attack.is_HomeItem ?? PrimaryItemData.m_shared.m_secondaryAttack.m_isHomeItem;
-                        if (data.Primary_Attack.Custom_AttackSpeed != null)
+                        if (data.Secondary_Attack.Custom_AttackSpeed != null)
                             WMRecipeCust.AttackSpeed[tempname][true] = (float)data.Secondary_Attack.Custom_AttackSpeed;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina = data.Secondary_Attack.m_attackStamina ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackStamina;
@@ -3672,7 +3696,7 @@ namespace wackydatabase.SetData
                 {
                     renderfinder = go.GetComponentsInChildren<Renderer>();
                     renderfinder2 = go.GetComponentsInChildren<Renderer>(true); // include inactives
-                    if (data.material.Contains("same_mat") || data.material.Contains("no_wear"))
+                        if (data.material.Contains("same_mat") || data.material.Contains("no_wear"))
                     {
                         if (WMRecipeCust.showLogs.Value)
                             WMRecipeCust.Dbgl($"No Wear set for {data.name}");
@@ -3681,19 +3705,19 @@ namespace wackydatabase.SetData
                         {
                             if (renderitem.receiveShadows)
                             {
-                                samematerial = renderitem.material;
+                                samematerial = renderitem.sharedMaterial;
                                 break;
                             }
                         }
                     }
-                    else
+                        else
                     {                      
                         Material mat = WMRecipeCust.originalMaterials[data.material];
                         foreach (Renderer renderitem in renderfinder2)
                         {
                             if (renderitem.receiveShadows)
                             {
-                                renderitem.material = mat;
+                                PrefabAssistant.UpdateMaterialReference(renderitem, mat);
                             }
                         }
                         
@@ -3879,7 +3903,7 @@ namespace wackydatabase.SetData
                         {
                             if (renderitem.receiveShadows)
                             {
-                                samematerial = renderitem.material;
+                                samematerial = renderitem.sharedMaterial;
                                 break;
                             }
                         }
@@ -3891,7 +3915,7 @@ namespace wackydatabase.SetData
                         {
                             if (renderitem.receiveShadows)
                             {
-                                renderitem.material = mat;
+                                PrefabAssistant.UpdateMaterialReference(renderitem, mat);
                             }
                         }
 
