@@ -1837,6 +1837,7 @@ namespace wackydatabase.SetData
                             WMRecipeCust.Dbgl($"Item {data.name} searching for mat {data.material}");
                         try
                         {
+                            var renderers = newObj.GetComponentsInChildren<Renderer>(true);
                             if (data.material.Contains(','))
                             {
                                 renderfinder = newObj.GetComponentsInChildren<Renderer>();// "weapons1_fire" glowing orange
