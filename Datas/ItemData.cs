@@ -209,7 +209,11 @@ namespace wackydatabase.Datas
        
         public string? Attack_Projectile;
         public float? Projectile_Vel;
+        // kept for backwards compatibility with existing yamls (misspelling)
         public float? Projectile_Accuraccy;
+        // corrected spelling - new yamls should use this
+        public float? Projectile_Accuracy;
+        public float? Projectile_Accuracy_Min;
         public int? Projectiles;
 
         public bool? Skill_Accuracy; 

@@ -1247,7 +1247,9 @@ namespace wackydatabase.GetData
 
                     Attack_Projectile = data.m_shared.m_attack.m_attackProjectile?.name,
                     Projectile_Vel = data.m_shared.m_attack.m_projectileVel,
-                    Projectile_Accuraccy = data.m_shared.m_attack.m_projectileAccuracy,
+                    // write both corrected and legacy spellings for backwards compatibility
+                    Projectile_Accuracy = data.m_shared.m_attack.m_projectileAccuracy,
+                    Projectile_Accuracy_Min = data.m_shared.m_attack.m_projectileAccuracyMin,
                     Projectiles = data.m_shared.m_attack.m_projectiles,
 
                     Skill_Accuracy = data.m_shared.m_attack.m_skillAccuracy,
@@ -1331,7 +1333,8 @@ namespace wackydatabase.GetData
 
                     Attack_Projectile = data.m_shared.m_secondaryAttack.m_attackProjectile?.name,
                     Projectile_Vel = data.m_shared.m_secondaryAttack.m_projectileVel,
-                    Projectile_Accuraccy = data.m_shared.m_secondaryAttack.m_projectileAccuracy,
+                    Projectile_Accuracy = data.m_shared.m_secondaryAttack.m_projectileAccuracy,
+                    Projectile_Accuracy_Min = data.m_shared.m_secondaryAttack.m_projectileAccuracyMin,
                     Projectiles = data.m_shared.m_secondaryAttack.m_projectiles,
 
 

@@ -2597,7 +2597,9 @@ namespace wackydatabase.SetData
                                                } */ // disabled attack projectile for now
 
                         PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
-                        PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
+                        // accept corrected spelling first, fall back to old misspelled field for backwards compatibility
+                        PrimaryItemData.m_shared.m_attack.m_projectileAccuracy = data.Primary_Attack.Projectile_Accuracy ?? data.Primary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracy;
+                        PrimaryItemData.m_shared.m_attack.m_projectileAccuracyMin = data.Primary_Attack.Projectile_Accuracy_Min ?? PrimaryItemData.m_shared.m_attack.m_projectileAccuracyMin;
                         PrimaryItemData.m_shared.m_attack.m_projectiles = data.Primary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_attack.m_projectiles;
 
                         PrimaryItemData.m_shared.m_attack.m_skillAccuracy = data.Primary_Attack.Skill_Accuracy ?? PrimaryItemData.m_shared.m_attack.m_skillAccuracy;
@@ -2787,7 +2789,8 @@ namespace wackydatabase.SetData
                         } */ // disabled for now
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel = data.Secondary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel;
-                        PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuracy ?? data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracyMin = data.Secondary_Attack.Projectile_Accuracy_Min ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracyMin;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles = data.Secondary_Attack.Projectiles ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectiles;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_skillAccuracy = data.Secondary_Attack.Skill_Accuracy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_skillAccuracy;
