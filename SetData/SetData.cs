@@ -190,9 +190,9 @@ namespace wackydatabase.SetData
                 }
 
                 go.m_tooltip += "\n"
-                    + (data.AddHP.HasValue ? $" Health: {ColorizeSigned(data.AddHP.Value)}" : "") 
-                    + (data.AddStamina.HasValue ? "\n" + $"Stamina: {ColorizeSigned(data.AddStamina.Value)} " : "")
-                    + (data.AddEitr.HasValue ? "\n" + $" Eitr: {ColorizeSigned(data.AddEitr.Value)}" : "");
+                    + (data.AddHP.HasValue ? $" $health: {ColorizeSigned(data.AddHP.Value)}" : "") 
+                    + (data.AddStamina.HasValue ? "\n" + $"$stamina: {ColorizeSigned(data.AddStamina.Value)} " : "")
+                    + (data.AddEitr.HasValue ? "\n" + $" $eitr: {ColorizeSigned(data.AddEitr.Value)}" : "");
 
             }
 

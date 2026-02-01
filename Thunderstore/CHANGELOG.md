@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.65  |  Health", "Stamina", and "Eitr will be localized for AddHP, AddStamina, and AddEit|
 | 2.4.64  | Updated Readme </br> Added StaffRedTroll to item exception list for full stats </br> Made is so short SE's don't give warning.  </br> Fix for m_staminaUpFront </br> bug fix for custom speed override for Secondary </br> Rewrote some material rendered code to be more efficient. </br> Fix for Projectile_Accuracy spelling (old will still work). Added new field Projectile_Accuracy_Min. |
 | 2.4.63  | Bug Fix. |
 | 2.4.62  | Percent Damage Modifiers Percentage m_percentDamageModifiers added to SEs. |
