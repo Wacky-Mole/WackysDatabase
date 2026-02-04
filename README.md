@@ -1366,6 +1366,7 @@ Core properties used by many status effects for health and stamina manipulation.
 * `m_homeItemStaminaUseModifier` (float): Affects stamina use with placeables/home items.
 * `m_sneakStaminaUseModifier` (float): Affects stamina use while sneaking.
 * `m_runStaminaUseModifier` (float): Additional modifier when running (combined with drain modifier).
+* `m_blockStaminaUseFlatValue` (float): Returned block stamina. (bonemass)
 #### Adrenaline Related
 * `m_adrenalineUpFront` (float): adrenaline given up front when effect starts.
 * `m_adrenalineModifier` (float): Adrenaline modifier.

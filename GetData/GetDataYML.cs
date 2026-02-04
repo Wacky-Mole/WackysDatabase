@@ -249,6 +249,7 @@ namespace wackydatabase.GetData
                 m_homeItemStaminaUseModifier = Functions.getCast<float>(f2, "m_homeItemStaminaUseModifier", effect),
                 m_sneakStaminaUseModifier = Functions.getCast<float>(f2, "m_sneakStaminaUseModifier", effect),
                 m_runStaminaUseModifier = Functions.getCast<float>(f2, "m_runStaminaUseModifier", effect),
+                m_blockStaminaUseFlatValue = Functions.getCast<float>(f2, "m_blockStaminaUseFlatValue", effect),
 
                 m_adrenalineUpFront = Functions.getCast<float>(f2, "m_adrenalineUpFront", effect),
                 m_adrenalineModifier = Functions.getCast<float>(f2, "m_adrenalineModifier", effect),

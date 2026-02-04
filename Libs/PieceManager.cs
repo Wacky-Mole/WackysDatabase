@@ -624,7 +624,7 @@ public class BuildPiece
             piece.Prefab.GetComponent<Piece>().m_resources = SerializedRequirements.toPieceReqs(cfg == null ? new SerializedRequirements(piece.RequiredItems.Requirements) : new SerializedRequirements(cfg.craft.Value));
             foreach (ExtensionConfig station in piece.Extension.ExtensionStations)
             {
-                switch ((cfg == null || piece.Extension.ExtensionStations.Count > 0
+                switch ((cfg == null || piece.Extension.ExtensionStations.Count > 1
                             ? station.Table
                             : cfg.extensionTable.Value))
                 {
@@ -648,7 +648,7 @@ public class BuildPiece
                             {
                                 piece.Prefab.GetComponent<StationExtension>().m_craftingStation = ZNetScene.instance
                                     .GetPrefab(((InternalName)typeof(CraftingTable).GetMember(
-                                        (cfg == null || piece.Extension.ExtensionStations.Count > 0
+                                        (cfg == null || piece.Extension.ExtensionStations.Count > 1
                                             ? station.Table
                                             : cfg.extensionTable.Value)
                                         .ToString())[0].GetCustomAttributes(typeof(InternalName)).First()).internalName)
@@ -668,7 +668,7 @@ public class BuildPiece
                         piece.Prefab.GetComponent<Piece>().m_craftingStation = null;
                         break;
                     case CraftingTable.Custom
-                        when ZNetScene.instance.GetPrefab(cfg == null || piece.Crafting.Stations.Count > 0
+                        when ZNetScene.instance.GetPrefab(cfg == null || piece.Crafting.Stations.Count > 1
                             ? station.custom
                             : cfg.customTable.Value) is { } craftingTable:
                         piece.Prefab.GetComponent<Piece>().m_craftingStation =
@@ -687,7 +687,7 @@ public class BuildPiece
                             {
                                 piece.Prefab.GetComponent<Piece>().m_craftingStation = ZNetScene.instance
                                     .GetPrefab(((InternalName)typeof(CraftingTable).GetMember(
-                                        (cfg == null || piece.Crafting.Stations.Count > 0 ? station.Table : cfg.table.Value)
+                                        (cfg == null || piece.Crafting.Stations.Count > 1 ? station.Table : cfg.table.Value)
                                         .ToString())[0].GetCustomAttributes(typeof(InternalName)).First()).internalName)
                                     .GetComponent<CraftingStation>();
                             }
@@ -1006,7 +1006,10 @@ public class LocalizeKey
         }
 
         Localizations["alias"] = alias;
-        Localization.instance.AddWord(Key, Localization.instance.Localize(alias));
+        if (Localization.m_instance != null)
+        {
+            Localization.instance.AddWord(Key, Localization.instance.Localize(alias));
+        }
     }
 
     public LocalizeKey English(string key) => addForLang("English", key);
@@ -1047,16 +1050,19 @@ public class LocalizeKey
     private LocalizeKey addForLang(string lang, string value)
     {
         Localizations[lang] = value;
-        if (Localization.instance.GetSelectedLanguage() == lang)
+        if (Localization.m_instance != null)
         {
-            Localization.instance.AddWord(Key, value);
-        }
-        else if (lang == "English" && !Localization.instance.m_translations.ContainsKey(Key))
-        {
-            Localization.instance.AddWord(Key, value);
+            if (Localization.instance.GetSelectedLanguage() == lang)
+            {
+                Localization.instance.AddWord(Key, value);
+            }
+            else if (lang == "English" && !Localization.instance.m_translations.ContainsKey(Key))
+            {
+                Localization.instance.AddWord(Key, value);
+            }
         }
 
-        return this;
+            return this;
     }
 
     [HarmonyPriority(Priority.LowerThanNormal)]

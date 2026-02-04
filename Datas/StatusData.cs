@@ -144,6 +144,8 @@ namespace wackydatabase.Datas
 
         public float? m_runStaminaUseModifier;
 
+        public float? m_blockStaminaUseFlatValue;
+
         // Adrenaline
         public float? m_adrenalineUpFront;
 

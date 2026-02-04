@@ -225,6 +225,7 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_homeItemStaminaUseModifier", data.SeData.m_homeItemStaminaUseModifier);
             Functions.setValue(type, go, "m_sneakStaminaUseModifier", data.SeData.m_sneakStaminaUseModifier);
             Functions.setValue(type, go, "m_runStaminaUseModifier", data.SeData.m_runStaminaUseModifier);
+            Functions.setValue(type, go, "m_blockStaminaUseFlatValue", data.SeData.m_blockStaminaUseFlatValue);
 
             Functions.setValue(type, go, "m_adrenalineUpFront", data.SeData.m_adrenalineUpFront);
             Functions.setValue(type, go, "m_adrenalineModifier", data.SeData.m_adrenalineModifier);
