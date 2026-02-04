@@ -595,7 +595,8 @@ if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels -
 
 - `Attack_Projectile` (string): The Gameobject projectile has to have Projectile Componenent. Disabled for now. 
 - `Projectile_Vel` (float): The velocity of the projectile.
-- `Projectile_Accuraccy` (float): The accuracy of the projectile.
+- `Projectile_Accuracy` (float): The accuracy of the projectile.
+- `Projectile_Accuracy_Min` (float): The minimum limit value accuracy of the projectile. (Matters when you don't use skill accuracy)
 - `Projectiles` (int): The number of projectiles.
 - `Skill_Accuracy` (bool): Skill increases Accuracy. true or false
 
