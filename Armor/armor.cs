@@ -27,50 +27,34 @@ namespace wackydatabase.Armor
         return a != HitData.DamageModifier.Ignore && (b == HitData.DamageModifier.Immune || ((a != HitData.DamageModifier.VeryResistant || b != HitData.DamageModifier.Resistant) && (a != HitData.DamageModifier.VeryWeak || b != HitData.DamageModifier.Weak)));
     }
 
-  internal static void LoadAllArmorData(ZNetScene scene)
-    {
-        foreach (var armor in WMRecipeCust.armorDatas)
+
+        /*internal static void CheckArmorData(ref ItemDrop.ItemData instance)  // this is called in the armor patch, it checks if the armor has custom data and applies it  // should not be needed anymore since we are using WItemDatas instead of jsons, but might be useful for compatibility with old jsons
         {
-            GameObject go = scene.GetPrefab(armor.name);
-            if (go == null)
-                continue;
-            ItemDrop.ItemData item = go.GetComponent<ItemDrop>().m_itemData;
-            SetArmorData(ref item, armor);
-            go.GetComponent<ItemDrop>().m_itemData = item;
-        }
-    }
+            try
+            {
+                var name = instance.m_dropPrefab.name;
+                var armor = WMRecipeCust.armorDatas.First(d => d.name == name);
+                SetArmorData(ref instance, armor);
+                //Dbgl($"Set armor data for {instance.name}");
+            }
+            catch
+            {
 
-    internal static void CheckArmorData(ref ItemDrop.ItemData instance)
-    {
-        try
+            }
+        }
+
+        internal static void SetArmorData(ref ItemDrop.ItemData item, ArmorData_json armor) // jsons -- this might not be need anymore just Use WitemDatas
         {
-            var name = instance.m_dropPrefab.name;
-            var armor = WMRecipeCust.armorDatas.First(d => d.name == name);
-            SetArmorData(ref instance, armor);
-            //Dbgl($"Set armor data for {instance.name}");
-        }
-        catch
-        {
+            item.m_shared.m_damageModifiers.Clear();
+            foreach (string modString in armor.damageModifiers)
+            {
+                string[] mod = modString.Split(':');
+                int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
+                item.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) });
+            }
+        } */
 
-        }
-    }
-
-  internal static void SetArmorData(ref ItemDrop.ItemData item, ArmorData_json armor) // jsons -- this might not be need anymore just Use WitemDatas
-    {
-        //item.m_shared.m_armor = armor.armor;
-        //item.m_shared.m_armorPerLevel = armor.armorPerLevel;
-        // item.m_shared.m_movementModifier = armor.movementModifier;
-
-        item.m_shared.m_damageModifiers.Clear();
-        foreach (string modString in armor.damageModifiers)
-        {
-            string[] mod = modString.Split(':');
-            int modType = Enum.TryParse<NewDamageTypes>(mod[0], out NewDamageTypes result) ? (int)result : (int)Enum.Parse(typeof(HitData.DamageType), mod[0]);
-            item.m_shared.m_damageModifiers.Add(new HitData.DamageModPair() { m_type = (HitData.DamageType)modType, m_modifier = (HitData.DamageModifier)Enum.Parse(typeof(HitData.DamageModifier), mod[1]) });
-        }
-    }
-
-   internal static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, Character character)
+        internal static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, Character character)
     {
         Traverse t = Traverse.Create(character);
         return GetNewDamageTypeMod(type, t.Field("m_chestItem").GetValue<ItemDrop.ItemData>(), t.Field("m_legItem").GetValue<ItemDrop.ItemData>(), t.Field("m_helmetItem").GetValue<ItemDrop.ItemData>(), t.Field("m_shoulderItem").GetValue<ItemDrop.ItemData>());

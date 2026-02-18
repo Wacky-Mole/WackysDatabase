@@ -12,7 +12,6 @@ using wackydatabase.SetData;
 using wackydatabase.Datas;
 using wackydatabase.Read;
 using System.Security.Policy;
-using wackydatabase.SetData.SetOldData;
 using System.Reflection;
 using static CharacterAnimEvent;
 using wackydatabase.Util;
@@ -332,50 +331,13 @@ namespace wackydatabase.Startup
             }
         }
 
-        /* del
-        public static IEnumerator CleartoReloadWait(bool firstplayer = false) // waiting for other mods to finish their sync
-        {
-            yield return new WaitForSeconds(0.2f);
-            if (firstplayer )
-                WMRecipeCust.Dbgl($" Now Loading Files");
-            else 
-                WMRecipeCust.Dbgl($" Now loading SERVER Files");
-            WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
-            WMRecipeCust.FirstSS = false; // reset in a destory patch
-            //WMRecipeCust.FirstSessionRun = false;                           
-            yield break;
-         } */
 
 
         public static void PrepareLoadData()
         {
 
             WMRecipeCust.ReloadingOkay = true;
-            if (WMRecipeCust.jsonsFound)
-            {
-                OldReloadSet oldset = new OldReloadSet();
-
-                WMRecipeCust.WLog.LogWarning("Jsons Found, loading jsons for conversion");
-
-                oldset.OldGetJsons();
-
-                WMRecipeCust.WLog.LogWarning("Jsons Loading into Database, Please stand by");
-                oldset.OldReload();
-
-                WMRecipeCust.WLog.LogWarning("Jsons being converted, Please stand by");
-
-                WMRecipeCust.startupserver.SaveYMLBasedONJsons(WMRecipeCust.jsonfiles);
-
-                WMRecipeCust.WLog.LogWarning("Jsons found have been moved to wackysDatabase-OldJsons, any left over should be recreated using console commands");
-
-                WMRecipeCust.WLog.LogError("You should Now Exit, but wackyDB will continue anyways, please remove any jsons leftover from wackydatabase");
-            }
-
             WMRecipeCust.waitingforFirstLoad = true;
-            //WMRecipeCust.context.StartCoroutine(Startup.CleartoReloadWait(true));
-            //SetData.Reload temp = new SetData.Reload();
-            //WMRecipeCust.CurrentReload = temp;
-            // WMRecipeCust.context.StartCoroutine(temp.LoadAllRecipeData(true)); // Singleplayer Reload
         }
 
     }

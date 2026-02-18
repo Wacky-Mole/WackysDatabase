@@ -96,12 +96,6 @@ namespace wackydatabase.Read
         internal IEnumerator GetDataFromFiles(bool slowmode = false, bool singleplayeronly = false)
         {
             //wackydatabase.WMRecipeCust.WLog.LogWarning("Running Get DataFromFiles");
-
-            WMRecipeCust.recipeDatas.Clear();
-            WMRecipeCust.ItemDatas.Clear();
-            WMRecipeCust.PieceDatas.Clear();
-            WMRecipeCust.armorDatas.Clear();
-
             WMRecipeCust.recipeDatasYml.Clear();
             WMRecipeCust.itemDatasYml.Clear();
             WMRecipeCust.pieceDatasYml.Clear();

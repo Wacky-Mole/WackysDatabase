@@ -129,7 +129,7 @@ namespace wackydatabase.PatchClasses
 
 
 
-
+    /*
     [HarmonyPatch(typeof(ItemDrop), "SlowUpdate")]
     static class ItemDrop_SlowUpdate_Patch
     {
@@ -137,9 +137,11 @@ namespace wackydatabase.PatchClasses
         {
             if (!WMRecipeCust.modEnabled.Value)
                 return;
-            CheckArmorData(ref __instance.m_itemData);
+            //CheckArmorData(ref __instance.m_itemData); // from old jsson system, not needed anymore since we are using WItemDatas, but might be useful for compatibility with old jsons
         }
     }
+    */
+
 // public static string GetDamageModifiersTooltipString(List<HitData.DamageModPair> mods)
     [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]  
     static class GetDamageModifiersTooltipString_Patch

@@ -79,10 +79,6 @@ namespace wackydatabase.SetData
                 {
                     WMRecipeCust.Dbgl($" You are not an admin");
                 }
-                WMRecipeCust.recipeDatas.Clear();
-                WMRecipeCust.ItemDatas.Clear();
-                WMRecipeCust.PieceDatas.Clear();
-                WMRecipeCust.armorDatas.Clear();
 
                 WMRecipeCust.pieceWithLvl.Clear(); 
                 WMRecipeCust.recipeDatasYml.Clear();

@@ -153,7 +153,6 @@
     <Compile Include="Datas\ValheimTime.cs" />
     <Compile Include="GetData\Converters\TextureConverter.cs" />
     <Compile Include="GetData\GetDataYML.cs" />
-    <Compile Include="GetData\GetDataOld\GetData.cs" />
     <Compile Include="GetData\YamlLoader.cs" />
     <Compile Include="Libs\PieceManager.cs" />
     <Compile Include="Libs\ServerSync.cs" />
@@ -178,7 +177,6 @@
     <Compile Include="PatchClasses\console.cs" />
     <Compile Include="PatchClasses\status.cs" />
     <Compile Include="SetData\ObjectSetMock.cs" />
-    <Compile Include="SetData\SetOldData\OldReloadSet.cs" />
     <Compile Include="SetData\Reload.cs" />
     <Compile Include="SetData\SetData.cs" />
     <Compile Include="SetData\WeaponDamage.cs" />
@@ -188,9 +186,6 @@
     <Compile Include="Startup\startupserver.cs" />
     <Compile Include="Utility\color.cs" />
     <Compile Include="Utility\ConfigurationManagerAttributes.cs" />
-    <Compile Include="Datas\DatasOld\ItemData_json.cs" />
-    <Compile Include="Datas\DatasOld\PieceData_json.cs" />
-    <Compile Include="Datas\DatasOld\RecipeData_json.cs" />
     <Compile Include="Utility\functions.cs" />
     <Compile Include="Utility\SpriteTools.cs" />
     <Compile Include="Visuals\DataManagers\DataManager.cs" />

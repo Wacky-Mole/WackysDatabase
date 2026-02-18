@@ -1,10 +1,11 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.4.67  |  Updated SE Localization and material logs are hidden by isDebugString config|
-| 2.4.66  |  Added m_blockStaminaUseFlatValue for ADC_Support_Urgot </br> Updated LocalizationManager and PieceManager|
-| 2.4.65  |  Health", "Stamina", and "Eitr will be localized for AddHP, AddStamina, and AddEit|
-| 2.4.64  | Updated Readme </br> Added StaffRedTroll to item exception list for full stats </br> Made is so short SE's don't give warning.  </br> Fix for m_staminaUpFront </br> bug fix for custom speed override for Secondary </br> Rewrote some material rendered code to be more efficient. </br> Fix for Projectile_Accuracy spelling (old will still work). Added new field Projectile_Accuracy_Min. |
-| 2.4.63  | Bug Fix. |
+| 2.4.68  |  Removed Json converter and all old json related code. |
+| 2.4.68  |  Updated SE Localization and material logs are hidden by isDebugString config|
+| 2.4.67  |  Added m_blockStaminaUseFlatValue for ADC_Support_Urgot </br> Updated LocalizationManager and PieceManager|
+| 2.4.66  |  Health", "Stamina", and "Eitr will be localized for AddHP, AddStamina, and AddEit|
+| 2.4.65  | Updated Readme </br> Added StaffRedTroll to item exception list for full stats </br> Made is so short SE's don't give warning.  </br> Fix for m_staminaUpFront </br> bug fix for custom speed override for Secondary </br> Rewrote some material rendered code to be more efficient. </br> Fix for Projectile_Accuracy spelling (old will still work). Added new field Projectile_Accuracy_Min. |
+| 2.4.64  | Bug Fix. |
 | 2.4.62  | Percent Damage Modifiers Percentage m_percentDamageModifiers added to SEs. |
 | 2.4.61  | Added a check that prevents the player from going below 1HP from the SE health. You can still die, but not because the admin owner was dumb. Well.. you can still die from a dumb admin|
 | 2.4.60  | Your cries have been heard and answered. I have added addHP, addStamina, addEitr to SEs. You can now make SEs add base stats! You can also make them negative. - Yes it adds mores patches (same patches as epicmmo), but they are minor and don't run if you don't use any. </br> Also added SlightlyResistant to wet, same as Resistant. </br> Will remove the old json conversion soon. Not that anyone is still using wackydb 1.0, but here is your last chance to upgrade. |

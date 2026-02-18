@@ -43,7 +43,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.67";
+        internal const string ModVersion = "2.4.68";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -55,7 +55,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.67" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.4.68" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -92,11 +92,6 @@ namespace wackydatabase
         internal static bool ssLock = false;
         internal static int ssLockcount = 0;
         internal static bool waitingforFirstLoad = false;
-
-        public static List<RecipeData_json> recipeDatas = new List<RecipeData_json>();
-        public static List<WItemData_json> ItemDatas = new List<WItemData_json>();
-        public static List<PieceData_json> PieceDatas = new List<PieceData_json>();
-        public static List<ArmorData_json> armorDatas = new List<ArmorData_json>();
 
         public static List<RecipeData> recipeDatasYml = new List<RecipeData>();
         public static List<WItemData> itemDatasYml = new List<WItemData>();
@@ -182,7 +177,6 @@ namespace wackydatabase
                                                                              // when you define it:
         public static readonly Dictionary<string, WackyStatusEffectBonus> SEaddBonus =  new Dictionary<string, WackyStatusEffectBonus>(StringComparer.Ordinal);// status effect addHP/stam/eitr
 
-        internal static Startupserver startupserver = new Startupserver();
         public static ReadFiles readFiles = new ReadFiles();
         public static Reload CurrentReload = new Reload();
         public static List<string> NoNotTheseSEs = new List<string>() { "GoblinShaman_shield", "SE_Dvergr_heal", "SE_Greydwarf_shaman_heal" }; // problematic
@@ -269,12 +263,6 @@ namespace wackydatabase
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
 
-            jsonfiles = startupserver.CheckForJsons(); // read jsons for server
-            if (jsonsFound)
-            {
-                WMRecipeCust.WLog.LogWarning("Jsons Found");
-                //startupserver.BeginConvertingJsons(jsoncount);
-            }
             WMRecipeCust.context.StartCoroutine(readFiles.GetDataFromFiles()); // YML get
             AwakeHasRun = true;
 
