@@ -315,7 +315,8 @@ namespace wackydatabase
                 return;
             }
 
-            Debug.Log($"[{WMRecipeCust.ModName}]: {r.name} - Updating material to: {m.name}");
+            if (WMRecipeCust.isDebugString.Value)
+                Debug.Log($"[{WMRecipeCust.ModName}]: {r.name} - Updating material to: {m.name}");
 
             if (r.sharedMaterials.Length > 1)
             {

@@ -43,7 +43,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.66";
+        internal const string ModVersion = "2.4.67";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -55,7 +55,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.66" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.4.67" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -239,11 +239,20 @@ namespace wackydatabase
                 {
                     return speed;
                 }
+
+                /*
+                foreach (var se in player.GetSEMan().GetStatusEffects())
+                {
+                    // Logic to check if 'se' should increase speed. 
+                    // Example: look up se.m_name in a dictionary of speed modifiers
+                    // if (Modifiers.TryGetValue(se.name, out float mod)) speed *= mod;
+                }*/
+
                 var skilltype = player.GetCurrentWeapon().m_shared.m_skillType;
                 if (skilltype == Skills.SkillType.Unarmed) return speed; // no unarmed
 
-                GameObject val = player.GetCurrentWeapon()?.m_dropPrefab;
-                if (WMRecipeCust.AttackSpeed.TryGetValue(val.name, out Dictionary<bool, float> Paul))
+                GameObject val = player.GetCurrentWeapon()?.m_dropPrefab;   
+                if (val != null && WMRecipeCust.AttackSpeed.TryGetValue(val.name, out Dictionary<bool, float> Paul))
                 {
                     if (player.m_currentAttackIsSecondary)
                     {

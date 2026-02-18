@@ -183,15 +183,16 @@ Frequently Asked Questions
 The configuration file for WackysDatabase is located at BepInEx/config/WackyMole.WackysDatabase.cfg. The available configurations and their default values are as follows:
 - Force Server Config: true (forces server sync)
 - Enable this mod: true
-- IsDebug: true (enables debug information)
-- StringisDebug: false (enables string debugging)
+- Display Normal Logs :true ( Most Basic of logs - Turn on or off most of wackydb logs. - 2000+ yamls could affect performance. )
+- IsDebug: true (enables debug information - standard for server owners - 2000+ yamls could affect performance.)
+- StringisDebug: false (enables string debugging, lots of logs)
 - IsAutoReload: false (enables auto-reload instead of using wackydb_reload command)
 - NexusModID: 1825 (does not have much functionality)
 - DedServer load Memory: false (dedicated server loads objects into the game like a client)
 - ExtraSecurity on Servers: true (prevents loading into singleplayer and then loading into multiplayer)
 - FileWatcher for YMLs: true (reloads the mod on any changes to the wackydatabase folder on the server)
 - List of Extra Effects: "lightningAOE" (extra effects to look for from the base game or mods)
-- Display Normal Logs - Turn on or off most of wackydb logs. - 2000+ yamls could affect performance. 
+
 
 
 </details>
