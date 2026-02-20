@@ -924,6 +924,8 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `damagedMaterial` (string): The material of the piece when damaged.
 - `craftingStation` (string): The crafting station required to craft the piece.
 - `piecehammerCategory` (string): The category of the piece hammer.
+- `categoryOrderBeforePrefab` (string): The unique prefab name of the piece you want your modded or vanilla piece to appear BEFORE in the build menu. Example: wood_wall_half is placed before wood_wall
+    You can chain up to 100 pieces (A before B, B before C) before the logic breaks down. If you reference any non existing prefab, the piece will be added at the end of the list. 
 - `minStationLevel` (int): The minimum level of the crafting station required.
 - `amount` (int): The amount of the piece.
 - `disabled` (bool): Indicates whether the piece is disabled.

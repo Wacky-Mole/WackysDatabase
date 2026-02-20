@@ -366,6 +366,164 @@ namespace wackydatabase.SetData
             }
         }
 
+        internal void SortPieceHammers()
+        {
+            WMRecipeCust.WLog.LogInfo($"Sorting Piece Categories");
+            var pieceOrder = new Dictionary<string, string>();
+            HashSet<string> hammersToUpdate = new HashSet<string>();
+
+            // Collect orders and targeted hammers
+            foreach (var data in WMRecipeCust.pieceDatasYml)
+            {
+                if (!string.IsNullOrEmpty(data.name))
+                {
+                    if (string.IsNullOrEmpty(data.categoryOrderBeforePrefab))
+                        continue;
+
+                    pieceOrder[data.name] = data.categoryOrderBeforePrefab;
+
+                    if (!string.IsNullOrEmpty(data.piecehammer))
+                    {
+                        hammersToUpdate.Add(data.piecehammer);
+                    }
+                }
+            }
+
+            if (pieceOrder.Count == 0)
+                return;
+
+            // Also check cache for completeness (optional, but good if pieceDatasYml is cleared - though it shouldn't be here)
+            
+            ObjectDB Instant = ObjectDB.instance;        
+            List<GameObject> hammers = new List<GameObject>();
+            foreach (var hammerName in hammersToUpdate)
+            {
+                var hammer = Instant.GetItemPrefab(hammerName);
+                if (hammer != null) hammers.Add(hammer);
+            }
+            
+            // Add vanilla hammers just in case they were missed but have pieces moved into them? 
+            // Actually, if a piece was moved into a hammer, it's in pieceDatasYml, so hammerName is there.
+            // But what about "Hammer", "Hoe", "Cultivator"? better to be safe.
+            string[] defaults = { "Hammer", "Hoe", "Cultivator" };
+            foreach (var def in defaults) {
+                if (!hammersToUpdate.Contains(def)) {
+                    var h = Instant.GetItemPrefab(def);
+                    if (h != null) hammers.Add(h);
+                }
+            }          
+
+            foreach (var hammerGo in hammers)
+            {
+                var itemDrop = hammerGo.GetComponent<ItemDrop>();
+                if (itemDrop == null) continue;
+                var pieceTable = itemDrop.m_itemData.m_shared.m_buildPieces;
+                if (pieceTable == null) continue;
+
+                if (WMRecipeCust.isDebugString.Value)
+                    WMRecipeCust.WLog.LogInfo($"Sorting {hammerGo.name} pieces");
+
+                SortThis(pieceTable, pieceOrder);
+            }
+
+        }
+
+        private void SortThis(PieceTable pieceTable, Dictionary<string, string> pieceOrder)
+        {
+            // 1. Group by Category
+            var categoryGroups = new Dictionary<Piece.PieceCategory, List<GameObject>>();
+            
+            // Initial grouping
+            foreach (var piece in pieceTable.m_pieces)
+            {
+                var p = piece.GetComponent<Piece>();
+                if (p == null) continue; 
+                
+                if (!categoryGroups.ContainsKey(p.m_category))
+                    categoryGroups[p.m_category] = new List<GameObject>();
+                
+                categoryGroups[p.m_category].Add(piece);
+            }
+
+            var rebuiltTableList = new List<GameObject>();
+
+            // 2. Sort each Category internally
+            // Valheim iterates enum for tabs, so order of adding to list here matters less for tabs, 
+            // but keeping them clustered is good practice.
+            foreach (var cat in categoryGroups.Keys)
+            {
+                var originalList = categoryGroups[cat];
+                
+                // Identify which pieces need to move
+                var pending = new List<GameObject>();
+                var baseList = new List<GameObject>();
+
+                foreach (var p in originalList)
+                {
+                    if (pieceOrder.ContainsKey(p.name) && !string.IsNullOrEmpty(pieceOrder[p.name]))
+                    {
+                        pending.Add(p);
+                    }
+                    else
+                    {
+                        baseList.Add(p);
+                    }
+                }
+
+                // If nothing to move, just keep original order
+                if (pending.Count == 0)
+                {
+                    rebuiltTableList.AddRange(originalList);
+                    continue;
+                }
+
+                var workingList = new List<GameObject>(baseList);
+                
+                int safetyLimit = 100; // Max passes to resolve dependencies (A before B, B before C)
+                for(int pass = 0; pass < safetyLimit && pending.Count > 0; pass++)
+                {
+                    var nextPending = new List<GameObject>();
+                    bool progressMade = false;
+
+                    foreach (var piece in pending)
+                    {
+                        string targetName = pieceOrder[piece.name];
+                        int index = workingList.FindIndex(x => x.name == targetName);
+
+                        if (index != -1)
+                        {
+                            workingList.Insert(index, piece);
+                            progressMade = true;
+                        }
+                        else
+                        {
+                            // Target not found in working list yet. 
+                            nextPending.Add(piece);
+                        }
+                    }
+                    
+                    if (!progressMade)
+                    {
+                        // Stalled (cycle or missing target). Append remaining and stop.
+                        foreach (var p in nextPending) workingList.Add(p);
+                        pending.Clear();
+                        break;
+                    }
+
+                    pending = nextPending;
+                }
+                
+                // Cleanup any leftovers if loop exited early due to safety limit
+                if (pending.Count > 0)
+                {
+                    foreach (var p in pending) workingList.Add(p);
+                }
+
+                rebuiltTableList.AddRange(workingList);
+            }
+            pieceTable.m_pieces = rebuiltTableList;
+        }
+
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false, bool forcepush= false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
         {
 
@@ -710,6 +868,7 @@ namespace wackydatabase.SetData
             if (!WMRecipeCust.dedLoad) 
              removeLocalData();
 
+            SortPieceHammers();
 
             UPdateItemHashesWacky(ObjectDB.instance);
 
