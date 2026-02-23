@@ -209,7 +209,6 @@ namespace wackydatabase.PatchClasses
                                  SetData.Reload josh = new SetData.Reload();
                                  WMRecipeCust.CurrentReload = josh;
 
-                                 WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true));
                                  if (WMRecipeCust.HasLobbied)
                                  {
                                      WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true, true));
