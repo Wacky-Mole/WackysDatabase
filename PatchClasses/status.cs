@@ -148,8 +148,23 @@ namespace wackydatabase.PatchClasses
         {
             static void Postfix(ref string __result, List<HitData.DamageModPair> mods)
             {
-                if (!wackydatabase.WMRecipeCust.modEnabled.Value)
+                if (!wackydatabase.WMRecipeCust.modEnabled.Value || mods.Count == 0)
                     return;
+
+                // Optimization: Quick scan to see if we even have valid custom mods to process
+                bool hasCustomMods = false;
+                foreach (var mod in mods)
+                {
+                    // Check if it's NOT a standard defined enum (meaning it's custom) 
+                    // AND not the special "None" or "chop" type if 1024 is pertinent
+                    if (!Enum.IsDefined(typeof(HitData.DamageType), mod.m_type))
+                    {
+                        hasCustomMods = true;
+                        break;
+                    }
+                }
+
+                if (!hasCustomMods) return;
 
                 __result = Regex.Replace(__result, @"\n.*<color=orange></color>", "");
                 foreach (HitData.DamageModPair damageModPair in mods)
@@ -190,8 +205,6 @@ namespace wackydatabase.PatchClasses
                 }
             }          // water patch  https://www.nexusmods.com/valheim/mods/1162
         }
-
-
 
 
     [HarmonyPatch(typeof(Player), nameof(Player.GetTotalFoodValue))]
