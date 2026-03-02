@@ -201,17 +201,24 @@ namespace wackydatabase.Util
 
         public static string GetAllVFXFile()
         {
-
             string TheString = "";
-
             GameObject[] array4 = Resources.FindObjectsOfTypeAll<GameObject>();
             WMRecipeCust.originalVFX = new Dictionary<string, GameObject>();
+            HashSet<string> added = new HashSet<string>();
+
             foreach (GameObject val2 in array4)
             {
-                if (val2.name.ToLower().Contains("vfx"))
+                if (val2.transform.parent != null) continue; // Only checking root objects/prefabs
+                if (added.Contains(val2.name)) continue;
+
+                if (val2.GetComponent<ItemDrop>() != null || val2.GetComponent<Piece>() != null || val2.GetComponent<Character>() != null)
+                    continue;
+
+                if (val2.name.ToLower().StartsWith("vfx") || val2.GetComponentInChildren<ParticleSystem>() != null)
                 {
-                    Dbgl($"VFX {val2.name}");
+                    WMRecipeCust.originalVFX[val2.name] = val2;
                     TheString = TheString + val2.name + System.Environment.NewLine;
+                    added.Add(val2.name);
                 }
             }
             return TheString;
@@ -219,17 +226,24 @@ namespace wackydatabase.Util
 
         public static string GetAllSFXFile()
         {
-
             string TheString = "";
-
             GameObject[] array4 = Resources.FindObjectsOfTypeAll<GameObject>();
             WMRecipeCust.originalSFX = new Dictionary<string, GameObject>();
+            HashSet<string> added = new HashSet<string>();
+
             foreach (GameObject val2 in array4)
             {
-                if (val2.name.ToLower().Contains("sfx"))
+                if (val2.transform.parent != null) continue;
+                if (added.Contains(val2.name)) continue;
+
+                if (val2.GetComponent<ItemDrop>() != null || val2.GetComponent<Piece>() != null || val2.GetComponent<Character>() != null)
+                    continue;
+
+                if (val2.name.ToLower().StartsWith("sfx") || val2.GetComponentsInChildren<Component>().Any(c => c != null && c.GetType().Name == "AudioSource"))
                 {
-                    Dbgl($"SFX {val2.name}");
+                    WMRecipeCust.originalSFX[val2.name] = val2;
                     TheString = TheString + val2.name + System.Environment.NewLine;
+                    added.Add(val2.name);
                 }
             }
             return TheString;
@@ -237,17 +251,24 @@ namespace wackydatabase.Util
 
         public static string GetAllFXFile()
         {
-
             string TheString = "";
-
             GameObject[] array4 = Resources.FindObjectsOfTypeAll<GameObject>();
             WMRecipeCust.originalFX = new Dictionary<string, GameObject>();
+            HashSet<string> added = new HashSet<string>();
+
             foreach (GameObject val2 in array4)
             {
-                if (val2.name.ToLower().StartsWith("fx_"))
+                if (val2.transform.parent != null) continue;
+                if (added.Contains(val2.name)) continue;
+
+                if (val2.GetComponent<ItemDrop>() != null || val2.GetComponent<Piece>() != null || val2.GetComponent<Character>() != null)
+                    continue;
+
+                if (val2.name.ToLower().StartsWith("fx_") || (val2.GetComponentInChildren<ParticleSystem>() != null && val2.GetComponentsInChildren<Component>().Any(c => c != null && c.GetType().Name == "AudioSource")))
                 {
-                    Dbgl($"FX {val2.name}");
+                    WMRecipeCust.originalFX[val2.name] = val2;
                     TheString = TheString + val2.name + System.Environment.NewLine;
+                    added.Add(val2.name);
                 }
             }
             return TheString;

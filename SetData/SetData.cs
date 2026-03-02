@@ -3189,245 +3189,112 @@ namespace wackydatabase.SetData
             }
         }
 
+        private static GameObject GetEffectPrefab(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return null;
+            if (WMRecipeCust.originalVFX.TryGetValue(name, out GameObject vfx)) return vfx;
+            if (WMRecipeCust.originalSFX.TryGetValue(name, out GameObject sfx)) return sfx;
+            if (WMRecipeCust.originalFX.TryGetValue(name, out GameObject fx)) return fx;
+            if (WMRecipeCust.extraEffects.TryGetValue(name, out GameObject extra)) return extra;
+            return null;
+        }
+
         private static EffectList FindEffect(EffectList current, EffectVerse[] userlist, string name = "")
         {
-            if (userlist[0] == null)
+            if (userlist == null || userlist.Length == 0 || userlist[0] == null)
                 return current;
 
-            /*
-            if (userlist[0] == null)
-            {
-                EffectList paul = new EffectList();
-                return paul;
-            } */
-
-            //WMRecipeCust.WLog.LogWarning("Setting Effect "+ userlist[0].name);
             EffectList newList = new EffectList();
-            EffectData[] m_effectPrefabs = new EffectData[0];
-            EffectData[] newEffectData = new EffectData[userlist.Count()];
-            var count = 0;
-            foreach ( var eff in userlist)
+            List<EffectData> newEffectDataList = new List<EffectData>();
+
+            foreach (var eff in userlist)
             {
-                EffectData newData = new EffectData();
+                if (eff == null || string.IsNullOrEmpty(eff.name)) continue;
 
-                if (WMRecipeCust.originalVFX.TryGetValue(eff.name, out GameObject list1))
+                GameObject prefab = GetEffectPrefab(eff.name);
+                if (prefab != null)
                 {
-                    newData.m_prefab = list1;
-                    newData.m_enabled = eff.m_enabled ?? true;
-                    newData.m_variant = eff.m_variant ?? -1;
-                    newData.m_attach = eff.m_attach ?? false;
-                    newData.m_follow = eff.m_follow ?? false;
-                    newData.m_inheritParentRotation = eff.m_inheritParentRotation ?? false;
-                    newData.m_inheritParentScale = eff.m_inheritParentScale ?? false;
-                    newData.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false;
-                    newData.m_randomRotation = eff.m_randomRotation ?? false;
-                    newData.m_scale = eff.m_scale ?? false;
-                    newData.m_childTransform = eff.m_childTransform ?? "";
-                    newEffectData[count] = newData;
-                    count++;
-
-                }
-                else if (WMRecipeCust.originalSFX.TryGetValue(eff.name, out GameObject list2))
-                {
-                    newData.m_prefab = list2;
-                    newData.m_enabled = eff.m_enabled ?? true;
-                    newData.m_variant = eff.m_variant ?? -1;
-                    newData.m_attach = eff.m_attach ?? false;
-                    newData.m_follow = eff.m_follow ?? false;
-                    newData.m_inheritParentRotation = eff.m_inheritParentRotation ?? false;
-                    newData.m_inheritParentScale = eff.m_inheritParentScale ?? false;
-                    newData.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false;
-                    newData.m_randomRotation = eff.m_randomRotation ?? false;
-                    newData.m_scale = eff.m_scale ?? false;
-                    newData.m_childTransform = eff.m_childTransform ?? "";
-                    newEffectData[count] = newData;
-                    count++;
-                }
-                else if (WMRecipeCust.originalFX.TryGetValue(eff.name, out GameObject list3))
-                {
-                    newData.m_prefab = list3;
-                    newData.m_enabled = eff.m_enabled ?? true;
-                    newData.m_variant = eff.m_variant ?? -1;
-                    newData.m_attach = eff.m_attach ?? false;
-                    newData.m_follow = eff.m_follow ?? false;
-                    newData.m_inheritParentRotation = eff.m_inheritParentRotation ?? false;
-                    newData.m_inheritParentScale = eff.m_inheritParentScale ?? false;
-                    newData.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false;
-                    newData.m_randomRotation = eff.m_randomRotation ?? false;
-                    newData.m_scale = eff.m_scale ?? false;
-                    newData.m_childTransform = eff.m_childTransform ?? "";
-                    newEffectData[count] = newData;
-                    count++;
-                }
-                else if (WMRecipeCust.extraEffects.TryGetValue(eff.name, out GameObject list4))
-                {
-                    newData.m_prefab = list4;
-                    newData.m_enabled = eff.m_enabled ?? true;
-                    newData.m_variant = eff.m_variant ?? -1;
-                    newData.m_attach = eff.m_attach ?? false;
-                    newData.m_follow = eff.m_follow ?? false;
-                    newData.m_inheritParentRotation = eff.m_inheritParentRotation ?? false;
-                    newData.m_inheritParentScale = eff.m_inheritParentScale ?? false;
-                    newData.m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false;
-                    newData.m_randomRotation = eff.m_randomRotation ?? false;
-                    newData.m_scale = eff.m_scale ?? false;
-                    newData.m_childTransform = eff.m_childTransform ?? "";
-                    newEffectData[count] = newData;
-                    count++;
+                    EffectData newData = new EffectData
+                    {
+                        m_prefab = prefab,
+                        m_enabled = eff.m_enabled ?? true,
+                        m_variant = eff.m_variant ?? -1,
+                        m_attach = eff.m_attach ?? false,
+                        m_follow = eff.m_follow ?? false,
+                        m_inheritParentRotation = eff.m_inheritParentRotation ?? false,
+                        m_inheritParentScale = eff.m_inheritParentScale ?? false,
+                        m_multiplyParentVisualScale = eff.m_multiplyParentVisualScale ?? false,
+                        m_randomRotation = eff.m_randomRotation ?? false,
+                        m_scale = eff.m_scale ?? false,
+                        m_childTransform = eff.m_childTransform ?? ""
+                    };
+                    newEffectDataList.Add(newData);
                 }
                 else
-                { // failure to find
+                {
                     WMRecipeCust.WLog.LogError("Didn't find effect " + eff.name + " This will cause an error when the effect is used - please remove");
                 }
             }
-            newList.m_effectPrefabs = newEffectData;
-            return newList;          
-            
+            newList.m_effectPrefabs = newEffectDataList.ToArray();
+            return newList;
         }
 
         private static EffectList FindEffect(EffectList current, string[] userlist, string name = "")
         {
             try
             {
-                if (current != null && current.m_effectPrefabs != null) // has existing effectlist
+                if (userlist == null || userlist.Length == 0 || userlist[0] == null)
                 {
-                    
-                   if (userlist[0] == null)
+                    return new EffectList();
+                }
+
+                if (current == null) current = new EffectList();
+
+                List<EffectData> finalEffects = new List<EffectData>();
+                List<string> pending = userlist.ToList();
+
+                // 1. Keep existing effects if they are in the userlist
+                if (current.m_effectPrefabs != null)
+                {
+                    foreach (var eff in current.m_effectPrefabs)
                     {
-                        EffectList paul = new EffectList();
-                        return paul;
-                    } 
-                    
-
-                    var copy = current;
-                    var count = 0;
-                    var currentcount = copy.m_effectPrefabs.Count();
-                    List<string> copyuserlist = userlist.ToList<string>();
-                    int userlistcount = userlist.Count();
-
-                    EffectData[] newEffectData = new EffectData[userlistcount];
-
-                    //List<string> currentList = new List<string>();
-                    Dictionary<string, int> removeList = new Dictionary<string, int>();
-
-                    var effectprecount = 0;
-                    foreach (var eff in copy.m_effectPrefabs)
-                    {
-                        //currentList.Add(eff.m_prefab.name);
-                        if (copyuserlist.Contains(eff.m_prefab.name))
+                        if (eff.m_prefab != null && pending.Contains(eff.m_prefab.name))
                         {
                             eff.m_enabled = true;
-                            newEffectData[count] = eff;
-                            count++;
-                            copyuserlist.Remove(eff.m_prefab.name);
+                            finalEffects.Add(eff);
+                            pending.Remove(eff.m_prefab.name); // Removes first occurrence
                         }
-                        else
-                        {
-                            //removeList.Add(eff.m_prefab.name, effectprecount);
-                        }
-                        effectprecount++;
                     }
-                    foreach (var userEff in removeList)
-                    {
-                        //copy.m_effectPrefabs[userEff.Value].m_enabled = false; // make it false
-                    }
-
-                    foreach (var userEffKey in copyuserlist) // the list left to add to end of effectlist
-                    {
-                        EffectList.EffectData effectDataone = new EffectList.EffectData();
-
-                        if (WMRecipeCust.originalVFX.TryGetValue(userEffKey, out GameObject list1))
-                        {
-                            effectDataone.m_prefab = list1;
-                            effectDataone.m_enabled = true;
-                            effectDataone.m_childTransform = "";
-                            effectDataone.m_follow = true;
-                            newEffectData[count] = effectDataone;
-                            count++;
-                        }
-                        else if (WMRecipeCust.originalSFX.TryGetValue(userEffKey, out GameObject list2))
-                        {
-                            effectDataone.m_prefab = list2;
-                            effectDataone.m_enabled = true;
-                            effectDataone.m_childTransform = "";
-                            effectDataone.m_follow = true;
-                            newEffectData[count] = effectDataone;
-                            count++;
-                        }
-                        else if (WMRecipeCust.originalFX.TryGetValue(userEffKey, out GameObject list3))
-                        {
-                            effectDataone.m_prefab = list3;
-                            effectDataone.m_enabled = true;
-                            effectDataone.m_childTransform = "";
-                            effectDataone.m_follow = true;
-                            newEffectData[count] = effectDataone;
-                            count++;
-                        }
-                        else if (WMRecipeCust.extraEffects.TryGetValue(userEffKey, out GameObject list4))
-                        {
-                            effectDataone.m_prefab = list4;
-                            effectDataone.m_enabled = true;
-                            effectDataone.m_childTransform = "";
-                            effectDataone.m_follow = true;
-                            newEffectData[count] = effectDataone;
-                            count++;
-                        }
-                        else
-                        { // failure to find
-                            WMRecipeCust.WLog.LogError("Didn't find effect " + userEffKey + " This will cause an error when the effect is used - please remove");
-                        }
-                    } // end of foreach
-                    copy.m_effectPrefabs = newEffectData;
-                    return copy;
                 }
-                else if (userlist.Count() > 0)
+
+                // 2. Add remaining effects as new entries
+                foreach (var effName in pending)
                 {
-                    EffectList effectList = new EffectList();
-                    EffectList.EffectData[] effectData = new EffectList.EffectData[userlist.Count()];
-
-                    var count = 0;
-                    foreach (var userEffe in userlist)
+                    GameObject prefab = GetEffectPrefab(effName);
+                    if (prefab != null)
                     {
-                        if (WMRecipeCust.originalVFX.TryGetValue(userEffe, out GameObject list1))
+                        finalEffects.Add(new EffectData
                         {
-                            effectData[count].m_prefab = list1;
-                            effectData[count].m_enabled = true;
-                            effectData[count].m_follow = true;
-
-                            count++;
-                        }
-                        else if (WMRecipeCust.originalSFX.TryGetValue(userEffe, out GameObject list2))
-                        {
-                            effectData[count].m_prefab = list2;
-                            effectData[count].m_enabled = true;
-                            effectData[count].m_follow = true;
-                            count++;
-                        }
-                        else if (WMRecipeCust.originalFX.TryGetValue(userEffe, out GameObject list3))
-                        {
-                            effectData[count].m_prefab = list3;
-                            effectData[count].m_enabled = true;
-                            effectData[count].m_follow = true;
-                            count++;
-                        }
-                        else if (WMRecipeCust.extraEffects.TryGetValue(userEffe, out GameObject list4))
-                        {
-                            effectData[count].m_prefab = list4;
-                            effectData[count].m_enabled = true;
-                            effectData[count].m_follow = true;
-                            count++;
-                        }
-                        else
-                        { // failure to find
-                            WMRecipeCust.WLog.LogError("Didn't find effect " + userEffe + " This will cause an error when the effect is used - please remove");
-                        }
+                            m_prefab = prefab,
+                            m_enabled = true,
+                            m_childTransform = "",
+                            m_follow = true
+                        });
                     }
-                    effectList.m_effectPrefabs = effectData;
-                    return effectList;
+                    else
+                    {
+                        WMRecipeCust.WLog.LogError("Didn't find effect " + effName + " This will cause an error when the effect is used - please remove");
+                    }
                 }
-                else { return current; }
+
+                current.m_effectPrefabs = finalEffects.ToArray();
+                return current;
             }
-            catch (System.Exception e) { WMRecipeCust.WLog.LogWarning($"Effect {name} had problems  {e.Message}"); return current; }
+            catch (Exception e)
+            {
+                WMRecipeCust.WLog.LogWarning($"Effect {name} had problems {e.Message}");
+                return current;
+            }
         }
         #endregion Items
 

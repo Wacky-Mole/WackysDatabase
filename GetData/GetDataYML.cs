@@ -103,13 +103,42 @@ namespace wackydatabase.GetData
             }
             string cloneyesorno = null;
             var temp = data.name;
-             
+            bool modded = false;
+
 
             if (!AllowClone)
             {
-                cloneyesorno = "NO";
-                data.name = temp;
-            }else
+                if (data.m_item != null) // If the recipe produces an item, we can usually clone it
+                {
+                    if (temp.Contains("_Recipe_"))
+                    {
+                        temp = temp.Substring(0, temp.IndexOf("_Recipe_"));
+                        modded = true;
+                    }
+
+                     if (temp != $"Recipe_{data.m_item.name}")
+                     {
+                        if (modded)
+                        {
+
+                        }
+                        else
+                        {
+                            cloneyesorno = "NO";
+                        }
+
+                         data.name = temp;
+                     }
+                     else
+                         data.name = data.m_item.name; // Use item name
+                }
+                else
+                {
+                    cloneyesorno = "NO";
+                    data.name = temp;
+                }
+            }
+            else
             {
                 data.name = data.m_item.name;
             }

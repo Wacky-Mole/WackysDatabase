@@ -43,7 +43,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.71";
+        internal const string ModVersion = "2.4.72";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -510,26 +510,42 @@ namespace wackydatabase
             extraEffects = new Dictionary<string, GameObject>();
 
             foreach (Material val in array)
-            {   
+            {
                 originalMaterials[val.name] = val;
             }
+
+            var extraList = extraEffectList.Value.Split(',').ToList();
+
             foreach (GameObject val1 in array3)
             {
-                if (val1.name.ToLower().StartsWith("vfx"))
+                if (val1.transform.parent != null) continue;
+
+                if (val1.GetComponent<ItemDrop>() != null || val1.GetComponent<Piece>() != null || val1.GetComponent<Character>() != null)
+                    continue;
+
+                string nameLower = val1.name.ToLower();
+                bool hasParticles = val1.GetComponentInChildren<ParticleSystem>() != null;
+                bool hasAudio = val1.GetComponentsInChildren<Component>().Any(c => c != null && c.GetType().Name == "AudioSource");
+
+                if (extraList.Contains(val1.name))
+                {
+                    extraEffects[val1.name] = val1;
+                }
+
+                if (nameLower.Contains("vfx") || hasParticles)
                 {
                     originalVFX[val1.name] = val1;
                 }
-                else if (val1.name.ToLower().StartsWith("sfx"))
+
+                if (nameLower.Contains("sfx") || hasAudio)
                 {
                     originalSFX[val1.name] = val1;
                 }
-                else if (val1.name.ToLower().StartsWith("fx_"))
+
+
+                if (nameLower.Contains("fx_") || (hasParticles && hasAudio))
                 {
                     originalFX[val1.name] = val1;
-                }
-                else if (extraEffectList.Value.Split(',').ToList().Contains(val1.name))
-                {
-                    extraEffects[val1.name] = val1;
                 }
             }
             if (!skipMD)
