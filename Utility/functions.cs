@@ -208,7 +208,6 @@ namespace wackydatabase.Util
 
             foreach (GameObject val2 in array4)
             {
-                if (val2.transform.parent != null) continue; // Only checking root objects/prefabs
                 if (added.Contains(val2.name)) continue;
 
                 if (val2.GetComponent<ItemDrop>() != null || val2.GetComponent<Piece>() != null || val2.GetComponent<Character>() != null)
@@ -233,7 +232,6 @@ namespace wackydatabase.Util
 
             foreach (GameObject val2 in array4)
             {
-                if (val2.transform.parent != null) continue;
                 if (added.Contains(val2.name)) continue;
 
                 if (val2.GetComponent<ItemDrop>() != null || val2.GetComponent<Piece>() != null || val2.GetComponent<Character>() != null)
@@ -258,7 +256,6 @@ namespace wackydatabase.Util
 
             foreach (GameObject val2 in array4)
             {
-                if (val2.transform.parent != null) continue;
                 if (added.Contains(val2.name)) continue;
 
                 if (val2.GetComponent<ItemDrop>() != null || val2.GetComponent<Piece>() != null || val2.GetComponent<Character>() != null)

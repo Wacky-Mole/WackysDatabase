@@ -43,7 +43,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.72";
+        internal const string ModVersion = "2.4.73";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -518,8 +518,6 @@ namespace wackydatabase
 
             foreach (GameObject val1 in array3)
             {
-                if (val1.transform.parent != null) continue;
-
                 if (val1.GetComponent<ItemDrop>() != null || val1.GetComponent<Piece>() != null || val1.GetComponent<Character>() != null)
                     continue;
 
