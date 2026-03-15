@@ -19,66 +19,9 @@ namespace wackydatabase.OBJimporter
 
         public static void RecievedData()
         {
-            bigDataR = WMRecipeCust.largeTransfer.Value;
-            if (string.IsNullOrEmpty(bigDataR) || ZNet.instance.IsServer())
-            {
-                return;
-            }
-                
-            bigDataRChucks.Clear();
-            string[] checkfor = { "?" };
-            bigDataRChucks = bigDataR.Split(checkfor, System.StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            foreach (var image in bigDataRChucks)
-            {
-               var index =  image.IndexOf(":");
-                var index2 = image.IndexOf(";");
-                if (index == -1 || index2 == -1) continue;
-
-                var filename = image.Substring(0, index);
-                WMRecipeCust.WLog.LogInfo("filename " + filename);
-                int leng = index2 - index;
-                var type = image.Substring(index + 1, leng -1);
-                WMRecipeCust.WLog.LogInfo("type " + type);
-                var imagebase64 = image.Substring(index2 + 1);
-                WMRecipeCust.WLog.LogInfo("image string length " + imagebase64.Length);
-                
-                byte[] decodedBytes;
-                try
-                {
-                    decodedBytes = Convert.FromBase64String(imagebase64);
-                }
-                catch (FormatException ex)
-                {
-                    WMRecipeCust.WLog.LogError($"Failed to decode base64 for {filename}: {ex.Message}");
-                    continue;
-                }
-               //string decodedText = Encoding.UTF8.GetString(decodedBytes);
-                if (type == "icon")
-                {
-                    var path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".png");
-                    File.WriteAllBytes(path, decodedBytes);
-                }
-                else if (type == "png"){
-                    var path = Path.Combine(WMRecipeCust.assetPathObjects, filename +".png");
-                    File.WriteAllBytes(path, decodedBytes);
-
-                }
-                else if ( type == "obj") {
-                    var path = Path.Combine(WMRecipeCust.assetPathObjects, filename +".obj");
-                    File.WriteAllBytes(path, decodedBytes);
-
-                }
-                else if (type == "tex") {
-                    var path = Path.Combine(WMRecipeCust.assetPathTextures, filename + ".png");
-                    File.WriteAllBytes(path, decodedBytes);
-                }
-            }
-            WMRecipeCust.WLog.LogInfo("Congrats you downloaded some huge files, restart game to apply them to gameplay");
-            if (Player.m_localPlayer != null)
-            {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "WackyDB: New Assets Downloaded. Restart Game to apply!");
-            }
+            // Legacy function kept for backward compatibility with `largeTransfer` 
+            // All actual syncing is now handled by ZRoutedRpc through ReceiveManifest, ReceiveRequest, and ReceivePayload.
+            return;
         }
 
         public static void SendData(long peer, ZPackage go) // should probably be a console command because this will send it to everyone and be huge!
@@ -93,63 +36,170 @@ namespace wackydatabase.OBJimporter
                 return;
             }
 
-            WMRecipeCust.WLog.LogInfo("Starting Object, Icon, and Texture folder base64ing");
-            var Iconpathstrings = Directory.GetFiles(WMRecipeCust.assetPathIcons, "*.png", SearchOption.AllDirectories);
-            var Objectpathstrings = Directory.GetFiles(WMRecipeCust.assetPathObjects, "*.obj", SearchOption.AllDirectories);
-            var Pngpathstrings = Directory.GetFiles(WMRecipeCust.assetPathObjects, "*.png", SearchOption.AllDirectories);
-            var Texturepathstrings = Directory.GetFiles(WMRecipeCust.assetPathTextures, "*.png", SearchOption.AllDirectories);
-            bigDataSChucks.Clear();
-
-            foreach (var im in Iconpathstrings )
+            WMRecipeCust.WLog.LogInfo("Starting Object, Icon, and Texture folder Manifest generation");
+            
+            StringBuilder sb = new StringBuilder();
+            using (var md5 = System.Security.Cryptography.MD5.Create())
             {
-                string filename = Path.GetFileNameWithoutExtension(im);
-                string type = "icon";
-                var goodbytes = File.ReadAllBytes(im);
-                string data = Convert.ToBase64String(goodbytes);
-                string Chunk = filename + ":" + type + ";" + data + "?";
-                bigDataSChucks.Add(Chunk);
+                void AddFiles(string folder, string type, string search)
+                {
+                    if (!Directory.Exists(folder)) return;
+                    foreach (var file in Directory.GetFiles(folder, search, SearchOption.AllDirectories))
+                    {
+                        string filename = Path.GetFileNameWithoutExtension(file);
+                        byte[] bytes = File.ReadAllBytes(file);
+                        string hash = Convert.ToBase64String(md5.ComputeHash(bytes));
+                        sb.Append($"{filename}:{type}:{hash}?");
+                    }
+                }
+                
+                AddFiles(WMRecipeCust.assetPathIcons, "icon", "*.png");
+                AddFiles(WMRecipeCust.assetPathObjects, "obj", "*.obj");
+                AddFiles(WMRecipeCust.assetPathObjects, "png", "*.png");
+                AddFiles(WMRecipeCust.assetPathTextures, "tex", "*.png");
             }
-            foreach (var im in Objectpathstrings )
-            {
-                string filename = Path.GetFileNameWithoutExtension(im);
-                string type = "obj";
-                var goodbytes = File.ReadAllBytes(im);
-                string data = Convert.ToBase64String(goodbytes);
-                string Chunk = filename + ":" + type + ";" + data + "?";
-                bigDataSChucks.Add(Chunk);
-            }
-            foreach(var im in Pngpathstrings)
-            {
-                string filename = Path.GetFileNameWithoutExtension(im);
-                string type = "png";
-                var goodbytes = File.ReadAllBytes(im);
-                string data = Convert.ToBase64String(goodbytes);
-                string Chunk = filename + ":" + type + ";" + data + "?";
-                bigDataSChucks.Add(Chunk);
-            }
-            foreach(var im in Texturepathstrings)
-            {
-                string filename = Path.GetFileNameWithoutExtension(im);
-                string type = "tex";
-                var goodbytes = File.ReadAllBytes(im);
-                string data = Convert.ToBase64String(goodbytes);
-                string Chunk = filename + ":" + type + ";" + data + "?";
-                bigDataSChucks.Add(Chunk);
-            }
-
-            bigDataS = string.Join("", bigDataSChucks.ToArray());
-            WMRecipeCust.WLog.LogInfo("Preparing to Send, hold onto your CPU");
-            WMRecipeCust.largeTransfer.Value = bigDataS;
-            //WMRecipeCust.WLog.LogWarning(bigDataS);
+            
+            string manifest = sb.ToString();
+            
+            WMRecipeCust.WLog.LogInfo($"Sending Asset Manifest ({manifest.Length} chars) to all clients.");
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "WackyDB_AssetManifest", manifest);
 
             if (peer != 0L)
             {
-                ZRoutedRpc.instance.InvokeRoutedRPC(peer, "WackyDB_ClientMSG", "WackyDB: Server finished sending the load!");
+                ZRoutedRpc.instance.InvokeRoutedRPC(peer, "WackyDB_ClientMSG", "WackyDB: Server is calculating hashes and sending Manifests to clients...");
             }
+        }
 
-            // wait
-            HandleData holdme = new HandleData();
-            WMRecipeCust.context.StartCoroutine(holdme.WaittoReset());
+        public static void ReceiveManifest(long sender, string manifest)
+        {
+            if (ZNet.instance.IsServer()) return;
+            
+            WMRecipeCust.WLog.LogInfo("Received Asset Manifest from server, checking local files...");
+            
+            string[] checkfor = { "?" };
+            var chunks = manifest.Split(checkfor, System.StringSplitOptions.RemoveEmptyEntries);
+            
+            List<string> neededFiles = new List<string>();
+            
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                foreach (var chunk in chunks)
+                {
+                    var parts = chunk.Split(':');
+                    if (parts.Length != 3) continue;
+                    string filename = parts[0];
+                    string type = parts[1];
+                    string hash = parts[2];
+                    
+                    string path = "";
+                    if (type == "icon") path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".png");
+                    else if (type == "png") path = Path.Combine(WMRecipeCust.assetPathObjects, filename + ".png");
+                    else if (type == "obj") path = Path.Combine(WMRecipeCust.assetPathObjects, filename + ".obj");
+                    else if (type == "tex") path = Path.Combine(WMRecipeCust.assetPathTextures, filename + ".png");
+                    
+                    bool needsFile = true;
+                    if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                    {
+                        byte[] bytes = File.ReadAllBytes(path);
+                        string localHash = Convert.ToBase64String(md5.ComputeHash(bytes));
+                        if (localHash == hash) needsFile = false;
+                    }
+                    
+                    if (needsFile)
+                    {
+                        neededFiles.Add($"{filename}:{type}");
+                    }
+                }
+            }
+            
+            if (neededFiles.Count > 0)
+            {
+                WMRecipeCust.WLog.LogInfo($"Client missing {neededFiles.Count} files. Requesting specifically from server...");
+                string requestStr = string.Join("?", neededFiles);
+                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDB_AssetRequest", requestStr);
+            }
+            else
+            {
+                WMRecipeCust.WLog.LogInfo("Client already has all WackyDB server assets up to date. Nothing to download!");
+                if (Player.m_localPlayer != null)
+                {
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "WackyDB: All Assets already up to date!");
+                }
+            }
+        }
+
+        public static void ReceiveRequest(long sender, string request)
+        {
+            if (!ZNet.instance.IsServer()) return;
+            
+            string[] checkfor = { "?" };
+            var needed = request.Split(checkfor, System.StringSplitOptions.RemoveEmptyEntries);
+            
+            WMRecipeCust.WLog.LogInfo($"Peer {sender} requested {needed.Length} missing asset files. Streaming to them...");
+            HandleData hd = new HandleData();
+            WMRecipeCust.context.StartCoroutine(hd.SendRequestedFiles(sender, needed));
+        }
+
+        private IEnumerator SendRequestedFiles(long targetPeer, string[] requestedFiles)
+        {
+            foreach (var req in requestedFiles)
+            {
+                var parts = req.Split(':');
+                if (parts.Length != 2) continue;
+                string filename = parts[0];
+                string type = parts[1];
+                
+                string folder = "";
+                string ext = "";
+                
+                if (type == "icon") { folder = WMRecipeCust.assetPathIcons; ext = "*.png"; }
+                else if (type == "png") { folder = WMRecipeCust.assetPathObjects; ext = "*.png"; }
+                else if (type == "obj") { folder = WMRecipeCust.assetPathObjects; ext = "*.obj"; }
+                else if (type == "tex") { folder = WMRecipeCust.assetPathTextures; ext = "*.png"; }
+                
+                if (string.IsNullOrEmpty(folder)) continue;
+                
+                var files = Directory.GetFiles(folder, filename + ext, SearchOption.AllDirectories);
+                if (files.Length > 0)
+                {
+                    byte[] bytes = File.ReadAllBytes(files[0]);
+                    string base64 = Convert.ToBase64String(bytes);
+                    
+                    ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_AssetPayload", type, filename, base64);
+                }
+                
+                // Yield to prevent overwhelming network buffer
+                yield return new WaitForEndOfFrame();
+            }
+            
+            WMRecipeCust.WLog.LogInfo($"Finished streaming {requestedFiles.Length} files to Peer {targetPeer}.");
+            ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", "WackyDB: Finished downloading missing assets. Restart game to apply!");
+        }
+
+        public static void ReceivePayload(long sender, string type, string filename, string base64)
+        {
+            if (ZNet.instance.IsServer()) return;
+            
+            try
+            {
+                byte[] decodedBytes = Convert.FromBase64String(base64);
+                string path = "";
+                
+                if (type == "icon") path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".png");
+                else if (type == "png") path = Path.Combine(WMRecipeCust.assetPathObjects, filename + ".png");
+                else if (type == "obj") path = Path.Combine(WMRecipeCust.assetPathObjects, filename + ".obj");
+                else if (type == "tex") path = Path.Combine(WMRecipeCust.assetPathTextures, filename + ".png");
+                
+                if (!string.IsNullOrEmpty(path))
+                {
+                    File.WriteAllBytes(path, decodedBytes);
+                    WMRecipeCust.WLog.LogInfo($"Downloaded and saved {filename} of type {type}");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                WMRecipeCust.WLog.LogError($"Error decoding/saving {filename}: {ex.Message}");
+            }
         }
 
         public static void ClientMSG(long sender, string msg)
@@ -160,13 +210,5 @@ namespace wackydatabase.OBJimporter
             }
             WMRecipeCust.WLog.LogInfo("Server MSG: " + msg);
         }
-
-        IEnumerator WaittoReset()
-        {
-            yield return new WaitForSeconds(20);
-            WMRecipeCust.WLog.LogInfo("Reset largeTransfer so new players don't get data");
-            WMRecipeCust.largeTransfer.Value = ""; // so new players joining don't get the huge amount of data and crash
-        }
-
     }
 }

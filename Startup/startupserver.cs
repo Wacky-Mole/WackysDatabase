@@ -46,6 +46,9 @@ namespace wackydatabase.Startup
             }
 
             ZRoutedRpc.instance.Register("WackyDB_ClientMSG", new Action<long, string>(HandleData.ClientMSG));
+            ZRoutedRpc.instance.Register("WackyDB_AssetManifest", new Action<long, string>(HandleData.ReceiveManifest));
+            ZRoutedRpc.instance.Register("WackyDB_AssetRequest", new Action<long, string>(HandleData.ReceiveRequest));
+            ZRoutedRpc.instance.Register("WackyDB_AssetPayload", new Action<long, string, string, string>(HandleData.ReceivePayload));
         }
     }
 
