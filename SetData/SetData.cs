@@ -1005,42 +1005,91 @@ namespace wackydatabase.SetData
 
                         piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
                     }
-                    else if (ItemComp.m_category != PieceManager.PiecePrefabManager.GetCategory(data.piecehammerCategory))
+                    else
                     {
-                        // Handle category change
-                        if (WMRecipeCust.showLogs.Value)
-                            WMRecipeCust.Dbgl($"Category change detected for {data.name}. Disabling old piece and setting new piece location.");
-
-                        if (piecehammer == null)
+                        bool needToMove = false;
+                        
+                        if (ItemComp.m_category != PieceManager.PiecePrefabManager.GetCategory(data.piecehammerCategory))
                         {
-                            if (WMRecipeCust.selectedPiecehammer == null)
+                            needToMove = true;
+                        }
+                        
+                        if (!needToMove)
+                        {
+                            if (piecehammer != null)
                             {
-                                // Default to Hammer if no piecehammer is found
-                                piecehammer = ObjectDB.instance.GetItemPrefab("Hammer");
-                                piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
+                                var pt = piecehammer.GetComponent<ItemDrop>()?.m_itemData.m_shared.m_buildPieces;
+                                if (pt != null && !pt.m_pieces.Contains(go))
+                                    needToMove = true;
                             }
-                            else
+                            else if (WMRecipeCust.selectedPiecehammer != null)
                             {
-                                // Remove from modded hammers
+                                if (!WMRecipeCust.selectedPiecehammer.m_pieces.Contains(go))
+                                    needToMove = true;
+                            }
+                        }
+
+                        if (needToMove)
+                        {
+                            // Handle category or hammer change
+                            if (WMRecipeCust.showLogs.Value)
+                                WMRecipeCust.Dbgl($"Category or Hammer change detected for {data.name}. Disabling old piece and setting new piece location.");
+
+                            // Remove from all known piece tables safely
+                            if (WMRecipeCust.MaybePieceStations != null)
+                            {
+                                foreach (var station in WMRecipeCust.MaybePieceStations)
+                                {
+                                    if (station != null && station.m_pieces.Contains(go))
+                                    {
+                                        station.m_pieces.Remove(go);
+                                    }
+                                }
+                            }
+                            
+                            // Check explicitly for Hammer and selectedPiecehammer as well
+                            if (WMRecipeCust.selectedPiecehammer != null && WMRecipeCust.selectedPiecehammer.m_pieces.Contains(go))
+                            {
                                 WMRecipeCust.selectedPiecehammer.m_pieces.Remove(go);
                             }
-                        }
-                        else
-                        {
-                            // Remove piece from the current piecehammer
-                            piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Remove(go);
-                        }
-
-                        // Add to the new category and hammer
-                        if (piecehammer == null)
-                        {
-                            if (WMRecipeCust.selectedPiecehammer == null)
+                            
+                            var defaultHammer = ObjectDB.instance.GetItemPrefab("Hammer");
+                            if (defaultHammer != null)
                             {
-                                if (WMRecipeCust.showLogs.Value)
-                                    WMRecipeCust.Dbgl($"piecehammer named {data.piecehammer} not found. Defaulting to Hammer in Misc category.");
-                                piecehammer = Instant.GetItemPrefab("Hammer");
-                                ItemComp.m_category = Piece.PieceCategory.Misc;
-                                piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                                var defaultPt = defaultHammer.GetComponent<ItemDrop>()?.m_itemData.m_shared.m_buildPieces;
+                                if (defaultPt != null && defaultPt.m_pieces.Contains(go))
+                                {
+                                    defaultPt.m_pieces.Remove(go);
+                                }
+                            }
+
+                            // Add to the new category and hammer
+                            if (piecehammer == null)
+                            {
+                                if (WMRecipeCust.selectedPiecehammer == null)
+                                {
+                                    if (WMRecipeCust.showLogs.Value)
+                                        WMRecipeCust.Dbgl($"piecehammer named {data.piecehammer} not found. Defaulting to Hammer in Misc category.");
+                                    piecehammer = Instant.GetItemPrefab("Hammer");
+                                    ItemComp.m_category = Piece.PieceCategory.Misc;
+                                    piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(data.piecehammerCategory))
+                                    {
+                                        try
+                                        {
+                                            PieceManager.BuildPiece.BuildTableConfigChangedWacky(ItemComp, data.piecehammerCategory);
+                                        }
+                                        catch
+                                        {
+                                            WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly");
+                                        }
+                                    }
+
+                                    WMRecipeCust.selectedPiecehammer.m_pieces.Add(go);
+                                }
                             }
                             else
                             {
@@ -1056,24 +1105,8 @@ namespace wackydatabase.SetData
                                     }
                                 }
 
-                                WMRecipeCust.selectedPiecehammer.m_pieces.Add(go);
+                                piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
                             }
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(data.piecehammerCategory))
-                            {
-                                try
-                                {
-                                    PieceManager.BuildPiece.BuildTableConfigChangedWacky(ItemComp, data.piecehammerCategory);
-                                }
-                                catch
-                                {
-                                    WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly");
-                                }
-                            }
-
-                            piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(go);
                         }
                     }
                 }
