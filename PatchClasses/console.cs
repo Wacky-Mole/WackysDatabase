@@ -270,6 +270,11 @@ namespace wackydatabase.PatchClasses
                         {
                             if (WMRecipeCust.Admin)
                             {
+                                if (WMRecipeCust.issettoSinglePlayer)
+                                {
+                                    args.Context?.AddString("You are in singleplayer, no clients to send the load to.");
+                                    return;
+                                }
 
                                 ZPackage pkg = new ZPackage();
                                 pkg.Write("true");

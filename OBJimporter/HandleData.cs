@@ -20,28 +20,39 @@ namespace wackydatabase.OBJimporter
         public static void RecievedData()
         {
             bigDataR = WMRecipeCust.largeTransfer.Value;
-            if (string.IsNullOrEmpty(bigDataR) || ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
+            if (string.IsNullOrEmpty(bigDataR) || ZNet.instance.IsServer())
             {
                 return;
             }
                 
             bigDataRChucks.Clear();
-            string[] checkfor = { "==" };
+            string[] checkfor = { "?" };
             bigDataRChucks = bigDataR.Split(checkfor, System.StringSplitOptions.RemoveEmptyEntries).ToList();
 
             foreach (var image in bigDataRChucks)
             {
                var index =  image.IndexOf(":");
                 var index2 = image.IndexOf(";");
+                if (index == -1 || index2 == -1) continue;
+
                 var filename = image.Substring(0, index);
                 WMRecipeCust.WLog.LogInfo("filename " + filename);
                 int leng = index2 - index;
-               var type = image.Substring(index + 1, leng -1);
+                var type = image.Substring(index + 1, leng -1);
                 WMRecipeCust.WLog.LogInfo("type " + type);
                 var imagebase64 = image.Substring(index2 + 1);
-                imagebase64 = imagebase64 + "==";
-                WMRecipeCust.WLog.LogInfo("image  " + imagebase64);
-                byte[] decodedBytes = Convert.FromBase64String(imagebase64);
+                WMRecipeCust.WLog.LogInfo("image string length " + imagebase64.Length);
+                
+                byte[] decodedBytes;
+                try
+                {
+                    decodedBytes = Convert.FromBase64String(imagebase64);
+                }
+                catch (FormatException ex)
+                {
+                    WMRecipeCust.WLog.LogError($"Failed to decode base64 for {filename}: {ex.Message}");
+                    continue;
+                }
                //string decodedText = Encoding.UTF8.GetString(decodedBytes);
                 if (type == "icon")
                 {
@@ -58,8 +69,15 @@ namespace wackydatabase.OBJimporter
                     File.WriteAllBytes(path, decodedBytes);
 
                 }
-
-                WMRecipeCust.WLog.LogInfo("Congrats you downloaded some huge files, restart game to apply them to gameplay");
+                else if (type == "tex") {
+                    var path = Path.Combine(WMRecipeCust.assetPathTextures, filename + ".png");
+                    File.WriteAllBytes(path, decodedBytes);
+                }
+            }
+            WMRecipeCust.WLog.LogInfo("Congrats you downloaded some huge files, restart game to apply them to gameplay");
+            if (Player.m_localPlayer != null)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "WackyDB: New Assets Downloaded. Restart Game to apply!");
             }
         }
 
@@ -69,10 +87,17 @@ namespace wackydatabase.OBJimporter
             {
                 return;
             }
-            WMRecipeCust.WLog.LogInfo("Starting Object and Icon folder base64ing");
-            var Iconpathstrings = Directory.GetFiles(WMRecipeCust.assetPathIcons );
+            if (WMRecipeCust.issettoSinglePlayer)
+            {
+                WMRecipeCust.WLog.LogInfo("Singleplayer mode detected. Skipping SendData because there are no clients.");
+                return;
+            }
+
+            WMRecipeCust.WLog.LogInfo("Starting Object, Icon, and Texture folder base64ing");
+            var Iconpathstrings = Directory.GetFiles(WMRecipeCust.assetPathIcons, "*.png", SearchOption.AllDirectories);
             var Objectpathstrings = Directory.GetFiles(WMRecipeCust.assetPathObjects, "*.obj", SearchOption.AllDirectories);
             var Pngpathstrings = Directory.GetFiles(WMRecipeCust.assetPathObjects, "*.png", SearchOption.AllDirectories);
+            var Texturepathstrings = Directory.GetFiles(WMRecipeCust.assetPathTextures, "*.png", SearchOption.AllDirectories);
             bigDataSChucks.Clear();
 
             foreach (var im in Iconpathstrings )
@@ -81,7 +106,7 @@ namespace wackydatabase.OBJimporter
                 string type = "icon";
                 var goodbytes = File.ReadAllBytes(im);
                 string data = Convert.ToBase64String(goodbytes);
-                string Chunk = filename + ":" + type + ";" + data;
+                string Chunk = filename + ":" + type + ";" + data + "?";
                 bigDataSChucks.Add(Chunk);
             }
             foreach (var im in Objectpathstrings )
@@ -90,7 +115,7 @@ namespace wackydatabase.OBJimporter
                 string type = "obj";
                 var goodbytes = File.ReadAllBytes(im);
                 string data = Convert.ToBase64String(goodbytes);
-                string Chunk = filename + ":" + type + ";" + data;
+                string Chunk = filename + ":" + type + ";" + data + "?";
                 bigDataSChucks.Add(Chunk);
             }
             foreach(var im in Pngpathstrings)
@@ -99,7 +124,16 @@ namespace wackydatabase.OBJimporter
                 string type = "png";
                 var goodbytes = File.ReadAllBytes(im);
                 string data = Convert.ToBase64String(goodbytes);
-                string Chunk = filename + ":" + type + ";" + data;
+                string Chunk = filename + ":" + type + ";" + data + "?";
+                bigDataSChucks.Add(Chunk);
+            }
+            foreach(var im in Texturepathstrings)
+            {
+                string filename = Path.GetFileNameWithoutExtension(im);
+                string type = "tex";
+                var goodbytes = File.ReadAllBytes(im);
+                string data = Convert.ToBase64String(goodbytes);
+                string Chunk = filename + ":" + type + ";" + data + "?";
                 bigDataSChucks.Add(Chunk);
             }
 
@@ -108,9 +142,23 @@ namespace wackydatabase.OBJimporter
             WMRecipeCust.largeTransfer.Value = bigDataS;
             //WMRecipeCust.WLog.LogWarning(bigDataS);
 
+            if (peer != 0L)
+            {
+                ZRoutedRpc.instance.InvokeRoutedRPC(peer, "WackyDB_ClientMSG", "WackyDB: Server finished sending the load!");
+            }
+
             // wait
             HandleData holdme = new HandleData();
             WMRecipeCust.context.StartCoroutine(holdme.WaittoReset());
+        }
+
+        public static void ClientMSG(long sender, string msg)
+        {
+            if (Player.m_localPlayer != null)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, msg);
+            }
+            WMRecipeCust.WLog.LogInfo("Server MSG: " + msg);
         }
 
         IEnumerator WaittoReset()
