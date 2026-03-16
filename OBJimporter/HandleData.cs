@@ -17,6 +17,9 @@ namespace wackydatabase.OBJimporter
         internal static string bigDataS;
         internal static List<string> bigDataSChucks = new List<string>();   
 
+        internal static HashSet<long> PendingSyncClients = new HashSet<long>();
+        internal static long AdminPeerForSync = 0L;
+
         public static void RecievedData()
         {
             // Legacy function kept for backward compatibility with `largeTransfer` 
@@ -34,6 +37,18 @@ namespace wackydatabase.OBJimporter
             {
                 WMRecipeCust.WLog.LogInfo("Singleplayer mode detected. Skipping SendData because there are no clients.");
                 return;
+            }
+
+            PendingSyncClients.Clear();
+            AdminPeerForSync = peer;
+            var peers = ZNet.instance.GetPeers();
+            if (peers != null)
+            {
+                foreach (var p in peers)
+                {
+                    if (p.IsReady())
+                        PendingSyncClients.Add(p.m_uid);
+                }
             }
 
             WMRecipeCust.WLog.LogInfo("Starting Object, Icon, and Texture folder Manifest generation");
@@ -66,7 +81,27 @@ namespace wackydatabase.OBJimporter
 
             if (peer != 0L)
             {
-                ZRoutedRpc.instance.InvokeRoutedRPC(peer, "WackyDB_ClientMSG", "WackyDB: Server is calculating hashes and sending Manifests to clients...");
+                ZRoutedRpc.instance.InvokeRoutedRPC(peer, "WackyDB_AdminLogMsg", "WackyDB: Server is calculating hashes and sending Manifests to clients...");
+            }
+            
+            if (PendingSyncClients.Count == 0)
+            {
+                CheckPendingSyncClients();
+            }
+        }
+
+        private static void CheckPendingSyncClients()
+        {
+            if (!ZNet.instance.IsServer()) return;
+
+            if (PendingSyncClients.Count == 0)
+            {
+                WMRecipeCust.WLog.LogInfo("WackyDB: All clients have successfully synced server assets.");
+                if (AdminPeerForSync != 0L)
+                {
+                    ZRoutedRpc.instance.InvokeRoutedRPC(AdminPeerForSync, "WackyDB_AdminLogMsg", "WackyDB: All clients have successfully synced server assets.");
+                    AdminPeerForSync = 0L;
+                }
             }
         }
 
@@ -125,6 +160,8 @@ namespace wackydatabase.OBJimporter
                 {
                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "WackyDB: All Assets already up to date!");
                 }
+                
+                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDB_AssetRequest", "none");
             }
         }
 
@@ -132,6 +169,12 @@ namespace wackydatabase.OBJimporter
         {
             if (!ZNet.instance.IsServer()) return;
             
+            if (request == "none") {
+                PendingSyncClients.Remove(sender);
+                CheckPendingSyncClients();
+                return;
+            }
+
             string[] checkfor = { "?" };
             var needed = request.Split(checkfor, System.StringSplitOptions.RemoveEmptyEntries);
             
@@ -174,6 +217,9 @@ namespace wackydatabase.OBJimporter
             
             WMRecipeCust.WLog.LogInfo($"Finished streaming {requestedFiles.Length} files to Peer {targetPeer}.");
             ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", "WackyDB: Finished downloading missing assets. Restart game to apply!");
+
+            PendingSyncClients.Remove(targetPeer);
+            CheckPendingSyncClients();
         }
 
         public static void ReceivePayload(long sender, string type, string filename, string base64)
@@ -209,6 +255,15 @@ namespace wackydatabase.OBJimporter
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, msg);
             }
             WMRecipeCust.WLog.LogInfo("Server MSG: " + msg);
+        }
+
+        public static void AdminLogMsg(long sender, string msg)
+        {
+            WMRecipeCust.WLog.LogInfo(msg);
+            if (Console.instance != null)
+            {
+                Console.instance.Print(msg);
+            }
         }
     }
 }
