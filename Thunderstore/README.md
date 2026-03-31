@@ -1277,7 +1277,7 @@ You can replace all Boars in the game with this Dude.
 - `Category` (string): The category of the status effect. Prevents other SEs in this category from being active while one is active. "" is default with no category, so no restrictions.
 - `IconName` (string): The name of the icon for the status effect. Doesn't do much, can't change.
 - `ClonedSE` (string): Holds the name of the SE you are cloning. Otherwise new SE's will use SetEffect_TrollArmor
-- `CustomIcon` (string): The custom icon for the status effect. customIcon, jpeg or png. ie wacky.png 64 x 64
+- `CustomIcon` (string): The custom icon for the status effect. customIcon, jpeg or png. ie wacky.png 64 x 64. Use "delete" to remove existing icon.
 - `FlashIcon` (bool): Indicates whether the icon should flash.
 - `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
 - `Tooltip` (string): The tooltip for the status effect.

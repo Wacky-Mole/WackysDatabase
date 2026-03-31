@@ -22,7 +22,7 @@ namespace wackydatabase.Datas
         public string? piecehammerCategory;
         public string? categoryOrderBeforePrefab;
         public int? minStationLevel;
-        public int? amount;
+        //public int? amount;
         public bool? disabled;
         public bool? adminonly;
         

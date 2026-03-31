@@ -109,20 +109,28 @@ namespace wackydatabase.SetData
             go.m_category = data.Category ?? go.m_category;
             if (!DataHelpers.ECheck(data.CustomIcon))
             {
-                var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.CustomIcon);
-                var nullcheck = File.ReadAllBytes(pathI);
-                if (nullcheck != null)
+                if (data.CustomIcon != "delete")
                 {
-                    try
-                    {
-                        var Spri = SpriteTools.LoadNewSprite(pathI);
-                        go.m_icon = Spri;
-                    }
-                    catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                    go.m_icon = null;
+                    WMRecipeCust.WLog.LogInfo( go.m_name + $" Icon Removed");
                 }
                 else
                 {
-                    WMRecipeCust.WLog.LogInfo($"No Img with the name {data.CustomIcon} in Icon Folder - ");
+                    var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.CustomIcon);
+                    var nullcheck = File.ReadAllBytes(pathI);
+                    if (nullcheck != null)
+                    {
+                        try
+                        {
+                            var Spri = SpriteTools.LoadNewSprite(pathI);
+                            go.m_icon = Spri;
+                        }
+                        catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                    }
+                    else
+                    {
+                        WMRecipeCust.WLog.LogInfo($"No Img with the name {data.CustomIcon} in Icon Folder - ");
+                    }
                 }
             }
             go.m_flashIcon = data.FlashIcon ?? go.m_flashIcon;

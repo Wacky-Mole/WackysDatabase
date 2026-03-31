@@ -500,7 +500,7 @@ namespace wackydatabase.GetData
             {
                 name = PieceID.name, // required
                 piecehammer = Hammername, // required
-                amount = 1,
+               // amount = 1,
                 craftingStation = piece.m_craftingStation?.m_name ?? "",
                 minStationLevel = 1,
                 adminonly = false,
