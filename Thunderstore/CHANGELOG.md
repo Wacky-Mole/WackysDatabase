@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.76  | Bug fix|
 | 2.4.75  | Added "delete" option for custom icons in SEs.  |
 | 2.4.74  | More logs for wackydb_sendtheload|
 | 2.4.73  | Bug Fix for some Materials. </br> Rewrote the piece moving category logic a bit to reduce bugs. </br> Worked on wackydb_sendtheload, should now handle texture sending and alert the admin when done. It also does  WackyDB_AssetRequest so that client only requests data it doesn't have. Please test |

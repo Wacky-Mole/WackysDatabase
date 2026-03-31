@@ -109,7 +109,7 @@ namespace wackydatabase.SetData
             go.m_category = data.Category ?? go.m_category;
             if (!DataHelpers.ECheck(data.CustomIcon))
             {
-                if (data.CustomIcon != "delete")
+                if (data.CustomIcon == "delete")
                 {
                     go.m_icon = null;
                     WMRecipeCust.WLog.LogInfo( go.m_name + $" Icon Removed");
