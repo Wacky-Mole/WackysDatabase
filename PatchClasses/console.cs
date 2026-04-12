@@ -694,6 +694,10 @@ namespace wackydatabase.PatchClasses
                                 {
                                     string cat = null;
                                     string hammer = args[1];
+                                    if (hammer.ToLower() == "hammer")
+                                        hammer = "Hammer";
+                                    if (hammer.ToLower() == "hoe")
+                                        hammer = "Hoe";
                                     if (args.Length-1 ==2)
                                          cat = args[2];
 

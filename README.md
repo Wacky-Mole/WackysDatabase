@@ -216,7 +216,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_save_material[MaterialName]`: Saves a Material clone YML in the wackysDatabase Material folder. Usually has a _mat at end end. 
 - `wackydb_all_items`: Saves all items in the game into wackyDatabase-BulkYML.
 - `wackydb_all_recipes`: Saves all recipes in the game into wackyDatabase-BulkYML.
-- `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
+- `wackydb_all_pieces <Hammer> [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
 - `wackydb_all_se`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
 - `wackydb_all_creatures`: Saves all creatures in game into Bulk Creature folder. (Not deer or birds?)
 - `wackydb_all_pickables`: Saves all pickables(pickable and treebase) in Bulk Pickables folder.
