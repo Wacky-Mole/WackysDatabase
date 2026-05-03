@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.79  | Finally fixed a long standing bug for Item_CrossbowArbalest. It may have effected other items as well.|
 | 2.4.78  | Vanilla game bug fix for last chain hit mod|
 | 2.4.77  | Made it so ( "hammer", "HAMMER", "Hammer") wackydb_all_pieces command|
 | 2.4.76  | Bug fix|

@@ -933,7 +933,9 @@ namespace wackydatabase.GetData
 
         internal WItemData GetItemDataByName(string name, ObjectDB tod)
         {
-            GameObject go = tod.GetItemPrefab(name);
+            GameObject go = DataHelpers.CheckforSpecialObjects(name);
+            if (go == null)
+                go = tod.GetItemPrefab(name);
             if (go == null)
             {
                 WMRecipeCust.Dbgl("GetItemDataByName data not found!");

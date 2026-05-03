@@ -2228,7 +2228,7 @@ namespace wackydatabase.SetData
 
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
-                if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) // Not sure why I am doing this, New Items with the Same name wouldn't make sense in Object DB Should Probably Just change it to GetItemPrefab
+                if (Instant.m_items[i] == go || Instant.m_items[i]?.name == go.name)
                 {
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                     if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // clone setup for new clones
