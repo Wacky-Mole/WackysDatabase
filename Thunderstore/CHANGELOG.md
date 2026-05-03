@@ -1,5 +1,10 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.79  | Finally fixed a long standing bug for Item_CrossbowArbalest. It may have effected other items as well.|
+| 2.4.78  | Vanilla game bug fix for last chain hit mod|
+| 2.4.77  | Made it so ( "hammer", "HAMMER", "Hammer") wackydb_all_pieces command|
+| 2.4.76  | Bug fix|
+| 2.4.75  | Added "delete" option for custom icons in SEs.  |
 | 2.4.74  | More logs for wackydb_sendtheload|
 | 2.4.73  | Bug Fix for some Materials. </br> Rewrote the piece moving category logic a bit to reduce bugs. </br> Worked on wackydb_sendtheload, should now handle texture sending and alert the admin when done. It also does  WackyDB_AssetRequest so that client only requests data it doesn't have. Please test |
 | 2.4.72  | Reduced the amount of Recipe_Recipe (Actual Recipes) in wackydb_all_recipe significantly. </br> Fix for modded items showing their crafting stations in recipe name. </br> Added some compatibility for modded effect search and list. |

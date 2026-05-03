@@ -500,7 +500,7 @@ namespace wackydatabase.GetData
             {
                 name = PieceID.name, // required
                 piecehammer = Hammername, // required
-                amount = 1,
+               // amount = 1,
                 craftingStation = piece.m_craftingStation?.m_name ?? "",
                 minStationLevel = 1,
                 adminonly = false,
@@ -933,7 +933,9 @@ namespace wackydatabase.GetData
 
         internal WItemData GetItemDataByName(string name, ObjectDB tod)
         {
-            GameObject go = tod.GetItemPrefab(name);
+            GameObject go = DataHelpers.CheckforSpecialObjects(name);
+            if (go == null)
+                go = tod.GetItemPrefab(name);
             if (go == null)
             {
                 WMRecipeCust.Dbgl("GetItemDataByName data not found!");

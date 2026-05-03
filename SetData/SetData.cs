@@ -109,20 +109,28 @@ namespace wackydatabase.SetData
             go.m_category = data.Category ?? go.m_category;
             if (!DataHelpers.ECheck(data.CustomIcon))
             {
-                var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.CustomIcon);
-                var nullcheck = File.ReadAllBytes(pathI);
-                if (nullcheck != null)
+                if (data.CustomIcon == "delete")
                 {
-                    try
-                    {
-                        var Spri = SpriteTools.LoadNewSprite(pathI);
-                        go.m_icon = Spri;
-                    }
-                    catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                    go.m_icon = null;
+                    WMRecipeCust.WLog.LogInfo( go.m_name + $" Icon Removed");
                 }
                 else
                 {
-                    WMRecipeCust.WLog.LogInfo($"No Img with the name {data.CustomIcon} in Icon Folder - ");
+                    var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.CustomIcon);
+                    var nullcheck = File.ReadAllBytes(pathI);
+                    if (nullcheck != null)
+                    {
+                        try
+                        {
+                            var Spri = SpriteTools.LoadNewSprite(pathI);
+                            go.m_icon = Spri;
+                        }
+                        catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                    }
+                    else
+                    {
+                        WMRecipeCust.WLog.LogInfo($"No Img with the name {data.CustomIcon} in Icon Folder - ");
+                    }
                 }
             }
             go.m_flashIcon = data.FlashIcon ?? go.m_flashIcon;
@@ -2220,7 +2228,7 @@ namespace wackydatabase.SetData
 
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
-                if (Instant.m_items[i]?.GetComponent<ItemDrop>().m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name) // Not sure why I am doing this, New Items with the Same name wouldn't make sense in Object DB Should Probably Just change it to GetItemPrefab
+                if (Instant.m_items[i] == go || Instant.m_items[i]?.name == go.name)
                 {
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                     if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // clone setup for new clones

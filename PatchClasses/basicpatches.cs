@@ -20,6 +20,7 @@ using System.Runtime.CompilerServices;
 using TMPro;
 using RainbowTrollArmor;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Diagnostics.Eventing.Reader;
 using System.Web;
 
@@ -143,6 +144,61 @@ namespace wackydatabase.PatchClasses
                     }
                 }
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(Attack), nameof(Attack.DoMeleeAttack))]
+    internal static class Attack_DoMeleeAttack_LastChainDamageMultiplier_Patch
+    {
+        private static readonly FieldInfo LastChainDamageMultiplierField = AccessTools.Field(typeof(Attack), nameof(Attack.m_lastChainDamageMultiplier));
+        private static readonly MethodInfo ModifyMethod = AccessTools.Method(typeof(HitData.DamageTypes), nameof(HitData.DamageTypes.Modify), new[] { typeof(float) });
+
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            var patched = false;
+
+            for (var i = 1; i < codes.Count; i++)
+            {
+                if (!patched
+                    && codes[i].Calls(ModifyMethod)
+                    && IsConstantTwo(codes[i - 1]))
+                {
+                    var loadInstance = new CodeInstruction(OpCodes.Ldarg_0)
+                    {
+                        labels = codes[i - 1].labels,
+                        blocks = codes[i - 1].blocks
+                    };
+
+                    codes[i - 1] = loadInstance;
+                    codes.Insert(i, new CodeInstruction(OpCodes.Ldfld, LastChainDamageMultiplierField));
+                    patched = true;
+                    WMRecipeCust.Dbgl("Patched Attack.DoMeleeAttack last chain damage multiplier");
+                    break;
+                }
+            }
+
+            if (!patched)
+            {
+                WMRecipeCust.WLog.LogWarning("Failed to patch Attack.DoMeleeAttack last chain damage multiplier");
+            }
+
+            return codes;
+        }
+
+        private static bool IsConstantTwo(CodeInstruction instruction)
+        {
+            if (instruction.opcode == OpCodes.Ldc_R4 && instruction.operand is float floatValue)
+            {
+                return Mathf.Approximately(floatValue, 2f);
+            }
+
+            if (instruction.opcode == OpCodes.Ldc_I4_2)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 

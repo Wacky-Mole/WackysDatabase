@@ -216,7 +216,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_save_material[MaterialName]`: Saves a Material clone YML in the wackysDatabase Material folder. Usually has a _mat at end end. 
 - `wackydb_all_items`: Saves all items in the game into wackyDatabase-BulkYML.
 - `wackydb_all_recipes`: Saves all recipes in the game into wackyDatabase-BulkYML.
-- `wackydb_all_pieces [Hammer] [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
+- `wackydb_all_pieces <Hammer> [Optionally: Category]`: Saves all pieces in the game into wackyDatabase-BulkYML. Use 'Hammer' for default, or specify a different hammer name. Optionally, you can set a category to only get specific pieces in a cat.
 - `wackydb_all_se`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
 - `wackydb_all_creatures`: Saves all creatures in game into Bulk Creature folder. (Not deer or birds?)
 - `wackydb_all_pickables`: Saves all pickables(pickable and treebase) in Bulk Pickables folder.
@@ -927,7 +927,7 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `categoryOrderBeforePrefab` (string): The unique prefab name of the piece you want your modded or vanilla piece to appear BEFORE in the build menu. Example: wood_wall_half is placed before wood_wall
     You can chain up to 100 pieces (A before B, B before C) before the logic breaks down. If you reference any non existing prefab, the piece will be added at the end of the list. 
 - `minStationLevel` (int): The minimum level of the crafting station required.
-- `amount` (int): The amount of the piece.
+- `amount` (int): Not Used
 - `disabled` (bool): Indicates whether the piece is disabled.
 - `adminonly` (bool): Indicates whether the piece is admin-only.
 - `comfort` (ComfortData): The comfort data of the piece.
@@ -1277,7 +1277,7 @@ You can replace all Boars in the game with this Dude.
 - `Category` (string): The category of the status effect. Prevents other SEs in this category from being active while one is active. "" is default with no category, so no restrictions.
 - `IconName` (string): The name of the icon for the status effect. Doesn't do much, can't change.
 - `ClonedSE` (string): Holds the name of the SE you are cloning. Otherwise new SE's will use SetEffect_TrollArmor
-- `CustomIcon` (string): The custom icon for the status effect. customIcon, jpeg or png. ie wacky.png 64 x 64
+- `CustomIcon` (string): The custom icon for the status effect. customIcon, jpeg or png. ie wacky.png 64 x 64. Use "delete" to remove existing icon.
 - `FlashIcon` (bool): Indicates whether the icon should flash.
 - `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
 - `Tooltip` (string): The tooltip for the status effect.
