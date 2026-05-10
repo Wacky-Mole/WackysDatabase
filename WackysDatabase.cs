@@ -43,7 +43,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.79";
+        internal const string ModVersion = "2.4.80";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
