@@ -2421,6 +2421,7 @@ namespace wackydatabase.SetData
 
                     PrimaryItemData.m_shared.m_name = data.m_name ?? PrimaryItemData.m_shared.m_name;
                     PrimaryItemData.m_shared.m_description = data.m_description ?? PrimaryItemData.m_shared.m_description;
+                    SyncFeastPieceTooltip(go, PrimaryItemData);
                     PrimaryItemData.m_shared.m_weight = data.m_weight;
                     PrimaryItemData.m_shared.m_scaleWeightByQuality = data.scale_weight_by_quality ?? PrimaryItemData.m_shared.m_scaleWeightByQuality;
 
@@ -2910,10 +2911,12 @@ namespace wackydatabase.SetData
                             feastdat.m_shared.m_foodRegen = data.FoodStats.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
                             feastdat.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
                             feastdat.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
+                            feastdat.m_shared.m_name = PrimaryItemData.m_shared.m_name;
+                            feastdat.m_shared.m_description = PrimaryItemData.m_shared.m_description;
+                            SyncFeastPieceTooltip(feastItem, feastdat);
                             GameObject feastMat = Instant.GetItemPrefab(go.name + "_Material");
                             var feastMatItemDrop = feastMat.GetComponent<ItemDrop>().m_itemData.m_shared;
-                            feastdat.m_shared.m_name = data.m_name;
-                            feastMatItemDrop.m_description = data.m_description;
+                            feastMatItemDrop.m_description = PrimaryItemData.m_shared.m_description;
                             feastMatItemDrop.m_maxStackSize = data.m_maxStackSize ?? feastMatItemDrop.m_maxStackSize;
                             feastMatItemDrop.m_weight = data.m_weight;
                             feastMatItemDrop.m_appendToolTip =  go.GetComponent<ItemDrop>();
@@ -3227,6 +3230,18 @@ namespace wackydatabase.SetData
 
                     return;
                 }
+            }
+        }
+
+        private static void SyncFeastPieceTooltip(GameObject go, ItemDrop.ItemData itemData)
+        {
+            if (go == null || itemData == null || go.GetComponent<Feast>() == null)
+                return;
+
+            if (go.TryGetComponent<Piece>(out var piece))
+            {
+                piece.m_name = itemData.m_shared.m_name;
+                piece.m_description = itemData.m_shared.m_description;
             }
         }
 
