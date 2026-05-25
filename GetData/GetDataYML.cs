@@ -20,6 +20,24 @@ using System.Configuration;
 namespace wackydatabase.GetData
 {
     public class GetDataYML     {
+        private static bool TryGetCreatureData(GameObject obj, out string displayName)
+        {
+            displayName = null;
+
+            if (obj == null || obj.GetComponent<Player>() != null)
+                return false;
+
+            if (!(obj.TryGetComponent<Humanoid>(out _) || obj.TryGetComponent<AnimalAI>(out _) || obj.TryGetComponent<MonsterAI>(out _)))
+                return false;
+
+            Character character = obj.GetComponent<Character>();
+            if (character == null)
+                return false;
+
+            displayName = character.m_name;
+            return true;
+        }
+
         internal  RecipeData GetRecipeDataByName(string name, ObjectDB tod)
         {
             GameObject go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
@@ -1494,11 +1512,13 @@ namespace wackydatabase.GetData
 
             foreach (GameObject obj in array)
             {
-                if (obj.name == (name))
+                if (obj == null || obj.name != name)
+                    continue;
+
+                if (TryGetCreatureData(obj, out string displayName))
                 {
                     creatureData.name = obj.name;
-                    creatureData.mob_display_name = obj.GetComponent<Humanoid>().m_name;
-                    //creatureData.faction = obj.GetComponent<Humanoid>().m_faction;
+                    creatureData.mob_display_name = displayName;
                     return creatureData;
                 }
             }
@@ -1507,21 +1527,25 @@ namespace wackydatabase.GetData
 
         internal bool GetAllCreature()
         {
-            Humanoid[] array = Resources.FindObjectsOfTypeAll<Humanoid>();
+            GameObject[] array = Resources.FindObjectsOfTypeAll<GameObject>();
             GameObject cre = null;
             var serializer = new SerializerBuilder().WithNewLine("\n")
                 .Build();
 
             foreach (var obj in array)
             {
+                if (obj == null)
+                    continue;
+
+                if (!TryGetCreatureData(obj, out string displayName))
+                    continue;
 
                 CreatureData creatureData = new CreatureData();
                 string Name = obj.name;
 
 
                 creatureData.name = obj.name;
-                creatureData.mob_display_name = obj.GetComponent<Humanoid>().m_name;
-                //creatureData.faction = obj.GetComponent<Humanoid>().m_faction;
+                creatureData.mob_display_name = displayName;
 
                 File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLCreatures, "Creature_" + Name + ".yml"), serializer.Serialize(creatureData));
           
