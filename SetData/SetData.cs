@@ -2552,6 +2552,18 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_multiHit = data.Primary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_attack.m_multiHit;
                         PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial = data.Primary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
+                        if (data.Primary_Attack.Last_Chain_Dmg_Multiplier.HasValue)
+                        {
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Remove(PrimaryItemData.m_shared.m_attack);
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Add(PrimaryItemData.m_shared.m_attack, new LastChainDamageMultiplierOverride
+                            {
+                                value = data.Primary_Attack.Last_Chain_Dmg_Multiplier.Value
+                            });
+                        }
+                        else
+                        {
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Remove(PrimaryItemData.m_shared.m_attack);
+                        }
                         PrimaryItemData.m_shared.m_attack.m_resetChainIfHit = data.Primary_Attack.Reset_Chain_If_hit ?? PrimaryItemData.m_shared.m_attack.m_resetChainIfHit;
 
                         if (!string.IsNullOrEmpty(data.Primary_Attack.SpawnOnHit) && (data.Primary_Attack.SpawnOnHit != PrimaryItemData.m_shared.m_attack.m_spawnOnHit?.name))
@@ -2772,6 +2784,18 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit = data.Secondary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial = data.Secondary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
+                        if (data.Secondary_Attack.Last_Chain_Dmg_Multiplier.HasValue)
+                        {
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Remove(PrimaryItemData.m_shared.m_secondaryAttack);
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Add(PrimaryItemData.m_shared.m_secondaryAttack, new LastChainDamageMultiplierOverride
+                            {
+                                value = data.Secondary_Attack.Last_Chain_Dmg_Multiplier.Value
+                            });
+                        }
+                        else
+                        {
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Remove(PrimaryItemData.m_shared.m_secondaryAttack);
+                        }
                         PrimaryItemData.m_shared.m_secondaryAttack.m_resetChainIfHit = data.Secondary_Attack.Reset_Chain_If_hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_resetChainIfHit;
 
                         if (!string.IsNullOrEmpty(data.Secondary_Attack.SpawnOnHit) && (data.Secondary_Attack.SpawnOnHit != PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit?.name))

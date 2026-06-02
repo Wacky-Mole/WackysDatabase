@@ -150,7 +150,7 @@ namespace wackydatabase.PatchClasses
     [HarmonyPatch(typeof(Attack), nameof(Attack.DoMeleeAttack))]
     internal static class Attack_DoMeleeAttack_LastChainDamageMultiplier_Patch
     {
-        private static readonly FieldInfo LastChainDamageMultiplierField = AccessTools.Field(typeof(Attack), nameof(Attack.m_lastChainDamageMultiplier));
+        private static readonly MethodInfo GetLastChainDamageMultiplierMethod = AccessTools.Method(typeof(Attack_DoMeleeAttack_LastChainDamageMultiplier_Patch), nameof(GetLastChainDamageMultiplier));
         private static readonly MethodInfo ModifyMethod = AccessTools.Method(typeof(HitData.DamageTypes), nameof(HitData.DamageTypes.Modify), new[] { typeof(float) });
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -171,7 +171,7 @@ namespace wackydatabase.PatchClasses
                     };
 
                     codes[i - 1] = loadInstance;
-                    codes.Insert(i, new CodeInstruction(OpCodes.Ldfld, LastChainDamageMultiplierField));
+                    codes.Insert(i, new CodeInstruction(OpCodes.Call, GetLastChainDamageMultiplierMethod));
                     patched = true;
                     WMRecipeCust.Dbgl("Patched Attack.DoMeleeAttack last chain damage multiplier");
                     break;
@@ -184,6 +184,16 @@ namespace wackydatabase.PatchClasses
             }
 
             return codes;
+        }
+
+        private static float GetLastChainDamageMultiplier(Attack attack)
+        {
+            if (attack != null && WMRecipeCust.lastChainDamageMultiplierOverrides.TryGetValue(attack, out LastChainDamageMultiplierOverride multiplierOverride))
+            {
+                return multiplierOverride.value;
+            }
+
+            return 2f;
         }
 
         private static bool IsConstantTwo(CodeInstruction instruction)
