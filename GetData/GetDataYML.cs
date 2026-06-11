@@ -20,6 +20,22 @@ using System.Configuration;
 namespace wackydatabase.GetData
 {
     public class GetDataYML     {
+        private static string GetObjectName(UnityEngine.Object obj)
+        {
+            return obj != null ? obj.name : "";
+        }
+
+        private static string GetPieceCategoryName(Dictionary<Piece.PieceCategory, string> categoryMap, Piece piece)
+        {
+            if (piece == null)
+                return "";
+
+            if (categoryMap != null && categoryMap.TryGetValue(piece.m_category, out string categoryName) && !string.IsNullOrEmpty(categoryName))
+                return categoryName;
+
+            return piece.m_category.ToString();
+        }
+
         private static bool TryGetCreatureData(GameObject obj, out string displayName)
         {
             displayName = null;
@@ -497,11 +513,25 @@ namespace wackydatabase.GetData
 
         internal PieceData GetPieceRecipeByNum(int count, string hammername, ItemDrop HamerItemdrop, ObjectDB tod, ItemDrop itemD = null)
         {
-            GameObject pieceSel = null;
+            var buildPieces = HamerItemdrop?.m_itemData?.m_shared?.m_buildPieces;
+            if (buildPieces == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"Build pieces list was null for {hammername}");
+                return null;
+            }
 
-            pieceSel = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces[count];
-                //Piece actPiece = pieceSel.GetComponent<Piece>();
+            if (count < 0 || count >= buildPieces.m_pieces.Count)
+            {
+                WMRecipeCust.WLog.LogWarning($"Piece index {count} was outside the build list for {hammername}");
+                return null;
+            }
 
+            GameObject pieceSel = buildPieces.m_pieces[count];
+            if (pieceSel == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"Piece index {count} in {hammername} was null");
+                return null;
+            }
 
             return GetPiece(HamerItemdrop, hammername, pieceSel, tod);
 
@@ -511,7 +541,19 @@ namespace wackydatabase.GetData
         {
             Dictionary<Piece.PieceCategory, string> currentmap = PieceManager.PiecePrefabManager.GetPieceCategoriesMap();
 
+            if (PieceID == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"Null piece encountered in {Hammername}");
+                return null;
+            }
+
             Piece piece = PieceID.GetComponent<Piece>();
+            if (piece == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"GameObject {PieceID.name} in {Hammername} has no Piece component");
+                return null;
+            }
+
             WMRecipeCust.WLog.LogInfo($"Piece {PieceID.name} in {Hammername}");
             //WMRecipeCust.WLog.LogWarning("Piece start");
             var data = new PieceData()
@@ -524,7 +566,7 @@ namespace wackydatabase.GetData
                 adminonly = false,
                 m_name = piece.m_name,
                 m_description = piece.m_description,
-                piecehammerCategory = currentmap[piece.m_category],//piece.m_category.ToString(),
+                piecehammerCategory = GetPieceCategoryName(currentmap, piece),//piece.m_category.ToString(),
                 sizeMultiplier = "1",
                 customIcon = null,
                 clonePrefabName = null,
@@ -609,7 +651,7 @@ namespace wackydatabase.GetData
                     foreach (var ext in PieceID.GetComponents<StationExtension>())
                     {
                         CSExtensionData cSExtension2 = new();
-                        cSExtension2.MainCraftingStationName = ext.m_craftingStation?.name ?? ext.m_craftingStation.ToString();                                             
+                        cSExtension2.MainCraftingStationName = ext.m_craftingStation?.name ?? "";
                         cSExtension2.maxStationDistance = ext.m_maxStationDistance;
                         cSExtension2.continousConnection = ext.m_continousConnection; 
                         cSExtension2.stack = ext.m_stack;
@@ -622,7 +664,7 @@ namespace wackydatabase.GetData
                     data.cSExtensionDataList = new List<CSExtensionData>();
                     CSExtensionData cSExtension = new CSExtensionData
                     {
-                        MainCraftingStationName = ex.m_craftingStation.name,
+                        MainCraftingStationName = ex.m_craftingStation?.name ?? "",
                         maxStationDistance = ex.m_maxStationDistance,
                         continousConnection = ex.m_continousConnection,
                         stack = ex.m_stack,
@@ -654,8 +696,8 @@ namespace wackydatabase.GetData
                     biomes = Bee.m_biome,
                     secPerUnit = Bee.m_secPerUnit,
                     maxAmount = Bee.m_maxHoney,
-                    dropItem = Bee.m_honeyItem.name,
-                    effectsPLUS = ConvertEffectstoVerse(Bee.m_spawnEffect.m_effectPrefabs) ?? null,
+                 dropItem = GetObjectName(Bee.m_honeyItem),
+                 effectsPLUS = ConvertEffectstoVerse(Bee.m_spawnEffect?.m_effectPrefabs) ?? null,
                     extractText = Bee.m_extractText,
                     checkText = Bee.m_checkText,
                     areaText = Bee.m_areaText,
@@ -672,8 +714,8 @@ namespace wackydatabase.GetData
                 foreach (var Item in cook.m_conversion)
                 {
                     CookStationConversionList cookl = new CookStationConversionList();
-                    cookl.FromName = Item.m_from.name;
-                    cookl.ToName = Item.m_to.name;
+                    cookl.FromName = GetObjectName(Item.m_from);
+                    cookl.ToName = GetObjectName(Item.m_to);
                     cookl.CookTime = Item.m_cookTime;
                     cookl.Remove = false;
                     CookConversionList.Add(cookl);
@@ -683,8 +725,8 @@ namespace wackydatabase.GetData
                 if (cook.name == "piece_oven")
                 {                
                     CookData2.addItemTooltip = cook.m_addItemTooltip;
-                    CookData2.overcookedItem = cook.m_overCookedItem.name;
-                    CookData2.fuelItem = cook.m_fuelItem.name;
+                    CookData2.overcookedItem = GetObjectName(cook.m_overCookedItem);
+                    CookData2.fuelItem = GetObjectName(cook.m_fuelItem);
                     CookData2.requireFire = cook.m_requireFire;
                     CookData2.maxFuel = cook.m_maxFuel;
                     CookData2.secPerFuel = cook.m_secPerFuel;
@@ -694,7 +736,7 @@ namespace wackydatabase.GetData
                 else
                 {                
                     CookData2.addItemTooltip = cook.m_addItemTooltip;
-                    CookData2.overcookedItem = cook.m_overCookedItem.name;
+                    CookData2.overcookedItem = GetObjectName(cook.m_overCookedItem);
                     CookData2.requireFire = cook.m_requireFire;
                     CookData2.cookConversion = CookConversionList;
                     data.cookingStationData = CookData2;
@@ -708,8 +750,8 @@ namespace wackydatabase.GetData
                 foreach ( var ferms in ferm.m_conversion)
                 {
                     FermenterConversionList temp1 = new FermenterConversionList();
-                    temp1.FromName = ferms.m_from.gameObject.name;
-                    temp1.ToName = ferms.m_to.gameObject.name;
+                    temp1.FromName = GetObjectName(ferms.m_from?.gameObject);
+                    temp1.ToName = GetObjectName(ferms.m_to?.gameObject);
                     temp1.Amount = ferms.m_producedItems;
                     temp1.Remove = false;
                     fermenterConversionLists.Add(temp1);
@@ -762,7 +804,7 @@ namespace wackydatabase.GetData
             {
                 BatteringRamData siegeData = new BatteringRamData();
                 siegeData.chargeTime = siege.m_chargeTime;
-                siegeData.maxFuel = PieceID.GetComponentInChildren<Smelter>().m_maxOre;
+                siegeData.maxFuel = PieceID.GetComponentInChildren<Smelter>()?.m_maxOre;
 
                 data.batteringRamData = siegeData;
             }
@@ -774,7 +816,7 @@ namespace wackydatabase.GetData
                 plantdata.m_name = plant.m_name;
                 plantdata.GrowTime = plant.m_growTime;
                 plantdata.MaxGrowTime = plant.m_growTimeMax;
-                plantdata.GrowPrefab = plant.m_grownPrefabs[0].name;
+                plantdata.GrowPrefab = plant.m_grownPrefabs != null && plant.m_grownPrefabs.Length > 0 ? GetObjectName(plant.m_grownPrefabs[0]) : "";
                 plantdata.MinSize = plant.m_minScale;
                 plantdata.MaxSize = plant.m_maxScale;
                 plantdata.GrowRadius = plant.m_growRadius;
@@ -795,8 +837,8 @@ namespace wackydatabase.GetData
                 SapData sapdata = new SapData();
                 sapdata.secPerUnit = sap.m_secPerUnit;
                 sapdata.maxLevel = sap.m_maxLevel;
-                sapdata.producedItem = sap.m_spawnItem.gameObject.name;
-                sapdata.connectedToWhat = sap.m_mustConnectTo.gameObject.name;
+                sapdata.producedItem = GetObjectName(sap.m_spawnItem?.gameObject);
+                sapdata.connectedToWhat = GetObjectName(sap.m_mustConnectTo?.gameObject);
 
                 sapdata.extractText = sap.m_extractText;
                 sapdata.drainingText = sap.m_drainingText;
@@ -811,14 +853,14 @@ namespace wackydatabase.GetData
             {
                 ObliteratorData obldata = new ObliteratorData();
                 obldata.defaultCostPerDrop = obl.m_defaultCost;
-                obldata.defaultDrop = obl.m_defaultResult.name;
+                obldata.defaultDrop = GetObjectName(obl.m_defaultResult);
 
                 List<ObliteratorList> OblConversionList = new List<ObliteratorList>();
                 foreach (var con in obl.m_conversions)
                 {
                     ObliteratorList oblitList = new ObliteratorList();
                     oblitList.Priority = con.m_priority;
-                    oblitList.Result = con.m_result.name;
+                    oblitList.Result = GetObjectName(con.m_result);
                     oblitList.ResultAmount = con.m_resultAmount;
                     oblitList.RequireOnlyOne = con.m_requireOnlyOneIngredient;
                                       
@@ -826,7 +868,7 @@ namespace wackydatabase.GetData
                     foreach (var reqO in con.m_requirements) 
                     {
                         ObRequirementList obRequirementList = new ObRequirementList();
-                        obRequirementList.Name = reqO.m_resItem.name;
+                        obRequirementList.Name = GetObjectName(reqO.m_resItem);
                         obRequirementList.Amount = reqO.m_amount;
                         OblReqList.Add(obRequirementList);
                     } 
@@ -846,7 +888,7 @@ namespace wackydatabase.GetData
                     fireData.MaxFuel = FP.m_maxFuel;
                     fireData.SecPerFuel = FP.m_secPerFuel;
                     fireData.InfiniteFuel = FP.m_infiniteFuel;
-                    fireData.FuelType = FP.m_fuelItem.name;
+                    fireData.FuelType = GetObjectName(FP.m_fuelItem);
                     fireData.IgniteInterval = FP.m_igniteInterval;
                     fireData.IgniteChance = FP.m_igniteChance;
                     fireData.IgniteSpread = FP.m_igniteSpread;
@@ -898,7 +940,7 @@ namespace wackydatabase.GetData
                 {
                     fuelItemData fuelItemData = new fuelItemData
                     {
-                        name = smelt.m_fuelItem.name,
+                        name = GetObjectName(smelt.m_fuelItem),
                         // ItemNameShared = smelt.m_fuelItem.m_itemData.m_shared.m_name,
                     };
 
@@ -906,8 +948,8 @@ namespace wackydatabase.GetData
                     foreach (var Item in smelt.m_conversion)
                     {
                         SmelterConversionList smell = new SmelterConversionList();
-                        smell.FromName = Item.m_from.name;
-                        smell.ToName = Item.m_to.name;
+                        smell.FromName = GetObjectName(Item.m_from);
+                        smell.ToName = GetObjectName(Item.m_to);
                         smell.Remove = false;
                         smelterConversionList.Add(smell);
                     }
@@ -940,6 +982,9 @@ namespace wackydatabase.GetData
     
             foreach (Piece.Requirement req in piece.m_resources)
             {
+                if (req?.m_resItem == null)
+                    continue;
+
                 data.build.Add($"{Utils.GetPrefabName(req.m_resItem.gameObject)}:{req.m_amount}:{req.m_amountPerLevel}:{req.m_recover}");
             }
 
