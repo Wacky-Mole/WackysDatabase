@@ -54,6 +54,65 @@ namespace wackydatabase.Util
     }
     public class Functions 
     {
+        private static readonly Vector3 PieceSnapshotOrigin = new Vector3(10000f, 10000f, 10000f);
+
+        private static void PrepareSnapshotClone(GameObject visual, int layer)
+        {
+            foreach (Transform child in visual.GetComponentsInChildren<Transform>(true))
+            {
+                child.gameObject.layer = layer;
+            }
+
+            foreach (Collider collider in visual.GetComponentsInChildren<Collider>(true))
+            {
+                collider.enabled = false;
+            }
+
+            foreach (Rigidbody rigidbody in visual.GetComponentsInChildren<Rigidbody>(true))
+            {
+                rigidbody.detectCollisions = false;
+                rigidbody.isKinematic = true;
+                rigidbody.useGravity = false;
+                rigidbody.velocity = Vector3.zero;
+                rigidbody.angularVelocity = Vector3.zero;
+            }
+
+            foreach (Joint joint in visual.GetComponentsInChildren<Joint>(true))
+            {
+                Object.DestroyImmediate(joint);
+            }
+
+            foreach (Behaviour behaviour in visual.GetComponentsInChildren<Behaviour>(true))
+            {
+                if (behaviour is Renderer)
+                    continue;
+
+                Object.DestroyImmediate(behaviour);
+            }
+        }
+
+        private static bool TryGetRenderBounds(GameObject visual, out Bounds bounds)
+        {
+            Renderer[] renderers = visual.GetComponentsInChildren<Renderer>(true);
+            Renderer firstRenderer = renderers.FirstOrDefault(renderer => renderer != null && renderer.enabled);
+
+            if (firstRenderer == null)
+            {
+                bounds = default;
+                return false;
+            }
+
+            bounds = firstRenderer.bounds;
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null || !renderer.enabled)
+                    continue;
+
+                bounds.Encapsulate(renderer.bounds);
+            }
+
+            return true;
+        }
 
         internal static FieldInfo CompField(Type ClassTyp, string fieldname)
         {
@@ -308,89 +367,112 @@ namespace wackydatabase.Util
             {
                 const int layer = 3;
                 if (prefab == null) return;
-                if (!prefab.GetComponentsInChildren<Renderer>().Any() && !prefab.GetComponentsInChildren<MeshFilter>().Any())
+                Piece prefabPiece = prefab.GetComponent<Piece>();
+                if (prefabPiece == null)
                 {
                     return;
                 }
-                var playerpos = Player.m_localPlayer.transform.position;
+
+                if (!prefab.GetComponentsInChildren<Renderer>(true).Any() && !prefab.GetComponentsInChildren<MeshFilter>(true).Any())
+                {
+                    return;
+                }
+
                 Camera camera = new GameObject("CameraIcon", typeof(Camera)).GetComponent<Camera>();
                 camera.backgroundColor = Color.clear;
                 camera.clearFlags = CameraClearFlags.SolidColor;
-                camera.transform.position = new Vector3(10000f, 10000f, 10000f);
+                camera.transform.position = PieceSnapshotOrigin;
                 camera.transform.rotation = cameraRotation ?? Quaternion.Euler(0f, 180f, 0f);
                 camera.fieldOfView = 0.5f;
                 camera.farClipPlane = 100000;
                 camera.cullingMask = 1 << layer;
 
                 Light sideLight = new GameObject("LightIcon", typeof(Light)).GetComponent<Light>();
-                sideLight.transform.position = new Vector3(10000f, 10000f, 10000f);
+                sideLight.transform.position = PieceSnapshotOrigin;
                 sideLight.transform.rotation = Quaternion.Euler(5f, 180f, 5f);
                 sideLight.type = LightType.Directional;
                 sideLight.cullingMask = 1 << layer;
                 sideLight.intensity = lightIntensity;
 
-                playerpos.y =  - 100; // new Vector3(0,0,-100)
-                GameObject visual = Object.Instantiate(prefab.gameObject, playerpos, Quaternion.Euler(23, 51, 25.8f));
-
-                //Object.DestroyImmediate(visual);
-                //visual.name = "snaptrash";
-                foreach (Transform child in visual.GetComponentsInChildren<Transform>())
+                GameObject visual = null;
+                RenderTexture pieceTexture = null;
+                try
                 {
-                    child.gameObject.layer = layer;
+                    if (WMRecipeCust.Root != null)
+                    {
+                        visual = Object.Instantiate(prefab.gameObject, WMRecipeCust.Root.transform, false);
+                    }
+                    else
+                    {
+                        visual = Object.Instantiate(prefab.gameObject);
+                    }
+
+                    visual.SetActive(false);
+                    visual.transform.position = PieceSnapshotOrigin;
+                    visual.transform.rotation = Quaternion.Euler(23, 51, 25.8f);
+
+                    PrepareSnapshotClone(visual, layer);
+
+                    visual.SetActive(true);
+
+                    if (!TryGetRenderBounds(visual, out Bounds bounds))
+                    {
+                        return;
+                    }
+
+                    visual.transform.position += PieceSnapshotOrigin - bounds.center;
+
+                    Vector3 size = bounds.size;
+                    Rect rect = new(0, 0, 128, 128);
+                    pieceTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
+                    camera.targetTexture = pieceTexture;
+
+                    camera.fieldOfView = 20f;
+                    float maxMeshSize = Mathf.Max(size.x, size.y, size.z) + 0.1f;
+                    float distance = maxMeshSize / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad * 0.5f) * 1.1f;
+
+                    camera.transform.position = PieceSnapshotOrigin + new Vector3(0, 0, distance);
+
+                    camera.Render();
+
+                    RenderTexture currentRenderTexture = RenderTexture.active;
+                    RenderTexture.active = camera.targetTexture;
+
+                    Texture2D previewImage = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+                    previewImage.ReadPixels(new Rect(0, 0, (int)rect.width, (int)rect.height), 0, 0);
+                    previewImage.Apply();
+
+                    RenderTexture.active = currentRenderTexture;
+
+                    prefabPiece.m_icon = Sprite.Create(previewImage, new Rect(0, 0, (int)rect.width, (int)rect.height), Vector2.one / 2f);
                 }
+                finally
+                {
+                    if (camera != null)
+                    {
+                        if (camera.targetTexture != null)
+                        {
+                            camera.targetTexture = null;
+                        }
 
-                visual.transform.position = Vector3.zero;
-                visual.transform.rotation = Quaternion.Euler(23, 51, 25.8f);
-                //visual.name = "snaptrash";
+                        Object.Destroy(camera.gameObject);
+                    }
 
-                MeshRenderer[] renderers = visual.GetComponentsInChildren<MeshRenderer>();
-                Vector3 min = renderers.Aggregate(Vector3.positiveInfinity,
-                    (cur, renderer) => Vector3.Min(cur, renderer.bounds.min));
-                Vector3 max = renderers.Aggregate(Vector3.negativeInfinity,
-                    (cur, renderer) => Vector3.Max(cur, renderer.bounds.max));
-                // center the prefab
-                visual.transform.position = (new Vector3(10000f, 10000f, 10000f)) - (min + max) / 2f;
-                Vector3 size = max - min;
+                    if (pieceTexture != null)
+                    {
+                        RenderTexture.ReleaseTemporary(pieceTexture);
+                    }
 
-                // just in case it doesn't gets deleted properly later
-                TimedDestruction timedDestruction = visual.AddComponent<TimedDestruction>();
-                timedDestruction.Trigger(1f);
-                Rect rect = new(0, 0, 128, 128);
-                camera.targetTexture = RenderTexture.GetTemporary((int)rect.width, (int)rect.height);
+                    if (sideLight != null)
+                    {
+                        Object.Destroy(sideLight.gameObject);
+                    }
 
-                camera.fieldOfView = 20f;
-                // calculate the Z position of the prefab as it needs to be far away from the camera
-                float maxMeshSize = Mathf.Max(size.x, size.y) + 0.1f;
-                float distance = maxMeshSize / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad) * 1.1f;
-
-                camera.transform.position = (new Vector3(10000f, 10000f, 10000f)) + new Vector3(0, 0, distance);
-
-                camera.Render();
-
-                RenderTexture currentRenderTexture = RenderTexture.active;
-                RenderTexture.active = camera.targetTexture;
-
-                Texture2D previewImage = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
-                previewImage.ReadPixels(new Rect(0, 0, (int)rect.width, (int)rect.height), 0, 0);
-                previewImage.Apply();
-
-                RenderTexture.active = currentRenderTexture;
-                             
-                prefab.GetComponent<Piece>().m_icon = Sprite.Create(previewImage, new Rect(0, 0, (int)rect.width, (int)rect.height), Vector2.one / 2f);
-                var piececomp = visual.GetComponent<Piece>();
-                Object.DestroyImmediate(piececomp);
-                sideLight.gameObject.SetActive(false);
-                camera.targetTexture.Release();
-                camera.gameObject.SetActive(false);
-                visual.SetActive(false);
-                //visual.transform.position = new Vector3(0, 0, 1000);
-                //ZNetScene.DestroyImmediate(visual);
-                //Object.Destroy(visual); 
-                
-                Object.Destroy(camera);
-                Object.Destroy(sideLight);
-                Object.Destroy(camera.gameObject);
-                Object.Destroy(sideLight.gameObject);
+                    if (visual != null)
+                    {
+                        Object.DestroyImmediate(visual);
+                    }
+                }
             }
             IEnumerator Delay2()
             {

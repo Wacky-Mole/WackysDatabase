@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.84  | Rewrote a lot of the logic for live updates. </br> Improved piece snapshot handling. |
 | 2.4.83  | Added lots of null guards for weird null pieces. |
 | 2.4.82  | Bug fix second hit dmg. |
 | 2.4.81  | Bug fix for Creature saving. |
