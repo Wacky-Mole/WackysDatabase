@@ -524,6 +524,27 @@ namespace wackydatabase.SetData
             pieceTable.m_pieces = rebuiltTableList;
         }
 
+        private void RefreshLivePieceIcons()
+        {
+            if (WMRecipeCust.IsDedServer || Player.m_localPlayer == null)
+                return;
+
+            foreach (var piece in WMRecipeCust.SnapshotPiecestoDo.ToList())
+            {
+                try
+                {
+                    if (piece != null)
+                        Functions.SnapshotPiece(piece);
+                }
+                catch
+                {
+                    WMRecipeCust.WLog.LogWarning($"Piece snapshot refresh failed for {piece?.name}");
+                }
+            }
+
+            WMRecipeCust.SnapshotPiecestoDo.Clear();
+        }
+
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false, bool forcepush= false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
         {
 
@@ -869,6 +890,7 @@ namespace wackydatabase.SetData
              removeLocalData();
 
             SortPieceHammers();
+            RefreshLivePieceIcons();
 
             UPdateItemHashesWacky(ObjectDB.instance);
 

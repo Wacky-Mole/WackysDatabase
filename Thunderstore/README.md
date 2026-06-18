@@ -1521,13 +1521,8 @@ Do whatever you want with this mod.
 </details>
 
 Known issues: </br>
- Bug on moving stuff from one hammer to another - It may work/ It may not - disable orginal and make a clone for now
- </br> 
- </br> 
  Creature material is not working
  </br>
- </br>
- CrossbowArbalest item not changing, recommend cloning and replacing. - If anyone has any ideas on this one, please let me know.
  </br>
  </br>
  Making any piece into a craftingstation is a bit buggy. (It's really at the limit to what wackydb can do without Unity)

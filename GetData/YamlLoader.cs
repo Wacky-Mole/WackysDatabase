@@ -41,15 +41,13 @@ namespace wackydatabase.Datas {
                 else
                     yml = ymlread;
 
-                _stringBuilder.Append(yml);
-                _stringBuilder.Append(WMRecipeCust.StringSeparator);
-                
-                //WMRecipeCust.ymlstring = WMRecipeCust.ymlstring + yml + WMRecipeCust.StringSeparator;
-
                 var result = _deserializer.Deserialize<T>(yml);
 
                 if (result != null)
                 {
+                    _stringBuilder.Append(yml);
+                    _stringBuilder.Append(WMRecipeCust.StringSeparator);
+
                     items.Add(result);
                     return true;
                 }

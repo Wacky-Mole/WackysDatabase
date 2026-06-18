@@ -218,7 +218,7 @@ namespace wackydatabase
             {
                 try
                 {
-                    string key = Path.GetFileName(Storage);
+                    string key = Path.GetFileName(file);
 
                     if (!map.ContainsKey(key))
                     {

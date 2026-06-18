@@ -490,18 +490,31 @@ namespace wackydatabase
         {
             WMRecipeCust.WLog.LogInfo("Recieved Admin Request to Reload");
 
-            ReadFiles readnow = new ReadFiles();
-            WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
-            WMRecipeCust.readFiles = readnow;
+            context.StartCoroutine(AdminReloadRoutine());
+        }
 
-            WMRecipeCust.skillConfigData.Value = ymlstring;// push to clients
+        private static IEnumerator AdminReloadRoutine()
+        {
+            WMRecipeCust.Reloading = true;
 
-            SetData.Reload josh = new SetData.Reload();
-            WMRecipeCust.CurrentReload = josh;
-            WMRecipeCust.WLog.LogInfo("Sent YML to clients");
+            try
+            {
+                ReadFiles readnow = new ReadFiles();
+                yield return WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
+                WMRecipeCust.readFiles = readnow;
 
-            if (WMRecipeCust.ServerDedLoad.Value)
-                WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
+                SetData.Reload josh = new SetData.Reload();
+                WMRecipeCust.CurrentReload = josh;
+                WMRecipeCust.skillConfigData.Value = ymlstring;// push to clients after disk read completes
+                WMRecipeCust.WLog.LogInfo("Sent YML to clients");
+
+                if (WMRecipeCust.ServerDedLoad.Value)
+                    yield return WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
+            }
+            finally
+            {
+                WMRecipeCust.Reloading = false;
+            }
         }
 
         public static void GetAllMaterials(bool skipMD = false) // Get all Materials, SFX, VFX, FX
