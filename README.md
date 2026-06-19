@@ -235,7 +235,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_fx`: Saves a fx.txt file with all fx effects
 - `wackydb_help`: command list
 - `wackydb_describe[ObjectName]`: Saves describe of an object, so you have an idea of the structure of the object for materials and customVisuals
-- `wackydb_sendtheload` : Experimental command that will send pngs and objs to clients utilizing ServerSync. I highly recommend the Network mod to uncap data rates. 
+- `wackydb_sendtheload` : Sends missing pngs/objs/textures to clients utilizing ServerSync. This now auto-triggers for players when they log in; this command is still useful as a manual re-send if needed.
 - `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
 - `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
 - `wackydb_clearcache`: Clears the current cache, materials and textures. Only do this after big yaml changes, cache is important - This command works on menu screen

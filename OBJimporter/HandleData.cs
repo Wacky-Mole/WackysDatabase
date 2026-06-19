@@ -20,6 +20,86 @@ namespace wackydatabase.OBJimporter
         internal static HashSet<long> PendingSyncClients = new HashSet<long>();
         internal static long AdminPeerForSync = 0L;
 
+        private static string BuildManifest()
+        {
+            StringBuilder sb = new StringBuilder();
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                void AddFiles(string folder, string type, string search)
+                {
+                    if (!Directory.Exists(folder)) return;
+                    foreach (var file in Directory.GetFiles(folder, search, SearchOption.AllDirectories))
+                    {
+                        string filename = Path.GetFileNameWithoutExtension(file);
+                        byte[] bytes = File.ReadAllBytes(file);
+                        string hash = Convert.ToBase64String(md5.ComputeHash(bytes));
+                        sb.Append($"{filename}:{type}:{hash}?");
+                    }
+                }
+
+                AddFiles(WMRecipeCust.assetPathIcons, "icon", "*.png");
+                AddFiles(WMRecipeCust.assetPathObjects, "obj", "*.obj");
+                AddFiles(WMRecipeCust.assetPathObjects, "png", "*.png");
+                AddFiles(WMRecipeCust.assetPathTextures, "tex", "*.png");
+            }
+
+            return sb.ToString();
+        }
+
+        public static void QueueAutoSyncToPeer(long peerId)
+        {
+            if (!ZNet.instance.IsServer() || peerId == 0L || WMRecipeCust.issettoSinglePlayer)
+            {
+                return;
+            }
+
+            HandleData hd = new HandleData();
+            WMRecipeCust.context.StartCoroutine(hd.SendDataToPeerWhenReady(peerId));
+        }
+
+        private IEnumerator SendDataToPeerWhenReady(long peerId)
+        {
+            const float timeout = 15f;
+            float timer = 0f;
+
+            while (timer < timeout)
+            {
+                if (ZNet.instance == null || !ZNet.instance.IsServer())
+                    yield break;
+
+                var peer = ZNet.instance.GetPeers()?.FirstOrDefault(p => p.m_uid == peerId);
+                if (peer == null)
+                    yield break;
+
+                if (peer.IsReady())
+                {
+                    SendDataToPeer(peerId);
+                    yield break;
+                }
+
+                timer += 0.5f;
+                yield return new WaitForSeconds(0.5f);
+            }
+
+            WMRecipeCust.WLog.LogWarning($"WackyDB: Timed out waiting to auto-sync assets to peer {peerId}.");
+        }
+
+        public static void SendDataToPeer(long peerId)
+        {
+            if (!ZNet.instance.IsServer() || peerId == 0L)
+            {
+                return;
+            }
+
+            PendingSyncClients.Add(peerId);
+
+            WMRecipeCust.WLog.LogInfo($"Starting automatic WackyDB asset sync for peer {peerId}");
+
+            string manifest = BuildManifest();
+            WMRecipeCust.WLog.LogInfo($"Sending Asset Manifest ({manifest.Length} chars) to peer {peerId}.");
+            ZRoutedRpc.instance.InvokeRoutedRPC(peerId, "WackyDB_AssetManifest", manifest);
+        }
+
         public static void RecievedData()
         {
             // Legacy function kept for backward compatibility with `largeTransfer` 
@@ -52,29 +132,8 @@ namespace wackydatabase.OBJimporter
             }
 
             WMRecipeCust.WLog.LogInfo("Starting Object, Icon, and Texture folder Manifest generation");
-            
-            StringBuilder sb = new StringBuilder();
-            using (var md5 = System.Security.Cryptography.MD5.Create())
-            {
-                void AddFiles(string folder, string type, string search)
-                {
-                    if (!Directory.Exists(folder)) return;
-                    foreach (var file in Directory.GetFiles(folder, search, SearchOption.AllDirectories))
-                    {
-                        string filename = Path.GetFileNameWithoutExtension(file);
-                        byte[] bytes = File.ReadAllBytes(file);
-                        string hash = Convert.ToBase64String(md5.ComputeHash(bytes));
-                        sb.Append($"{filename}:{type}:{hash}?");
-                    }
-                }
-                
-                AddFiles(WMRecipeCust.assetPathIcons, "icon", "*.png");
-                AddFiles(WMRecipeCust.assetPathObjects, "obj", "*.obj");
-                AddFiles(WMRecipeCust.assetPathObjects, "png", "*.png");
-                AddFiles(WMRecipeCust.assetPathTextures, "tex", "*.png");
-            }
-            
-            string manifest = sb.ToString();
+
+            string manifest = BuildManifest();
             
             WMRecipeCust.WLog.LogInfo($"Sending Asset Manifest ({manifest.Length} chars) to all clients.");
             ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "WackyDB_AssetManifest", manifest);
