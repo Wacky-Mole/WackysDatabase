@@ -1,4 +1,4 @@
-# WackysDatabase
+﻿# WackysDatabase
 
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 
@@ -946,11 +946,17 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `cSExtensionDataList` (cSExtensionData) The crafting station extensions data of the piece. LIST
 - `contData` (ContainerData): The container data of the piece.
 - `smelterData` (SmelterData): The smelter data of the piece.
-- `build` (List<string>): The list of requirement items for the piece.
+- `build` (List<string>): The list of requirement items for the piece. If build is missing from a piece YAML -> original costs are preserved. If build is present and empty (build: []) -> piece becomes no-cost.
 
 build: requirements to build: Item:amount:amountPerLevel:refundable,
 
-To make something free. build:
+If `build` is omitted entirely, WackyDB keeps the piece's original vanilla/modded requirements.
+
+To make something free, set an explicit empty list:
+
+build: []
+
+You can also force a zero-cost requirement line:
 - Wood:0:0:True
 
 ### ComfortData

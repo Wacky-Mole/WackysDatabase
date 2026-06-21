@@ -950,7 +950,13 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 
 build: requirements to build: Item:amount:amountPerLevel:refundable,
 
-To make something free. build:
+If `build` is omitted entirely, WackyDB keeps the piece's original vanilla/modded requirements.
+
+To make something free, set an explicit empty list:
+
+build: []
+
+You can also force a zero-cost requirement line:
 - Wood:0:0:True
 
 ### ComfortData

@@ -584,6 +584,7 @@ namespace wackydatabase.GetData
                 allowedInDungeons = piece.m_allowedInDungeons,
                 canBeRemoved = piece.m_canBeRemoved,
                 notOnWood = piece.m_notOnWood,
+                build = new List<string>(),
 
             };
             
