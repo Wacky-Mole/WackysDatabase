@@ -11,6 +11,17 @@ namespace wackydatabase.OBJimporter
 {
     internal class HandleData
     {
+        private static long GetMaxSyncedAssetFileSizeBytes()
+        {
+            int maxMb = WMRecipeCust.maxAssetSyncFileSizeMB.Value;
+            if (maxMb < 1)
+            {
+                maxMb = 1;
+            }
+
+            return maxMb * 1024L * 1024L;
+        }
+
         // scheme is going to be filename:type;base64==filename:type;base64==
         internal static string bigDataR;
         internal static List<string> bigDataRChucks = new List<string>();
@@ -19,6 +30,7 @@ namespace wackydatabase.OBJimporter
 
         internal static HashSet<long> PendingSyncClients = new HashSet<long>();
         internal static long AdminPeerForSync = 0L;
+        internal static bool AutoSyncRequestedAfterLoad = false;
 
         private static string BuildManifest()
         {
@@ -48,6 +60,11 @@ namespace wackydatabase.OBJimporter
 
         public static void QueueAutoSyncToPeer(long peerId)
         {
+            if (!WMRecipeCust.enableAssetSync.Value)
+            {
+                return;
+            }
+
             if (!ZNet.instance.IsServer() || peerId == 0L || WMRecipeCust.issettoSinglePlayer)
             {
                 return;
@@ -55,6 +72,76 @@ namespace wackydatabase.OBJimporter
 
             HandleData hd = new HandleData();
             WMRecipeCust.context.StartCoroutine(hd.SendDataToPeerWhenReady(peerId));
+        }
+
+        public static void ResetAutoSyncRequestState()
+        {
+            AutoSyncRequestedAfterLoad = false;
+        }
+
+        public static void RequestAssetSyncAfterWorldLoad()
+        {
+            if (!WMRecipeCust.enableAssetSync.Value)
+            {
+                return;
+            }
+
+            if (ZNet.instance == null || ZRoutedRpc.instance == null)
+            {
+                return;
+            }
+
+            if (ZNet.instance.IsServer() || WMRecipeCust.issettoSinglePlayer)
+            {
+                return;
+            }
+
+            if (AutoSyncRequestedAfterLoad)
+            {
+                return;
+            }
+
+            long serverPeerId = ZRoutedRpc.instance.GetServerPeerID();
+            if (serverPeerId == 0L)
+            {
+                return;
+            }
+
+            AutoSyncRequestedAfterLoad = true;
+            HandleData hd = new HandleData();
+            WMRecipeCust.context.StartCoroutine(hd.DelayedAssetSyncRequest(serverPeerId));
+        }
+
+        private IEnumerator DelayedAssetSyncRequest(long serverPeerId)
+        {
+            yield return new WaitForSeconds(10f);
+
+            if (ZNet.instance == null || ZRoutedRpc.instance == null || ZNet.instance.IsServer() || WMRecipeCust.issettoSinglePlayer)
+            {
+                yield break;
+            }
+
+            var peers = ZNet.instance.GetPeers();
+            if (peers == null || !peers.Any())
+            {
+                WMRecipeCust.WLog.LogWarning("WackyDB: Client disconnected before delayed asset sync request could be sent.");
+                AutoSyncRequestedAfterLoad = false;
+                yield break;
+            }
+
+            WMRecipeCust.WLog.LogInfo("WackyDB: Requesting server asset sync after world load (10s delay).");
+            ZRoutedRpc.instance.InvokeRoutedRPC(serverPeerId, "WackyDB_RequestAssetSync");
+        }
+
+        public static void ReceiveAssetSyncRequest(long sender)
+        {
+            if (ZNet.instance == null || !ZNet.instance.IsServer())
+            {
+                return;
+            }
+
+            WMRecipeCust.WLog.LogInfo($"WackyDB: Received post-load asset sync request from peer {sender}.");
+            QueueAutoSyncToPeer(sender);
         }
 
         private IEnumerator SendDataToPeerWhenReady(long peerId)
@@ -69,7 +156,10 @@ namespace wackydatabase.OBJimporter
 
                 var peer = ZNet.instance.GetPeers()?.FirstOrDefault(p => p.m_uid == peerId);
                 if (peer == null)
+                {
+                    WMRecipeCust.WLog.LogWarning($"WackyDB: Peer {peerId} disconnected before asset sync could begin.");
                     yield break;
+                }
 
                 if (peer.IsReady())
                 {
@@ -109,6 +199,12 @@ namespace wackydatabase.OBJimporter
 
         public static void SendData(long peer, ZPackage go) // should probably be a console command because this will send it to everyone and be huge!
         {
+            if (!WMRecipeCust.enableAssetSync.Value)
+            {
+                WMRecipeCust.WLog.LogInfo("WackyDB: Asset sync is disabled in config. Skipping manual send.");
+                return;
+            }
+
             if (!ZNet.instance.IsServer())
             {
                 return;
@@ -217,7 +313,7 @@ namespace wackydatabase.OBJimporter
                 WMRecipeCust.WLog.LogInfo("Client already has all WackyDB server assets up to date. Nothing to download!");
                 if (Player.m_localPlayer != null)
                 {
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "WackyDB: All Assets already up to date!");
+                   // MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "WackyDB: All Assets already up to date!");
                 }
                 
                 ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDB_AssetRequest", "none");
@@ -246,6 +342,15 @@ namespace wackydatabase.OBJimporter
         {
             foreach (var req in requestedFiles)
             {
+                var peer = ZNet.instance.GetPeers()?.FirstOrDefault(p => p.m_uid == targetPeer);
+                if (peer == null)
+                {
+                    WMRecipeCust.WLog.LogWarning($"WackyDB: Peer {targetPeer} disconnected during asset sync.");
+                    PendingSyncClients.Remove(targetPeer);
+                    CheckPendingSyncClients();
+                    yield break;
+                }
+
                 var parts = req.Split(':');
                 if (parts.Length != 2) continue;
                 string filename = parts[0];
@@ -264,10 +369,40 @@ namespace wackydatabase.OBJimporter
                 var files = Directory.GetFiles(folder, filename + ext, SearchOption.AllDirectories);
                 if (files.Length > 0)
                 {
-                    byte[] bytes = File.ReadAllBytes(files[0]);
-                    string base64 = Convert.ToBase64String(bytes);
-                    
-                    ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_AssetPayload", type, filename, base64);
+                    string filePath = files[0];
+                    long fileSize = new FileInfo(filePath).Length;
+                    long maxSizeBytes = GetMaxSyncedAssetFileSizeBytes();
+                    if (fileSize > maxSizeBytes)
+                    {
+                        float sizeMb = fileSize / (1024f * 1024f);
+                        float maxMb = maxSizeBytes / (1024f * 1024f);
+                        string warn = $"WackyDB: Asset '{Path.GetFileName(filePath)}' is {sizeMb:F1} MB which exceeds sync limit ({maxMb:F1} MB). Aborting asset sync for peer {targetPeer}.";
+                        WMRecipeCust.WLog.LogWarning(warn);
+                        ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", $"WackyDB: Asset sync failed safely. '{filename}' is too large ({sizeMb:F1} MB). Please install server assets manually.");
+                        if (AdminPeerForSync != 0L)
+                        {
+                            ZRoutedRpc.instance.InvokeRoutedRPC(AdminPeerForSync, "WackyDB_AdminLogMsg", warn);
+                        }
+
+                        PendingSyncClients.Remove(targetPeer);
+                        CheckPendingSyncClients();
+                        yield break;
+                    }
+
+                    try
+                    {
+                        byte[] bytes = File.ReadAllBytes(filePath);
+                        string base64 = Convert.ToBase64String(bytes);
+                        ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_AssetPayload", type, filename, base64);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        WMRecipeCust.WLog.LogWarning($"WackyDB: Failed syncing asset '{Path.GetFileName(filePath)}' to peer {targetPeer}. {ex.Message}");
+                        ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", "WackyDB: Asset sync failed during transfer. Please reconnect or install server assets manually.");
+                        PendingSyncClients.Remove(targetPeer);
+                        CheckPendingSyncClients();
+                        yield break;
+                    }
                 }
                 
                 // Yield to prevent overwhelming network buffer
@@ -311,7 +446,7 @@ namespace wackydatabase.OBJimporter
         {
             if (Player.m_localPlayer != null)
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, msg);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, msg);
             }
             WMRecipeCust.WLog.LogInfo("Server MSG: " + msg);
         }

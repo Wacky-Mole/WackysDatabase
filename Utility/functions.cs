@@ -73,8 +73,6 @@ namespace wackydatabase.Util
                 rigidbody.detectCollisions = false;
                 rigidbody.isKinematic = true;
                 rigidbody.useGravity = false;
-                rigidbody.velocity = Vector3.zero;
-                rigidbody.angularVelocity = Vector3.zero;
             }
 
             foreach (Joint joint in visual.GetComponentsInChildren<Joint>(true))

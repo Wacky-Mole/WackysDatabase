@@ -36,6 +36,7 @@ namespace wackydatabase.Startup
 
                 ZRoutedRpc.instance.Register("WackyDBAdminReload", new Action<long, ZPackage>(WMRecipeCust.AdminReload));
                 ZRoutedRpc.instance.Register("WackyDBAdminBigData", new Action<long, ZPackage>(HandleData.SendData));
+                ZRoutedRpc.instance.Register("WackyDB_RequestAssetSync", new Action<long>(HandleData.ReceiveAssetSyncRequest));
 
                 if (WMRecipeCust.Firstrun)
                 {
@@ -50,27 +51,6 @@ namespace wackydatabase.Startup
             ZRoutedRpc.instance.Register("WackyDB_AssetManifest", new Action<long, string>(HandleData.ReceiveManifest));
             ZRoutedRpc.instance.Register("WackyDB_AssetRequest", new Action<long, string>(HandleData.ReceiveRequest));
             ZRoutedRpc.instance.Register("WackyDB_AssetPayload", new Action<long, string, string, string>(HandleData.ReceivePayload));
-        }
-    }
-
-    [HarmonyPatch(typeof(ZNet), nameof(ZNet.RPC_PeerInfo))]
-    static class ZrouteMethodsAutoSendTheLoadOnLogin
-    {
-        internal static void Postfix(ZRpc rpc)
-        {
-            if (ZNet.instance == null || !ZNet.instance.IsServer() || WMRecipeCust.issettoSinglePlayer)
-            {
-                return;
-            }
-
-            ZNetPeer peer = ZNet.instance.GetPeers()?.FirstOrDefault(p => p.m_rpc == rpc);
-            if (peer == null)
-            {
-                return;
-            }
-
-            WMRecipeCust.WLog.LogInfo($"WackyDB: Auto-starting asset sync for peer {peer.m_uid} on login.");
-            HandleData.QueueAutoSyncToPeer(peer.m_uid);
         }
     }
 
