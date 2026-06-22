@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.91  | Reenabled serversync for large asset transfers.
 | 2.4.90  | Rewrote a lot of the logic for live updates. </br> Improved piece snapshot handling. </br> Send the Load now triggers after a player logs in. No need to include the textures anymore. </br> piece build is now not required for pieces to preserve cost. |
 | 2.4.83  | Added lots of null guards for weird null pieces. |
 | 2.4.82  | Bug fix second hit dmg. |

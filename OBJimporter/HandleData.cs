@@ -11,6 +11,9 @@ namespace wackydatabase.OBJimporter
 {
     internal class HandleData
     {
+        private const long RoutedRpcSoftPayloadLimitBytes = 5L * 1024L;
+        private const string LargeTransferAssetPrefix = "WDB_ASSET_PAYLOAD|";
+
         private static long GetMaxSyncedAssetFileSizeBytes()
         {
             int maxMb = WMRecipeCust.maxAssetSyncFileSizeMB.Value;
@@ -192,9 +195,44 @@ namespace wackydatabase.OBJimporter
 
         public static void RecievedData()
         {
-            // Legacy function kept for backward compatibility with `largeTransfer` 
-            // All actual syncing is now handled by ZRoutedRpc through ReceiveManifest, ReceiveRequest, and ReceivePayload.
-            return;
+            if (ZNet.instance == null || ZNet.instance.IsServer())
+            {
+                return;
+            }
+
+            string data = WMRecipeCust.largeTransfer.Value;
+            if (string.IsNullOrEmpty(data) || !data.StartsWith(LargeTransferAssetPrefix))
+            {
+                return;
+            }
+
+            string payload = data.Substring(LargeTransferAssetPrefix.Length);
+            string[] parts = payload.Split(new[] { '|' }, 4);
+            if (parts.Length != 4)
+            {
+                WMRecipeCust.WLog.LogWarning("WackyDB: Received malformed largeTransfer asset payload.");
+                return;
+            }
+
+            if (!long.TryParse(parts[0], out long targetPeer))
+            {
+                WMRecipeCust.WLog.LogWarning("WackyDB: Could not parse largeTransfer target peer id.");
+                return;
+            }
+
+            long localSessionId = ZDOMan.GetSessionID();
+            if (targetPeer != 0L && localSessionId != 0L && targetPeer != localSessionId)
+            {
+                return;
+            }
+
+            ReceivePayload(0L, parts[1], parts[2], parts[3]);
+        }
+
+        private static void SendPayloadViaLargeTransfer(long targetPeer, string type, string filename, string base64)
+        {
+            WMRecipeCust.WLog.LogInfo($"WackyDB: Sending '{filename}' to peer {targetPeer} via largeTransfer.");
+            WMRecipeCust.largeTransfer.Value = $"{LargeTransferAssetPrefix}{targetPeer}|{type}|{filename}|{base64}";
         }
 
         public static void SendData(long peer, ZPackage go) // should probably be a console command because this will send it to everyone and be huge!
@@ -393,7 +431,14 @@ namespace wackydatabase.OBJimporter
                     {
                         byte[] bytes = File.ReadAllBytes(filePath);
                         string base64 = Convert.ToBase64String(bytes);
-                        ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_AssetPayload", type, filename, base64);
+                        if (fileSize > RoutedRpcSoftPayloadLimitBytes)
+                        {
+                            SendPayloadViaLargeTransfer(targetPeer, type, filename, base64);
+                        }
+                        else
+                        {
+                            ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_AssetPayload", type, filename, base64);
+                        }
                     }
                     catch (System.Exception ex)
                     {

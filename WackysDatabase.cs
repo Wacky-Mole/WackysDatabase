@@ -48,7 +48,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.90";
+        internal const string ModVersion = "2.4.91";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -60,7 +60,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.90" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.4.91" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -311,7 +311,7 @@ namespace wackydatabase
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
             enableAssetSync = config<bool>("General", "Enable Asset Sync", true, "Enable syncing WackyDB assets (icons/textures/objects) from server to clients after clients load into the world");
-            maxAssetSyncFileSizeMB = config<int>("General", "Max Asset Sync File Size MB", 5, "Maximum size per synced asset file. Larger files are skipped with a safe failure message to avoid disconnects.");
+            maxAssetSyncFileSizeMB = config<int>("General", "Max Asset Sync File Size MB", 50, "Maximum size per synced asset file. Larger files are skipped with a safe failure message to avoid disconnects.");
             // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
             extraEffectList = config<string>("Effects", "List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
             ConfigSync.CurrentVersion = ModVersion;
