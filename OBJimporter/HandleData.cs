@@ -34,6 +34,8 @@ namespace wackydatabase.OBJimporter
         internal static HashSet<long> PendingSyncClients = new HashSet<long>();
         internal static long AdminPeerForSync = 0L;
         internal static bool AutoSyncRequestedAfterLoad = false;
+        internal static int DownloadedAssetCountCurrentSync = 0;
+        internal static bool AssetReloadInProgress = false;
 
         private static string BuildManifest()
         {
@@ -80,6 +82,8 @@ namespace wackydatabase.OBJimporter
         public static void ResetAutoSyncRequestState()
         {
             AutoSyncRequestedAfterLoad = false;
+            DownloadedAssetCountCurrentSync = 0;
+            AssetReloadInProgress = false;
         }
 
         public static void RequestAssetSyncAfterWorldLoad()
@@ -342,6 +346,7 @@ namespace wackydatabase.OBJimporter
             
             if (neededFiles.Count > 0)
             {
+                DownloadedAssetCountCurrentSync = 0;
                 WMRecipeCust.WLog.LogInfo($"Client missing {neededFiles.Count} files. Requesting specifically from server...");
                 string requestStr = string.Join("?", neededFiles);
                 ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDB_AssetRequest", requestStr);
@@ -455,7 +460,7 @@ namespace wackydatabase.OBJimporter
             }
             
             WMRecipeCust.WLog.LogInfo($"Finished streaming {requestedFiles.Length} files to Peer {targetPeer}.");
-            ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", "WackyDB: Finished downloading missing assets. Restart game to apply!");
+            ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", "WackyDB: Finished downloading missing assets. Reloading now...");
 
             PendingSyncClients.Remove(targetPeer);
             CheckPendingSyncClients();
@@ -478,6 +483,7 @@ namespace wackydatabase.OBJimporter
                 if (!string.IsNullOrEmpty(path))
                 {
                     File.WriteAllBytes(path, decodedBytes);
+                    DownloadedAssetCountCurrentSync++;
                     WMRecipeCust.WLog.LogInfo($"Downloaded and saved {filename} of type {type}");
                 }
             }
@@ -493,7 +499,41 @@ namespace wackydatabase.OBJimporter
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, msg);
             }
+
+            if (msg.Contains("Finished downloading missing assets") && DownloadedAssetCountCurrentSync > 0 && !AssetReloadInProgress)
+            {
+                HandleData hd = new HandleData();
+                WMRecipeCust.context.StartCoroutine(hd.ReloadAfterAssetSync());
+            }
+
             WMRecipeCust.WLog.LogInfo("Server MSG: " + msg);
+        }
+
+        private IEnumerator ReloadAfterAssetSync()
+        {
+            AssetReloadInProgress = true;
+            WMRecipeCust.WLog.LogInfo($"WackyDB: Reloading after downloading {DownloadedAssetCountCurrentSync} asset(s).");
+
+            if (Player.m_localPlayer != null)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "WackyDB: Reloading downloaded assets...");
+            }
+
+            try
+            {
+                yield return WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true));
+
+                foreach (var item in WMRecipeCust.SnapshotPiecestoDo)
+                {
+                    wackydatabase.Util.Functions.SnapshotPiece(item);
+                }
+                WMRecipeCust.SnapshotPiecestoDo.Clear();
+            }
+            finally
+            {
+                DownloadedAssetCountCurrentSync = 0;
+                AssetReloadInProgress = false;
+            }
         }
 
         public static void AdminLogMsg(long sender, string msg)

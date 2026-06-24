@@ -396,14 +396,9 @@ namespace wackydatabase.Util
                 RenderTexture pieceTexture = null;
                 try
                 {
-                    if (WMRecipeCust.Root != null)
-                    {
-                        visual = Object.Instantiate(prefab.gameObject, WMRecipeCust.Root.transform, false);
-                    }
-                    else
-                    {
-                        visual = Object.Instantiate(prefab.gameObject);
-                    }
+                    ZNetView.m_forceDisableInit = true;
+                    visual = Object.Instantiate(prefab.gameObject);
+                    ZNetView.m_forceDisableInit = false;
 
                     visual.SetActive(false);
                     visual.transform.position = PieceSnapshotOrigin;
@@ -446,6 +441,8 @@ namespace wackydatabase.Util
                 }
                 finally
                 {
+                    ZNetView.m_forceDisableInit = false;
+
                     if (camera != null)
                     {
                         if (camera.targetTexture != null)
@@ -468,7 +465,7 @@ namespace wackydatabase.Util
 
                     if (visual != null)
                     {
-                        Object.DestroyImmediate(visual);
+                        Object.Destroy(visual);
                     }
                 }
             }
