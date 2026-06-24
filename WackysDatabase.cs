@@ -81,7 +81,7 @@ namespace wackydatabase
         public static ConfigEntry<string> extraEffectList;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
-        internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Experimental
+        internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Asset Sync
         public static readonly ConditionalWeakTable<Piece.Requirement, RequirementQuality> requirementQuality = new();
         public static readonly ConditionalWeakTable<Attack, LastChainDamageMultiplierOverride> lastChainDamageMultiplierOverrides = new();
 

@@ -1224,15 +1224,30 @@ namespace wackydatabase.SetData
 
             if (data.build != null)
             {
-                List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-                foreach (string req in data.build)
+                bool deleteBuildRequirements = data.build.Any(req => string.Equals(req?.Trim(), "delete", StringComparison.OrdinalIgnoreCase));
+                if (deleteBuildRequirements)
                 {
-                    // WMRecipeCust.Dbgl(req);
-                    string[] parts = req.Split(':');
-                    reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
-                    // WMRecipeCust.Dbgl(reqs.Last().ToString() ) ;
+                    go.GetComponent<Piece>().m_resources = System.Array.Empty<Piece.Requirement>();
                 }
-                go.GetComponent<Piece>().m_resources = reqs.ToArray();
+                else if (data.build.Count > 0)
+                {
+                    List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+                    foreach (string req in data.build)
+                    {
+                        if (string.IsNullOrWhiteSpace(req))
+                        {
+                            continue;
+                        }
+
+                        string[] parts = req.Split(':');
+                        reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                    }
+
+                    if (reqs.Count > 0)
+                    {
+                        go.GetComponent<Piece>().m_resources = reqs.ToArray();
+                    }
+                }
             }
             var pi = go.GetComponent<Piece>();
 

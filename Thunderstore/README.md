@@ -957,9 +957,10 @@ build: requirements to build: Item:amount:amountPerLevel:refundable,
 
 If `build` is omitted entirely, WackyDB keeps the piece's original vanilla/modded requirements.
 
-To make something free, set an explicit empty list:
+To delete all existing build requirements, use:
 
-build: []
+build:
+  - delete
 
 You can also force a zero-cost requirement line:
 - Wood:0:0:True
