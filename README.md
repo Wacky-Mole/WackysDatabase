@@ -1541,6 +1541,6 @@ Known issues: </br>
  </br>
  </br>
  Piece snapshot sometimes doesn't work and spawns pieces below ground, apparently they can break and the items rise to the surface. </br>
- While I can't fix the main issue right now, you can resolve the issue by not using piece snapshot and use customIcons for any material changes. - This may be fixed in 2.4.9 Let me know. 
+ While I can't fix the main issue right now, you can resolve the issue by not using piece snapshot and use customIcons for any material changes.
  </br>
 Stay Wacky.
