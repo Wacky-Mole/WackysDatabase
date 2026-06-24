@@ -523,11 +523,6 @@ namespace wackydatabase.OBJimporter
             {
                 yield return WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true));
 
-                foreach (var item in WMRecipeCust.SnapshotPiecestoDo)
-                {
-                    wackydatabase.Util.Functions.SnapshotPiece(item);
-                }
-                WMRecipeCust.SnapshotPiecestoDo.Clear();
             }
             finally
             {
