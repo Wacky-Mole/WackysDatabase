@@ -48,11 +48,9 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-<<<<<<< HEAD
+
         internal const string ModVersion = "3.0.0";
-=======
-        internal const string ModVersion = "2.4.92";
->>>>>>> wackys/master
+
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -64,11 +62,9 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-<<<<<<< HEAD
+
         { DisplayName = ModName, MinimumRequiredVersion = "3.0.0" }; // it is very picky on version number
-=======
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.92" }; // it is very picky on version number
->>>>>>> wackys/master
+
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
