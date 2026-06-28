@@ -10,6 +10,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using wackydatabase.Datas;
+using wackydatabase.OBJimporter;
 
 namespace wackydatabase.Startup
 {
@@ -27,6 +28,7 @@ namespace wackydatabase.Startup
                 WMRecipeCust.Dbgl("logoff");
                 WMRecipeCust.LobbyRegistered = false;
                 WMRecipeCust.FirstSS = true;// Reset for next SS connection
+                HandleData.ResetAutoSyncRequestState();
                 if (WMRecipeCust.issettoSinglePlayer)
                 {
                     Closing.DestroyClones();

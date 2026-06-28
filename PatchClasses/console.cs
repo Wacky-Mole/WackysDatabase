@@ -745,14 +745,20 @@ namespace wackydatabase.PatchClasses
                                                                     .Build();
                                             foreach (var pie in PieceList)
                                             {
+                                                try
+                                                {
+                                                    var temp = PieceCheck.GetPiece(HamerItemdrop, hammer, pie?.gameObject, tod);
 
-                                                var temp = PieceCheck.GetPiece(HamerItemdrop, hammer, pie.gameObject, tod);
+                                                    if (temp == null)
+                                                        continue;
 
-                                                if (temp == null)
-                                                    continue;
-
-                                                var part1 = serializer.Serialize(temp);
-                                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPieces, "Piece_" + temp.name + ".yml"), part1);
+                                                    var part1 = serializer.Serialize(temp);
+                                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPieces, "Piece_" + temp.name + ".yml"), part1);
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    WMRecipeCust.WLog.LogWarning($"Skipping piece {pie?.name ?? "<null>"} from {hammer}: {ex}");
+                                                }
                                             }
 
 
@@ -779,7 +785,18 @@ namespace wackydatabase.PatchClasses
 
                                         while (count != max)
                                         {
-                                            var temp = PieceCheck.GetPieceRecipeByNum(count, hammer, HamerItemdrop, tod, null);
+                                            string pieceName = HamerItemdrop.m_itemData.m_shared.m_buildPieces.m_pieces[count]?.name ?? $"index {count}";
+                                            PieceData temp = null;
+
+                                            try
+                                            {
+                                                temp = PieceCheck.GetPieceRecipeByNum(count, hammer, HamerItemdrop, tod, null);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                WMRecipeCust.WLog.LogWarning($"Skipping piece {pieceName} from {hammer}: {ex}");
+                                            }
+
                                             count++;
                                             if (temp == null)
                                                 continue;

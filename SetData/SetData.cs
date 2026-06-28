@@ -1224,15 +1224,30 @@ namespace wackydatabase.SetData
 
             if (data.build != null)
             {
-                List<Piece.Requirement> reqs = new List<Piece.Requirement>();
-                foreach (string req in data.build)
+                bool deleteBuildRequirements = data.build.Any(req => string.Equals(req?.Trim(), "delete", StringComparison.OrdinalIgnoreCase));
+                if (deleteBuildRequirements)
                 {
-                    // WMRecipeCust.Dbgl(req);
-                    string[] parts = req.Split(':');
-                    reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
-                    // WMRecipeCust.Dbgl(reqs.Last().ToString() ) ;
+                    go.GetComponent<Piece>().m_resources = System.Array.Empty<Piece.Requirement>();
                 }
-                go.GetComponent<Piece>().m_resources = reqs.ToArray();
+                else if (data.build.Count > 0)
+                {
+                    List<Piece.Requirement> reqs = new List<Piece.Requirement>();
+                    foreach (string req in data.build)
+                    {
+                        if (string.IsNullOrWhiteSpace(req))
+                        {
+                            continue;
+                        }
+
+                        string[] parts = req.Split(':');
+                        reqs.Add(new Piece.Requirement() { m_resItem = Instant.GetItemPrefab(parts[0]).GetComponent<ItemDrop>(), m_amount = int.Parse(parts[1]), m_amountPerLevel = int.Parse(parts[2]), m_recover = parts[3].ToLower() == "true" });
+                    }
+
+                    if (reqs.Count > 0)
+                    {
+                        go.GetComponent<Piece>().m_resources = reqs.ToArray();
+                    }
+                }
             }
             var pi = go.GetComponent<Piece>();
 
@@ -2421,6 +2436,7 @@ namespace wackydatabase.SetData
 
                     PrimaryItemData.m_shared.m_name = data.m_name ?? PrimaryItemData.m_shared.m_name;
                     PrimaryItemData.m_shared.m_description = data.m_description ?? PrimaryItemData.m_shared.m_description;
+                    SyncFeastPieceTooltip(go, PrimaryItemData);
                     PrimaryItemData.m_shared.m_weight = data.m_weight;
                     PrimaryItemData.m_shared.m_scaleWeightByQuality = data.scale_weight_by_quality ?? PrimaryItemData.m_shared.m_scaleWeightByQuality;
 
@@ -2551,6 +2567,18 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_multiHit = data.Primary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_attack.m_multiHit;
                         PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial = data.Primary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_attack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier = data.Primary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_attack.m_lastChainDamageMultiplier;
+                        if (data.Primary_Attack.Last_Chain_Dmg_Multiplier.HasValue)
+                        {
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Remove(PrimaryItemData.m_shared.m_attack);
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Add(PrimaryItemData.m_shared.m_attack, new LastChainDamageMultiplierOverride
+                            {
+                                value = data.Primary_Attack.Last_Chain_Dmg_Multiplier.Value
+                            });
+                        }
+                        else
+                        {
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Remove(PrimaryItemData.m_shared.m_attack);
+                        }
                         PrimaryItemData.m_shared.m_attack.m_resetChainIfHit = data.Primary_Attack.Reset_Chain_If_hit ?? PrimaryItemData.m_shared.m_attack.m_resetChainIfHit;
 
                         if (!string.IsNullOrEmpty(data.Primary_Attack.SpawnOnHit) && (data.Primary_Attack.SpawnOnHit != PrimaryItemData.m_shared.m_attack.m_spawnOnHit?.name))
@@ -2771,6 +2799,18 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit = data.Secondary_Attack.Multi_Hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_multiHit;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial = data.Secondary_Attack.Pickaxe_Special ?? PrimaryItemData.m_shared.m_secondaryAttack.m_pickaxeSpecial;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier = data.Secondary_Attack.Last_Chain_Dmg_Multiplier ?? PrimaryItemData.m_shared.m_secondaryAttack.m_lastChainDamageMultiplier;
+                        if (data.Secondary_Attack.Last_Chain_Dmg_Multiplier.HasValue)
+                        {
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Remove(PrimaryItemData.m_shared.m_secondaryAttack);
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Add(PrimaryItemData.m_shared.m_secondaryAttack, new LastChainDamageMultiplierOverride
+                            {
+                                value = data.Secondary_Attack.Last_Chain_Dmg_Multiplier.Value
+                            });
+                        }
+                        else
+                        {
+                            WMRecipeCust.lastChainDamageMultiplierOverrides.Remove(PrimaryItemData.m_shared.m_secondaryAttack);
+                        }
                         PrimaryItemData.m_shared.m_secondaryAttack.m_resetChainIfHit = data.Secondary_Attack.Reset_Chain_If_hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_resetChainIfHit;
 
                         if (!string.IsNullOrEmpty(data.Secondary_Attack.SpawnOnHit) && (data.Secondary_Attack.SpawnOnHit != PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit?.name))
@@ -2910,10 +2950,12 @@ namespace wackydatabase.SetData
                             feastdat.m_shared.m_foodRegen = data.FoodStats.m_foodRegen ?? PrimaryItemData.m_shared.m_foodRegen;
                             feastdat.m_shared.m_foodBurnTime = data.FoodStats.m_foodBurnTime ?? PrimaryItemData.m_shared.m_foodBurnTime;
                             feastdat.m_shared.m_foodEitr = data.FoodStats.m_FoodEitr ?? PrimaryItemData.m_shared.m_foodEitr;
+                            feastdat.m_shared.m_name = PrimaryItemData.m_shared.m_name;
+                            feastdat.m_shared.m_description = PrimaryItemData.m_shared.m_description;
+                            SyncFeastPieceTooltip(feastItem, feastdat);
                             GameObject feastMat = Instant.GetItemPrefab(go.name + "_Material");
                             var feastMatItemDrop = feastMat.GetComponent<ItemDrop>().m_itemData.m_shared;
-                            feastdat.m_shared.m_name = data.m_name;
-                            feastMatItemDrop.m_description = data.m_description;
+                            feastMatItemDrop.m_description = PrimaryItemData.m_shared.m_description;
                             feastMatItemDrop.m_maxStackSize = data.m_maxStackSize ?? feastMatItemDrop.m_maxStackSize;
                             feastMatItemDrop.m_weight = data.m_weight;
                             feastMatItemDrop.m_appendToolTip =  go.GetComponent<ItemDrop>();
@@ -3227,6 +3269,18 @@ namespace wackydatabase.SetData
 
                     return;
                 }
+            }
+        }
+
+        private static void SyncFeastPieceTooltip(GameObject go, ItemDrop.ItemData itemData)
+        {
+            if (go == null || itemData == null || go.GetComponent<Feast>() == null)
+                return;
+
+            if (go.TryGetComponent<Piece>(out var piece))
+            {
+                piece.m_name = itemData.m_shared.m_name;
+                piece.m_description = itemData.m_shared.m_description;
             }
         }
 

@@ -54,6 +54,63 @@ namespace wackydatabase.Util
     }
     public class Functions 
     {
+        private static readonly Vector3 PieceSnapshotOrigin = new Vector3(10000f, 10000f, 10000f);
+
+        private static void PrepareSnapshotClone(GameObject visual, int layer)
+        {
+            foreach (Transform child in visual.GetComponentsInChildren<Transform>(true))
+            {
+                child.gameObject.layer = layer;
+            }
+
+            foreach (Collider collider in visual.GetComponentsInChildren<Collider>(true))
+            {
+                collider.enabled = false;
+            }
+
+            foreach (Rigidbody rigidbody in visual.GetComponentsInChildren<Rigidbody>(true))
+            {
+                rigidbody.detectCollisions = false;
+                rigidbody.isKinematic = true;
+                rigidbody.useGravity = false;
+            }
+
+            foreach (Joint joint in visual.GetComponentsInChildren<Joint>(true))
+            {
+                Object.DestroyImmediate(joint);
+            }
+
+            foreach (Behaviour behaviour in visual.GetComponentsInChildren<Behaviour>(true))
+            {
+                if (behaviour is Renderer)
+                    continue;
+
+                Object.DestroyImmediate(behaviour);
+            }
+        }
+
+        private static bool TryGetRenderBounds(GameObject visual, out Bounds bounds)
+        {
+            Renderer[] renderers = visual.GetComponentsInChildren<Renderer>(true);
+            Renderer firstRenderer = renderers.FirstOrDefault(renderer => renderer != null && renderer.enabled);
+
+            if (firstRenderer == null)
+            {
+                bounds = default;
+                return false;
+            }
+
+            bounds = firstRenderer.bounds;
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null || !renderer.enabled)
+                    continue;
+
+                bounds.Encapsulate(renderer.bounds);
+            }
+
+            return true;
+        }
 
         internal static FieldInfo CompField(Type ClassTyp, string fieldname)
         {
@@ -303,7 +360,7 @@ namespace wackydatabase.Util
 
         public static void SnapshotPiece(GameObject prefab, float lightIntensity = 1.3f, Quaternion? cameraRotation = null)
         {
-            
+
             void Do2()
             {
                 const int layer = 3;
@@ -329,7 +386,7 @@ namespace wackydatabase.Util
                 sideLight.cullingMask = 1 << layer;
                 sideLight.intensity = lightIntensity;
 
-                playerpos.y =  - 100; // new Vector3(0,0,-100)
+                playerpos.y = -100; // new Vector3(0,0,-100)
                 GameObject visual = Object.Instantiate(prefab.gameObject, playerpos, Quaternion.Euler(23, 51, 25.8f));
 
                 //Object.DestroyImmediate(visual);
@@ -375,7 +432,7 @@ namespace wackydatabase.Util
                 previewImage.Apply();
 
                 RenderTexture.active = currentRenderTexture;
-                             
+
                 prefab.GetComponent<Piece>().m_icon = Sprite.Create(previewImage, new Rect(0, 0, (int)rect.width, (int)rect.height), Vector2.one / 2f);
                 var piececomp = visual.GetComponent<Piece>();
                 Object.DestroyImmediate(piececomp);
@@ -386,7 +443,7 @@ namespace wackydatabase.Util
                 //visual.transform.position = new Vector3(0, 0, 1000);
                 //ZNetScene.DestroyImmediate(visual);
                 //Object.Destroy(visual); 
-                
+
                 Object.Destroy(camera);
                 Object.Destroy(sideLight);
                 Object.Destroy(camera.gameObject);
@@ -411,7 +468,7 @@ namespace wackydatabase.Util
             }
             else
             {
-               // WMRecipeCust.context.StartCoroutine(WackyDelay());
+                // WMRecipeCust.context.StartCoroutine(WackyDelay());
                 //plugin.StartCoroutine(Delay2());
             }
         }

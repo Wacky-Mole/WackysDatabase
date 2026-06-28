@@ -36,6 +36,7 @@ namespace wackydatabase.Startup
 
                 ZRoutedRpc.instance.Register("WackyDBAdminReload", new Action<long, ZPackage>(WMRecipeCust.AdminReload));
                 ZRoutedRpc.instance.Register("WackyDBAdminBigData", new Action<long, ZPackage>(HandleData.SendData));
+                ZRoutedRpc.instance.Register("WackyDB_RequestAssetSync", new Action<long>(HandleData.ReceiveAssetSyncRequest));
 
                 if (WMRecipeCust.Firstrun)
                 {

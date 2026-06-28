@@ -38,12 +38,21 @@ using LocalizationManager;
 
 namespace wackydatabase
 {
+    public class LastChainDamageMultiplierOverride  // transpiler usage
+    {
+        public float value;
+    }
+
     [BepInPlugin(ModGUID, ModName, ModVersion)]
 
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
+<<<<<<< HEAD
         internal const string ModVersion = "3.0.0";
+=======
+        internal const string ModVersion = "2.4.92";
+>>>>>>> wackys/master
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -55,7 +64,11 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
+<<<<<<< HEAD
         { DisplayName = ModName, MinimumRequiredVersion = "3.0.0" }; // it is very picky on version number
+=======
+        { DisplayName = ModName, MinimumRequiredVersion = "2.4.92" }; // it is very picky on version number
+>>>>>>> wackys/master
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -69,13 +82,16 @@ namespace wackydatabase
         public static ConfigEntry<bool> ServerDedLoad;
         public static ConfigEntry<bool> extraSecurity;
         public static ConfigEntry<bool> enableYMLWatcher;
+        public static ConfigEntry<bool> enableAssetSync;
+        public static ConfigEntry<int> maxAssetSyncFileSizeMB;
         public static ConfigEntry<bool> clonedcache;
         public static ConfigEntry<bool> showLogs;
         public static ConfigEntry<string> extraEffectList;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
-        internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Experimental
+        internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Asset Sync
         public static readonly ConditionalWeakTable<Piece.Requirement, RequirementQuality> requirementQuality = new();
+        public static readonly ConditionalWeakTable<Attack, LastChainDamageMultiplierOverride> lastChainDamageMultiplierOverrides = new();
 
         internal static bool issettoSinglePlayer = false;
         internal static bool isSettoAutoReload = false;
@@ -302,6 +318,8 @@ namespace wackydatabase
             showLogs = config<bool>("General", "Display Normal Logs", true, "This should be left on, unless you have 2000+ yamls");
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
+            enableAssetSync = config<bool>("General", "Enable Asset Sync", true, "Enable syncing WackyDB assets (icons/textures/objects) from server to clients after clients load into the world");
+            maxAssetSyncFileSizeMB = config<int>("General", "Max Asset Sync File Size MB", 50, "Maximum size per synced asset file. Larger files are skipped with a safe failure message to avoid disconnects.");
             // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
             extraEffectList = config<string>("Effects", "List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
             ConfigSync.CurrentVersion = ModVersion;
@@ -484,18 +502,31 @@ namespace wackydatabase
         {
             WMRecipeCust.WLog.LogInfo("Recieved Admin Request to Reload");
 
-            ReadFiles readnow = new ReadFiles();
-            WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
-            WMRecipeCust.readFiles = readnow;
+            context.StartCoroutine(AdminReloadRoutine());
+        }
 
-            WMRecipeCust.skillConfigData.Value = ymlstring;// push to clients
+        private static IEnumerator AdminReloadRoutine()
+        {
+            WMRecipeCust.Reloading = true;
 
-            SetData.Reload josh = new SetData.Reload();
-            WMRecipeCust.CurrentReload = josh;
-            WMRecipeCust.WLog.LogInfo("Sent YML to clients");
+            try
+            {
+                ReadFiles readnow = new ReadFiles();
+                yield return WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
+                WMRecipeCust.readFiles = readnow;
 
-            if (WMRecipeCust.ServerDedLoad.Value)
-                WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
+                SetData.Reload josh = new SetData.Reload();
+                WMRecipeCust.CurrentReload = josh;
+                WMRecipeCust.skillConfigData.Value = ymlstring;// push to clients after disk read completes
+                WMRecipeCust.WLog.LogInfo("Sent YML to clients");
+
+                if (WMRecipeCust.ServerDedLoad.Value)
+                    yield return WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
+            }
+            finally
+            {
+                WMRecipeCust.Reloading = false;
+            }
         }
 
         public static void GetAllMaterials(bool skipMD = false) // Get all Materials, SFX, VFX, FX

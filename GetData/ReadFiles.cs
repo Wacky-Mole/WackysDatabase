@@ -25,6 +25,9 @@ namespace wackydatabase.Read
 {
     public class ReadFiles 
     {
+        private Coroutine watcherReloadCoroutine;
+        private bool watcherReloadQueued;
+
         public void SetupWatcher()
         {
             WMRecipeCust.CheckModFolder();
@@ -48,15 +51,22 @@ namespace wackydatabase.Read
             if (!e.FullPath.Contains("yml")) return; // does not contain yml
             try
             {
-                if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated() && WMRecipeCust.enableYMLWatcher.Value || ZNet.instance.IsServer() && WMRecipeCust.isSettoAutoReload && WMRecipeCust.enableYMLWatcher.Value)
+                if (((ZNet.instance.IsServer() && ZNet.instance.IsDedicated()) || (ZNet.instance.IsServer() && WMRecipeCust.isSettoAutoReload)) && WMRecipeCust.enableYMLWatcher.Value)
                 {  // should only load for the server now
                     if (WMRecipeCust.Reloading)
+                    {
+                        watcherReloadQueued = true;
                         return;
-                    WMRecipeCust.Dbgl("YML files have changed. Server or Singleplayer and Autoreload is on");
-                    WMRecipeCust.context.StartCoroutine(GetDataFromFiles()); // load stuff in mem
-                    WMRecipeCust.context.StartCoroutine(StartReloadingTimer());
-                    WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; //Sync Event // Single player forces client to reload as well. 
-                    WMRecipeCust.Reloading = true;
+                    }
+
+                    WMRecipeCust.Dbgl($"Queued YML reload from file change: {e.Name}");
+
+                    if (watcherReloadCoroutine != null)
+                    {
+                        WMRecipeCust.context.StopCoroutine(watcherReloadCoroutine);
+                    }
+
+                    watcherReloadCoroutine = WMRecipeCust.context.StartCoroutine(ReloadChangedYmlFiles(e.FullPath));
                 }
             }
             catch
@@ -70,6 +80,42 @@ namespace wackydatabase.Read
                 }
             }
         }
+
+        private IEnumerator ReloadChangedYmlFiles(string changedPath)
+        {
+            yield return new WaitForSeconds(1.5f);
+
+            WMRecipeCust.Reloading = true;
+
+            try
+            {
+                WMRecipeCust.Dbgl($"YML files changed. Reloading from disk after debounce: {changedPath}");
+
+                yield return WMRecipeCust.context.StartCoroutine(GetDataFromFiles());
+
+                WMRecipeCust.readFiles = this;
+
+                if (WMRecipeCust.CurrentReload == null)
+                {
+                    WMRecipeCust.CurrentReload = new SetData.Reload();
+                }
+
+                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+                yield return WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true));
+            }
+            finally
+            {
+                WMRecipeCust.Reloading = false;
+                watcherReloadCoroutine = null;
+
+                if (watcherReloadQueued)
+                {
+                    watcherReloadQueued = false;
+                    watcherReloadCoroutine = WMRecipeCust.context.StartCoroutine(ReloadChangedYmlFiles("queued changes"));
+                }
+            }
+        }
+
         public void GetCacheClonesOnly()
         {
             WMRecipeCust.cacheItemsYML.Clear();

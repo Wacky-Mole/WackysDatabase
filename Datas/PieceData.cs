@@ -74,7 +74,7 @@ namespace wackydatabase.Datas
 
         public BatteringRamData? batteringRamData;
 
-        public List<string>? build = new List<string>();
+        public List<string>? build;
 
     }
     public class ComfortData

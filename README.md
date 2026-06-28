@@ -23,6 +23,7 @@ Version:
     Basic Creature cloning or replacing/renaming.
     Most components can be removed from YAML.
     sizeMultiplier: Make a small or HUGE world.
+    AutoSync Assets now in 2.4.9
     Future Proof: Can add or remove components without much fuss.
 
 <!-- ![WackysDatabase](https://wackymole.com/hosts/lightblue%20Sword.webp) ![WackysDatabase](https://wackymole.com/hosts/1825-1648309710-715635595.png) ![WackysDatabase](https://wackymole.com/hosts/orangeish%20bow.jpg) -->
@@ -122,7 +123,7 @@ Frequently Asked Questions
         FYI reminder that SpeedFactor deals with character movement speed while swinging/attacking and has nothing to do with speed of animation.
 
     Q: What Folders do I need to give to my users?
-        A: Textures, Objects, Icons will NOT SYNC. I also recommend including the cache folder. Cache keeps track of Item/mock clones and materials. Delete cache if you see hash errors.
+        A: WackyDB can now sync missing Textures, Objects, and Icons from server to clients after they load into the world (with a short delay). Very large files are skipped by a safety limit. I still recommend including these folders and cache in modpacks for fastest joins and fewer sync retries. (Use Network mods for faster downloads)
 
     Q: How can I export material without _mat suffix ? I succeeded to export draugr_mat, but how for goblin or greydwarves ? 
         A: It's is unfortunately not possible right now to get all of the mats because of how the devs named and made different things.
@@ -191,6 +192,8 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 - DedServer load Memory: false (dedicated server loads objects into the game like a client)
 - ExtraSecurity on Servers: true (prevents loading into singleplayer and then loading into multiplayer)
 - FileWatcher for YMLs: true (reloads the mod on any changes to the wackydatabase folder on the server)
+- Enable Asset Sync: true (allows server to sync missing Icons/Objects/Textures to clients after player spawn)
+- Max Asset Sync File Size MB: 5 (per-file safety limit for sync; oversized files fail gracefully and must be installed manually)
 - List of Extra Effects: "lightningAOE" (extra effects to look for from the base game or mods)
 
 
@@ -235,7 +238,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_fx`: Saves a fx.txt file with all fx effects
 - `wackydb_help`: command list
 - `wackydb_describe[ObjectName]`: Saves describe of an object, so you have an idea of the structure of the object for materials and customVisuals
-- `wackydb_sendtheload` : Experimental command that will send pngs and objs to clients utilizing ServerSync. I highly recommend the Network mod to uncap data rates. 
+- `wackydb_sendtheload` : Sends missing pngs/objs/textures to clients utilizing ServerSync. Auto sync now starts after the player is in-world (10s delay). This command is still useful as a manual re-send if needed.
 - `wackydb_get_piecehammers`: Saves all hammers, currently in your game to Hammer.txt file
 - `wackydb_material` : Generate a text file of all <Material> Gameobjects in vanilla game. Saves to text
 - `wackydb_clearcache`: Clears the current cache, materials and textures. Only do this after big yaml changes, cache is important - This command works on menu screen
@@ -331,9 +334,11 @@ Dedicated Servers (With DedLoad ON) and Servers( COOP server) and SOLO Clients l
 
 Connecting Clients load at Game._RequestRespawn [HarmonyPriority(Priority.Low)] ( always consistent is pretty important)
 
-Console wackydb_reload /_fast - always reload immediately. 
+Console wackydb_reload - Slow Mode  /_fast - always reload immediately. 
 
 Anyway, it's hard to find a good spot so that you touch all base objects and not too late to add the clones.
+
+Use wackydb_reload for servers, slow reloads all clients without noticable stutter, fast reload is good for singleplayer or if you don't care about stutter.
 
 </br>
 
@@ -369,7 +374,7 @@ To save or clone a material, employ the functions "wackydb_save_material [mat]" 
 
 Now, let's get creative with adjustments! Most commonly, you'll be working with colors. Use https://rgbcolorpicker.com/0-1 to find the 0-1 values **RGBA**.
 
-Textures play a vital role, particularly with armors and creatures. Remember, they are saved along with the material in PNG format. However, WackyDB won't automatically sync them, so you'll need to manually color or edit the texture files. Textures may use base vanilla ones like Red or Blue
+Textures play a vital role, particularly with armors and creatures. They are saved along with the material in PNG format. WackyDB can sync missing textures from server to clients (if enabled), but very large files are intentionally skipped by the sync size limit. Textures may use base vanilla ones like Red or Blue
 
 Excitingly, changes to materials automatically update without requiring a reload. Icons, too, reflect these changes unless you opt for a custom icon.
 
@@ -950,7 +955,14 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 
 build: requirements to build: Item:amount:amountPerLevel:refundable,
 
-To make something free. build:
+If `build` is omitted entirely, WackyDB keeps the piece's original vanilla/modded requirements.
+
+To delete all existing build requirements, use:
+
+build:
+  - delete
+
+You can also force a zero-cost requirement line:
 - Wood:0:0:True
 
 ### ComfortData
@@ -1521,13 +1533,8 @@ Do whatever you want with this mod.
 </details>
 
 Known issues: </br>
- Bug on moving stuff from one hammer to another - It may work/ It may not - disable orginal and make a clone for now
- </br> 
- </br> 
  Creature material is not working
  </br>
- </br>
- CrossbowArbalest item not changing, recommend cloning and replacing. - If anyone has any ideas on this one, please let me know.
  </br>
  </br>
  Making any piece into a craftingstation is a bit buggy. (It's really at the limit to what wackydb can do without Unity)

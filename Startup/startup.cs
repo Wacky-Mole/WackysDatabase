@@ -11,6 +11,7 @@ using UnityEngine;
 using wackydatabase.SetData;
 using wackydatabase.Datas;
 using wackydatabase.Read;
+using wackydatabase.OBJimporter;
 using System.Security.Policy;
 using System.Reflection;
 using static CharacterAnimEvent;
@@ -328,6 +329,8 @@ namespace wackydatabase.Startup
                     Functions.SnapshotPiece(item);
                 }
                 WMRecipeCust.SnapshotPiecestoDo.Clear();
+
+                HandleData.RequestAssetSyncAfterWorldLoad();
             }
         }
 
