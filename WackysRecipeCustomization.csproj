@@ -222,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="OBJimporter\rootcube" />
+    <None Include="Documentation\WackyDB_3.0_Material_GUI_Plan.md" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
