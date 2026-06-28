@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.93  | Fixing asset sync issues. Connection issue fix
 | 2.4.92  | Piece build: now requires "- delete", to delete all build reqs. </br> doing wackydb_reload after asset sync automatically. </br> Restored old piece snapshot. 
 | 2.4.91  | Reenabled serversync for large asset transfers.
 | 2.4.90  | Rewrote a lot of the logic for live updates. </br> Improved piece snapshot handling. </br> Send the Load now triggers after a player logs in. No need to include the textures anymore. </br> piece build is now not required for pieces to preserve cost. |

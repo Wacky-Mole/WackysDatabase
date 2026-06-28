@@ -16,7 +16,7 @@ namespace wackydatabase.OBJimporter
 
         private static long GetMaxSyncedAssetFileSizeBytes()
         {
-            int maxMb = WMRecipeCust.maxAssetSyncFileSizeMB.Value;
+            int maxMb = WMRecipeCust.maxAssetSyncFileSizeMBNew.Value;
             if (maxMb < 1)
             {
                 maxMb = 1;
@@ -35,6 +35,8 @@ namespace wackydatabase.OBJimporter
         internal static long AdminPeerForSync = 0L;
         internal static bool AutoSyncRequestedAfterLoad = false;
         internal static int DownloadedAssetCountCurrentSync = 0;
+        internal static int ExpectedAssetCountCurrentSync = 0;
+        internal static bool AssetSyncFinishedMessageReceived = false;
         internal static bool AssetReloadInProgress = false;
 
         private static string BuildManifest()
@@ -83,6 +85,8 @@ namespace wackydatabase.OBJimporter
         {
             AutoSyncRequestedAfterLoad = false;
             DownloadedAssetCountCurrentSync = 0;
+            ExpectedAssetCountCurrentSync = 0;
+            AssetSyncFinishedMessageReceived = false;
             AssetReloadInProgress = false;
         }
 
@@ -347,12 +351,17 @@ namespace wackydatabase.OBJimporter
             if (neededFiles.Count > 0)
             {
                 DownloadedAssetCountCurrentSync = 0;
+                ExpectedAssetCountCurrentSync = neededFiles.Count;
+                AssetSyncFinishedMessageReceived = false;
                 WMRecipeCust.WLog.LogInfo($"Client missing {neededFiles.Count} files. Requesting specifically from server...");
                 string requestStr = string.Join("?", neededFiles);
                 ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDB_AssetRequest", requestStr);
             }
             else
             {
+                DownloadedAssetCountCurrentSync = 0;
+                ExpectedAssetCountCurrentSync = 0;
+                AssetSyncFinishedMessageReceived = false;
                 WMRecipeCust.WLog.LogInfo("Client already has all WackyDB server assets up to date. Nothing to download!");
                 if (Player.m_localPlayer != null)
                 {
@@ -485,6 +494,7 @@ namespace wackydatabase.OBJimporter
                     File.WriteAllBytes(path, decodedBytes);
                     DownloadedAssetCountCurrentSync++;
                     WMRecipeCust.WLog.LogInfo($"Downloaded and saved {filename} of type {type}");
+                    TryStartReloadAfterAssetSync();
                 }
             }
             catch (System.Exception ex)
@@ -500,13 +510,30 @@ namespace wackydatabase.OBJimporter
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, msg);
             }
 
-            if (msg.Contains("Finished downloading missing assets") && DownloadedAssetCountCurrentSync > 0 && !AssetReloadInProgress)
+            if (msg.Contains("Finished downloading missing assets"))
             {
-                HandleData hd = new HandleData();
-                WMRecipeCust.context.StartCoroutine(hd.ReloadAfterAssetSync());
+                AssetSyncFinishedMessageReceived = true;
+                TryStartReloadAfterAssetSync();
             }
 
             WMRecipeCust.WLog.LogInfo("Server MSG: " + msg);
+        }
+
+        private static void TryStartReloadAfterAssetSync()
+        {
+            if (!AssetSyncFinishedMessageReceived || AssetReloadInProgress || DownloadedAssetCountCurrentSync <= 0)
+            {
+                return;
+            }
+
+            if (ExpectedAssetCountCurrentSync > 0 && DownloadedAssetCountCurrentSync < ExpectedAssetCountCurrentSync)
+            {
+                WMRecipeCust.WLog.LogInfo($"WackyDB: Waiting for downloaded assets before reload ({DownloadedAssetCountCurrentSync}/{ExpectedAssetCountCurrentSync}).");
+                return;
+            }
+
+            HandleData hd = new HandleData();
+            WMRecipeCust.context.StartCoroutine(hd.ReloadAfterAssetSync());
         }
 
         private IEnumerator ReloadAfterAssetSync()
@@ -527,6 +554,8 @@ namespace wackydatabase.OBJimporter
             finally
             {
                 DownloadedAssetCountCurrentSync = 0;
+                ExpectedAssetCountCurrentSync = 0;
+                AssetSyncFinishedMessageReceived = false;
                 AssetReloadInProgress = false;
             }
         }
