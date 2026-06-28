@@ -261,7 +261,6 @@ namespace wackydatabase.Startup
 
         public static bool CheckSecurity()
         {
-            ZNet Net = new ZNet();
             if (WMRecipeCust.extraSecurity.Value && WMRecipeCust.ForceLogout  )
             { 
                 WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server

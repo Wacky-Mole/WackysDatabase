@@ -550,8 +550,10 @@ namespace wackydatabase.SetData
 
             if (reload)
             {
-                ZNet Net = new ZNet();
-                Startup.Startup.IsLocalInstance(Net);
+                if (ZNet.instance != null)
+                {
+                    Startup.Startup.IsLocalInstance(ZNet.instance);
+                }
             }
 
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)

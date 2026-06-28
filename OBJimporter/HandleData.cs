@@ -13,6 +13,8 @@ namespace wackydatabase.OBJimporter
     {
         private const long RoutedRpcSoftPayloadLimitBytes = 5L * 1024L;
         private const string LargeTransferAssetPrefix = "WDB_ASSET_PAYLOAD|";
+        private const float LargeTransferCleanupCheckSeconds = 5f;
+        private const float LargeTransferCleanupTimeoutSeconds = 20f * 60f;
 
         private static long GetMaxSyncedAssetFileSizeBytes()
         {
@@ -38,6 +40,37 @@ namespace wackydatabase.OBJimporter
         internal static int ExpectedAssetCountCurrentSync = 0;
         internal static bool AssetSyncFinishedMessageReceived = false;
         internal static bool AssetReloadInProgress = false;
+        internal static bool AssetFinishWaitStatusInProgress = false;
+        internal static bool AssetSyncCompletionAckSent = false;
+        private static int AssetSyncStateGeneration = 0;
+        private static long ActiveLargeTransferTarget = 0L;
+        private static int ActiveLargeTransferGeneration = 0;
+
+        private static bool CancelSyncIfPeerDisconnected(long targetPeer, string status)
+        {
+            if (ZNet.instance == null || !ZNet.instance.IsServer())
+            {
+                return true;
+            }
+
+            var peer = ZNet.instance.GetPeers()?.FirstOrDefault(p => p.m_uid == targetPeer);
+            if (peer != null)
+            {
+                return false;
+            }
+
+            string warning = $"WackyDB: Peer {targetPeer} disconnected during asset sync ({status}). Cancelling sync.";
+            WMRecipeCust.WLog.LogWarning(warning);
+            if (AdminPeerForSync != 0L)
+            {
+                ZRoutedRpc.instance.InvokeRoutedRPC(AdminPeerForSync, "WackyDB_AdminLogMsg", warning);
+            }
+
+            PendingSyncClients.Remove(targetPeer);
+            ClearLargeTransferForPeer(targetPeer, "peer disconnected");
+            CheckPendingSyncClients();
+            return true;
+        }
 
         private static string BuildManifest()
         {
@@ -83,11 +116,32 @@ namespace wackydatabase.OBJimporter
 
         public static void ResetAutoSyncRequestState()
         {
+            AssetSyncStateGeneration++;
             AutoSyncRequestedAfterLoad = false;
             DownloadedAssetCountCurrentSync = 0;
             ExpectedAssetCountCurrentSync = 0;
             AssetSyncFinishedMessageReceived = false;
             AssetReloadInProgress = false;
+            AssetFinishWaitStatusInProgress = false;
+            AssetSyncCompletionAckSent = false;
+        }
+
+        private static void FailClientAssetSync(string reason)
+        {
+            WMRecipeCust.WLog.LogError($"WackyDB: Asset sync failed. {reason} Clearing sync state so logout/reconnect can retry.");
+            AssetSyncStateGeneration++;
+            AutoSyncRequestedAfterLoad = false;
+            DownloadedAssetCountCurrentSync = 0;
+            ExpectedAssetCountCurrentSync = 0;
+            AssetSyncFinishedMessageReceived = false;
+            AssetReloadInProgress = false;
+            AssetFinishWaitStatusInProgress = false;
+            AssetSyncCompletionAckSent = false;
+
+            if (Player.m_localPlayer != null && MessageHud.instance != null)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "WackyDB: Asset sync failed. Logout and reconnect to retry.");
+            }
         }
 
         public static void RequestAssetSyncAfterWorldLoad()
@@ -215,8 +269,8 @@ namespace wackydatabase.OBJimporter
             }
 
             string payload = data.Substring(LargeTransferAssetPrefix.Length);
-            string[] parts = payload.Split(new[] { '|' }, 4);
-            if (parts.Length != 4)
+            string[] parts = payload.Split(new[] { '|' }, 5);
+            if (parts.Length != 4 && parts.Length != 5)
             {
                 WMRecipeCust.WLog.LogWarning("WackyDB: Received malformed largeTransfer asset payload.");
                 return;
@@ -234,13 +288,112 @@ namespace wackydatabase.OBJimporter
                 return;
             }
 
-            ReceivePayload(0L, parts[1], parts[2], parts[3]);
+            string base64 = parts.Length == 5 ? parts[4] : parts[3];
+            ReceivePayload(0L, parts[1], parts[2], base64);
         }
 
         private static void SendPayloadViaLargeTransfer(long targetPeer, string type, string filename, string base64)
         {
-            WMRecipeCust.WLog.LogInfo($"WackyDB: Sending '{filename}' to peer {targetPeer} via largeTransfer.");
-            WMRecipeCust.largeTransfer.Value = $"{LargeTransferAssetPrefix}{targetPeer}|{type}|{filename}|{base64}";
+            ActiveLargeTransferTarget = targetPeer;
+            ActiveLargeTransferGeneration++;
+            WMRecipeCust.WLog.LogInfo($"WackyDB: Sending '{filename}' to peer {targetPeer} via largeTransfer ({base64.Length} chars).");
+            WMRecipeCust.largeTransfer.Value = $"{LargeTransferAssetPrefix}{targetPeer}|{type}|{filename}|{DateTime.UtcNow.Ticks}|{base64}";
+
+            HandleData hd = new HandleData();
+            WMRecipeCust.context.StartCoroutine(hd.MonitorLargeTransfer(targetPeer, ActiveLargeTransferGeneration, filename));
+        }
+
+        private static void ClearLargeTransferForPeer(long targetPeer, string reason)
+        {
+            if (WMRecipeCust.largeTransfer == null || string.IsNullOrEmpty(WMRecipeCust.largeTransfer.Value))
+            {
+                return;
+            }
+
+            if (!WMRecipeCust.largeTransfer.Value.StartsWith(LargeTransferAssetPrefix))
+            {
+                return;
+            }
+
+            string payload = WMRecipeCust.largeTransfer.Value.Substring(LargeTransferAssetPrefix.Length);
+            string[] parts = payload.Split(new[] { '|' }, 2);
+            if (parts.Length == 0 || !long.TryParse(parts[0], out long payloadTarget))
+            {
+                return;
+            }
+
+            if (payloadTarget != targetPeer)
+            {
+                return;
+            }
+
+            WMRecipeCust.WLog.LogInfo($"WackyDB: Clearing largeTransfer for peer {targetPeer} ({reason}).");
+            WMRecipeCust.largeTransfer.Value = "";
+            if (ActiveLargeTransferTarget == targetPeer)
+            {
+                ActiveLargeTransferTarget = 0L;
+            }
+        }
+
+        public static void PeerDisconnected(long peerId)
+        {
+            if (peerId == 0L)
+            {
+                return;
+            }
+
+            if (ZNet.instance == null || !ZNet.instance.IsServer())
+            {
+                ResetAutoSyncRequestState();
+                return;
+            }
+
+            PendingSyncClients.Remove(peerId);
+            ClearLargeTransferForPeer(peerId, "peer disconnected");
+            CheckPendingSyncClients();
+        }
+
+        private IEnumerator MonitorLargeTransfer(long targetPeer, int transferGeneration, string filename)
+        {
+            float waited = 0f;
+            while (waited < LargeTransferCleanupTimeoutSeconds)
+            {
+                yield return new WaitForSeconds(LargeTransferCleanupCheckSeconds);
+                waited += LargeTransferCleanupCheckSeconds;
+
+                if (transferGeneration != ActiveLargeTransferGeneration || ActiveLargeTransferTarget != targetPeer)
+                {
+                    yield break;
+                }
+
+                if (ZNet.instance == null || !ZNet.instance.IsServer())
+                {
+                    yield break;
+                }
+
+                var peer = ZNet.instance.GetPeers()?.FirstOrDefault(p => p.m_uid == targetPeer);
+                if (peer == null)
+                {
+                    WMRecipeCust.WLog.LogWarning($"WackyDB: Peer {targetPeer} disconnected before largeTransfer '{filename}' was acknowledged.");
+                    PendingSyncClients.Remove(targetPeer);
+                    ClearLargeTransferForPeer(targetPeer, "peer disconnected before ack");
+                    CheckPendingSyncClients();
+                    yield break;
+                }
+
+                if (waited % 60f == 0f)
+                {
+                    WMRecipeCust.WLog.LogInfo($"WackyDB: Waiting for peer {targetPeer} to acknowledge largeTransfer '{filename}' ({waited / 60f:F0} min).");
+                }
+            }
+
+            if (transferGeneration == ActiveLargeTransferGeneration && ActiveLargeTransferTarget == targetPeer)
+            {
+                WMRecipeCust.WLog.LogWarning($"WackyDB: largeTransfer '{filename}' to peer {targetPeer} timed out after {LargeTransferCleanupTimeoutSeconds / 60f:F0} minutes. Clearing payload so reconnects are not poisoned.");
+                PendingSyncClients.Remove(targetPeer);
+                ClearLargeTransferForPeer(targetPeer, "ack timeout");
+                CheckPendingSyncClients();
+            }
         }
 
         public static void SendData(long peer, ZPackage go) // should probably be a console command because this will send it to everyone and be huge!
@@ -353,15 +506,25 @@ namespace wackydatabase.OBJimporter
                 DownloadedAssetCountCurrentSync = 0;
                 ExpectedAssetCountCurrentSync = neededFiles.Count;
                 AssetSyncFinishedMessageReceived = false;
-                WMRecipeCust.WLog.LogInfo($"Client missing {neededFiles.Count} files. Requesting specifically from server...");
+                AssetFinishWaitStatusInProgress = false;
+                AssetSyncCompletionAckSent = false;
+                WMRecipeCust.WLog.LogInfo($"Client missing {neededFiles.Count} files. Requesting specifically from server: {string.Join(", ", neededFiles)}");
                 string requestStr = string.Join("?", neededFiles);
                 ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDB_AssetRequest", requestStr);
+
+                if (!AssetFinishWaitStatusInProgress)
+                {
+                    HandleData hd = new HandleData();
+                    WMRecipeCust.context.StartCoroutine(hd.LogAssetFinishWaitStatus(AssetSyncStateGeneration));
+                }
             }
             else
             {
                 DownloadedAssetCountCurrentSync = 0;
                 ExpectedAssetCountCurrentSync = 0;
                 AssetSyncFinishedMessageReceived = false;
+                AssetFinishWaitStatusInProgress = false;
+                AssetSyncCompletionAckSent = false;
                 WMRecipeCust.WLog.LogInfo("Client already has all WackyDB server assets up to date. Nothing to download!");
                 if (Player.m_localPlayer != null)
                 {
@@ -385,24 +548,21 @@ namespace wackydatabase.OBJimporter
             string[] checkfor = { "?" };
             var needed = request.Split(checkfor, System.StringSplitOptions.RemoveEmptyEntries);
             
-            WMRecipeCust.WLog.LogInfo($"Peer {sender} requested {needed.Length} missing asset files. Streaming to them...");
+            WMRecipeCust.WLog.LogInfo($"Peer {sender} requested {needed.Length} missing asset files: {string.Join(", ", needed)}. Streaming to them...");
             HandleData hd = new HandleData();
             WMRecipeCust.context.StartCoroutine(hd.SendRequestedFiles(sender, needed));
         }
 
         private IEnumerator SendRequestedFiles(long targetPeer, string[] requestedFiles)
         {
-            foreach (var req in requestedFiles)
+            for (int i = 0; i < requestedFiles.Length; i++)
             {
-                var peer = ZNet.instance.GetPeers()?.FirstOrDefault(p => p.m_uid == targetPeer);
-                if (peer == null)
+                if (CancelSyncIfPeerDisconnected(targetPeer, $"before file {i + 1}/{requestedFiles.Length}"))
                 {
-                    WMRecipeCust.WLog.LogWarning($"WackyDB: Peer {targetPeer} disconnected during asset sync.");
-                    PendingSyncClients.Remove(targetPeer);
-                    CheckPendingSyncClients();
                     yield break;
                 }
 
+                var req = requestedFiles[i];
                 var parts = req.Split(':');
                 if (parts.Length != 2) continue;
                 string filename = parts[0];
@@ -416,13 +576,22 @@ namespace wackydatabase.OBJimporter
                 else if (type == "obj") { folder = WMRecipeCust.assetPathObjects; ext = "*.obj"; }
                 else if (type == "tex") { folder = WMRecipeCust.assetPathTextures; ext = "*.png"; }
                 
-                if (string.IsNullOrEmpty(folder)) continue;
+                if (string.IsNullOrEmpty(folder))
+                {
+                    string warn = $"WackyDB: Unknown requested asset type '{type}' for '{filename}'. Aborting asset sync for peer {targetPeer}.";
+                    WMRecipeCust.WLog.LogWarning(warn);
+                    ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", warn);
+                    PendingSyncClients.Remove(targetPeer);
+                    CheckPendingSyncClients();
+                    yield break;
+                }
                 
                 var files = Directory.GetFiles(folder, filename + ext, SearchOption.AllDirectories);
                 if (files.Length > 0)
                 {
                     string filePath = files[0];
                     long fileSize = new FileInfo(filePath).Length;
+                    WMRecipeCust.WLog.LogInfo($"WackyDB: Preparing asset {i + 1}/{requestedFiles.Length} for peer {targetPeer}: {Path.GetFileName(filePath)} ({fileSize} bytes).");
                     long maxSizeBytes = GetMaxSyncedAssetFileSizeBytes();
                     if (fileSize > maxSizeBytes)
                     {
@@ -445,12 +614,18 @@ namespace wackydatabase.OBJimporter
                     {
                         byte[] bytes = File.ReadAllBytes(filePath);
                         string base64 = Convert.ToBase64String(bytes);
+                        if (CancelSyncIfPeerDisconnected(targetPeer, $"before sending {Path.GetFileName(filePath)}"))
+                        {
+                            yield break;
+                        }
+
                         if (fileSize > RoutedRpcSoftPayloadLimitBytes)
                         {
                             SendPayloadViaLargeTransfer(targetPeer, type, filename, base64);
                         }
                         else
                         {
+                            WMRecipeCust.WLog.LogInfo($"WackyDB: Sending '{filename}' to peer {targetPeer} via routed RPC.");
                             ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_AssetPayload", type, filename, base64);
                         }
                     }
@@ -463,16 +638,27 @@ namespace wackydatabase.OBJimporter
                         yield break;
                     }
                 }
+                else
+                {
+                    string warn = $"WackyDB: Server could not find requested asset '{filename}' of type '{type}'. Aborting asset sync for peer {targetPeer}.";
+                    WMRecipeCust.WLog.LogWarning(warn);
+                    ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", warn);
+                    PendingSyncClients.Remove(targetPeer);
+                    CheckPendingSyncClients();
+                    yield break;
+                }
                 
                 // Yield to prevent overwhelming network buffer
                 yield return new WaitForEndOfFrame();
             }
+
+            if (CancelSyncIfPeerDisconnected(targetPeer, "before finish message"))
+            {
+                yield break;
+            }
             
             WMRecipeCust.WLog.LogInfo($"Finished streaming {requestedFiles.Length} files to Peer {targetPeer}.");
-            ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", "WackyDB: Finished downloading missing assets. Reloading now...");
-
-            PendingSyncClients.Remove(targetPeer);
-            CheckPendingSyncClients();
+            ZRoutedRpc.instance.InvokeRoutedRPC(targetPeer, "WackyDB_ClientMSG", "WackyDB: Server finished sending requested assets. Waiting for client to save them...");
         }
 
         public static void ReceivePayload(long sender, string type, string filename, string base64)
@@ -481,6 +667,7 @@ namespace wackydatabase.OBJimporter
             
             try
             {
+                WMRecipeCust.WLog.LogInfo($"WackyDB: Received asset payload '{filename}' ({type}). Decoding...");
                 byte[] decodedBytes = Convert.FromBase64String(base64);
                 string path = "";
                 
@@ -493,13 +680,19 @@ namespace wackydatabase.OBJimporter
                 {
                     File.WriteAllBytes(path, decodedBytes);
                     DownloadedAssetCountCurrentSync++;
-                    WMRecipeCust.WLog.LogInfo($"Downloaded and saved {filename} of type {type}");
+                    WMRecipeCust.WLog.LogInfo($"WackyDB: Downloaded and saved {filename} of type {type} ({DownloadedAssetCountCurrentSync}/{ExpectedAssetCountCurrentSync}) to {path}");
+                    SendClientAssetSyncCompleteIfReady();
                     TryStartReloadAfterAssetSync();
+                }
+                else
+                {
+                    WMRecipeCust.WLog.LogWarning($"WackyDB: Received asset payload '{filename}' with unknown type '{type}'.");
                 }
             }
             catch (System.Exception ex)
             {
-                WMRecipeCust.WLog.LogError($"Error decoding/saving {filename}: {ex.Message}");
+                WMRecipeCust.WLog.LogError($"WackyDB: Error decoding/saving {filename}: {ex.Message}");
+                FailClientAssetSync($"Could not decode or save '{filename}': {ex.Message}");
             }
         }
 
@@ -513,16 +706,73 @@ namespace wackydatabase.OBJimporter
             if (msg.Contains("Finished downloading missing assets"))
             {
                 AssetSyncFinishedMessageReceived = true;
+                WMRecipeCust.WLog.LogInfo($"WackyDB: Server finish message received. Saved assets: {DownloadedAssetCountCurrentSync}/{ExpectedAssetCountCurrentSync}.");
                 TryStartReloadAfterAssetSync();
+                if (!AssetReloadInProgress && ExpectedAssetCountCurrentSync > 0 && DownloadedAssetCountCurrentSync < ExpectedAssetCountCurrentSync && !AssetFinishWaitStatusInProgress)
+                {
+                    HandleData hd = new HandleData();
+                    WMRecipeCust.context.StartCoroutine(hd.LogAssetFinishWaitStatus(AssetSyncStateGeneration));
+                }
+            }
+            else if (msg.Contains("Server finished sending requested assets"))
+            {
+                WMRecipeCust.WLog.LogInfo($"WackyDB: Server finished sending. Client saved assets so far: {DownloadedAssetCountCurrentSync}/{ExpectedAssetCountCurrentSync}.");
+            }
+            else if (msg.Contains("Asset sync failed") || msg.Contains("Aborting asset sync"))
+            {
+                FailClientAssetSync(msg);
             }
 
             WMRecipeCust.WLog.LogInfo("Server MSG: " + msg);
         }
 
+        private static void SendClientAssetSyncCompleteIfReady()
+        {
+            if (AssetSyncCompletionAckSent)
+            {
+                return;
+            }
+
+            if (ExpectedAssetCountCurrentSync <= 0 || DownloadedAssetCountCurrentSync < ExpectedAssetCountCurrentSync)
+            {
+                return;
+            }
+
+            if (ZRoutedRpc.instance == null)
+            {
+                return;
+            }
+
+            AssetSyncCompletionAckSent = true;
+            AssetSyncFinishedMessageReceived = true;
+            WMRecipeCust.WLog.LogInfo($"WackyDB: Client finished saving synced assets ({DownloadedAssetCountCurrentSync}/{ExpectedAssetCountCurrentSync}). Notifying server.");
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WackyDB_AssetSyncComplete", DownloadedAssetCountCurrentSync, ExpectedAssetCountCurrentSync);
+        }
+
+        public static void ReceiveClientAssetSyncComplete(long sender, int downloadedCount, int expectedCount)
+        {
+            if (ZNet.instance == null || !ZNet.instance.IsServer())
+            {
+                return;
+            }
+
+            WMRecipeCust.WLog.LogInfo($"WackyDB: Peer {sender} reported asset sync complete ({downloadedCount}/{expectedCount}).");
+            PendingSyncClients.Remove(sender);
+            ClearLargeTransferForPeer(sender, "client acknowledged save");
+            CheckPendingSyncClients();
+        }
+
         private static void TryStartReloadAfterAssetSync()
         {
-            if (!AssetSyncFinishedMessageReceived || AssetReloadInProgress || DownloadedAssetCountCurrentSync <= 0)
+            if (AssetReloadInProgress)
             {
+                WMRecipeCust.WLog.LogInfo("WackyDB: Asset reload is already in progress.");
+                return;
+            }
+
+            if (DownloadedAssetCountCurrentSync <= 0)
+            {
+                WMRecipeCust.WLog.LogInfo($"WackyDB: Reload not started yet because no asset payload has been saved. Expected {ExpectedAssetCountCurrentSync} asset(s).");
                 return;
             }
 
@@ -532,8 +782,33 @@ namespace wackydatabase.OBJimporter
                 return;
             }
 
+            if (!AssetSyncFinishedMessageReceived)
+            {
+                WMRecipeCust.WLog.LogInfo($"WackyDB: All expected assets downloaded ({DownloadedAssetCountCurrentSync}/{ExpectedAssetCountCurrentSync}). Reloading without waiting for server finish message.");
+            }
+
             HandleData hd = new HandleData();
+            WMRecipeCust.WLog.LogInfo("WackyDB: Starting reload coroutine after asset sync.");
             WMRecipeCust.context.StartCoroutine(hd.ReloadAfterAssetSync());
+        }
+
+        private IEnumerator LogAssetFinishWaitStatus(int stateGeneration)
+        {
+            AssetFinishWaitStatusInProgress = true;
+            float waited = 0f;
+            while (!AssetReloadInProgress && ExpectedAssetCountCurrentSync > 0 && DownloadedAssetCountCurrentSync < ExpectedAssetCountCurrentSync)
+            {
+                yield return new WaitForSeconds(30f);
+                if (stateGeneration != AssetSyncStateGeneration || ExpectedAssetCountCurrentSync <= 0)
+                {
+                    break;
+                }
+
+                waited += 30f;
+                WMRecipeCust.WLog.LogInfo($"WackyDB: Asset sync is still waiting in the background ({DownloadedAssetCountCurrentSync}/{ExpectedAssetCountCurrentSync}) after {waited / 60f:F1} minutes.");
+            }
+
+            AssetFinishWaitStatusInProgress = false;
         }
 
         private IEnumerator ReloadAfterAssetSync()
@@ -549,6 +824,7 @@ namespace wackydatabase.OBJimporter
             try
             {
                 yield return WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true));
+                WMRecipeCust.WLog.LogInfo("WackyDB: Asset sync reload completed.");
 
             }
             finally
@@ -557,6 +833,8 @@ namespace wackydatabase.OBJimporter
                 ExpectedAssetCountCurrentSync = 0;
                 AssetSyncFinishedMessageReceived = false;
                 AssetReloadInProgress = false;
+                AssetFinishWaitStatusInProgress = false;
+                AssetSyncCompletionAckSent = false;
             }
         }
 
