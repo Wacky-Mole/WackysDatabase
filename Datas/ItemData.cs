@@ -113,6 +113,8 @@ namespace wackydatabase.Datas
 
         public ItemDrop.ItemData.ItemType? m_itemType;
 
+        public string? ammoType;
+
 
         public int? m_toolTier;
 

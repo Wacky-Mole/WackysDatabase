@@ -498,6 +498,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 -  `snapshotOnMaterialChange` (bool) - Default true - Makes a snapshot on item material change
 - `sizeMultiplier` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.
+- `ammoType` (string): Sets the item's ammo type. Use `delete` to clear the existing ammo type. Use "delete" to remove. 
 
 
 ### CustomVisual

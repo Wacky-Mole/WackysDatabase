@@ -3167,6 +3167,23 @@ namespace wackydatabase.SetData
 
                     PrimaryItemData.m_shared.m_animationState = data.m_animationState ?? PrimaryItemData.m_shared.m_animationState;
                     PrimaryItemData.m_shared.m_itemType = data.m_itemType ?? PrimaryItemData.m_shared.m_itemType;
+
+                    if (data.ammoType != null)
+                    {
+                        if (data.ammoType.Equals("delete", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (WMRecipeCust.showLogs.Value)
+                                WMRecipeCust.Dbgl($"   {data.name} Item ammoType removed ");
+                            PrimaryItemData.m_shared.m_ammoType = string.Empty;
+                        }
+                        else
+                        {
+                            if (WMRecipeCust.showLogs.Value)
+                                WMRecipeCust.Dbgl($"   {data.name} Item ammoType set to {data.ammoType}");
+                            PrimaryItemData.m_shared.m_ammoType = data.ammoType;
+                        }
+                    }
+
                     PrimaryItemData.m_shared.m_attachOverride = data.Attach_Override ?? PrimaryItemData.m_shared.m_attachOverride;
 
                     PrimaryItemData.m_shared.m_toolTier = data.m_toolTier ?? PrimaryItemData.m_shared.m_toolTier;

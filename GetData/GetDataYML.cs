@@ -1218,6 +1218,7 @@ namespace wackydatabase.GetData
                 m_skillType = data.m_shared.m_skillType,
                 m_animationState = data.m_shared.m_animationState,
                 m_itemType = data.m_shared.m_itemType,
+                ammoType = string.IsNullOrEmpty(data.m_shared.m_ammoType) ? null : data.m_shared.m_ammoType,
                 Attach_Override = data.m_shared.m_attachOverride,
                 Damage = damages,
                 Damage_Per_Level = damagesPerLevel,

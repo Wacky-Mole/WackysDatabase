@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.94  | Added ammoType to Items. ( Useful for custom tankard and some weapons)
 | 2.4.93  | Fixing asset sync issues. Connection issue fix.
 | 2.4.92  | Piece build: now requires "- delete", to delete all build reqs. </br> doing wackydb_reload after asset sync automatically. </br> Restored old piece snapshot. 
 | 2.4.91  | Reenabled serversync for large asset transfers.
