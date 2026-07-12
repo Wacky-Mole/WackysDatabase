@@ -533,16 +533,16 @@ namespace wackydatabase.SetData
             {
                 try
                 {
-                    if (piece != null)
-                        Functions.SnapshotPiece(piece);
+                    if (piece != null && Functions.SnapshotPiece(piece))
+                    {
+                        WMRecipeCust.SnapshotPiecestoDo.Remove(piece);
+                    }
                 }
                 catch
                 {
                     WMRecipeCust.WLog.LogWarning($"Piece snapshot refresh failed for {piece?.name}");
                 }
             }
-
-            WMRecipeCust.SnapshotPiecestoDo.Clear();
         }
 
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false, bool forcepush= false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
