@@ -348,12 +348,12 @@ namespace wackydatabase.SetData
             if (go == null)
                 go = Instant.GetItemPrefab(searchname);
 
-            Recipe ActualR = null;
+            Recipe ActualR = Instant.m_recipes.FirstOrDefault(recipe => recipe != null && recipe.name == tempname);
             if (go == null)
             {
                 foreach (Recipe recipes in Instant.m_recipes)
                 {
-                    if  (recipes.name == searchname)
+                    if (recipes != null && recipes.name == searchname)
                     {
                         WMRecipeCust.Dbgl($"An actual {data.name} has been found!-- Only modification allowed");
                         ActualR = recipes;
@@ -380,12 +380,22 @@ namespace wackydatabase.SetData
 
             Recipe RecipeR = null;
 
-            if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)// only first time clone
+            if (!string.IsNullOrEmpty(data.clonePrefabName) && ActualR != null)
+            {
+                if (WMRecipeCust.showLogs.Value)
+                    WMRecipeCust.Dbgl($"Reusing existing cloned recipe {tempname}");
+                RecipeR = ActualR;
+                RecipeR.m_enabled = true;
+                if (!WMRecipeCust.ClonedR.Contains(tempname))
+                    WMRecipeCust.ClonedR.Add(tempname);
+            }
+            else if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)// only first time clone
             {
                 if (WMRecipeCust.showLogs.Value)
                     WMRecipeCust.Dbgl($"Setting Cloned Recipe for {tempname}");
                 RecipeR = ScriptableObject.CreateInstance<Recipe>();
-                WMRecipeCust.ClonedR.Add(tempname);
+                if (!WMRecipeCust.ClonedR.Contains(tempname))
+                    WMRecipeCust.ClonedR.Add(tempname);
             }
             else if (skip)
             {
@@ -410,17 +420,32 @@ namespace wackydatabase.SetData
             }
             else // in game recipe
             {
-                
-                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
-               // for (int i = 0; i <  Instant.m_recipes.Count - 1; i++) // not needed
-                {
-                    if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name ) //&& Instant.m_recipes[i].name == data.name)  maybe in the future
-                    {
-                        RecipeR = Instant.m_recipes[i];
-                        RecipeR.m_enabled = true;
-                        WMRecipeCust.Dbgl("Setting Recipe for " + tempname + " with recipe name " + Instant.m_recipes[i].name);
+                ItemDrop targetItem = go.GetComponent<ItemDrop>();
+                RecipeR = Instant.m_recipes.FirstOrDefault(recipe =>
+                    recipe != null &&
+                    (recipe.m_item == targetItem ||
+                     recipe.m_item?.gameObject == go ||
+                     recipe.m_item?.m_itemData.m_dropPrefab == go));
 
-                        break;
+                if (RecipeR != null)
+                {
+                    RecipeR.m_enabled = true;
+                    WMRecipeCust.Dbgl($"Setting Recipe for {tempname} with recipe name {RecipeR.name}");
+                }
+                else
+                {
+                    var displayNameMatches = Instant.m_recipes
+                        .Where(recipe => recipe?.m_item?.m_itemData.m_shared.m_name == targetItem.m_itemData.m_shared.m_name)
+                        .ToList();
+                    if (displayNameMatches.Count == 1)
+                    {
+                        RecipeR = displayNameMatches[0];
+                        RecipeR.m_enabled = true;
+                        WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' matched '{RecipeR.name}' by display name only. Rename the recipe YAML to its exact recipe name to avoid ambiguity.");
+                    }
+                    else if (displayNameMatches.Count > 1)
+                    {
+                        WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' has {displayNameMatches.Count} display-name matches for '{targetItem.m_itemData.m_shared.m_name}'. No recipe was modified; use the exact recipe name.");
                     }
                 }
             }
@@ -591,15 +616,31 @@ namespace wackydatabase.SetData
 
             if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // only first time clone
             {
-                for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
+                Recipe existingRecipe = Instant.m_recipes.FirstOrDefault(recipe => recipe != RecipeR && recipe != null && recipe.name == tempname);
+                if (existingRecipe != null)
                 {
-                    if (Instant.m_recipes[i].m_item?.m_itemData.m_shared.m_name == go.GetComponent<ItemDrop>().m_itemData.m_shared.m_name)
-                    {
-                        index = i++; // some extra resourses, but I think it's worth it
-                        break;
-                    }
+                    WMRecipeCust.WLog.LogWarning($"Recipe clone '{tempname}' already exists. Reusing it instead of inserting a duplicate.");
+                    existingRecipe.m_item = RecipeR.m_item;
+                    existingRecipe.m_craftingStation = RecipeR.m_craftingStation;
+                    existingRecipe.m_repairStation = RecipeR.m_repairStation;
+                    existingRecipe.m_minStationLevel = RecipeR.m_minStationLevel;
+                    existingRecipe.m_amount = RecipeR.m_amount;
+                    existingRecipe.m_resources = RecipeR.m_resources;
+                    RecipeR = existingRecipe;
                 }
-                Instant.m_recipes.Insert(index, RecipeR);
+                else
+                {
+                    for (int i = Instant.m_recipes.Count - 1; i >= 0; i--)
+                    {
+                        if (Instant.m_recipes[i].m_item == RecipeR.m_item)
+                        {
+                            index = i + 1;
+                            break;
+                        }
+                    }
+
+                    Instant.m_recipes.Insert(index, RecipeR);
+                }
             }
 
             if (!data.disabled ?? true)
