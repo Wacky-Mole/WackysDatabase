@@ -102,6 +102,8 @@ namespace wackydatabase.SetData
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
                 StatusEffect newStatus = WMRecipeCust.Instantiate(go, RootT, false);
                 newStatus.name = name;
+                newStatus.m_startEffects = null;
+                newStatus.m_stopEffects = null;
                 ObjectDB.instance.m_StatusEffects.Add(newStatus);
                 go = Instant.GetStatusEffect(name.GetStableHashCode());
             }
@@ -154,13 +156,6 @@ namespace wackydatabase.SetData
                     WMRecipeCust.EndingStatusEffect.Add(data.Name, data.EndingStatusEffect);
                 }
             }
-
-            if (data.StartEffect_ != null)
-                go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_);
-
-            if (data.StopEffect_ != null)
-                go.m_stopEffects = FindEffect(go.m_stopEffects, data.StopEffect_);
-
 
             if (data.StartEffect_PLUS != null && data.StartEffect_PLUS.Length > 0)
                     go.m_startEffects = FindEffect(go.m_startEffects, data.StartEffect_PLUS);

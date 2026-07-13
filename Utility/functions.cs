@@ -358,7 +358,7 @@ namespace wackydatabase.Util
             }
         }
 
-        private static GameObject CreatePieceSnapshotVisual(GameObject prefab, int layer)
+        private static GameObject CreatePieceSnapshotVisual(GameObject prefab, Piece rootPiece, int layer)
         {
             GameObject visual = new GameObject($"WackyDB_Snapshot_{prefab.name}");
             visual.transform.position = PieceSnapshotOrigin;
@@ -366,6 +366,12 @@ namespace wackydatabase.Util
 
             foreach (MeshRenderer sourceRenderer in prefab.GetComponentsInChildren<MeshRenderer>(true))
             {
+                Piece sourcePiece = sourceRenderer.GetComponentInParent<Piece>();
+                if (sourcePiece != null && sourcePiece != rootPiece)
+                {
+                    continue;
+                }
+
                 MeshFilter sourceFilter = sourceRenderer.GetComponent<MeshFilter>();
                 if (sourceFilter == null || sourceFilter.sharedMesh == null)
                 {
@@ -383,6 +389,10 @@ namespace wackydatabase.Util
                 filter.sharedMesh = sourceFilter.sharedMesh;
                 MeshRenderer renderer = proxy.AddComponent<MeshRenderer>();
                 renderer.sharedMaterials = sourceRenderer.sharedMaterials;
+
+                MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+                sourceRenderer.GetPropertyBlock(propertyBlock);
+                renderer.SetPropertyBlock(propertyBlock);
             }
 
             return visual;
@@ -423,7 +433,7 @@ namespace wackydatabase.Util
                 sideLight.intensity = lightIntensity;
                 sideLight.transform.rotation = Quaternion.Euler(25f, 180f, 5f);
 
-                visual = CreatePieceSnapshotVisual(prefab, layer);
+                visual = CreatePieceSnapshotVisual(prefab, piece, layer);
                 if (!TryGetRenderBounds(visual, out Bounds bounds))
                 {
                     WMRecipeCust.WLog.LogWarning($"Piece snapshot failed for {prefab.name}: no renderable meshes.");
@@ -467,7 +477,10 @@ namespace wackydatabase.Util
                 if (pieceTexture != null)
                     RenderTexture.ReleaseTemporary(pieceTexture);
                 if (visual != null)
+                {
+                    visual.SetActive(false);
                     Object.Destroy(visual);
+                }
             }
         }
 

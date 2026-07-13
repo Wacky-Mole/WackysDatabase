@@ -1304,8 +1304,8 @@ You can replace all Boars in the game with this Dude.
 - `RepeatInterval` (float): The repeat interval of the status effect.
 - `TimeToLive` (float): The time to live of the status effect.
 - `EndingStatusEffect`(string): At the end of one SE, you can start another. You can chain SEs together, run one after the other. Utilize the Category string.
-- `StartEffect_` (string[]): The string of start effects for the status effect.
-- `StopEffect_` (string[]): The string of stop effects for the status effect.
+- `StartEffect_PLUS` (EffectVerse[]): The start effects for the status effect.
+- `StopEffect_PLUS` (EffectVerse[]): The stop effects for the status effect.
 - `Cooldown` (float): The cooldown of the gaurdian power status effect.
 - `ActivationAnimation` (string): The animation for the activation of the status effect.
 - `SeData` (SEdata): The additional data for the status effect.

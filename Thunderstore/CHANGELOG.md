@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.4.96  | Removed the old SE StartEffects/StopEffects and made sure it was null for new SEs. </br>  |
 | 2.4.95  | Hardened the recipe logic to minimize duplication. </br> Rewrote piece snapshot manager again. This time it should not break and drop items.  |
 | 2.4.94  | Added ammoType to Items. ( Useful for custom tankard and some weapons)
 | 2.4.93  | Fixing asset sync issues. Connection issue fix.
