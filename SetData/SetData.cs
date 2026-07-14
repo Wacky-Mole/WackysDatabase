@@ -82,6 +82,11 @@ namespace wackydatabase.SetData
         // legacy shared renderer caches used in several places in the codebase.
         internal static Renderer[] renderfinder;
         internal static Renderer[] renderfinder2;
+
+        private static EffectList CreateEmptyEffectList()
+        {
+            return new EffectList { m_effectPrefabs = new EffectData[0] };
+        }
         
         #region Effects
 
@@ -102,11 +107,23 @@ namespace wackydatabase.SetData
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
                 StatusEffect newStatus = WMRecipeCust.Instantiate(go, RootT, false);
                 newStatus.name = name;
-                newStatus.m_startEffects = null;
-                newStatus.m_stopEffects = null;
+                newStatus.m_startEffects = CreateEmptyEffectList();
+                newStatus.m_stopEffects = CreateEmptyEffectList();
                 ObjectDB.instance.m_StatusEffects.Add(newStatus);
                 go = Instant.GetStatusEffect(name.GetStableHashCode());
             }
+            // delete in future
+            if (go.m_startEffects == null)
+                go.m_startEffects = CreateEmptyEffectList();
+            else if (go.m_startEffects.m_effectPrefabs == null)
+                go.m_startEffects.m_effectPrefabs = new EffectData[0];
+
+            if (go.m_stopEffects == null)
+                go.m_stopEffects = CreateEmptyEffectList();
+            else if (go.m_stopEffects.m_effectPrefabs == null)
+                go.m_stopEffects.m_effectPrefabs = new EffectData[0];
+            // end delete
+
             go.m_name = data.Status_m_name ?? go.m_name;
             go.m_category = data.Category ?? go.m_category;
             if (!DataHelpers.ECheck(data.CustomIcon))
