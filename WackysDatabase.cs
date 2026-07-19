@@ -48,7 +48,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.4.97";
+        internal const string ModVersion = "2.5.00";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -60,7 +60,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.4.96" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.5.00" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -109,6 +109,8 @@ namespace wackydatabase
         public static List<CreatureData> creatureDatasYml = new List<CreatureData>();
         public static List<PickableData> pickableDatasYml = new List<PickableData>();
         public static List<TreeBaseData> treebaseDatasYml = new List<TreeBaseData>();
+        public static List<ProjectileData> projectileDatasYml = new List<ProjectileData>();
+        public static List<AoeData> aoeDatasYml = new List<AoeData>();
         public static List<WItemData> cacheItemsYML = new List<WItemData>();// cacheonly
         public static List<MaterialInstance> cacheMaterials = new List<MaterialInstance>();// cacheonly
         public static List<StatusData> cacheStatusYML = new List<StatusData>();// cacheonly
@@ -141,6 +143,8 @@ namespace wackydatabase
         internal static string assetPathObjects;
         internal static string assetPathCreatures;
         internal static string assetPathPickables;
+        internal static string assetPathProjectiles;
+        internal static string assetPathAoes;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
         internal static string assetPathBulkYMLItems;
@@ -149,6 +153,8 @@ namespace wackydatabase
         internal static string assetPathBulkYMLRecipes;
         internal static string assetPathBulkYMLCreatures;
         internal static string assetPathBulkYMLPickables;
+        internal static string assetPathBulkYMLProjectiles;
+        internal static string assetPathBulkYMLAoes;
         internal static string assetPathIcons;
         internal static string assetPathEffects;
         internal static string assetPathCache;
@@ -219,6 +225,8 @@ namespace wackydatabase
             assetPathObjects = Path.Combine(assetPathconfig, "Objects");
             assetPathCreatures = Path.Combine(assetPathconfig, "Creatures");
             assetPathPickables = Path.Combine(assetPathconfig, "Pickables");
+            assetPathProjectiles = Path.Combine(assetPathconfig, "Projectiles");
+            assetPathAoes = Path.Combine(assetPathconfig, "Aoes");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
 
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
@@ -228,6 +236,8 @@ namespace wackydatabase
             assetPathBulkYMLEffects = Path.Combine(assetPathBulkYML, "Effects");
             assetPathBulkYMLCreatures = Path.Combine(assetPathBulkYML, "Creatures");
             assetPathBulkYMLPickables = Path.Combine(assetPathBulkYML, "Pickables");
+            assetPathBulkYMLProjectiles = Path.Combine(assetPathBulkYML, "Projectiles");
+            assetPathBulkYMLAoes = Path.Combine(assetPathBulkYML, "Aoes");
 
             assetPathIcons = Path.Combine(assetPathconfig, "Icons");
             assetPathCache = Path.Combine(assetPathconfig, "Cache");
@@ -462,6 +472,20 @@ namespace wackydatabase
             {
                 Dbgl("Creating Pickable folder");
                 Directory.CreateDirectory(assetPathPickables);
+            }
+            if (!Directory.Exists(assetPathBulkYMLProjectiles))
+                Directory.CreateDirectory(assetPathBulkYMLProjectiles);
+            if (!Directory.Exists(assetPathBulkYMLAoes))
+                Directory.CreateDirectory(assetPathBulkYMLAoes);
+            if (!Directory.Exists(assetPathProjectiles))
+            {
+                Dbgl("Creating Projectile folder");
+                Directory.CreateDirectory(assetPathProjectiles);
+            }
+            if (!Directory.Exists(assetPathAoes))
+            {
+                Dbgl("Creating Aoe folder");
+                Directory.CreateDirectory(assetPathAoes);
             }
 
             /*

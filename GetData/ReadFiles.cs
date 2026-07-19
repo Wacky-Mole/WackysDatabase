@@ -150,6 +150,8 @@ namespace wackydatabase.Read
             WMRecipeCust.effectDataYml.Clear();
             WMRecipeCust.pickableDatasYml.Clear();
             WMRecipeCust.treebaseDatasYml.Clear();
+            WMRecipeCust.projectileDatasYml.Clear();
+            WMRecipeCust.aoeDatasYml.Clear();
 
             WMRecipeCust.ymlstring = ""; //clear
 
@@ -332,6 +334,32 @@ namespace wackydatabase.Read
                 {
                     yaml.Load<TreeBaseData>(file, WMRecipeCust.treebaseDatasYml, ymlread);
                 }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "*.yml", SearchOption.AllDirectories)
+                .Where(file => Path.GetFileNameWithoutExtension(file).IndexOf("projectile", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                yaml.Load<ProjectileData>(file, WMRecipeCust.projectileDatasYml);
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "*.yml", SearchOption.AllDirectories)
+                .Where(file => Path.GetFileNameWithoutExtension(file).IndexOf("aoe", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                yaml.Load<AoeData>(file, WMRecipeCust.aoeDatasYml);
 
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)

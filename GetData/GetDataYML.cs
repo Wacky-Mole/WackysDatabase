@@ -54,6 +54,236 @@ namespace wackydatabase.GetData
             return true;
         }
 
+        private static WDamages GetDamages(HitData.DamageTypes damage)
+        {
+            return new WDamages
+            {
+                Blunt = damage.m_blunt,
+                Chop = damage.m_chop,
+                Damage = damage.m_damage,
+                Fire = damage.m_fire,
+                Frost = damage.m_frost,
+                Lightning = damage.m_lightning,
+                Pickaxe = damage.m_pickaxe,
+                Pierce = damage.m_pierce,
+                Poison = damage.m_poison,
+                Slash = damage.m_slash,
+                Spirit = damage.m_spirit
+            };
+        }
+
+        private static Vector2Data GetVector2Data(Vector2 value)
+        {
+            return new Vector2Data { x = value.x, y = value.y };
+        }
+
+        private static Vector3Data GetVector3Data(Vector3 value)
+        {
+            return new Vector3Data { x = value.x, y = value.y, z = value.z };
+        }
+
+        internal bool GetAllProjectiles()
+        {
+            var serializer = new SerializerBuilder().WithNewLine("\n").Build();
+            foreach (Projectile projectile in Resources.FindObjectsOfTypeAll<Projectile>())
+            {
+                if (projectile == null || projectile.name.Contains("Clone"))
+                    continue;
+
+                ProjectileData data = GetProjectileDataByName(projectile.gameObject.name);
+                if (data != null)
+                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLProjectiles, "Projectile_" + data.proj_name + ".yml"), serializer.Serialize(data));
+            }
+            return true;
+        }
+
+        internal bool GetAllAoes()
+        {
+            var serializer = new SerializerBuilder().WithNewLine("\n").Build();
+            foreach (Aoe aoe in Resources.FindObjectsOfTypeAll<Aoe>())
+            {
+                if (aoe == null || aoe.name.Contains("Clone"))
+                    continue;
+
+                AoeData data = GetAoeDataByName(aoe.gameObject.name);
+                if (data != null)
+                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLAoes, "Aoe_" + data.aoe_name + ".yml"), serializer.Serialize(data));
+            }
+            return true;
+        }
+
+        internal ProjectileData GetProjectileDataByName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            GameObject prefab = ZNetScene.instance?.GetPrefab(name);
+            if (prefab == null)
+                prefab = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(obj => obj != null && obj.name == name);
+
+            Projectile projectile = prefab?.GetComponent<Projectile>();
+            if (projectile == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"Projectile {name} was not found or has no Projectile component.");
+                return null;
+            }
+
+            return new ProjectileData
+            {
+                proj_name = prefab.name,
+                m_type = projectile.m_type,
+                Damage = GetDamages(projectile.m_damage),
+                m_aoe = projectile.m_aoe,
+                m_dodgeable = projectile.m_dodgeable,
+                m_blockable = projectile.m_blockable,
+                m_adrenaline = projectile.m_adrenaline,
+                m_attackForce = projectile.m_attackForce,
+                m_backstabBonus = projectile.m_backstabBonus,
+                StatusEffect = projectile.m_statusEffect,
+                m_healthReturn = projectile.m_healthReturn,
+                m_canHitWater = projectile.m_canHitWater,
+                m_ttl = projectile.m_ttl,
+                m_gravity = projectile.m_gravity,
+                m_drag = projectile.m_drag,
+                m_rayRadius = projectile.m_rayRadius,
+                m_hitNoise = projectile.m_hitNoise,
+                m_doOwnerRaytest = projectile.m_doOwnerRaytest,
+                m_stayAfterHitStatic = projectile.m_stayAfterHitStatic,
+                m_stayAfterHitDynamic = projectile.m_stayAfterHitDynamic,
+                m_stayTTL = projectile.m_stayTTL,
+                m_attachToRigidBody = projectile.m_attachToRigidBody,
+                m_attachToClosestBone = projectile.m_attachToClosestBone,
+                m_attachPenetration = projectile.m_attachPenetration,
+                m_attachBoneNearify = projectile.m_attachBoneNearify,
+                HideOnHit = projectile.m_hideOnHit?.name,
+                m_stopEmittersOnHit = projectile.m_stopEmittersOnHit,
+                HitEffects = ConvertEffectstoVerse(projectile.m_hitEffects?.m_effectPrefabs),
+                HitWaterEffects = ConvertEffectstoVerse(projectile.m_hitWaterEffects?.m_effectPrefabs),
+                m_bounce = projectile.m_bounce,
+                m_bounceOnWater = projectile.m_bounceOnWater,
+                m_bouncePower = projectile.m_bouncePower,
+                m_bounceRoughness = projectile.m_bounceRoughness,
+                m_maxBounces = projectile.m_maxBounces,
+                m_minBounceVel = projectile.m_minBounceVel,
+                m_respawnItemOnHit = projectile.m_respawnItemOnHit,
+                m_spawnOnTtl = projectile.m_spawnOnTtl,
+                SpawnOnHit = projectile.m_spawnOnHit?.name,
+                m_spawnOnHitChance = projectile.m_spawnOnHitChance,
+                m_spawnCount = projectile.m_spawnCount,
+                RandomSpawnOnHit = projectile.m_randomSpawnOnHit?.Where(obj => obj != null).Select(obj => obj.name).ToList(),
+                m_randomSpawnOnHitCount = projectile.m_randomSpawnOnHitCount,
+                m_randomSpawnSkipLava = projectile.m_randomSpawnSkipLava,
+                m_showBreakMessage = projectile.m_showBreakMessage,
+                m_staticHitOnly = projectile.m_staticHitOnly,
+                m_groundHitOnly = projectile.m_groundHitOnly,
+                m_spawnOffset = GetVector3Data(projectile.m_spawnOffset),
+                m_copyProjectileRotation = projectile.m_copyProjectileRotation,
+                m_spawnRandomRotation = projectile.m_spawnRandomRotation,
+                m_spawnFacingRotation = projectile.m_spawnFacingRotation,
+                SpawnOnHitEffects = ConvertEffectstoVerse(projectile.m_spawnOnHitEffects?.m_effectPrefabs),
+                m_spawnProjectileNewVelocity = projectile.m_spawnProjectileNewVelocity,
+                m_spawnProjectileMinVel = projectile.m_spawnProjectileMinVel,
+                m_spawnProjectileMaxVel = projectile.m_spawnProjectileMaxVel,
+                m_spawnProjectileRandomDir = projectile.m_spawnProjectileRandomDir,
+                m_spawnProjectileHemisphereDir = projectile.m_spawnProjectileHemisphereDir,
+                m_projectilesInheritHitData = projectile.m_projectilesInheritHitData,
+                m_onlySpawnedProjectilesDealDamage = projectile.m_onlySpawnedProjectilesDealDamage,
+                m_divideDamageBetweenProjectiles = projectile.m_divideDamageBetweenProjectiles,
+                m_rotateVisual = projectile.m_rotateVisual,
+                m_rotateVisualY = projectile.m_rotateVisualY,
+                m_rotateVisualZ = projectile.m_rotateVisualZ,
+                Visual = projectile.m_visual?.name,
+                m_canChangeVisuals = projectile.m_canChangeVisuals,
+                m_skill = projectile.m_skill,
+                m_raiseSkillAmount = projectile.m_raiseSkillAmount
+            };
+        }
+
+        internal AoeData GetAoeDataByName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            GameObject prefab = ZNetScene.instance?.GetPrefab(name);
+            if (prefab == null)
+                prefab = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(obj => obj != null && obj.name == name);
+
+            Aoe aoe = prefab?.GetComponent<Aoe>();
+            if (aoe == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"AOE {name} was not found or has no Aoe component.");
+                return null;
+            }
+
+            return new AoeData
+            {
+                aoe_name = prefab.name,
+                m_name = aoe.m_name,
+                m_useAttackSettings = aoe.m_useAttackSettings,
+                Damage = GetDamages(aoe.m_damage),
+                m_scaleDamageByDistance = aoe.m_scaleDamageByDistance,
+                m_dodgeable = aoe.m_dodgeable,
+                m_blockable = aoe.m_blockable,
+                m_toolTier = aoe.m_toolTier,
+                m_attackForce = aoe.m_attackForce,
+                m_backstabBonus = aoe.m_backstabBonus,
+                StatusEffect = aoe.m_statusEffect,
+                StatusEffectIfBoss = aoe.m_statusEffectIfBoss,
+                StatusEffectIfPlayer = aoe.m_statusEffectIfPlayer,
+                DamagePerLevel = GetDamages(aoe.m_damagePerLevel),
+                SpawnOnHitTerrain = aoe.m_spawnOnHitTerrain?.name,
+                m_hitTerrainOnlyOnce = aoe.m_hitTerrainOnlyOnce,
+                m_spawnOnGroundType = aoe.m_spawnOnGroundType,
+                m_groundLavaValue = aoe.m_groundLavaValue,
+                m_hitNoise = aoe.m_hitNoise,
+                m_placeOnGround = aoe.m_placeOnGround,
+                m_randomRotation = aoe.m_randomRotation,
+                m_maxTargetsFromCenter = aoe.m_maxTargetsFromCenter,
+                m_multiSpawnMin = aoe.m_multiSpawnMin,
+                m_multiSpawnMax = aoe.m_multiSpawnMax,
+                m_multiSpawnDistanceMin = aoe.m_multiSpawnDistanceMin,
+                m_multiSpawnDistanceMax = aoe.m_multiSpawnDistanceMax,
+                m_multiSpawnScaleMin = aoe.m_multiSpawnScaleMin,
+                m_multiSpawnScaleMax = aoe.m_multiSpawnScaleMax,
+                m_multiSpawnSpringDelayMax = aoe.m_multiSpawnSpringDelayMax,
+                m_chainStartChance = aoe.m_chainStartChance,
+                m_chainStartChanceFalloff = aoe.m_chainStartChanceFalloff,
+                m_chainChancePerTarget = aoe.m_chainChancePerTarget,
+                ChainObject = aoe.m_chainObj?.name,
+                m_chainStartDelay = aoe.m_chainStartDelay,
+                m_chainMinTargets = aoe.m_chainMinTargets,
+                m_chainMaxTargets = aoe.m_chainMaxTargets,
+                ChainEffects = ConvertEffectstoVerse(aoe.m_chainEffects?.m_effectPrefabs),
+                m_damageSelf = aoe.m_damageSelf,
+                m_hitOwner = aoe.m_hitOwner,
+                m_hitParent = aoe.m_hitParent,
+                m_hitSame = aoe.m_hitSame,
+                m_hitFriendly = aoe.m_hitFriendly,
+                m_hitEnemy = aoe.m_hitEnemy,
+                m_hitCharacters = aoe.m_hitCharacters,
+                m_hitProps = aoe.m_hitProps,
+                m_hitTerrain = aoe.m_hitTerrain,
+                m_ignorePVP = aoe.m_ignorePVP,
+                m_launchCharacters = aoe.m_launchCharacters,
+                m_launchForceMinMax = GetVector2Data(aoe.m_launchForceMinMax),
+                m_launchForceUpFactor = aoe.m_launchForceUpFactor,
+                m_skill = aoe.m_skill,
+                m_canRaiseSkill = aoe.m_canRaiseSkill,
+                m_useTriggers = aoe.m_useTriggers,
+                m_triggerEnterOnly = aoe.m_triggerEnterOnly,
+                m_radius = aoe.m_radius,
+                m_activationDelay = aoe.m_activationDelay,
+                m_ttl = aoe.m_ttl,
+                m_ttlMax = aoe.m_ttlMax,
+                m_hitAfterTtl = aoe.m_hitAfterTtl,
+                m_hitInterval = aoe.m_hitInterval,
+                m_hitOnEnable = aoe.m_hitOnEnable,
+                m_attachToCaster = aoe.m_attachToCaster,
+                HitEffects = ConvertEffectstoVerse(aoe.m_hitEffects?.m_effectPrefabs),
+                InitiateEffects = ConvertEffectstoVerse(aoe.m_initiateEffect?.m_effectPrefabs)
+            };
+        }
+
         internal  RecipeData GetRecipeDataByName(string name, ObjectDB tod)
         {
             GameObject go = DataHelpers.CheckforSpecialObjects(name);// check for special cases

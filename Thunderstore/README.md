@@ -6,7 +6,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
 ![GreenMan](https://wackymole.com/hosts/Greenman.png)
 
 Version: 
-2.0 Features
+2.5+ Features
 
 
     SetEffects: All of them!
@@ -23,7 +23,8 @@ Version:
     Basic Creature cloning or replacing/renaming.
     Most components can be removed from YAML.
     sizeMultiplier: Make a small or HUGE world.
-    AutoSync Assets now in 2.4.9
+    AutoSync Assets
+    Aoe and Projectiles in 2.5
     Future Proof: Can add or remove components without much fuss.
 
 <!-- ![WackysDatabase](https://wackymole.com/hosts/lightblue%20Sword.webp) ![WackysDatabase](https://wackymole.com/hosts/1825-1648309710-715635595.png) ![WackysDatabase](https://wackymole.com/hosts/orangeish%20bow.jpg) -->
@@ -60,7 +61,7 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 <details><summary>General Knowledge</summary>
 
 
-    There are seven (7) Objects that WackyDB touches. Items, Recipes, Pieces, Creatures, Pickables(Pickables and Treebase) Materials and Textures
+    There are seven (9) Objects that WackyDB touches. Items, Recipes, Pieces, Creatures, Pickables(Pickables and Treebase) Materials, Textures, AOEs and Projectiles.
 
     Items are things in your inventory, you can pickup and maybe equip them.
 
@@ -80,9 +81,13 @@ For multiplayer, the mod has been locked down to prevent easy cheating. However,
 
     Textures are .pngs that hold the feel, appearance, or consistency of a surface or substance.
 
+    AOEs are area of effect objects that can be used for damage, buffs, or debuffs.
+
+    Projectiles are objects that can be used for damage, buffs, or debuffs. They are usually spawned from a weapon or a creature. ( You can be very creative here). Use random items to spawn projectiles, or use a projectile to spawn an item.
+
     Most lines in the YAMLS can be deleted. Only the required ones need to be in the files, when the line is deleted the computer interprets that as a null value.
 
-    Null is like, I don't know, so I don't care, use the orginal values. 
+    Null is like, I don't know, so I don't care, use the orginal values.  
     
     To delete the existing values you will use either '' for strings, "delete" for SE Effects or "-" for multiliners. 
 
@@ -146,7 +151,7 @@ Frequently Asked Questions
         A: Well its complicated, I am having to grab them in a weird way, and not all SEs have SeData. Nothing to be done about it. 
 
     Q: What about Attack Projectile?
-        A: I need to look at projectiles in the future, for now they are disabled.
+        A: Added in 2.5.0
 
     Q: Would it be possible to have one item take 2+ different item slots ? (say weapon + pants)
         A: No, but you can edit two parts and one effect, which is effective when combined!
@@ -165,9 +170,6 @@ Frequently Asked Questions
     Q: What is 0.0.1 Error message when I try to connect? I keep getting this one COOP.
         A: 0.0.1 is a security feature that prevents people loading into a singleplayer world and then immediately connecting to a multiplayer world. It does seem to have some problems in COOP.
             Just disable it on the server if you are having problems. ExtraSecurity = false
-
-    Q: Can I clone or adjust Projectiles?
-        A: No, wackydb doesn't do projectiles, it may someday.
 
     Q: Wackydb object failed hashes, Please fix yaml or Bug, removing from ObjectDB, rerunning
         A: So this can be any number of things. First make sure you clear your cache! It might mean that the yaml is not be correct,
@@ -216,6 +218,8 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_save_item [ItemName]`: Saves an item YML in the wackysDatabase Item folder.
 - `wackydb_save_creature [CreatureName]`: Saves a Creature YML in the wackysDatabase Creature folder.
 - `wackydb_save_pickable [pickableOrTreebaseName]`: Saves a Pickable/Treebase YML in the wackysDatabase Pickable folder.
+- `wackydb_save_projectile [ProjectileName]`: Saves a Projectile YML in the wackysDatabase Projectiles folder.
+- `wackydb_save_aoe [AoeName]`: Saves an AOE YML in the wackysDatabase Aoes folder.
 - `wackydb_save_material[MaterialName]`: Saves a Material clone YML in the wackysDatabase Material folder. Usually has a _mat at end end. 
 - `wackydb_all_items`: Saves all items in the game into wackyDatabase-BulkYML.
 - `wackydb_all_recipes`: Saves all recipes in the game into wackyDatabase-BulkYML.
@@ -223,10 +227,12 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_all_se`: Retrieves almost all status effects in the game (including modded effects) and saves them into the Effects folder.
 - `wackydb_all_creatures`: Saves all creatures in game into Bulk Creature folder. (Not deer or birds?)
 - `wackydb_all_pickables`: Saves all pickables(pickable and treebase) in Bulk Pickables folder.
+- `wackydb_all_projectiles`: Saves all projectile prefabs in wackyDatabase-BulkYML/Projectiles.
+- `wackydb_all_aoes`: Saves all AOE prefabs in wackyDatabase-BulkYML/Aoes.
 - `wackydb_se [effectname]`: Retrieves a specific status effect and saves it into the Effect folder.
 - `wackydb_se_create`: Creates a clone of SetEffect_TrollArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
-- `wackydb_clone [recipe/item/piece/creature/mat/materials/se/pickable/treebase] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword`.
+- `wackydb_clone [recipe/item/piece/creature/mat/materials/se/pickable/treebase/projectile/aoe] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword` or `wackydb_clone projectile arrow WackyArrow`.
 
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
@@ -1431,6 +1437,142 @@ You should be able to delete existing m_mods, by
 
 Use wackydb_se_create as a "template" to create a new status effect
 
+</details>
+
+<details><summary> Projectile </summary>
+
+
+## Projectile Data
+
+Projectile files are stored in `wackysDatabase/Projectiles`. All fields except `name` and `clonePrefabName` are optional; omitted fields keep the prefab's existing value.
+
+### Identity
+
+- `proj_name` (string, required): Projectile prefab name to modify or create.
+- `clonePrefabName` (string): Existing projectile prefab used as the clone source.
+
+### Damage and hit behavior
+
+- `m_type` (`ProjectileType`): Projectile type.
+- `Damage` (`WDamages`): Blunt, Chop, Damage, Fire, Frost, Lightning, Pickaxe, Pierce, Poison, Slash, and Spirit damage.
+- `m_aoe` (float): Projectile hit area radius.
+- `m_dodgeable` (bool): Whether the hit can be dodged.
+- `m_blockable` (bool): Whether the hit can be blocked.
+- `m_adrenaline` (float): Adrenaline value applied by the hit.
+- `m_attackForce` (float): Hit force.
+- `m_backstabBonus` (float): Backstab bonus.
+- `StatusEffect` (string): Status effect applied on hit.
+- `m_healthReturn` (float): Health returned by the hit.
+- `m_canHitWater` (bool): Whether the projectile can hit water.
+
+### Movement and lifetime
+
+- `m_ttl`, `m_gravity`, `m_drag`, `m_rayRadius`, `m_hitNoise` (float): Lifetime, gravity, drag, ray radius, and hit noise.
+- `m_doOwnerRaytest` (bool): Whether to ray-test against the owner.
+
+### Persistence, attachment, and effects
+
+- `m_stayAfterHitStatic`, `m_stayAfterHitDynamic` (bool): Stay attached after hitting static or dynamic targets.
+- `m_stayTTL` (float): Time to remain after a hit.
+- `m_attachToRigidBody`, `m_attachToClosestBone` (bool): Attachment behavior.
+- `m_attachPenetration`, `m_attachBoneNearify` (float): Attachment positioning values.
+- `HideOnHit` (string): Prefab hidden when the projectile hits.
+- `m_stopEmittersOnHit` (bool): Stop visual emitters after a hit.
+- `HitEffects`, `HitWaterEffects`, `SpawnOnHitEffects` (`EffectVerse[]`): Effects for normal hits, water hits, and spawned hits.
+
+### Bounce
+
+- `m_bounce`, `m_bounceOnWater` (bool): Enable bouncing and water bouncing.
+- `m_bouncePower`, `m_bounceRoughness`, `m_minBounceVel` (float): Bounce settings.
+- `m_maxBounces` (int): Maximum bounce count.
+
+### Spawning
+
+- `m_respawnItemOnHit`, `m_spawnOnTtl` (bool): Respawn an item or spawn after the TTL.
+- `SpawnOnHit` (string): Prefab spawned on hit.
+- `m_spawnOnHitChance` (float): Spawn chance from 0 to 1.
+- `m_spawnCount` (int): Number of prefabs spawned on hit.
+- `RandomSpawnOnHit` (string[]): Random prefab pool for hit spawning.
+- `m_randomSpawnOnHitCount` (int): Number selected from the random pool.
+- `m_randomSpawnSkipLava` (bool): Skip random spawning in lava.
+- `m_showBreakMessage`, `m_staticHitOnly`, `m_groundHitOnly` (bool): Hit and break behavior.
+- `m_spawnOffset` (`Vector3Data`): Spawn offset written with plain `x`, `y`, and `z` values.
+- `m_copyProjectileRotation`, `m_spawnRandomRotation`, `m_spawnFacingRotation` (bool): Spawn rotation behavior.
+
+### Spawned projectile behavior
+
+- `m_spawnProjectileNewVelocity` (bool): Give spawned projectiles a new velocity.
+- `m_spawnProjectileMinVel`, `m_spawnProjectileMaxVel`, `m_spawnProjectileRandomDir` (float): Spawned projectile velocity settings.
+- `m_spawnProjectileHemisphereDir` (bool): Restrict random direction to a hemisphere.
+- `m_projectilesInheritHitData`, `m_onlySpawnedProjectilesDealDamage`, `m_divideDamageBetweenProjectiles` (bool): Spawned projectile damage behavior.
+
+### Visual and skill settings
+
+- `m_rotateVisual`, `m_rotateVisualY`, `m_rotateVisualZ` (float): Visual rotation values.
+- `Visual` (string): Visual prefab.
+- `m_canChangeVisuals` (bool): Allow visual changes.
+- `m_skill` (`Skills.SkillType`): Skill associated with the projectile.
+- `m_raiseSkillAmount` (float): Skill experience raised by the projectile.
+
+</details>
+
+
+<details><summary> AOE </summary>
+
+## AOE Data
+
+AOE files are stored in `wackysDatabase/Aoes`. All fields except `name` and `clonePrefabName` are optional.
+
+### Identity, attack, and damage
+
+- `aoe_name` (string, required): AOE prefab name to modify or create.
+- `clonePrefabName` (string): Existing AOE prefab used as the clone source.
+- `m_name` (string): Internal AOE name.
+- `m_useAttackSettings`, `m_scaleDamageByDistance` (bool): Use attack settings and distance damage scaling.
+- `Damage`, `DamagePerLevel` (`WDamages`): Base and per-level damage.
+- `m_dodgeable`, `m_blockable` (bool): Whether the AOE can be dodged or blocked.
+- `m_toolTier` (int): Required tool tier.
+- `m_attackForce`, `m_backstabBonus` (float): Hit force and backstab bonus.
+
+### Status effects and terrain
+
+- `StatusEffect`, `StatusEffectIfBoss`, `StatusEffectIfPlayer` (string): Status effects for normal targets, bosses, and players.
+- `SpawnOnHitTerrain` (string): Terrain prefab spawned on hit.
+- `m_hitTerrainOnlyOnce` (bool): Hit terrain only once.
+- `m_spawnOnGroundType` (`FootStep.GroundMaterial`): Ground material required for spawning.
+- `m_groundLavaValue` (float): Lava threshold for ground spawning.
+- `m_hitNoise` (float): Hit noise.
+- `m_placeOnGround`, `m_randomRotation` (bool): Ground placement and rotation behavior.
+
+### Multi-spawn and chaining
+
+- `m_maxTargetsFromCenter` (int): Maximum targets selected from the center.
+- `m_multiSpawnMin`, `m_multiSpawnMax` (int): Multi-spawn count range.
+- `m_multiSpawnDistanceMin`, `m_multiSpawnDistanceMax` (float): Multi-spawn distance range.
+- `m_multiSpawnScaleMin`, `m_multiSpawnScaleMax` (float): Multi-spawn scale range.
+- `m_multiSpawnSpringDelayMax` (float): Maximum spring delay.
+- `m_chainStartChance`, `m_chainStartChanceFalloff`, `m_chainChancePerTarget` (float): Chain probabilities.
+- `ChainObject` (string): Prefab used for chaining.
+- `m_chainStartDelay` (float): Chain start delay.
+- `m_chainMinTargets`, `m_chainMaxTargets` (int): Chain target limits.
+- `ChainEffects` (`EffectVerse[]`): Effects used during chaining.
+
+### Targeting and launch behavior
+
+- `m_damageSelf` (float): Damage applied to the owner.
+- `m_hitOwner`, `m_hitParent`, `m_hitSame`, `m_hitFriendly`, `m_hitEnemy`, `m_hitCharacters`, `m_hitProps`, `m_hitTerrain`, `m_ignorePVP` (bool): Target filtering.
+- `m_launchCharacters` (bool): Launch characters hit by the AOE.
+- `m_launchForceMinMax` (`Vector2Data`): Minimum and maximum launch force, written with plain `x` and `y` values.
+- `m_launchForceUpFactor` (float): Upward launch multiplier.
+
+### Skill, timing, and shape
+
+- `m_skill` (`Skills.SkillType`): Skill associated with the AOE.
+- `m_canRaiseSkill`, `m_useTriggers`, `m_triggerEnterOnly` (bool): Skill and trigger behavior.
+- `m_radius` (float): AOE radius.
+- `m_activationDelay`, `m_ttl`, `m_ttlMax`, `m_hitInterval` (float): Activation, lifetime, maximum lifetime, and hit interval.
+- `m_hitAfterTtl`, `m_hitOnEnable`, `m_attachToCaster` (bool): Timing and caster attachment behavior.
+- `HitEffects`, `InitiateEffects` (`EffectVerse[]`): Effects on hit and initialization.
 
 </details>
 
@@ -1539,9 +1681,5 @@ Known issues: </br>
  </br>
  </br>
  Making any piece into a craftingstation is a bit buggy. (It's really at the limit to what wackydb can do without Unity)
- </br>
- </br>
- Piece snapshot sometimes doesn't work and spawns pieces below ground, apparently they can break and the items rise to the surface. </br>
- While I can't fix the main issue right now, you can resolve the issue by not using piece snapshot and use customIcons for any material changes.
  </br>
 Stay Wacky.

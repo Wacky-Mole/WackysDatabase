@@ -87,6 +87,124 @@ namespace wackydatabase.SetData
         {
             return new EffectList { m_effectPrefabs = new EffectData[0] };
         }
+
+        private static GameObject FindPrefab(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            GameObject prefab = ZNetScene.instance?.GetPrefab(name);
+            return prefab ?? Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(obj => obj != null && obj.name == name);
+        }
+
+        private static GameObject GetOrClonePrefab(string name, string clonePrefabName)
+        {
+            GameObject prefab = FindPrefab(name);
+            if (prefab != null || string.IsNullOrEmpty(clonePrefabName))
+                return prefab;
+
+            GameObject source = FindPrefab(clonePrefabName);
+            if (source == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"Unable to clone {name}: prefab {clonePrefabName} was not found.");
+                return null;
+            }
+
+            prefab = WMRecipeCust.Instantiate(source, WMRecipeCust.Root.transform, false);
+            prefab.name = name;
+            int hash = name.GetStableHashCode();
+            if (ZNetScene.instance != null && !ZNetScene.instance.m_namedPrefabs.ContainsKey(hash))
+            {
+                if (prefab.GetComponent<ZNetView>() != null)
+                    ZNetScene.instance.m_prefabs.Add(prefab);
+                else
+                    ZNetScene.instance.m_nonNetViewPrefabs.Add(prefab);
+                ZNetScene.instance.m_namedPrefabs.Add(hash, prefab);
+            }
+
+            return prefab;
+        }
+
+        private static Vector2 GetVector2(Vector2Data value)
+        {
+            return new Vector2(value.x ?? 0f, value.y ?? 0f);
+        }
+
+        private static Vector3 GetVector3(Vector3Data value)
+        {
+            return new Vector3(value.x ?? 0f, value.y ?? 0f, value.z ?? 0f);
+        }
+
+        private static void ApplyMatchingFields(object component, object data)
+        {
+            var componentType = component.GetType();
+            foreach (var sourceField in data.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public))
+            {
+                if (!sourceField.Name.StartsWith("m_"))
+                    continue;
+
+                object value = sourceField.GetValue(data);
+                if (value == null)
+                    continue;
+
+                var targetField = componentType.GetField(sourceField.Name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+                if (targetField != null && targetField.FieldType == sourceField.FieldType)
+                    targetField.SetValue(component, value);
+            }
+        }
+
+        internal static void SetProjectileData(ProjectileData data)
+        {
+            if (data == null || string.IsNullOrEmpty(data.proj_name))
+                return;
+
+            GameObject prefab = GetOrClonePrefab(data.proj_name, data.clonePrefabName);
+            Projectile projectile = prefab?.GetComponent<Projectile>();
+            if (projectile == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"Projectile data {data.proj_name} was not applied because its prefab has no Projectile component.");
+                return;
+            }
+
+            ApplyMatchingFields(projectile, data);
+            if (data.Damage != null) projectile.m_damage = WeaponDamage.ParseDamageTypes(data.Damage);
+            if (data.m_spawnOffset != null) projectile.m_spawnOffset = GetVector3(data.m_spawnOffset);
+            if (data.StatusEffect != null) projectile.m_statusEffect = data.StatusEffect;
+            if (data.HideOnHit != null) projectile.m_hideOnHit = FindPrefab(data.HideOnHit);
+            if (data.Visual != null) projectile.m_visual = FindPrefab(data.Visual);
+            if (data.SpawnOnHit != null) projectile.m_spawnOnHit = FindPrefab(data.SpawnOnHit);
+            if (data.RandomSpawnOnHit != null) projectile.m_randomSpawnOnHit = data.RandomSpawnOnHit.Select(FindPrefab).Where(obj => obj != null).ToList();
+            if (data.HitEffects != null) projectile.m_hitEffects = FindEffect(projectile.m_hitEffects, data.HitEffects);
+            if (data.HitWaterEffects != null) projectile.m_hitWaterEffects = FindEffect(projectile.m_hitWaterEffects, data.HitWaterEffects);
+            if (data.SpawnOnHitEffects != null) projectile.m_spawnOnHitEffects = FindEffect(projectile.m_spawnOnHitEffects, data.SpawnOnHitEffects);
+        }
+
+        internal static void SetAoeData(AoeData data)
+        {
+            if (data == null || string.IsNullOrEmpty(data.aoe_name))
+                return;
+
+            GameObject prefab = GetOrClonePrefab(data.aoe_name, data.clonePrefabName);
+            Aoe aoe = prefab?.GetComponent<Aoe>();
+            if (aoe == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"AOE data {data.aoe_name} was not applied because its prefab has no Aoe component.");
+                return;
+            }
+
+            ApplyMatchingFields(aoe, data);
+            if (data.Damage != null) aoe.m_damage = WeaponDamage.ParseDamageTypes(data.Damage);
+            if (data.DamagePerLevel != null) aoe.m_damagePerLevel = WeaponDamage.ParseDamageTypes(data.DamagePerLevel);
+            if (data.m_launchForceMinMax != null) aoe.m_launchForceMinMax = GetVector2(data.m_launchForceMinMax);
+            if (data.StatusEffect != null) aoe.m_statusEffect = data.StatusEffect;
+            if (data.StatusEffectIfBoss != null) aoe.m_statusEffectIfBoss = data.StatusEffectIfBoss;
+            if (data.StatusEffectIfPlayer != null) aoe.m_statusEffectIfPlayer = data.StatusEffectIfPlayer;
+            if (data.SpawnOnHitTerrain != null) aoe.m_spawnOnHitTerrain = FindPrefab(data.SpawnOnHitTerrain);
+            if (data.ChainObject != null) aoe.m_chainObj = FindPrefab(data.ChainObject);
+            if (data.ChainEffects != null) aoe.m_chainEffects = FindEffect(aoe.m_chainEffects, data.ChainEffects);
+            if (data.HitEffects != null) aoe.m_hitEffects = FindEffect(aoe.m_hitEffects, data.HitEffects);
+            if (data.InitiateEffects != null) aoe.m_initiateEffect = FindEffect(aoe.m_initiateEffect, data.InitiateEffects);
+        }
         
         #region Effects
 

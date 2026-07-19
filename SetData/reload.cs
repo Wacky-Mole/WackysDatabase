@@ -89,6 +89,8 @@ namespace wackydatabase.SetData
                 WMRecipeCust.creatureDatasYml.Clear();
                 WMRecipeCust.pickableDatasYml.Clear();
                 WMRecipeCust.treebaseDatasYml.Clear();
+                WMRecipeCust.projectileDatasYml.Clear();
+                WMRecipeCust.aoeDatasYml.Clear();
 
                 WMRecipeCust.MultiplayerApproved.Clear();
                 WMRecipeCust.SEaddBonus.Clear();
@@ -141,6 +143,14 @@ namespace wackydatabase.SetData
                         else if (word.Contains("treeHealth"))
                         {
                         WMRecipeCust.treebaseDatasYml.Add(deserializer.Deserialize<TreeBaseData>(word));
+                        }
+                        else if (word.Contains("aoe_name"))
+                        {
+                        WMRecipeCust.aoeDatasYml.Add(deserializer.Deserialize<AoeData>(word));
+                        }
+                        else if (word.Contains("proj_name"))
+                        {
+                        WMRecipeCust.projectileDatasYml.Add(deserializer.Deserialize<ProjectileData>(word));
                         }
 
                     }
@@ -779,6 +789,42 @@ namespace wackydatabase.SetData
                 catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data.name} failed"); }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode )
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            WMRecipeCust.WLog.LogInfo($"Setting Projectiles ");
+            foreach (var data in WMRecipeCust.projectileDatasYml)
+            {
+                try
+                {
+                    SetData.SetProjectileData(data);
+                }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Set projectile data for {data.proj_name} failed: {ex.Message}");
+                }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            WMRecipeCust.WLog.LogInfo($"Setting Aoes ");
+            foreach (var data in WMRecipeCust.aoeDatasYml)
+            {
+                try
+                {
+                    SetData.SetAoeData(data);
+                }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Set AOE data for {data.aoe_name} failed: {ex.Message}");
+                }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
                 {
                     yield return new WaitForSeconds(WMRecipeCust.WaitTime);
                     processcount = 0;
