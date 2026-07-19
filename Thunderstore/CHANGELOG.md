@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.5.00  | You asked for it for years. Wacky delievered. Projectile and Aoe support added. </br> Bug fix for creature materials. |
 | 2.4.97  | Bug fix for SE StartEffects/StopEffects being null, now they are just empty on new SEs. - lol |
 | 2.4.96  | Removed the old SE StartEffects/StopEffects and made sure it was null for new SEs. </br>  |
 | 2.4.95  | Hardened the recipe logic to minimize duplication. </br> Rewrote piece snapshot manager again. This time it should not break and drop items.  |

@@ -1676,7 +1676,6 @@ Do whatever you want with this mod.
 </details>
 
 Known issues: </br>
- Creature material is not working
  </br>
  </br>
  </br>

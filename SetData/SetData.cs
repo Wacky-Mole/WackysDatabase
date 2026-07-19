@@ -158,6 +158,7 @@ namespace wackydatabase.SetData
             if (data == null || string.IsNullOrEmpty(data.proj_name))
                 return;
 
+
             GameObject prefab = GetOrClonePrefab(data.proj_name, data.clonePrefabName);
             Projectile projectile = prefab?.GetComponent<Projectile>();
             if (projectile == null)
@@ -177,12 +178,16 @@ namespace wackydatabase.SetData
             if (data.HitEffects != null) projectile.m_hitEffects = FindEffect(projectile.m_hitEffects, data.HitEffects);
             if (data.HitWaterEffects != null) projectile.m_hitWaterEffects = FindEffect(projectile.m_hitWaterEffects, data.HitWaterEffects);
             if (data.SpawnOnHitEffects != null) projectile.m_spawnOnHitEffects = FindEffect(projectile.m_spawnOnHitEffects, data.SpawnOnHitEffects);
+
+            if (WMRecipeCust.isDebug.Value)
+                WMRecipeCust.Dbgl($"Applied Projectile data {data.proj_name}");
         }
 
         internal static void SetAoeData(AoeData data)
         {
             if (data == null || string.IsNullOrEmpty(data.aoe_name))
                 return;
+
 
             GameObject prefab = GetOrClonePrefab(data.aoe_name, data.clonePrefabName);
             Aoe aoe = prefab?.GetComponent<Aoe>();
@@ -204,6 +209,9 @@ namespace wackydatabase.SetData
             if (data.ChainEffects != null) aoe.m_chainEffects = FindEffect(aoe.m_chainEffects, data.ChainEffects);
             if (data.HitEffects != null) aoe.m_hitEffects = FindEffect(aoe.m_hitEffects, data.HitEffects);
             if (data.InitiateEffects != null) aoe.m_initiateEffect = FindEffect(aoe.m_initiateEffect, data.InitiateEffects);
+
+            if (WMRecipeCust.isDebug.Value)
+                WMRecipeCust.Dbgl($"Applied AOE data {data.aoe_name}");
         }
         
         #region Effects

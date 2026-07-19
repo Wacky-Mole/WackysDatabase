@@ -359,6 +359,7 @@ namespace wackydatabase.Read
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "*.yml", SearchOption.AllDirectories)
                 .Where(file => Path.GetFileNameWithoutExtension(file).IndexOf("aoe", StringComparison.OrdinalIgnoreCase) >= 0))
             {
+
                 yaml.Load<AoeData>(file, WMRecipeCust.aoeDatasYml);
 
                 processcount++;
