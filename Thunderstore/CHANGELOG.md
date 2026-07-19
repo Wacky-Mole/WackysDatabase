@@ -1,12 +1,13 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.5.01  | Bug Fix|
 | 2.5.00  | You asked for it for years. Wacky delievered. Projectile and Aoe support added. </br> Bug fix for creature materials. |
 | 2.4.97  | Bug fix for SE StartEffects/StopEffects being null, now they are just empty on new SEs. - lol |
 | 2.4.96  | Removed the old SE StartEffects/StopEffects and made sure it was null for new SEs. </br>  |
 | 2.4.95  | Hardened the recipe logic to minimize duplication. </br> Rewrote piece snapshot manager again. This time it should not break and drop items.  |
-| 2.4.94  | Added ammoType to Items. ( Useful for custom tankard and some weapons)
-| 2.4.93  | Fixing asset sync issues. Connection issue fix.
-| 2.4.92  | Piece build: now requires "- delete", to delete all build reqs. </br> doing wackydb_reload after asset sync automatically. </br> Restored old piece snapshot. 
+| 2.4.94  | Added ammoType to Items. (Useful for custom tankards and some weapons). |
+| 2.4.93  | Fixed asset-sync and connection issues. |
+| 2.4.92  | Piece build now requires `-` to delete all build requirements. </br> Runs `wackydb_reload` automatically after asset sync. </br> Restored the old piece snapshot. |
 | 2.4.91  | Reenabled serversync for large asset transfers.
 | 2.4.90  | Rewrote a lot of the logic for live updates. </br> Improved piece snapshot handling. </br> Send the Load now triggers after a player logs in. No need to include the textures anymore. </br> piece build is now not required for pieces to preserve cost. |
 | 2.4.83  | Added lots of null guards for weird null pieces. |
@@ -37,9 +38,9 @@
 | 2.4.54  | Added burnable to WearnTear. |
 | 2.4.53  | Added Display Normal Logs config. If you want to turn off most of wackydb logs. You shouldn't do this unless you have a good reason. ie 1000+ yamls </br> Removed comfortObject and replaced with comfortObjectName. </br> Lowered some warnings to just info logs. |
 | 2.4.52  | Fixed Tooltip for Water|
-| 2.4.51  | Update 220.3 - ServerSync update. Fixed Startup Error on GamePass Crossplay |
+| 2.4.51  | Update 220.3 and ServerSync update. Fixed a startup error on Game Pass crossplay. |
 | 2.4.50  | Added ShieldGenData </br>Added BatteringRamData </br>Okay, I’ve had some questions about icons being in folders over the past few weeks. You can specify the relative file path of the icon. For example, if your icon is in the folder `Icons/Items/wacky.png`, just use `"Items/wacky.png"`. Will revealing the "secret" forward slash come back to haunt me? Absolutely. |
-| 2.4.48  | ConsumableStatusEffect can be deleted now ("delete"). </br> Added materialType to WearNTear on pieces. You can now change the material the piece is made out of and it's support strength as a result. 
+| 2.4.48  | ConsumableStatusEffect can now be deleted with `delete`. </br> Added materialType to WearNTear on pieces, allowing the piece material and support strength to be changed. |
 | 2.4.47  | Added Feast editing feastStacks to FoodStats. Feasts have a Item and Piece component and then an another _Material item. Most people should just edit the normal Item. Can't clone because they are too complicated. </br> Added ashlandProof to ships(pieces) (Majestic request) </br> Added SE cache(ing) for mods like MonsterDB. </br> Added AppendToolTip to items. It's not used too much, but essential when needed (mostly foods)(ignore this for feasts) </br>  Cleaned up some code.|
 | 2.4.46  | Minor bug fix for extra resource consumption with recipes.|
 | 2.4.45  | Expanded saving Attack classes for non attack items that still have important fields. Like Hoe and Shields. |
@@ -54,7 +55,7 @@
 | 2.4.25  | Coop sync fix</br> Rewrote how 'ExtraSecurity on Servers' works. Should sync from Servers to clients better now.  </br> Send logs for any issues|
 | 2.4.24  | PerBurst_Resource_usage bug fix.|
 | 2.4.23  | Updated PerBurst_Resource_usage and Destroy_Previous_Projectile for misspellings. If you use these, please regenerate your yaml files or rename fields, otherwise can be ignored. </br> Bug fixes for pickables with other plant mods.|
-| 2.4.22  | Bug fixes for materials. </br> AlanDrake added filterMode to textures for advanced texturing. 
+| 2.4.22  | Bug fixes for materials. </br> AlanDrake added filterMode to textures for advanced texturing. |
 | 2.4.21  | Incoming Big Update sponsored by Lughbaloo: Pickables and Plants! </br> PlantData is saved in pieces, which point to either Pickable or Treebase when matured. When you pick a pickable it becomes an item. You can of course clone and change size/material. Enjoy this wacky expansion.|
 | 2.4.13  | Bug fix for attack_status_effect|
 | 2.4.12  | Rexabyte fix for darker textures than intended. Also you can now save materials with spaces in the name, using underscores '_' in place of a space. </br> Bug fix for unarmed hits|

@@ -606,7 +606,7 @@ if (m_attackChainLevels > 1 && m_currentAttackCainLevel == m_attackChainLevels -
 </br>
 
 
-- `Attack_Projectile` (string): The Gameobject projectile has to have Projectile Componenent. Disabled for now. 
+- `Attack_Projectile` (string): Projectile prefab assigned to the attack. The prefab must have a `Projectile` component. Use `delete` or `-` to clear an existing projectile. Supported for both primary and secondary attacks.
 - `Projectile_Vel` (float): The velocity of the projectile.
 - `Projectile_Accuracy` (float): The accuracy of the projectile.
 - `Projectile_Accuracy_Min` (float): The minimum limit value accuracy of the projectile. (Matters when you don't use skill accuracy)

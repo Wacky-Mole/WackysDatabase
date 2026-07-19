@@ -2797,53 +2797,13 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_specialHitSkill = data.Primary_Attack.Special_Hit_Skill ?? PrimaryItemData.m_shared.m_attack.m_specialHitSkill;
                         PrimaryItemData.m_shared.m_attack.m_specialHitType = data.Primary_Attack.Special_Hit_Type ?? PrimaryItemData.m_shared.m_attack.m_specialHitType;
                         
-
-                        /*
-                                               if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile)) // Only use this is you want the item to have unlimited arrows, magic arrows or something
-                                               {
-                                                   GameObject found = null;
-                                                   foreach (var ob in AllObjects)
-                                                   {
-                                                       if (ob.name == data.Primary_Attack.Attack_Projectile)
-                                                       {
-                                                           if (ob.TryGetComponent<Projectile>( out Projectile peter))
-                                                           {
-                                                               PrimaryItemData.m_shared.m_attack.m_attackProjectile = ob;
-                                                               break;
-                                                           }
-                                                           else
-                                                           {
-                                                               if (ob.TryGetComponent<Piece>(out var piece1))
-                                                               {
-
-                                                               }
-                                                               if (ob.TryGetComponent<ItemDrop>(out var item1))
-                                                               {
-
-                                                               }
-                                                               //PrimaryItemData.m_shared.m_attack.m_attackProjectile = ob;
-                                                           }
-                                                       }
-                                                   }
-                                               }
-
-
-                                               if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile)  && (data.Primary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger.name))
-                                               {
-                                                   GameObject found = null;
-                                                   foreach (var ob in AllObjects)
-                                                   {
-                                                       if (ob.name == data.Primary_Attack.Attack_Projectile)
-                                                       {
-                                                           if (found == null)
-                                                               found = ob;
-                                                           else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                                               found = ob;
-                                                           else { }
-                                                       }
-                                                   }
-                                                   PrimaryItemData.m_shared.m_attack.m_attackProjectile = found ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
-                                               } */ // disabled attack projectile for now
+                        if (!string.IsNullOrEmpty(data.Primary_Attack.Attack_Projectile))
+                        {
+                            if (data.Primary_Attack.Attack_Projectile == "delete" || data.Primary_Attack.Attack_Projectile == "-")
+                                PrimaryItemData.m_shared.m_attack.m_attackProjectile = null;
+                            else
+                                PrimaryItemData.m_shared.m_attack.m_attackProjectile = FindPrefab(data.Primary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_attack.m_attackProjectile;
+                        }
 
                         PrimaryItemData.m_shared.m_attack.m_projectileVel = data.Primary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_attack.m_projectileVel;
                         // accept corrected spelling first, fall back to old misspelled field for backwards compatibility
@@ -3028,27 +2988,15 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_skillHitType = data.Secondary_Attack.Skill_Hit_Type ?? PrimaryItemData.m_shared.m_secondaryAttack.m_skillHitType;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_specialHitSkill = data.Secondary_Attack.Special_Hit_Skill ?? PrimaryItemData.m_shared.m_secondaryAttack.m_specialHitSkill;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_specialHitType = data.Secondary_Attack.Special_Hit_Type ?? PrimaryItemData.m_shared.m_secondaryAttack.m_specialHitType;
-                        
 
 
-                        /*
                         if (!string.IsNullOrEmpty(data.Secondary_Attack.Attack_Projectile))
                         {
-                            GameObject found = null;
-                            foreach (var ob in AllObjects)
-                            {
-                                if (ob.name == data.Secondary_Attack.Attack_Projectile)
-                                {
-                                    if (found == null)
-                                        found = ob;
-                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                        found = ob;
-                                    else { }
-                                }
-                            }
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
-                        } */ // disabled for now
-
+                            if (data.Secondary_Attack.Attack_Projectile == "delete" || data.Secondary_Attack.Attack_Projectile == "-")
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = null;
+                            else
+                                PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile = FindPrefab(data.Secondary_Attack.Attack_Projectile) ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackProjectile;
+                        }
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel = data.Secondary_Attack.Projectile_Vel ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileVel;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy = data.Secondary_Attack.Projectile_Accuracy ?? data.Secondary_Attack.Projectile_Accuraccy ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracy;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracyMin = data.Secondary_Attack.Projectile_Accuracy_Min ?? PrimaryItemData.m_shared.m_secondaryAttack.m_projectileAccuracyMin;
