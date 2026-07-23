@@ -691,7 +691,7 @@ namespace wackydatabase.SetData
                 else 
                 {
                     RecipeRUPGRADE.m_resources = UpgradeReqs.ToArray();
-                    RecipeRUPGRADE.m_enabled = true;
+                    RecipeRUPGRADE.m_enabled = false;
                     WMRecipeCust.RequiredUpgradeItemsString[RecipeRUPGRADE] = true;
                 }
                 if (WMRecipeCust.showLogs.Value)

@@ -219,29 +219,37 @@ namespace wackydatabase.PatchClasses
         public static void Prefix(Player __instance , ref Dictionary<Assembly, Dictionary<Recipe, bool>>? __state)
         {
             __state ??= new Dictionary<Assembly, Dictionary<Recipe, bool>>();
-            Dictionary<Recipe, bool> hidden = new Dictionary<Recipe, bool>();
+            Dictionary<Recipe, bool> recipeStates = new Dictionary<Recipe, bool>();
 
             if (InventoryGui.instance.InCraftTab())
             {
-               hidden = WMRecipeCust.RequiredUpgradeItemsString.ToDictionary(entry => entry.Key,
-                                               entry => entry.Value); // Opposite of ItemManager
+                foreach (Recipe recipe in WMRecipeCust.RequiredUpgradeItemsString.Keys)
+                {
+                    recipeStates[recipe] = recipe.m_enabled;
+                    recipe.m_enabled = false;
+                }
             }
             else if (InventoryGui.instance.InUpradeTab())
             {
-                hidden = WMRecipeCust.RequiredCraftItemsString.ToDictionary(entry => entry.Key,
-                                               entry => entry.Value); 
+                foreach (Recipe recipe in WMRecipeCust.RequiredCraftItemsString.Keys)
+                {
+                    recipeStates[recipe] = recipe.m_enabled;
+                    recipe.m_enabled = false;
+                }
+
+                foreach (Recipe recipe in WMRecipeCust.RequiredUpgradeItemsString.Keys)
+                {
+                    if (!recipeStates.ContainsKey(recipe))
+                        recipeStates[recipe] = recipe.m_enabled;
+                    recipe.m_enabled = true;
+                }
             }
             else
             {
                 return;
             }
 
-            foreach (Recipe recipe in hidden.Keys)
-            {
-                recipe.m_enabled = false;
-            }
-            
-            __state[Assembly.GetExecutingAssembly()] = hidden;
+            __state[Assembly.GetExecutingAssembly()] = recipeStates;
         }
 
         [HarmonyFinalizer]
