@@ -609,17 +609,6 @@ namespace wackydatabase.SetData
             RecipeR.m_amount = data.amount ?? RecipeR.m_amount;
             RecipeR.name = tempname;
 
-            if (data.maxStationLevelCap != null)
-            {
-                if (!WMRecipeCust.RecipeMaxStationLvl.ContainsKey(RecipeR.m_item.name))
-                {
-                    WMRecipeCust.RecipeMaxStationLvl.Add(RecipeR.m_item.name, data.maxStationLevelCap ?? -1); // -1 no cap
-                } else
-                {
-                    WMRecipeCust.RecipeMaxStationLvl[RecipeR.m_item.name] = data.maxStationLevelCap ?? -1;
-                }
-            }
-
             if (data.upgrade_reqs != null && data.upgrade_reqs.Any() )
             {
                 List<Piece.Requirement> UpgradeReqs = new();
@@ -780,6 +769,9 @@ namespace wackydatabase.SetData
                     Instant.m_recipes.Insert(index, RecipeR);
                 }
             }
+
+            if (data.maxStationLevelCap != null)
+                WMRecipeCust.RecipeMaxStationLvl[RecipeR] = data.maxStationLevelCap.Value;
 
             if (!data.disabled ?? true)
             {

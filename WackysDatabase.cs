@@ -180,7 +180,7 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalSFX;
         public static Dictionary<string, GameObject> originalFX;
         public static Dictionary<string, GameObject> extraEffects;
-        public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>();
+        public static Dictionary<Recipe, int> RecipeMaxStationLvl = new Dictionary<Recipe, int>();
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
         public static Dictionary<string, Tuple <string, float, string, float>> SEWeaponChoice = new Dictionary<string, Tuple<string, float, string, float>>();
         public static Dictionary<string, Recipe> hiddenRecipeUpgrade; // Reqs_Upgrade

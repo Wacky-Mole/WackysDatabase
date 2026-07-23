@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.5.12  | Fixed the bug for upgrade recipe showing other recipes when a material from it is picked up. </br> Made the maxStationLevelCap a bit more robust. |
 | 2.5.11  | Bug Fix|
 | 2.5.00  | You asked for it for years. Wacky delievered. Projectile and Aoe support added. </br> Bug fix for creature materials. |
 | 2.4.97  | Bug fix for SE StartEffects/StopEffects being null, now they are just empty on new SEs. - lol |
