@@ -415,6 +415,39 @@ namespace wackydatabase.PatchClasses
         }
     }
 
+    [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.CanRepair))]
+    internal static class InventoryGui_CanRepair_StationLevelPatch
+    {
+        private static readonly MethodInfo MathfMinIntMethod = AccessTools.Method(typeof(Mathf), nameof(Mathf.Min), new[] { typeof(int), typeof(int) });
+
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            WMRecipeCust.Dbgl("Transpiler patch for InventoryGui.CanRepair");
+
+            for (int i = 1; i < codes.Count; ++i)
+            {
+                if (codes[i].Calls(MathfMinIntMethod) && IsLoadInt(codes[i - 1], 4))
+                {
+                    codes[i - 1] = new CodeInstruction(OpCodes.Ldc_I4, int.MaxValue)
+                    {
+                        labels = codes[i - 1].labels,
+                        blocks = codes[i - 1].blocks
+                    };
+                    break;
+                }
+            }
+
+            return codes;
+        }
+
+        private static bool IsLoadInt(CodeInstruction instruction, int value)
+        {
+            return instruction.opcode == OpCodes.Ldc_I4 && instruction.operand is int operand && operand == value
+                || instruction.opcode == OpCodes.Ldc_I4_4 && value == 4;
+        }
+    }
+
     [HarmonyPatch(typeof(StatusEffect), "Stop")]
     static class StatusEffectChainCheck
     {

@@ -213,6 +213,12 @@ namespace wackydatabase.SetData
             if (WMRecipeCust.isDebug.Value)
                 WMRecipeCust.Dbgl($"Applied AOE data {data.aoe_name}");
         }
+
+        private static void AddPieceToTable(PieceTable table, GameObject piece)
+        {
+            if (table != null && piece != null && !table.m_pieces.Contains(piece))
+                table.m_pieces.Add(piece);
+        }
         
         #region Effects
 
@@ -937,10 +943,11 @@ namespace wackydatabase.SetData
                 if (WMRecipeCust.showLogs.Value)
                     WMRecipeCust.Dbgl($"Piece being set {tempname} is CLONE of {data.clonePrefabName}");
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
-                GameObject newItem = WMRecipeCust.Instantiate(go, RootT, false);
+                GameObject newItem = ZNetScene.instance?.GetPrefab(tempname) ?? WMRecipeCust.Instantiate(go, RootT, false);
                 Piece NewItemComp = newItem.GetComponent<Piece>();
 
-                WMRecipeCust.ClonedP.Add(tempname); // check against
+                if (!WMRecipeCust.ClonedP.Contains(tempname))
+                    WMRecipeCust.ClonedP.Add(tempname); // check against
                 newItem.name = tempname; // resets the orginal name- needs to be unquie
                 NewItemComp.name = tempname; // ingame name
                 data.name = tempname; // putting back name
@@ -991,7 +998,7 @@ namespace wackydatabase.SetData
                             catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                         }
                         // piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
-                        WMRecipeCust.selectedPiecehammer.m_pieces.Add(newItem);
+                        AddPieceToTable(WMRecipeCust.selectedPiecehammer, newItem);
                     }
                     else if (WMRecipeCust.selectedPiecehammer == null)
                     {
@@ -1000,7 +1007,7 @@ namespace wackydatabase.SetData
                         piecehammer = Instant.GetItemPrefab("Hammer");
 
                         NewItemComp.m_category = Piece.PieceCategory.Misc; // set the category
-                        piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem);
+                        AddPieceToTable(piecehammer.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces, newItem);
                     }
                     else
                     {
@@ -1010,7 +1017,7 @@ namespace wackydatabase.SetData
                             { PieceManager.BuildPiece.BuildTableConfigChangedWacky(NewItemComp, data.piecehammerCategory); }
                             catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                         }
-                        WMRecipeCust.selectedPiecehammer.m_pieces.Add(newItem); // adding item to PiceTable
+                        AddPieceToTable(WMRecipeCust.selectedPiecehammer, newItem); // adding item to PiceTable
                     }
                 }
                 else
@@ -1021,7 +1028,7 @@ namespace wackydatabase.SetData
                         { PieceManager.BuildPiece.BuildTableConfigChangedWacky(NewItemComp, data.piecehammerCategory); }
                         catch { WMRecipeCust.Dbgl($"piecehammerCategory named {data.piecehammerCategory} did not set correctly "); }
                     }
-                    piecehammer?.GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Add(newItem); // if piecehammer is the actual item and not the PieceTable
+                    AddPieceToTable(piecehammer?.GetComponent<ItemDrop>()?.m_itemData.m_shared.m_buildPieces, newItem); // if piecehammer is the actual item and not the PieceTable
                 }
 
                 

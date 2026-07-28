@@ -1,8 +1,9 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.5.13  | Added Saftety checks to piece clones to prevent duplicates. </br> Tranaspiler patch for InventoryGui CanRepair for recipes that repairs past quality level 5 min.  |
 | 2.5.12  | Fixed the bug for upgrade recipe showing other recipes when a material from it is picked up. </br> Made the maxStationLevelCap a bit more robust. </br> Changed how ServerSync Reloads are stored. When a second one comes in before the first one completes, it will be queued and processed. |
 | 2.5.11  | Bug Fix|
-| 2.5.00  | You asked for it for years. Wacky delievered. Projectile and Aoe support added. </br> Bug fix for creature materials. |
+| 2.5.00  | You asked for it for years. Wacky delivered. Projectile and Aoe support added. </br> Bug fix for creature materials. |
 | 2.4.97  | Bug fix for SE StartEffects/StopEffects being null, now they are just empty on new SEs. - lol |
 | 2.4.96  | Removed the old SE StartEffects/StopEffects and made sure it was null for new SEs. </br>  |
 | 2.4.95  | Hardened the recipe logic to minimize duplication. </br> Rewrote piece snapshot manager again. This time it should not break and drop items.  |
