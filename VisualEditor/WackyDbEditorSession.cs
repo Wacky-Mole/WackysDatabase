@@ -34,6 +34,9 @@ namespace wackydatabase.VisualEditor
         internal MaterialData WorkingChanges = new MaterialData();
         internal bool IsEditingExistingSharedMaterial;
         internal bool IsCreatingNewMaterial;
+        internal bool MaterialChangesDirty;
+        internal string CloneName = string.Empty;
+        internal string DisplayName = string.Empty;
 
         internal void ClearSelection()
         {
@@ -55,6 +58,7 @@ namespace wackydatabase.VisualEditor
             WorkingChanges = new MaterialData();
             IsEditingExistingSharedMaterial = false;
             IsCreatingNewMaterial = false;
+            MaterialChangesDirty = false;
         }
     }
 }

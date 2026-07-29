@@ -18,6 +18,7 @@ namespace wackydatabase.VisualEditor
         private readonly WackyDbObjectSelector _selector = new WackyDbObjectSelector();
         private readonly WackyDbMaterialSlotInspector _inspector = new WackyDbMaterialSlotInspector();
         private readonly WackyDbMaterialLibrary _materialLibrary = new WackyDbMaterialLibrary();
+        private readonly WackyDbYamlExporter _exporter = new WackyDbYamlExporter();
         private WackyDbPreviewRenderer _preview;
 
         private Rect _windowRect = new Rect(80f, 60f, 1250f, 700f);
@@ -133,6 +134,8 @@ namespace wackydatabase.VisualEditor
             GUILayout.Space(8f);
             DrawSelectionDetails();
             GUILayout.EndHorizontal();
+
+            DrawSavePanel();
 
             if (!string.IsNullOrEmpty(_status))
             {
@@ -337,7 +340,8 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
-            GUILayout.Label("Source: " + _session.WorkingBaseMaterial.name);
+            GUILayout.Label("Source material: " + _session.WorkingBaseMaterial.name);
+            GUILayout.Label("The source material is copied as the base for preview and editing.");
             _materialSearch = GUILayout.TextField(_materialSearch);
             List<string> matches = _materialLibrary.Search(_materialSearch, 6);
             foreach (string materialName in matches)
@@ -362,7 +366,7 @@ namespace wackydatabase.VisualEditor
             GUILayout.Label("New shared material name", GUILayout.Width(155f));
             _session.NewMaterialName = GUILayout.TextField(_session.NewMaterialName);
             GUILayout.EndHorizontal();
-            GUILayout.Label("This names the reusable Material YAML, not a cloned prefab.");
+            GUILayout.Label("This names the reusable Material YAML.");
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("New Shared Material"))
@@ -420,8 +424,63 @@ namespace wackydatabase.VisualEditor
 
             if (changed)
             {
+                _session.MaterialChangesDirty = true;
                 ApplyWorkingMaterial();
             }
+        }
+
+        private void DrawSavePanel()
+        {
+            if (_session.SelectedObject == null)
+            {
+                return;
+            }
+
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label("Save");
+            string materialName = GetActiveMaterialName();
+            GUILayout.Label(string.IsNullOrEmpty(materialName)
+                ? "Material reference: choose an existing shared material or create a new one."
+                : "Material reference: " + materialName);
+
+            GUILayout.BeginHorizontal();
+            bool previousEnabled = GUI.enabled;
+            GUI.enabled = CanSaveMaterial();
+            if (GUILayout.Button("Save Material YAML"))
+            {
+                SaveMaterialYaml(true);
+            }
+
+            GUI.enabled = previousEnabled && CanSaveObject(materialName);
+            if (GUILayout.Button("Save Overwrite YAML"))
+            {
+                SaveObject(false, false);
+            }
+            if (GUILayout.Button("Save Overwrite + Reload"))
+            {
+                SaveObject(false, true);
+            }
+            GUI.enabled = previousEnabled;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Clone prefab name", GUILayout.Width(120f));
+            _session.CloneName = GUILayout.TextField(_session.CloneName);
+            GUILayout.Label("Display name", GUILayout.Width(80f));
+            _session.DisplayName = GUILayout.TextField(_session.DisplayName);
+            GUILayout.EndHorizontal();
+            GUILayout.Label("Clone prefab name creates a new item/piece. It is separate from the shared material name above.");
+
+            GUI.enabled = previousEnabled
+                && CanSaveObject(materialName)
+                && !string.IsNullOrWhiteSpace(_session.CloneName)
+                && !string.IsNullOrWhiteSpace(_session.DisplayName);
+            if (GUILayout.Button("Clone New Object"))
+            {
+                SaveObject(true, false);
+            }
+            GUI.enabled = previousEnabled;
+            GUILayout.EndVertical();
         }
 
         private static float DrawColorChannel(string label, float value, ref bool changed)
@@ -514,6 +573,7 @@ namespace wackydatabase.VisualEditor
             _session.NewMaterialName = materialInfo.Name + "_Wacky";
             _session.WorkingBaseMaterial = materialInfo.Material;
             _session.WorkingChanges = GetColorChanges(materialInfo.Material);
+            _session.MaterialChangesDirty = false;
             _materialLibrarySelection = string.Empty;
             _sharedReferenceCount = 0;
             ApplyWorkingMaterial();
@@ -534,6 +594,7 @@ namespace wackydatabase.VisualEditor
             _session.WorkingChanges = GetColorChanges(material);
             _session.IsEditingExistingSharedMaterial = _materialLibrary.IsWackyMaterial(materialName);
             _session.IsCreatingNewMaterial = false;
+            _session.MaterialChangesDirty = false;
             _sharedReferenceCount = _session.IsEditingExistingSharedMaterial
                 ? _materialLibrary.CountYamlReferences(materialName)
                 : 0;
@@ -561,6 +622,7 @@ namespace wackydatabase.VisualEditor
 
             _session.IsCreatingNewMaterial = true;
             _session.IsEditingExistingSharedMaterial = false;
+            _session.MaterialChangesDirty = true;
             _sharedReferenceCount = 0;
             ApplyWorkingMaterial();
         }
@@ -584,6 +646,147 @@ namespace wackydatabase.VisualEditor
                 }
             }
             return changes;
+        }
+
+        private string GetActiveMaterialName()
+        {
+            if (_session.IsCreatingNewMaterial)
+            {
+                return _session.NewMaterialName?.Trim() ?? string.Empty;
+            }
+
+            return _session.SelectedSharedMaterialName?.Trim() ?? string.Empty;
+        }
+
+        private bool CanSaveMaterial()
+        {
+            return _session.WorkingBaseMaterial
+                && (_session.IsCreatingNewMaterial || _session.IsEditingExistingSharedMaterial)
+                && !string.IsNullOrWhiteSpace(GetActiveMaterialName());
+        }
+
+        private bool CanSaveObject(string materialName)
+        {
+            return !string.IsNullOrWhiteSpace(materialName)
+                && (_session.SelectedObject.Type == WackyDbObjectType.Item
+                    || _session.SelectedObject.Type == WackyDbObjectType.Piece);
+        }
+
+        private MaterialInstance BuildMaterialInstance()
+        {
+            string materialName = GetActiveMaterialName();
+            MaterialInstance existing = _session.IsEditingExistingSharedMaterial
+                ? _materialLibrary.LoadMaterialYaml(materialName)
+                : null;
+
+            return new MaterialInstance
+            {
+                name = materialName,
+                original = existing != null && !string.IsNullOrWhiteSpace(existing.original)
+                    ? existing.original
+                    : _session.WorkingBaseMaterial.name,
+                overwrite = existing?.overwrite ?? false,
+                changes = _session.WorkingChanges
+            };
+        }
+
+        private bool SaveMaterialYaml(bool force)
+        {
+            if (!CanSaveMaterial())
+            {
+                _status = "Choose New Shared Material or an existing WackyDB shared material before saving material YAML.";
+                return false;
+            }
+
+            if (!force && !_session.IsCreatingNewMaterial && !_session.MaterialChangesDirty)
+            {
+                return true;
+            }
+
+            MaterialInstance material = BuildMaterialInstance();
+            if (!_exporter.SaveMaterial(material))
+            {
+                _status = "Material save failed: " + _exporter.LastError;
+                return false;
+            }
+
+            _session.MaterialChangesDirty = false;
+            _session.SelectedSharedMaterialName = material.name;
+            _session.IsCreatingNewMaterial = false;
+            _session.IsEditingExistingSharedMaterial = true;
+            _materialLibrary.Refresh();
+            _status = "Saved material YAML: " + material.name;
+            return true;
+        }
+
+        private void SaveObject(bool clone, bool reload)
+        {
+            string materialName = GetActiveMaterialName();
+            if (!CanSaveObject(materialName))
+            {
+                _status = "Select an item or piece and choose a shared material before saving.";
+                return;
+            }
+
+            if ((_session.IsCreatingNewMaterial || _session.MaterialChangesDirty) && !SaveMaterialYaml(false))
+            {
+                return;
+            }
+
+            WackyDbObjectCandidate selected = _session.SelectedObject;
+            bool saved;
+            if (selected.Type == WackyDbObjectType.Item)
+            {
+                saved = clone
+                    ? _exporter.SaveItemClone(selected.Prefab, selected.Name, _session.CloneName.Trim(), _session.DisplayName.Trim(), materialName)
+                    : _exporter.SaveItemOverwrite(selected.Prefab, selected.Name, materialName);
+            }
+            else
+            {
+                saved = clone
+                    ? _exporter.SavePieceClone(selected.Name, _session.CloneName.Trim(), _session.DisplayName.Trim(), selected.PieceHammer, materialName)
+                    : _exporter.SavePieceOverwrite(selected.Name, selected.PieceHammer, materialName);
+            }
+
+            if (!saved)
+            {
+                _status = "Object save failed: " + _exporter.LastError;
+                return;
+            }
+
+            _status = clone
+                ? "Saved cloned object YAML: " + _session.CloneName
+                : "Saved overwrite YAML: " + selected.Name;
+
+            if (reload)
+            {
+                ReloadSavedYaml();
+            }
+        }
+
+        private void ReloadSavedYaml()
+        {
+            if (!ObjectDB.instance || !WMRecipeCust.issettoSinglePlayer)
+            {
+                _status += " Reload is only available in a loaded single-player world.";
+                return;
+            }
+
+            wackydatabase.Read.ReadFiles readNow = new wackydatabase.Read.ReadFiles();
+            WMRecipeCust.context.StartCoroutine(readNow.GetDataFromFiles(true));
+            WMRecipeCust.readFiles = readNow;
+
+            wackydatabase.SetData.Reload reload = new wackydatabase.SetData.Reload();
+            WMRecipeCust.CurrentReload = reload;
+            if (WMRecipeCust.HasLobbied)
+            {
+                WMRecipeCust.context.StartCoroutine(reload.LoadAllRecipeData(true, true, true));
+            }
+            else
+            {
+                WMRecipeCust.context.StartCoroutine(reload.LoadAllRecipeData(true, true));
+            }
+            _status += " Reload started.";
         }
 
         private void ApplyWorkingMaterial()
@@ -672,6 +875,10 @@ namespace wackydatabase.VisualEditor
             _session.ClearSelection();
             _session.SelectedObject = candidate;
             _detailScroll = Vector2.zero;
+            _session.CloneName = candidate.Name + "_Wacky";
+            _session.DisplayName = string.IsNullOrEmpty(candidate.DisplayName)
+                ? candidate.Name + " Wacky"
+                : candidate.DisplayName + " Wacky";
 
             try
             {
