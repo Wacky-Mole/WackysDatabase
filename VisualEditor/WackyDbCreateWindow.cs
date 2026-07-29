@@ -19,6 +19,7 @@ namespace wackydatabase.VisualEditor
         private readonly WackyDbMaterialSlotInspector _inspector = new WackyDbMaterialSlotInspector();
         private readonly WackyDbMaterialLibrary _materialLibrary = new WackyDbMaterialLibrary();
         private readonly WackyDbYamlExporter _exporter = new WackyDbYamlExporter();
+        private readonly WackyDbTextureBrowser _textureBrowser = new WackyDbTextureBrowser();
         private WackyDbPreviewRenderer _preview;
 
         private Rect _windowRect = new Rect(80f, 60f, 1250f, 700f);
@@ -32,6 +33,9 @@ namespace wackydatabase.VisualEditor
         private int _sharedReferenceCount;
         private bool _previewDragging;
         private bool _fullScreen;
+        private string _textureSearch = string.Empty;
+        private string _selectedTextureName = string.Empty;
+        private string _selectedTextureProperty = string.Empty;
 
         internal static void Open(string prefabName = null)
         {
@@ -431,7 +435,82 @@ namespace wackydatabase.VisualEditor
             }
 
             DrawWorkingColors();
+            DrawTextureEditor();
             GUILayout.EndVertical();
+        }
+
+        private void DrawTextureEditor()
+        {
+            List<string> properties = GetTexturePropertyNames(_session.WorkingBaseMaterial);
+            if (properties.Count == 0)
+            {
+                GUILayout.Label("Texture properties: none");
+                return;
+            }
+
+            GUILayout.Space(4f);
+            GUILayout.Label("Texture Properties");
+            foreach (string propertyName in properties)
+            {
+                bool hasChange = _session.WorkingChanges.textures.ContainsKey(propertyName);
+                string prefix = propertyName == _selectedTextureProperty ? "> " : string.Empty;
+                string suffix = hasChange ? "  [changed]" : string.Empty;
+                if (GUILayout.Button(prefix + propertyName + suffix))
+                {
+                    _selectedTextureProperty = propertyName;
+                }
+            }
+
+            if (string.IsNullOrEmpty(_selectedTextureProperty))
+            {
+                GUILayout.Label("Select a shader texture property.");
+                return;
+            }
+
+            Texture currentTexture = _session.WorkingChanges.textures.TryGetValue(
+                _selectedTextureProperty,
+                out Texture2D changedTexture)
+                ? changedTexture
+                : _session.WorkingBaseMaterial.GetTexture(_selectedTextureProperty);
+            GUILayout.Label("Property: " + _selectedTextureProperty);
+            GUILayout.Label("Current: " + (currentTexture ? currentTexture.name : "<none>"));
+
+            _textureSearch = GUILayout.TextField(_textureSearch);
+            foreach (string textureName in _textureBrowser.Search(_textureSearch, 8))
+            {
+                string prefix = textureName == _selectedTextureName ? "> " : string.Empty;
+                if (GUILayout.Button(prefix + textureName))
+                {
+                    _selectedTextureName = textureName;
+                    _textureSearch = textureName;
+                }
+            }
+
+            Texture2D selectedTexture = _textureBrowser.GetTexture(_selectedTextureName);
+            if (selectedTexture)
+            {
+                Rect thumbnail = GUILayoutUtility.GetRect(96f, 96f, GUILayout.ExpandWidth(false));
+                GUI.DrawTexture(thumbnail, selectedTexture, ScaleMode.ScaleToFit, true);
+            }
+
+            GUILayout.BeginHorizontal();
+            bool previousEnabled = GUI.enabled;
+            GUI.enabled = selectedTexture;
+            if (GUILayout.Button("Assign Selected Texture"))
+            {
+                _session.WorkingChanges.textures[_selectedTextureProperty] = selectedTexture;
+                EnsureNewMaterialForChange();
+                ApplyWorkingMaterial();
+            }
+            GUI.enabled = previousEnabled && _session.WorkingChanges.textures.ContainsKey(_selectedTextureProperty);
+            if (GUILayout.Button("Remove Texture Change"))
+            {
+                _session.WorkingChanges.textures.Remove(_selectedTextureProperty);
+                EnsureNewMaterialForChange();
+                ApplyWorkingMaterial();
+            }
+            GUI.enabled = previousEnabled;
+            GUILayout.EndHorizontal();
         }
 
         private void DrawWorkingColors()
@@ -462,15 +541,7 @@ namespace wackydatabase.VisualEditor
 
             if (changed)
             {
-                if (!_session.IsCreatingNewMaterial && !_session.IsEditingExistingSharedMaterial)
-                {
-                    string baseName = string.IsNullOrWhiteSpace(_session.SelectedSharedMaterialName)
-                        ? _session.WorkingBaseMaterial.name
-                        : _session.SelectedSharedMaterialName;
-                    _session.NewMaterialName = baseName + "_Wacky";
-                    _session.IsCreatingNewMaterial = true;
-                }
-                _session.MaterialChangesDirty = true;
+                EnsureNewMaterialForChange();
                 ApplyWorkingMaterial();
             }
         }
@@ -595,6 +666,7 @@ namespace wackydatabase.VisualEditor
             {
                 _selector.Refresh();
                 _materialLibrary.Refresh();
+                _textureBrowser.Refresh();
                 _status = _selector.GetCandidates().Count + " objects discovered.";
             }
             catch (Exception exception)
@@ -623,6 +695,9 @@ namespace wackydatabase.VisualEditor
             _session.IsEditingExistingSharedMaterial = false;
             _session.MaterialChangesDirty = true;
             _materialLibrarySelection = string.Empty;
+            _selectedTextureProperty = string.Empty;
+            _selectedTextureName = string.Empty;
+            _textureSearch = string.Empty;
             _sharedReferenceCount = 0;
             ApplyWorkingMaterial();
         }
@@ -641,8 +716,32 @@ namespace wackydatabase.VisualEditor
             _session.WorkingBaseMaterial = material;
             _session.WorkingChanges = GetColorChanges(material);
             _session.IsEditingExistingSharedMaterial = _materialLibrary.IsWackyMaterial(materialName);
+            MaterialInstance existingMaterial = _materialLibrary.LoadMaterialYaml(materialName);
+            if (existingMaterial?.changes != null)
+            {
+                if (existingMaterial.changes.floats != null)
+                {
+                    foreach (KeyValuePair<string, float> entry in existingMaterial.changes.floats)
+                    {
+                        _session.WorkingChanges.floats[entry.Key] = entry.Value;
+                    }
+                }
+                if (existingMaterial.changes.textures != null)
+                {
+                    foreach (KeyValuePair<string, Texture2D> entry in existingMaterial.changes.textures)
+                    {
+                        if (entry.Value)
+                        {
+                            _session.WorkingChanges.textures[entry.Key] = entry.Value;
+                        }
+                    }
+                }
+            }
             _session.IsCreatingNewMaterial = false;
             _session.MaterialChangesDirty = false;
+            _selectedTextureProperty = string.Empty;
+            _selectedTextureName = string.Empty;
+            _textureSearch = string.Empty;
             _sharedReferenceCount = _session.IsEditingExistingSharedMaterial
                 ? _materialLibrary.CountYamlReferences(materialName)
                 : 0;
@@ -694,6 +793,38 @@ namespace wackydatabase.VisualEditor
                 }
             }
             return changes;
+        }
+
+        private static List<string> GetTexturePropertyNames(Material material)
+        {
+            List<string> properties = new List<string>();
+            if (!material || !material.shader)
+            {
+                return properties;
+            }
+
+            Shader shader = material.shader;
+            for (int index = 0; index < shader.GetPropertyCount(); index++)
+            {
+                if (shader.GetPropertyType(index) == ShaderPropertyType.Texture)
+                {
+                    properties.Add(shader.GetPropertyName(index));
+                }
+            }
+            return properties;
+        }
+
+        private void EnsureNewMaterialForChange()
+        {
+            if (!_session.IsCreatingNewMaterial && !_session.IsEditingExistingSharedMaterial)
+            {
+                string baseName = string.IsNullOrWhiteSpace(_session.SelectedSharedMaterialName)
+                    ? _session.WorkingBaseMaterial.name
+                    : _session.SelectedSharedMaterialName;
+                _session.NewMaterialName = baseName + "_Wacky";
+                _session.IsCreatingNewMaterial = true;
+            }
+            _session.MaterialChangesDirty = true;
         }
 
         private string GetActiveMaterialName()
