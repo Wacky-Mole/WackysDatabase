@@ -53,7 +53,7 @@ namespace wackydatabase.Datas {
                 }
             } catch(Exception ex)
             {
-                WMRecipeCust.WLog.LogWarning("Something went wrong in file " + file);
+                WMRecipeCust.WLog.LogError("Something went wrong in file " + file);
                 WMRecipeCust.WLog.LogError(ex.Message);
                 
             }

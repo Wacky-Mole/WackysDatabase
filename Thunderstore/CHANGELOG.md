@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.5.14  | Changed a Warning (Something went wrong in file) to an Error|
 | 2.5.13  | Added Saftety checks to piece clones to prevent duplicates. </br> Tranaspiler patch for InventoryGui CanRepair for recipes that repairs past quality level 5 min.  |
 | 2.5.12  | Fixed the bug for upgrade recipe showing other recipes when a material from it is picked up. </br> Made the maxStationLevelCap a bit more robust. </br> Changed how ServerSync Reloads are stored. When a second one comes in before the first one completes, it will be queued and processed. |
 | 2.5.11  | Bug Fix|
