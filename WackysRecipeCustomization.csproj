@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -140,6 +140,7 @@
   <ItemGroup>
     <Compile Include="API.cs" />
     <Compile Include="Armor\armor.cs" />
+    <Compile Include="Datas\AoeData.cs" />
     <Compile Include="Datas\CreatureData.cs" />
     <Compile Include="Datas\DataHelpers.cs" />
     <Compile Include="Datas\DescriptorData.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="Datas\MaterialData.cs" />
     <Compile Include="Datas\PickableData.cs" />
     <Compile Include="Datas\PieceData.cs" />
+    <Compile Include="Datas\ProjectileData.cs" />
     <Compile Include="Datas\RecipeData.cs" />
     <Compile Include="Datas\StatusData.cs" />
     <Compile Include="Datas\TextureData.cs" />

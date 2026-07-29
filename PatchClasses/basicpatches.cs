@@ -219,29 +219,37 @@ namespace wackydatabase.PatchClasses
         public static void Prefix(Player __instance , ref Dictionary<Assembly, Dictionary<Recipe, bool>>? __state)
         {
             __state ??= new Dictionary<Assembly, Dictionary<Recipe, bool>>();
-            Dictionary<Recipe, bool> hidden = new Dictionary<Recipe, bool>();
+            Dictionary<Recipe, bool> recipeStates = new Dictionary<Recipe, bool>();
 
             if (InventoryGui.instance.InCraftTab())
             {
-               hidden = WMRecipeCust.RequiredUpgradeItemsString.ToDictionary(entry => entry.Key,
-                                               entry => entry.Value); // Opposite of ItemManager
+                foreach (Recipe recipe in WMRecipeCust.RequiredUpgradeItemsString.Keys)
+                {
+                    recipeStates[recipe] = recipe.m_enabled;
+                    recipe.m_enabled = false;
+                }
             }
             else if (InventoryGui.instance.InUpradeTab())
             {
-                hidden = WMRecipeCust.RequiredCraftItemsString.ToDictionary(entry => entry.Key,
-                                               entry => entry.Value); 
+                foreach (Recipe recipe in WMRecipeCust.RequiredCraftItemsString.Keys)
+                {
+                    recipeStates[recipe] = recipe.m_enabled;
+                    recipe.m_enabled = false;
+                }
+
+                foreach (Recipe recipe in WMRecipeCust.RequiredUpgradeItemsString.Keys)
+                {
+                    if (!recipeStates.ContainsKey(recipe))
+                        recipeStates[recipe] = recipe.m_enabled;
+                    recipe.m_enabled = true;
+                }
             }
             else
             {
                 return;
             }
 
-            foreach (Recipe recipe in hidden.Keys)
-            {
-                recipe.m_enabled = false;
-            }
-            
-            __state[Assembly.GetExecutingAssembly()] = hidden;
+            __state[Assembly.GetExecutingAssembly()] = recipeStates;
         }
 
         [HarmonyFinalizer]
@@ -389,9 +397,7 @@ namespace wackydatabase.PatchClasses
         private static void Postfix( ref int __result, Recipe __instance)
         {
             if (__instance == null) return;
-            if (__instance.m_item == null) return;
-
-            if (WMRecipeCust.RecipeMaxStationLvl.TryGetValue(__instance.m_item.name, out int level))
+            if (WMRecipeCust.RecipeMaxStationLvl.TryGetValue(__instance, out int level))
             {
                 
                 if (level == -1)
@@ -406,6 +412,39 @@ namespace wackydatabase.PatchClasses
                 //WMRecipeCust.WLog.LogInfo("Current instance name is " + __instance.m_item.name + "With result " +__result);
 
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.CanRepair))]
+    internal static class InventoryGui_CanRepair_StationLevelPatch
+    {
+        private static readonly MethodInfo MathfMinIntMethod = AccessTools.Method(typeof(Mathf), nameof(Mathf.Min), new[] { typeof(int), typeof(int) });
+
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            WMRecipeCust.Dbgl("Transpiler patch for InventoryGui.CanRepair");
+
+            for (int i = 1; i < codes.Count; ++i)
+            {
+                if (codes[i].Calls(MathfMinIntMethod) && IsLoadInt(codes[i - 1], 4))
+                {
+                    codes[i - 1] = new CodeInstruction(OpCodes.Ldc_I4, int.MaxValue)
+                    {
+                        labels = codes[i - 1].labels,
+                        blocks = codes[i - 1].blocks
+                    };
+                    break;
+                }
+            }
+
+            return codes;
+        }
+
+        private static bool IsLoadInt(CodeInstruction instruction, int value)
+        {
+            return instruction.opcode == OpCodes.Ldc_I4 && instruction.operand is int operand && operand == value
+                || instruction.opcode == OpCodes.Ldc_I4_4 && value == 4;
         }
     }
 

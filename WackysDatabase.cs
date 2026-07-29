@@ -48,9 +48,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-
         internal const string ModVersion = "3.0.0";
-
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -62,9 +60,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-
         { DisplayName = ModName, MinimumRequiredVersion = "3.0.0" }; // it is very picky on version number
-
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -79,7 +75,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> extraSecurity;
         public static ConfigEntry<bool> enableYMLWatcher;
         public static ConfigEntry<bool> enableAssetSync;
-        public static ConfigEntry<int> maxAssetSyncFileSizeMB;
+        public static ConfigEntry<int> maxAssetSyncFileSizeMBNew;
         public static ConfigEntry<bool> clonedcache;
         public static ConfigEntry<bool> showLogs;
         public static ConfigEntry<string> extraEffectList;
@@ -113,6 +109,8 @@ namespace wackydatabase
         public static List<CreatureData> creatureDatasYml = new List<CreatureData>();
         public static List<PickableData> pickableDatasYml = new List<PickableData>();
         public static List<TreeBaseData> treebaseDatasYml = new List<TreeBaseData>();
+        public static List<ProjectileData> projectileDatasYml = new List<ProjectileData>();
+        public static List<AoeData> aoeDatasYml = new List<AoeData>();
         public static List<WItemData> cacheItemsYML = new List<WItemData>();// cacheonly
         public static List<MaterialInstance> cacheMaterials = new List<MaterialInstance>();// cacheonly
         public static List<StatusData> cacheStatusYML = new List<StatusData>();// cacheonly
@@ -145,6 +143,8 @@ namespace wackydatabase
         internal static string assetPathObjects;
         internal static string assetPathCreatures;
         internal static string assetPathPickables;
+        internal static string assetPathProjectiles;
+        internal static string assetPathAoes;
         internal static string assetPathOldJsons;
         internal static string assetPathBulkYML;
         internal static string assetPathBulkYMLItems;
@@ -153,6 +153,8 @@ namespace wackydatabase
         internal static string assetPathBulkYMLRecipes;
         internal static string assetPathBulkYMLCreatures;
         internal static string assetPathBulkYMLPickables;
+        internal static string assetPathBulkYMLProjectiles;
+        internal static string assetPathBulkYMLAoes;
         internal static string assetPathIcons;
         internal static string assetPathEffects;
         internal static string assetPathCache;
@@ -178,7 +180,7 @@ namespace wackydatabase
         public static Dictionary<string, GameObject> originalSFX;
         public static Dictionary<string, GameObject> originalFX;
         public static Dictionary<string, GameObject> extraEffects;
-        public static Dictionary<string, int> RecipeMaxStationLvl = new Dictionary<string, int>();
+        public static Dictionary<Recipe, int> RecipeMaxStationLvl = new Dictionary<Recipe, int>();
         public static Dictionary<string, Dictionary<bool, float>> AttackSpeed = new Dictionary<string, Dictionary<bool, float>>();
         public static Dictionary<string, Tuple <string, float, string, float>> SEWeaponChoice = new Dictionary<string, Tuple<string, float, string, float>>();
         public static Dictionary<string, Recipe> hiddenRecipeUpgrade; // Reqs_Upgrade
@@ -223,6 +225,8 @@ namespace wackydatabase
             assetPathObjects = Path.Combine(assetPathconfig, "Objects");
             assetPathCreatures = Path.Combine(assetPathconfig, "Creatures");
             assetPathPickables = Path.Combine(assetPathconfig, "Pickables");
+            assetPathProjectiles = Path.Combine(assetPathconfig, "Projectiles");
+            assetPathAoes = Path.Combine(assetPathconfig, "Aoes");
             assetPathOldJsons = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase-OldJsons");
 
             assetPathBulkYML = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackyDatabase-BulkYML");
@@ -232,6 +236,8 @@ namespace wackydatabase
             assetPathBulkYMLEffects = Path.Combine(assetPathBulkYML, "Effects");
             assetPathBulkYMLCreatures = Path.Combine(assetPathBulkYML, "Creatures");
             assetPathBulkYMLPickables = Path.Combine(assetPathBulkYML, "Pickables");
+            assetPathBulkYMLProjectiles = Path.Combine(assetPathBulkYML, "Projectiles");
+            assetPathBulkYMLAoes = Path.Combine(assetPathBulkYML, "Aoes");
 
             assetPathIcons = Path.Combine(assetPathconfig, "Icons");
             assetPathCache = Path.Combine(assetPathconfig, "Cache");
@@ -315,7 +321,7 @@ namespace wackydatabase
             extraSecurity = config<bool>("General", "ExtraSecurity on Servers", true, "Makes sure a player can't load into a server after going into Singleplayer -resulting in Game Ver .0.0.1, - Recommended to keep this enabled");
             enableYMLWatcher = config<bool>("General", "FileWatcher for YMLs", true, "EnableYMLWatcher Servers/Singleplayer, YMLs will autoreload if Wackydatabase folder changes(created,renamed,edited) - disable for some servers that auto reload too much");
             enableAssetSync = config<bool>("General", "Enable Asset Sync", true, "Enable syncing WackyDB assets (icons/textures/objects) from server to clients after clients load into the world");
-            maxAssetSyncFileSizeMB = config<int>("General", "Max Asset Sync File Size MB", 50, "Maximum size per synced asset file. Larger files are skipped with a safe failure message to avoid disconnects.");
+            maxAssetSyncFileSizeMBNew = config<int>("General", "Max Asset Sync Size MB", 3, "Maximum size per synced asset file. Larger files are skipped with a safe failure message to avoid issues. You must use Network mods for larger sizes, to uncap the network server speed. Network mods don't uncap with crossplay");
             // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
             extraEffectList = config<string>("Effects", "List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
             ConfigSync.CurrentVersion = ModVersion;
@@ -466,6 +472,20 @@ namespace wackydatabase
             {
                 Dbgl("Creating Pickable folder");
                 Directory.CreateDirectory(assetPathPickables);
+            }
+            if (!Directory.Exists(assetPathBulkYMLProjectiles))
+                Directory.CreateDirectory(assetPathBulkYMLProjectiles);
+            if (!Directory.Exists(assetPathBulkYMLAoes))
+                Directory.CreateDirectory(assetPathBulkYMLAoes);
+            if (!Directory.Exists(assetPathProjectiles))
+            {
+                Dbgl("Creating Projectile folder");
+                Directory.CreateDirectory(assetPathProjectiles);
+            }
+            if (!Directory.Exists(assetPathAoes))
+            {
+                Dbgl("Creating Aoe folder");
+                Directory.CreateDirectory(assetPathAoes);
             }
 
             /*

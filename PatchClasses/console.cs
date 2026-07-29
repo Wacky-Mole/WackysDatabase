@@ -680,6 +680,30 @@ namespace wackydatabase.PatchClasses
                             WMRecipeCust.WLog.LogInfo("saved all Pickables/TreeBases in WackyBulk Pickables Folder");
 
                         });
+
+                         Terminal.ConsoleCommand WackyAllProjectiles =
+                         new("wackydb_all_projectiles", "Get all Projectiles in game",
+                         args =>
+                         {
+                             if (!Directory.Exists(WMRecipeCust.assetPathBulkYMLProjectiles))
+                                 Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLProjectiles);
+
+                             new GetDataYML().GetAllProjectiles();
+                             args.Context?.AddString("saved all Projectiles in WackyBulk Projectiles Folder");
+                             WMRecipeCust.WLog.LogInfo("saved all Projectiles in WackyBulk Projectiles Folder");
+                         });
+
+                         Terminal.ConsoleCommand WackyAllAoes =
+                         new("wackydb_all_aoes", "Get all AOEs in game",
+                         args =>
+                         {
+                             if (!Directory.Exists(WMRecipeCust.assetPathBulkYMLAoes))
+                                 Directory.CreateDirectory(WMRecipeCust.assetPathBulkYMLAoes);
+
+                             new GetDataYML().GetAllAoes();
+                             args.Context?.AddString("saved all AOEs in WackyBulk Aoes Folder");
+                             WMRecipeCust.WLog.LogInfo("saved all AOEs in WackyBulk Aoes Folder");
+                         });
     
                          Terminal.ConsoleCommand WackyAllPiece =
                             new("wackydb_all_pieces", "Get all Pieces in game by hammer and optionally by category",
@@ -1019,6 +1043,32 @@ namespace wackydatabase.PatchClasses
 
                             }
 
+                            if (commandtype == "projectile" || commandtype == "Projectile" || commandtype == "proj")
+                            {
+                                ProjectileData clone = RecipeCheck.GetProjectileDataByName(prefab);
+                                if (clone == null)
+                                    return;
+
+                                clone.proj_name = newname;
+                                clone.clonePrefabName = prefab;
+                                WMRecipeCust.CheckModFolder();
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathProjectiles, "Projectile_" + clone.proj_name + ".yml"), serializer.Serialize(clone));
+                                file = "Projectile_" + clone.proj_name;
+                            }
+
+                            if (commandtype == "aoe" || commandtype == "Aoe" || commandtype == "AOE")
+                            {
+                                AoeData clone = RecipeCheck.GetAoeDataByName(prefab);
+                                if (clone == null)
+                                    return;
+
+                                clone.aoe_name = newname;
+                                clone.clonePrefabName = prefab;
+                                WMRecipeCust.CheckModFolder();
+                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathAoes, "Aoe_" + clone.aoe_name + ".yml"), serializer.Serialize(clone));
+                                file = "Aoe_" + clone.aoe_name;
+                            }
+
                             if (commandtype == "material" || commandtype == "Material" || commandtype == "mat")
                             {
                                 string name = prefab;
@@ -1080,6 +1130,50 @@ namespace wackydatabase.PatchClasses
                         args.Context?.AddString($"saved cloned data to {file}.yml");
                         }
                     }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+            Terminal.ConsoleCommand WackySaveProjectile =
+                new("wackydb_save_projectile", "Save a Projectile prefab to WackyDB YAML",
+                    args =>
+                    {
+                        if (args.Length < 2)
+                        {
+                            args.Context?.AddString("<color=red>Enter a projectile prefab name</color>");
+                            return;
+                        }
+
+                        GetDataYML data = new GetDataYML();
+                        ProjectileData projectile = data.GetProjectileDataByName(args[1]);
+                        if (projectile == null)
+                            return;
+
+                        var serializer = new SerializerBuilder().WithNewLine("\n").Build();
+                        string file = Path.Combine(WMRecipeCust.assetPathProjectiles, "Projectile_" + projectile.proj_name + ".yml");
+                        File.WriteAllText(file, serializer.Serialize(projectile));
+                        args.Context?.AddString($"Saved projectile data to {file}");
+                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false,
+                    () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+
+            Terminal.ConsoleCommand WackySaveAoe =
+                new("wackydb_save_aoe", "Save an AOE prefab to WackyDB YAML",
+                    args =>
+                    {
+                        if (args.Length < 2)
+                        {
+                            args.Context?.AddString("<color=red>Enter an AOE prefab name</color>");
+                            return;
+                        }
+
+                        GetDataYML data = new GetDataYML();
+                        AoeData aoe = data.GetAoeDataByName(args[1]);
+                        if (aoe == null)
+                            return;
+
+                        var serializer = new SerializerBuilder().WithNewLine("\n").Build();
+                        string file = Path.Combine(WMRecipeCust.assetPathAoes, "Aoe_" + aoe.aoe_name + ".yml");
+                        File.WriteAllText(file, serializer.Serialize(aoe));
+                        args.Context?.AddString($"Saved AOE data to {file}");
+                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false,
+                    () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+
             Terminal.ConsoleCommand WackyCloneRecipe =
                 new("wackydb_clone_recipeitem", "Clone recipe and item with the orginal prefab ",
                     args =>

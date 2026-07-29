@@ -52,6 +52,18 @@ namespace wackydatabase.Startup
             }
         }
 
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.Disconnect))]
+        class PatchZNetPeerDisconnect
+        {
+            private static void Prefix(ZNetPeer peer)
+            {
+                if (peer != null)
+                {
+                    HandleData.PeerDisconnected(peer.m_uid);
+                }
+            }
+        }
+
         internal static void DestroyClones()
         {
             GameObject go;

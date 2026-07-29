@@ -261,7 +261,6 @@ namespace wackydatabase.Startup
 
         public static bool CheckSecurity()
         {
-            ZNet Net = new ZNet();
             if (WMRecipeCust.extraSecurity.Value && WMRecipeCust.ForceLogout  )
             { 
                 WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
@@ -323,12 +322,13 @@ namespace wackydatabase.Startup
         {
             static void Postfix(Game __instance)
             {
-
-                foreach (var item in WMRecipeCust.SnapshotPiecestoDo)
+                foreach (var item in WMRecipeCust.SnapshotPiecestoDo.ToList())
                 {
-                    Functions.SnapshotPiece(item);
+                    if (Functions.SnapshotPiece(item))
+                    {
+                        WMRecipeCust.SnapshotPiecestoDo.Remove(item);
+                    }
                 }
-                WMRecipeCust.SnapshotPiecestoDo.Clear();
 
                 HandleData.RequestAssetSyncAfterWorldLoad();
             }

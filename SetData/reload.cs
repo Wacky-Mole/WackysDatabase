@@ -24,6 +24,26 @@ namespace wackydatabase.SetData
     public class Reload 
     {
         internal static ItemDrop lastItemSet = null;
+        private bool syncReloadQueued;
+
+        private void CompleteSyncReload()
+        {
+            WMRecipeCust.ssLock = false;
+            WMRecipeCust.ssLockcount = 0;
+
+            if (!syncReloadQueued)
+                return;
+
+            syncReloadQueued = false;
+            WMRecipeCust.context.StartCoroutine(ProcessQueuedSyncReload());
+        }
+
+        private IEnumerator ProcessQueuedSyncReload()
+        {
+            yield return null;
+            SyncEventDetected();
+        }
+
         public void SyncEventDetected()
         {
             // WMRecipeCust.WLog.LogInfo($"Dedicated Sync Detected - remove before release");
@@ -54,15 +74,8 @@ namespace wackydatabase.SetData
             {
                 if (WMRecipeCust.ssLock)
                 {
-                    WMRecipeCust.ssLockcount++;
-                    if (WMRecipeCust.ssLockcount == 2)
-                    {
-                        WMRecipeCust.ssLockcount = 0;
-                        WMRecipeCust.ssLock = false;
-                        WMRecipeCust.WLog.LogWarning($" You recieved SERVER files again again, resetting");
-                        return;
-                    }
-                    WMRecipeCust.WLog.LogWarning($" You recieved SERVER files again before finishing current ones, -bug wackydb");
+                    syncReloadQueued = true;
+                    WMRecipeCust.WLog.LogWarning("Received SERVER files while a reload is active; queued the latest server update.");
                     return;
                 }
                 WMRecipeCust.WLog.LogDebug("CustomSyncEventDetected was called ");
@@ -89,6 +102,8 @@ namespace wackydatabase.SetData
                 WMRecipeCust.creatureDatasYml.Clear();
                 WMRecipeCust.pickableDatasYml.Clear();
                 WMRecipeCust.treebaseDatasYml.Clear();
+                WMRecipeCust.projectileDatasYml.Clear();
+                WMRecipeCust.aoeDatasYml.Clear();
 
                 WMRecipeCust.MultiplayerApproved.Clear();
                 WMRecipeCust.SEaddBonus.Clear();
@@ -115,32 +130,49 @@ namespace wackydatabase.SetData
                         if (WMRecipeCust.isDebugString.Value)
                             WMRecipeCust.WLog.LogInfo("Current Parsing String is  " + word);
 
-                        if (word.Contains("m_weight")) //item
+                        try
                         {
-                            WMRecipeCust.itemDatasYml.Add(deserializer.Deserialize<WItemData>(word));
+                            if (word.Contains("m_weight")) //item
+                            {
+                                WMRecipeCust.itemDatasYml.Add(deserializer.Deserialize<WItemData>(word));
+                            }
+                            else if (word.Contains("piecehammer")) // only piece
+                            {
+                                WMRecipeCust.pieceDatasYml.Add(deserializer.Deserialize<PieceData>(word));
+                            }
+                            else if (word.Contains("reqs"))// only recipes
+                            {
+                                WMRecipeCust.recipeDatasYml.Add(deserializer.Deserialize<RecipeData>(word));
+                            }else if (word.Contains("Status_m_name"))
+                            {
+                                WMRecipeCust.effectDataYml.Add(deserializer.Deserialize<StatusData>(word));
+                            }
+                            else if (word.Contains("mob_display_name"))
+                            {
+                            WMRecipeCust.creatureDatasYml.Add(deserializer.Deserialize<CreatureData>(word));
+                            }
+                            else if (word.Contains("itemPrefab"))
+                            {
+                            WMRecipeCust.pickableDatasYml.Add(deserializer.Deserialize<PickableData>(word));
+                            }
+                            else if (word.Contains("treeHealth"))
+                            {
+                            WMRecipeCust.treebaseDatasYml.Add(deserializer.Deserialize<TreeBaseData>(word));
+                            }
+                            else if (word.Contains("aoe_name"))
+                            {
+                            WMRecipeCust.aoeDatasYml.Add(deserializer.Deserialize<AoeData>(word));
+                            }
+                            else if (word.Contains("proj_name"))
+                            {
+                            WMRecipeCust.projectileDatasYml.Add(deserializer.Deserialize<ProjectileData>(word));
+                            }
                         }
-                        else if (word.Contains("piecehammer")) // only piece
+                        catch (Exception ex)
                         {
-                            WMRecipeCust.pieceDatasYml.Add(deserializer.Deserialize<PieceData>(word));
-                        }
-                        else if (word.Contains("reqs"))// only recipes
-                        {
-                            WMRecipeCust.recipeDatasYml.Add(deserializer.Deserialize<RecipeData>(word));
-                        }else if (word.Contains("Status_m_name"))
-                        {
-                            WMRecipeCust.effectDataYml.Add(deserializer.Deserialize<StatusData>(word));
-                        }
-                        else if (word.Contains("mob_display_name"))
-                        {
-                        WMRecipeCust.creatureDatasYml.Add(deserializer.Deserialize<CreatureData>(word));
-                        }
-                        else if (word.Contains("itemPrefab"))
-                        {
-                        WMRecipeCust.pickableDatasYml.Add(deserializer.Deserialize<PickableData>(word));
-                        }
-                        else if (word.Contains("treeHealth"))
-                        {
-                        WMRecipeCust.treebaseDatasYml.Add(deserializer.Deserialize<TreeBaseData>(word));
+                            WMRecipeCust.WLog.LogWarning($"Failed to parse synchronized server data: {ex.Message}");
+                            CompleteSyncReload();
+                            return;
                         }
 
                     }
@@ -148,6 +180,7 @@ namespace wackydatabase.SetData
                     {
                         WMRecipeCust.LoadinMultiplayerFirst = false; // Only for first Load in on Multiplayer, Keeps Mutliplayer loading last 
                         WMRecipeCust.Dbgl($" Delaying Server Reloading Until very end");
+                        CompleteSyncReload();
                         return;
                     }
 
@@ -163,6 +196,7 @@ namespace wackydatabase.SetData
                 else
                 {
                     WMRecipeCust.WLog.LogWarning("Synced String was blank " + SyncedString);
+                    CompleteSyncReload();
                 }
             }
         }
@@ -533,16 +567,16 @@ namespace wackydatabase.SetData
             {
                 try
                 {
-                    if (piece != null)
-                        Functions.SnapshotPiece(piece);
+                    if (piece != null && Functions.SnapshotPiece(piece))
+                    {
+                        WMRecipeCust.SnapshotPiecestoDo.Remove(piece);
+                    }
                 }
                 catch
                 {
                     WMRecipeCust.WLog.LogWarning($"Piece snapshot refresh failed for {piece?.name}");
                 }
             }
-
-            WMRecipeCust.SnapshotPiecestoDo.Clear();
         }
 
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false, bool forcepush= false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
@@ -550,8 +584,10 @@ namespace wackydatabase.SetData
 
             if (reload)
             {
-                ZNet Net = new ZNet();
-                Startup.Startup.IsLocalInstance(Net);
+                if (ZNet.instance != null)
+                {
+                    Startup.Startup.IsLocalInstance(ZNet.instance);
+                }
             }
 
             if (WMRecipeCust.AwakeHasRun && WMRecipeCust.Firstrun)
@@ -782,6 +818,42 @@ namespace wackydatabase.SetData
                     processcount = 0;
                 }
             }
+            WMRecipeCust.WLog.LogInfo($"Setting Projectiles ");
+            foreach (var data in WMRecipeCust.projectileDatasYml)
+            {
+                try
+                {
+                    SetData.SetProjectileData(data);
+                }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Set projectile data for {data.proj_name} failed: {ex.Message}");
+                }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            WMRecipeCust.WLog.LogInfo($"Setting Aoes ");
+            foreach (var data in WMRecipeCust.aoeDatasYml)
+            {
+                try
+                {
+                    SetData.SetAoeData(data);
+                }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Set AOE data for {data.aoe_name} failed: {ex.Message}");
+                }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
             foreach (var data in WMRecipeCust.recipeDatasYml) // recipes last
             {
                 try
@@ -904,7 +976,7 @@ namespace wackydatabase.SetData
             {
                 OtherApi.Marketplace_API.ResetTraderItems();
             }
-            WMRecipeCust.ssLock = false;
+            CompleteSyncReload();
 
 
         }      
