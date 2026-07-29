@@ -79,6 +79,7 @@ namespace wackydatabase
         public static ConfigEntry<bool> clonedcache;
         public static ConfigEntry<bool> showLogs;
         public static ConfigEntry<string> extraEffectList;
+        public static ConfigEntry<KeyCode> creatorHotkey;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
         internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Asset Sync
@@ -214,6 +215,7 @@ namespace wackydatabase
         {
            // Localizer.Load();// Does not work because wackydb needs to key what to look for
             StartupConfig(); // startup varables
+            gameObject.AddComponent<VisualEditor.WackyDbCreateHotkeyListener>();
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
             assetPathconfig = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase");
             assetPathItems = Path.Combine(assetPathconfig, "Items");
@@ -324,6 +326,7 @@ namespace wackydatabase
             maxAssetSyncFileSizeMBNew = config<int>("General", "Max Asset Sync Size MB", 3, "Maximum size per synced asset file. Larger files are skipped with a safe failure message to avoid issues. You must use Network mods for larger sizes, to uncap the network server speed. Network mods don't uncap with crossplay");
             // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
             extraEffectList = config<string>("Effects", "List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
+            creatorHotkey = config<KeyCode>("General", "Material Creator Hotkey", KeyCode.F11, "Hotkey used to open or close the WackyDB material creator", false);
             ConfigSync.CurrentVersion = ModVersion;
 
             WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);

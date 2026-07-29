@@ -82,6 +82,44 @@ namespace wackydatabase.VisualEditor
             }
         }
 
+        internal static void ToggleWithGameUi(string prefabName = null)
+        {
+            WackyDbCreateWindow window = EnsureInstance();
+            if (!window)
+            {
+                return;
+            }
+
+            bool opening = !window.enabled || !string.IsNullOrWhiteSpace(prefabName);
+            if (!string.IsNullOrWhiteSpace(prefabName))
+            {
+                Open(prefabName);
+            }
+            else
+            {
+                Toggle();
+            }
+
+            WMRecipeCust.context.StartCoroutine(PrepareGameUi(opening));
+        }
+
+        private static System.Collections.IEnumerator PrepareGameUi(bool opening)
+        {
+            yield return null;
+
+            if (global::Console.instance && global::Console.IsVisible())
+            {
+                global::Console.instance.m_chatWindow.gameObject.SetActive(false);
+            }
+
+            yield return null;
+
+            if (opening && InventoryGui.instance)
+            {
+                InventoryGui.instance.Show(null);
+            }
+        }
+
         private static WackyDbCreateWindow EnsureInstance()
         {
             if (_instance)
@@ -424,6 +462,14 @@ namespace wackydatabase.VisualEditor
 
             if (changed)
             {
+                if (!_session.IsCreatingNewMaterial && !_session.IsEditingExistingSharedMaterial)
+                {
+                    string baseName = string.IsNullOrWhiteSpace(_session.SelectedSharedMaterialName)
+                        ? _session.WorkingBaseMaterial.name
+                        : _session.SelectedSharedMaterialName;
+                    _session.NewMaterialName = baseName + "_Wacky";
+                    _session.IsCreatingNewMaterial = true;
+                }
                 _session.MaterialChangesDirty = true;
                 ApplyWorkingMaterial();
             }
@@ -573,7 +619,9 @@ namespace wackydatabase.VisualEditor
             _session.NewMaterialName = materialInfo.Name + "_Wacky";
             _session.WorkingBaseMaterial = materialInfo.Material;
             _session.WorkingChanges = GetColorChanges(materialInfo.Material);
-            _session.MaterialChangesDirty = false;
+            _session.IsCreatingNewMaterial = true;
+            _session.IsEditingExistingSharedMaterial = false;
+            _session.MaterialChangesDirty = true;
             _materialLibrarySelection = string.Empty;
             _sharedReferenceCount = 0;
             ApplyWorkingMaterial();
@@ -715,7 +763,7 @@ namespace wackydatabase.VisualEditor
             _session.IsCreatingNewMaterial = false;
             _session.IsEditingExistingSharedMaterial = true;
             _materialLibrary.Refresh();
-            _status = "Saved material YAML: " + material.name;
+            _status = "Saved material YAML: " + _exporter.LastSavedPath;
             return true;
         }
 
@@ -755,8 +803,8 @@ namespace wackydatabase.VisualEditor
             }
 
             _status = clone
-                ? "Saved cloned object YAML: " + _session.CloneName
-                : "Saved overwrite YAML: " + selected.Name;
+                ? "Saved cloned object YAML: " + _exporter.LastSavedPath
+                : "Saved overwrite YAML: " + _exporter.LastSavedPath;
 
             if (reload)
             {
@@ -924,6 +972,22 @@ namespace wackydatabase.VisualEditor
             {
                 _preview.Dispose();
                 _preview = null;
+            }
+        }
+    }
+
+    internal sealed class WackyDbCreateHotkeyListener : MonoBehaviour
+    {
+        private void OnGUI()
+        {
+            Event current = Event.current;
+            if (current.type == EventType.KeyDown
+                && WMRecipeCust.modEnabled.Value
+                && WMRecipeCust.creatorHotkey != null
+                && current.keyCode == WMRecipeCust.creatorHotkey.Value)
+            {
+                WackyDbCreateWindow.ToggleWithGameUi();
+                current.Use();
             }
         }
     }

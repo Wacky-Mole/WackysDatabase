@@ -1,4 +1,6 @@
 using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using wackydatabase.Datas;
@@ -25,6 +27,8 @@ namespace wackydatabase.VisualEditor
         private int _selectedSlot = -1;
         private Material _originalSlotMaterial;
         private Material _previewMaterial;
+        private Transform _sourceRoot;
+        private readonly Dictionary<int, Renderer> _rendererMap = new Dictionary<int, Renderer>();
 
         internal RenderTexture Texture => _texture;
         internal bool HasPreview => _clone && _camera && _texture;
@@ -67,11 +71,15 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
-            string relativePath = GetRelativePath(sourceRenderer.transform);
-            Transform cloneTransform = string.IsNullOrEmpty(relativePath)
-                ? _clone.transform
-                : _clone.transform.Find(relativePath);
-            Renderer cloneRenderer = cloneTransform ? cloneTransform.GetComponent(sourceRenderer.GetType()) as Renderer : null;
+            _rendererMap.TryGetValue(sourceRenderer.GetInstanceID(), out Renderer cloneRenderer);
+            if (!cloneRenderer)
+            {
+                string relativePath = GetRelativePath(sourceRenderer.transform);
+                Transform cloneTransform = relativePath == null
+                    ? null
+                    : string.IsNullOrEmpty(relativePath) ? _clone.transform : _clone.transform.Find(relativePath);
+                cloneRenderer = cloneTransform ? cloneTransform.GetComponent(sourceRenderer.GetType()) as Renderer : null;
+            }
             if (!cloneRenderer || slot < 0 || slot >= cloneRenderer.sharedMaterials.Length)
             {
                 throw new InvalidOperationException("The selected renderer slot could not be mapped to the preview clone.");
@@ -151,6 +159,8 @@ namespace wackydatabase.VisualEditor
             _clone = null;
             _camera = null;
             _light = null;
+            _sourceRoot = null;
+            _rendererMap.Clear();
         }
 
         private void RestoreSelectedMaterial()
@@ -214,6 +224,7 @@ namespace wackydatabase.VisualEditor
 
         private void InstantiatePreview(GameObject prefab)
         {
+            _sourceRoot = prefab.transform;
             bool forceDisableInit = ZNetView.m_forceDisableInit;
             ZNetView.m_forceDisableInit = true;
             try
@@ -228,6 +239,18 @@ namespace wackydatabase.VisualEditor
             _clone.name = prefab.name + " (WackyDB Preview)";
             _clone.hideFlags = HideFlags.HideAndDontSave;
             _clone.transform.SetParent(_pivot.transform, true);
+
+            Renderer[] sourceRenderers = prefab.GetComponentsInChildren<Renderer>(true);
+            Renderer[] cloneRenderers = _clone.GetComponentsInChildren<Renderer>(true);
+            int rendererCount = Mathf.Min(sourceRenderers.Length, cloneRenderers.Length);
+            for (int index = 0; index < rendererCount; index++)
+            {
+                if (sourceRenderers[index] && cloneRenderers[index]
+                    && sourceRenderers[index].GetType() == cloneRenderers[index].GetType())
+                {
+                    _rendererMap[sourceRenderers[index].GetInstanceID()] = cloneRenderers[index];
+                }
+            }
 
             foreach (Transform child in _clone.GetComponentsInChildren<Transform>(true))
             {
@@ -299,12 +322,17 @@ namespace wackydatabase.VisualEditor
 
         private string GetRelativePath(Transform sourceTransform)
         {
-            System.Collections.Generic.List<string> parts = new System.Collections.Generic.List<string>();
+            List<string> parts = new List<string>();
             Transform current = sourceTransform;
-            while (current && current.parent)
+            while (current && current != _sourceRoot)
             {
                 parts.Add(current.name);
                 current = current.parent;
+            }
+
+            if (current != _sourceRoot)
+            {
+                return null;
             }
 
             parts.Reverse();

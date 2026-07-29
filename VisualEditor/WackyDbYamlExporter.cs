@@ -3,14 +3,20 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using wackydatabase.Datas;
+using wackydatabase.GetData;
+using YamlDotNet.Serialization;
 
 namespace wackydatabase.VisualEditor
 {
     internal sealed class WackyDbYamlExporter
     {
         private readonly YamlLoader _loader = new YamlLoader();
+        private readonly ISerializer _objectSerializer = new SerializerBuilder()
+            .WithNewLine("\n")
+            .Build();
 
         internal string LastError { get; private set; } = string.Empty;
+        internal string LastSavedPath { get; private set; } = string.Empty;
 
         internal bool SaveMaterial(MaterialInstance material)
         {
@@ -39,7 +45,7 @@ namespace wackydatabase.VisualEditor
                 m_weight = itemDrop.m_itemData.m_shared.m_weight,
                 material = materialName
             };
-            return Write(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(prefabName) + ".yml", data);
+            return WriteObject(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(prefabName) + ".yml", data);
         }
 
         internal bool SavePieceOverwrite(string prefabName, string pieceHammer, string materialName)
@@ -50,7 +56,7 @@ namespace wackydatabase.VisualEditor
                 piecehammer = string.IsNullOrWhiteSpace(pieceHammer) ? "Hammer" : pieceHammer,
                 material = materialName
             };
-            return Write(WMRecipeCust.assetPathPieces, "Piece_" + SanitizeFileName(prefabName) + ".yml", data);
+            return WriteObject(WMRecipeCust.assetPathPieces, "Piece_" + SanitizeFileName(prefabName) + ".yml", data);
         }
 
         internal bool SaveItemClone(
@@ -60,21 +66,23 @@ namespace wackydatabase.VisualEditor
             string displayName,
             string materialName)
         {
-            ItemDrop itemDrop = originalPrefab ? originalPrefab.GetComponent<ItemDrop>() : null;
-            if (!itemDrop)
+            if (!originalPrefab || !ObjectDB.instance)
             {
-                return Fail("The selected prefab is not an item.");
+                return Fail("The selected item prefab or ObjectDB is unavailable.");
             }
 
-            WItemData data = new WItemData
+            WItemData data = new GetDataYML().GetItemDataByName(originalPrefabName, ObjectDB.instance);
+            if (data == null)
             {
-                name = cloneName,
-                clonePrefabName = originalPrefabName,
-                m_name = displayName,
-                m_weight = itemDrop.m_itemData.m_shared.m_weight,
-                material = materialName
-            };
-            return Write(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(cloneName) + ".yml", data);
+                return Fail("Unable to extract all fields from item " + originalPrefabName + ".");
+            }
+
+            data.name = cloneName;
+            data.clonePrefabName = originalPrefabName;
+            data.m_name = displayName;
+            data.material = materialName;
+            data.materials = null;
+            return WriteObject(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(cloneName) + ".yml", data);
         }
 
         internal bool SavePieceClone(
@@ -84,30 +92,34 @@ namespace wackydatabase.VisualEditor
             string pieceHammer,
             string materialName)
         {
-            PieceData data = new PieceData
+            if (!ObjectDB.instance)
             {
-                name = cloneName,
-                clonePrefabName = originalPrefabName,
-                m_name = displayName,
-                piecehammer = string.IsNullOrWhiteSpace(pieceHammer) ? "Hammer" : pieceHammer,
-                material = materialName
-            };
-            return Write(WMRecipeCust.assetPathPieces, "Piece_" + SanitizeFileName(cloneName) + ".yml", data);
+                return Fail("ObjectDB is unavailable.");
+            }
+
+            PieceData data = new GetDataYML().GetPieceRecipeByName(originalPrefabName, ObjectDB.instance);
+            if (data == null)
+            {
+                return Fail("Unable to extract all fields from piece " + originalPrefabName + ".");
+            }
+
+            data.name = cloneName;
+            data.clonePrefabName = originalPrefabName;
+            data.m_name = displayName;
+            data.piecehammer = string.IsNullOrWhiteSpace(pieceHammer) ? data.piecehammer : pieceHammer;
+            data.material = materialName;
+            return WriteObject(WMRecipeCust.assetPathPieces, "Piece_" + SanitizeFileName(cloneName) + ".yml", data);
         }
 
-        private bool Write<T>(string directory, string fileName, T data)
+        private bool WriteObject<T>(string directory, string fileName, T data)
         {
             try
             {
+                WMRecipeCust.CheckModFolder();
                 Directory.CreateDirectory(directory);
                 string path = Path.Combine(directory, fileName);
-                if (!_loader.Write(path, data))
-                {
-                    return Fail("Failed to write " + path);
-                }
-
-                LastError = string.Empty;
-                return true;
+                File.WriteAllText(path, _objectSerializer.Serialize(data));
+                return CompleteWrite(path);
             }
             catch (Exception exception)
             {
@@ -115,9 +127,43 @@ namespace wackydatabase.VisualEditor
             }
         }
 
+        private bool Write<T>(string directory, string fileName, T data)
+        {
+            try
+            {
+                WMRecipeCust.CheckModFolder();
+                Directory.CreateDirectory(directory);
+                string path = Path.Combine(directory, fileName);
+                if (!_loader.Write(path, data))
+                {
+                    return Fail("Failed to write " + path);
+                }
+
+                return CompleteWrite(path);
+            }
+            catch (Exception exception)
+            {
+                return Fail(exception.Message);
+            }
+        }
+
+        private bool CompleteWrite(string path)
+        {
+            if (!File.Exists(path))
+            {
+                return Fail("The YAML writer completed but no file was found at " + path);
+            }
+
+            LastError = string.Empty;
+            LastSavedPath = path;
+            WMRecipeCust.WLog.LogInfo("WackyDB Creator saved YAML: " + path);
+            return true;
+        }
+
         private bool Fail(string error)
         {
             LastError = error;
+            LastSavedPath = string.Empty;
             WMRecipeCust.WLog.LogWarning("WackyDB Creator save failed: " + error);
             return false;
         }

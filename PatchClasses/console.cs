@@ -124,11 +124,11 @@ namespace wackydatabase.PatchClasses
                     {
                         if (args.Length > 1)
                         {
-                            WackyDbCreateWindow.Open(args[1]);
+                            WackyDbCreateWindow.ToggleWithGameUi(args[1]);
                         }
                         else
                         {
-                            WackyDbCreateWindow.Toggle();
+                            WackyDbCreateWindow.ToggleWithGameUi();
                         }
                     }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false);
 
@@ -218,26 +218,16 @@ namespace wackydatabase.PatchClasses
                              // GetRecipeDataFromFiles(); called in loadallrecipes
                              if (ObjectDB.instance && WMRecipeCust.issettoSinglePlayer)
                              {
-
-                                 ReadFiles readnow = new ReadFiles();                               
-                                 WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles(true)); 
-                                 WMRecipeCust.readFiles = readnow;
-
-                                 SetData.Reload josh = new SetData.Reload();
-                                 WMRecipeCust.CurrentReload = josh;
-
                                  if (WMRecipeCust.HasLobbied)
                                  {
-                                     WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true, true));
                                      wackydatabase.WMRecipeCust.Dbgl("Admin: Forcing Push after reload");
                                      args.Context?.AddString($"Admin: Forcing Push after reload");
                                  }
-                                 else
-                                 {
-                                     WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true));
-                                 }
-
-
+                                  WMRecipeCust.context.StartCoroutine(TimedReload(
+                                      true,
+                                      WMRecipeCust.HasLobbied,
+                                      "wackydb_reload",
+                                      message => args.Context?.AddString(message)));
                              }
                              else if(WMRecipeCust.Admin)
                              {
@@ -264,19 +254,11 @@ namespace wackydatabase.PatchClasses
                      // GetRecipeDataFromFiles(); called in loadallrecipes
                      if (ObjectDB.instance && WMRecipeCust.issettoSinglePlayer)
                      {
-
-                         ReadFiles readnow = new ReadFiles();
-                         WMRecipeCust.context.StartCoroutine(readnow.GetDataFromFiles());
-                         WMRecipeCust.readFiles = readnow;
-
-                         SetData.Reload josh = new SetData.Reload();
-                         WMRecipeCust.CurrentReload = josh;
-
-                         WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true));
-
-
-
-                         args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
+                          WMRecipeCust.context.StartCoroutine(TimedReload(
+                              false,
+                              false,
+                              "wackydb_reload_fast",
+                              message => args.Context?.AddString(message)));
                      }
 
                  });
@@ -1324,6 +1306,32 @@ namespace wackydatabase.PatchClasses
                     }
                 }
             }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false);
+        }
+
+        private static System.Collections.IEnumerator TimedReload(
+            bool slowMode,
+            bool forcePush,
+            string commandName,
+            Action<string> report)
+        {
+            System.Diagnostics.Stopwatch timer = System.Diagnostics.Stopwatch.StartNew();
+
+            ReadFiles readNow = new ReadFiles();
+            yield return WMRecipeCust.context.StartCoroutine(readNow.GetDataFromFiles(slowMode));
+            WMRecipeCust.readFiles = readNow;
+
+            SetData.Reload reload = new SetData.Reload();
+            WMRecipeCust.CurrentReload = reload;
+            yield return WMRecipeCust.context.StartCoroutine(reload.LoadAllRecipeData(true, slowMode, forcePush));
+
+            timer.Stop();
+            string message = string.Format(
+                "{0} finished in {1:0.000} seconds ({2:0} ms)",
+                commandName,
+                timer.Elapsed.TotalSeconds,
+                timer.Elapsed.TotalMilliseconds);
+            WMRecipeCust.WLog.LogInfo(message);
+            report?.Invoke(message);
         }
     }
 }
