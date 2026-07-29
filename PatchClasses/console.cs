@@ -10,6 +10,7 @@ using wackydatabase.Datas;
 using wackydatabase.GetData;
 using wackydatabase.Read;
 using wackydatabase.Util;
+using wackydatabase.VisualEditor;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.EventEmitters;
@@ -117,6 +118,20 @@ namespace wackydatabase.PatchClasses
 
             if (SceneManager.GetActiveScene().name != "main") return; // can't do anything from main 
 
+            Terminal.ConsoleCommand WackyCreate =
+                new("wackydb_create", "Open the WackyDB material creator",
+                    args =>
+                    {
+                        if (args.Length > 1)
+                        {
+                            WackyDbCreateWindow.Open(args[1]);
+                        }
+                        else
+                        {
+                            WackyDbCreateWindow.Toggle();
+                        }
+                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false);
+
 
             Terminal.ConsoleCommand WackyShowcommands =
                 new("wackydb", "Display Help ",
@@ -124,6 +139,7 @@ namespace wackydatabase.PatchClasses
                     {
                         string output = $"wackydb_reload -reloads on client or server\r\n" 
                         // + $"wackydb_reset \r\n"
+                        + $"wackydb_create [PrefabName] -Open the material creator\r\n"
                         + $"wackydb_save_recipe  [RecipeName](recipe output)\r\n"
                         + $"wackydb_save_piece [PieceName](piece output) \r\n"
                         + $"wackydb_save_item [ItemName](item Output)\r\n"
@@ -162,6 +178,7 @@ namespace wackydatabase.PatchClasses
                      {
                          string output = $"wackydb_reload\r\n"
                         // + $"wackydb_reset \r\n"
+                        + $"wackydb_create [PrefabName] -Open the material creator\r\n"
                         + $"wackydb_save_recipe  [RecipeName](recipe output)\r\n"
                         + $"wackydb_save_piece [PieceName](piece output) \r\n"
                         + $"wackydb_save_item [ItemName](item Output)\r\n"

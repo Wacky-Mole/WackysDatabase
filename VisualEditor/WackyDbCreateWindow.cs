@@ -1,0 +1,723 @@
+using System;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Rendering;
+using wackydatabase.Datas;
+
+namespace wackydatabase.VisualEditor
+{
+    internal sealed class WackyDbCreateWindow : MonoBehaviour
+    {
+        private const int WindowId = 19850423;
+        private const int MaximumVisibleResults = 250;
+
+        private static WackyDbCreateWindow _instance;
+
+        private readonly WackyDbEditorSession _session = new WackyDbEditorSession();
+        private readonly WackyDbObjectSelector _selector = new WackyDbObjectSelector();
+        private readonly WackyDbMaterialSlotInspector _inspector = new WackyDbMaterialSlotInspector();
+        private readonly WackyDbMaterialLibrary _materialLibrary = new WackyDbMaterialLibrary();
+        private WackyDbPreviewRenderer _preview;
+
+        private Rect _windowRect = new Rect(80f, 60f, 1250f, 700f);
+        private Rect _normalWindowRect;
+        private Vector2 _resultScroll;
+        private Vector2 _detailScroll;
+        private string _searchText = string.Empty;
+        private string _status = string.Empty;
+        private string _materialSearch = string.Empty;
+        private string _materialLibrarySelection = string.Empty;
+        private int _sharedReferenceCount;
+        private bool _previewDragging;
+        private bool _fullScreen;
+
+        internal static void Open(string prefabName = null)
+        {
+            WackyDbCreateWindow window = EnsureInstance();
+            if (!window)
+            {
+                return;
+            }
+
+            window.CenterWindow();
+            window.enabled = true;
+            window.RefreshCandidates();
+
+            if (!string.IsNullOrWhiteSpace(prefabName))
+            {
+                window._searchText = prefabName.Trim();
+                WackyDbObjectCandidate candidate = window._selector.Resolve(window._searchText);
+                if (candidate != null)
+                {
+                    window.Select(candidate);
+                }
+                else
+                {
+                    window._status = "Prefab not found: " + window._searchText;
+                }
+            }
+            else if (window._session.SelectedObject != null)
+            {
+                window.Select(window._session.SelectedObject);
+            }
+        }
+
+        internal static void Toggle()
+        {
+            WackyDbCreateWindow window = EnsureInstance();
+            if (!window)
+            {
+                return;
+            }
+
+            if (window.enabled)
+            {
+                window.Close();
+            }
+            else
+            {
+                Open();
+            }
+        }
+
+        private static WackyDbCreateWindow EnsureInstance()
+        {
+            if (_instance)
+            {
+                return _instance;
+            }
+
+            if (!WMRecipeCust.context)
+            {
+                WMRecipeCust.WLog.LogWarning("Unable to open WackyDB Creator because the plugin is not initialized.");
+                return null;
+            }
+
+            _instance = WMRecipeCust.context.GetComponent<WackyDbCreateWindow>();
+            if (!_instance)
+            {
+                _instance = WMRecipeCust.context.gameObject.AddComponent<WackyDbCreateWindow>();
+                _instance.enabled = false;
+            }
+
+            return _instance;
+        }
+
+        private void OnGUI()
+        {
+            if (_fullScreen)
+            {
+                _windowRect = new Rect(10f, 10f, Mathf.Max(300f, Screen.width - 20f), Mathf.Max(300f, Screen.height - 20f));
+            }
+            else
+            {
+                _windowRect.width = Mathf.Min(_windowRect.width, Screen.width - 20f);
+                _windowRect.height = Mathf.Min(_windowRect.height, Screen.height - 20f);
+            }
+            _windowRect = GUILayout.Window(WindowId, _windowRect, DrawWindow, "WackyDB Creator");
+            _windowRect.x = Mathf.Clamp(_windowRect.x, 0f, Mathf.Max(0f, Screen.width - _windowRect.width));
+            _windowRect.y = Mathf.Clamp(_windowRect.y, 0f, Mathf.Max(0f, Screen.height - _windowRect.height));
+        }
+
+        private void DrawWindow(int id)
+        {
+            GUILayout.BeginVertical();
+            DrawToolbar();
+
+            GUILayout.Space(4f);
+            GUILayout.BeginHorizontal();
+            DrawObjectResults();
+            GUILayout.Space(8f);
+            DrawPreview();
+            GUILayout.Space(8f);
+            DrawSelectionDetails();
+            GUILayout.EndHorizontal();
+
+            if (!string.IsNullOrEmpty(_status))
+            {
+                GUILayout.Space(4f);
+                GUILayout.Label(_status);
+            }
+
+            GUILayout.EndVertical();
+            GUI.DragWindow(new Rect(0f, 0f, _windowRect.width - 45f, 24f));
+        }
+
+        private void DrawToolbar()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Search", GUILayout.Width(48f));
+            _searchText = GUILayout.TextField(_searchText, GUILayout.ExpandWidth(true));
+
+            if (GUILayout.Button("Refresh", GUILayout.Width(75f)))
+            {
+                RefreshCandidates();
+            }
+
+            if (GUILayout.Button(_fullScreen ? "Windowed" : "Full Screen", GUILayout.Width(85f)))
+            {
+                ToggleFullScreen();
+            }
+
+            if (GUILayout.Button("X", GUILayout.Width(28f)))
+            {
+                Close();
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawObjectResults()
+        {
+            List<WackyDbObjectCandidate> results = _selector.Search(_searchText);
+
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(315f), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Objects (" + results.Count + ")");
+            _resultScroll = GUILayout.BeginScrollView(_resultScroll, GUILayout.ExpandHeight(true));
+
+            int visibleCount = Mathf.Min(results.Count, MaximumVisibleResults);
+            for (int index = 0; index < visibleCount; index++)
+            {
+                WackyDbObjectCandidate candidate = results[index];
+                string label = candidate.Name + "  [" + candidate.Type + "]";
+                if (GUILayout.Button(label, GUILayout.Height(24f)))
+                {
+                    Select(candidate);
+                }
+
+                if (!string.IsNullOrEmpty(candidate.DisplayName) && candidate.DisplayName != candidate.Name)
+                {
+                    GUILayout.Label("  " + candidate.DisplayName);
+                }
+            }
+
+            if (results.Count > MaximumVisibleResults)
+            {
+                GUILayout.Label("Refine the search to view the remaining results.");
+            }
+
+            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
+        }
+
+        private void DrawPreview()
+        {
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(310f), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Preview");
+
+            Rect previewRect = GUILayoutUtility.GetRect(290f, 290f, GUILayout.ExpandWidth(true));
+            if (_preview != null && _preview.HasPreview)
+            {
+                if (Event.current.type == EventType.Repaint)
+                {
+                    _preview.Render();
+                }
+
+                GUI.DrawTexture(previewRect, _preview.Texture, ScaleMode.ScaleToFit, false);
+                HandlePreviewInput(previewRect);
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("<"))
+                {
+                    _preview.Rotate(-15f);
+                }
+                if (GUILayout.Button(">"))
+                {
+                    _preview.Rotate(15f);
+                }
+                if (GUILayout.Button("Up"))
+                {
+                    _preview.Rotate(0f, -10f);
+                }
+                if (GUILayout.Button("Down"))
+                {
+                    _preview.Rotate(0f, 10f);
+                }
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Zoom +"))
+                {
+                    _preview.Zoom(-0.15f);
+                }
+                if (GUILayout.Button("Zoom -"))
+                {
+                    _preview.Zoom(0.15f);
+                }
+                if (GUILayout.Button("Reset View"))
+                {
+                    _preview.ResetView();
+                }
+                GUILayout.EndHorizontal();
+            }
+            else
+            {
+                GUI.Box(previewRect, "Select a previewable prefab");
+            }
+
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("Preview clones are isolated from gameplay and source materials.");
+            GUILayout.EndVertical();
+        }
+
+        private void HandlePreviewInput(Rect previewRect)
+        {
+            Event current = Event.current;
+            if (current.type == EventType.MouseDown && current.button == 0 && previewRect.Contains(current.mousePosition))
+            {
+                _previewDragging = true;
+                current.Use();
+            }
+            else if (current.type == EventType.MouseDrag && _previewDragging)
+            {
+                _preview.Rotate(current.delta.x * 0.6f, -current.delta.y * 0.45f);
+                current.Use();
+            }
+            else if (current.type == EventType.MouseUp && _previewDragging)
+            {
+                _previewDragging = false;
+                current.Use();
+            }
+        }
+
+        private void DrawSelectionDetails()
+        {
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            if (_session.SelectedObject == null)
+            {
+                GUILayout.Label("Select an item, piece, or prefab to inspect its materials.");
+                GUILayout.EndVertical();
+                return;
+            }
+
+            WackyDbObjectCandidate selected = _session.SelectedObject;
+            GUILayout.Label("Prefab: " + selected.Name);
+            GUILayout.Label("Type: " + selected.Type);
+            if (!string.IsNullOrEmpty(selected.DisplayName))
+            {
+                GUILayout.Label("Display name: " + selected.DisplayName);
+            }
+
+            if (selected.Type == WackyDbObjectType.Piece)
+            {
+                GUILayout.Label("Piece hammer: " + selected.PieceHammer);
+            }
+
+            GUILayout.Label("Renderers: " + _session.RendererInfos.Count);
+            GUILayout.Space(4f);
+            DrawMaterialEditor();
+            GUILayout.Space(4f);
+
+            _detailScroll = GUILayout.BeginScrollView(_detailScroll, GUILayout.ExpandHeight(true));
+            foreach (WackyDbRendererInfo rendererInfo in _session.RendererInfos)
+            {
+                DrawRendererInfo(rendererInfo);
+            }
+            GUILayout.EndScrollView();
+
+            GUILayout.EndVertical();
+        }
+
+        private void DrawMaterialEditor()
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label("Shared Material / Color Editor");
+            if (GUILayout.Button("Reset preview materials to prefab defaults"))
+            {
+                ResetPrefabPreview();
+                GUILayout.EndVertical();
+                return;
+            }
+
+            if (!_session.SelectedRenderer || !_session.WorkingBaseMaterial)
+            {
+                GUILayout.Label("Select a material slot below to begin editing.");
+                GUILayout.EndVertical();
+                return;
+            }
+
+            GUILayout.Label("Source: " + _session.WorkingBaseMaterial.name);
+            _materialSearch = GUILayout.TextField(_materialSearch);
+            List<string> matches = _materialLibrary.Search(_materialSearch, 6);
+            foreach (string materialName in matches)
+            {
+                string prefix = materialName == _materialLibrarySelection ? "> " : string.Empty;
+                if (GUILayout.Button(prefix + materialName))
+                {
+                    _materialLibrarySelection = materialName;
+                    _materialSearch = materialName;
+                }
+            }
+
+            bool previousEnabled = GUI.enabled;
+            GUI.enabled = !string.IsNullOrEmpty(_materialLibrarySelection);
+            if (GUILayout.Button("Use Selected Shared Material"))
+            {
+                UseSharedMaterial(_materialLibrarySelection);
+            }
+            GUI.enabled = previousEnabled;
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("New shared material name", GUILayout.Width(155f));
+            _session.NewMaterialName = GUILayout.TextField(_session.NewMaterialName);
+            GUILayout.EndHorizontal();
+            GUILayout.Label("This names the reusable Material YAML, not a cloned prefab.");
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("New Shared Material"))
+            {
+                BeginNewSharedMaterial(false);
+            }
+            if (GUILayout.Button("Duplicate Current"))
+            {
+                BeginNewSharedMaterial(true);
+            }
+            GUILayout.EndHorizontal();
+
+            if (_session.IsEditingExistingSharedMaterial)
+            {
+                GUILayout.Label("Editing shared material: " + _session.SelectedSharedMaterialName);
+                if (_sharedReferenceCount > 1)
+                {
+                    GUILayout.Label("Warning: referenced by " + _sharedReferenceCount + " object YAML files. Duplicate is recommended.");
+                }
+            }
+            else if (_session.IsCreatingNewMaterial)
+            {
+                GUILayout.Label("Creating: " + _session.NewMaterialName);
+            }
+
+            DrawWorkingColors();
+            GUILayout.EndVertical();
+        }
+
+        private void DrawWorkingColors()
+        {
+            if (_session.WorkingChanges?.colors == null || _session.WorkingChanges.colors.Count == 0)
+            {
+                GUILayout.Label("No color properties were found on this shader.");
+                return;
+            }
+
+            bool changed = false;
+            List<string> propertyNames = new List<string>(_session.WorkingChanges.colors.Keys);
+            foreach (string propertyName in propertyNames)
+            {
+                Color color = _session.WorkingChanges.colors[propertyName];
+                GUILayout.Label(propertyName);
+                color.r = DrawColorChannel("R", color.r, ref changed);
+                color.g = DrawColorChannel("G", color.g, ref changed);
+                color.b = DrawColorChannel("B", color.b, ref changed);
+                color.a = DrawColorChannel("A", color.a, ref changed);
+                _session.WorkingChanges.colors[propertyName] = color;
+
+                Color previousColor = GUI.color;
+                GUI.color = color;
+                GUILayout.Box(string.Empty, GUILayout.Height(12f), GUILayout.ExpandWidth(true));
+                GUI.color = previousColor;
+            }
+
+            if (changed)
+            {
+                ApplyWorkingMaterial();
+            }
+        }
+
+        private static float DrawColorChannel(string label, float value, ref bool changed)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label, GUILayout.Width(16f));
+            float result = GUILayout.HorizontalSlider(value, 0f, 1f);
+            GUILayout.Label(result.ToString("0.000"), GUILayout.Width(42f));
+            GUILayout.EndHorizontal();
+            if (!Mathf.Approximately(result, value))
+            {
+                changed = true;
+            }
+            return result;
+        }
+
+        private void DrawRendererInfo(WackyDbRendererInfo rendererInfo)
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label("Renderer: " + rendererInfo.Path);
+
+            if (rendererInfo.Materials.Count == 0)
+            {
+                GUILayout.Label("  No material slots");
+            }
+
+            foreach (WackyDbMaterialInfo materialInfo in rendererInfo.Materials)
+            {
+                bool selected = _session.SelectedRenderer == rendererInfo.Renderer
+                    && _session.SelectedMaterialSlot == materialInfo.Slot;
+                string prefix = selected ? "> " : string.Empty;
+
+                if (GUILayout.Button(prefix + "Slot " + materialInfo.Slot + ": " + materialInfo.Name))
+                {
+                    SelectMaterialSlot(rendererInfo.Renderer, materialInfo);
+                }
+
+                GUILayout.Label("  Shader: " + materialInfo.ShaderName);
+                if (materialInfo.ColorProperties.Count == 0)
+                {
+                    GUILayout.Label("  Color properties: none");
+                }
+                else
+                {
+                    GUILayout.Label("  Color properties:");
+                    foreach (WackyDbShaderPropertyInfo property in materialInfo.ColorProperties)
+                    {
+                        Color value = property.ColorValue;
+                        GUILayout.Label(string.Format(
+                            "    {0}  R:{1:0.###} G:{2:0.###} B:{3:0.###} A:{4:0.###}",
+                            property.Name,
+                            value.r,
+                            value.g,
+                            value.b,
+                            value.a));
+                    }
+                }
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        private void RefreshCandidates()
+        {
+            try
+            {
+                _selector.Refresh();
+                _materialLibrary.Refresh();
+                _status = _selector.GetCandidates().Count + " objects discovered.";
+            }
+            catch (Exception exception)
+            {
+                _status = "Object discovery failed: " + exception.Message;
+                WMRecipeCust.WLog.LogError(_status);
+            }
+        }
+
+        private void SelectMaterialSlot(Renderer renderer, WackyDbMaterialInfo materialInfo)
+        {
+            if (!materialInfo.Material)
+            {
+                _status = "The selected material slot is empty.";
+                return;
+            }
+
+            _session.ClearMaterialSelection();
+            _session.SelectedRenderer = renderer;
+            _session.SelectedMaterialSlot = materialInfo.Slot;
+            _session.OriginalMaterialName = materialInfo.Name;
+            _session.NewMaterialName = materialInfo.Name + "_Wacky";
+            _session.WorkingBaseMaterial = materialInfo.Material;
+            _session.WorkingChanges = GetColorChanges(materialInfo.Material);
+            _materialLibrarySelection = string.Empty;
+            _sharedReferenceCount = 0;
+            ApplyWorkingMaterial();
+        }
+
+        private void UseSharedMaterial(string materialName)
+        {
+            Material material = _materialLibrary.GetMaterial(materialName);
+            if (!material)
+            {
+                _status = "Shared material is not currently loaded: " + materialName;
+                return;
+            }
+
+            _session.SelectedSharedMaterialName = materialName;
+            _session.NewMaterialName = materialName;
+            _session.WorkingBaseMaterial = material;
+            _session.WorkingChanges = GetColorChanges(material);
+            _session.IsEditingExistingSharedMaterial = _materialLibrary.IsWackyMaterial(materialName);
+            _session.IsCreatingNewMaterial = false;
+            _sharedReferenceCount = _session.IsEditingExistingSharedMaterial
+                ? _materialLibrary.CountYamlReferences(materialName)
+                : 0;
+            ApplyWorkingMaterial();
+        }
+
+        private void BeginNewSharedMaterial(bool duplicate)
+        {
+            if (!_session.WorkingBaseMaterial)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_session.NewMaterialName))
+            {
+                string baseName = string.IsNullOrEmpty(_session.SelectedSharedMaterialName)
+                    ? _session.WorkingBaseMaterial.name
+                    : _session.SelectedSharedMaterialName;
+                _session.NewMaterialName = baseName + (duplicate ? "_Copy" : "_Wacky");
+            }
+            else if (duplicate && _session.NewMaterialName == _session.SelectedSharedMaterialName)
+            {
+                _session.NewMaterialName += "_Copy";
+            }
+
+            _session.IsCreatingNewMaterial = true;
+            _session.IsEditingExistingSharedMaterial = false;
+            _sharedReferenceCount = 0;
+            ApplyWorkingMaterial();
+        }
+
+        private static MaterialData GetColorChanges(Material material)
+        {
+            MaterialData changes = new MaterialData();
+            if (!material || !material.shader)
+            {
+                return changes;
+            }
+
+            Shader shader = material.shader;
+            int propertyCount = shader.GetPropertyCount();
+            for (int index = 0; index < propertyCount; index++)
+            {
+                if (shader.GetPropertyType(index) == ShaderPropertyType.Color)
+                {
+                    string propertyName = shader.GetPropertyName(index);
+                    changes.colors[propertyName] = material.GetColor(propertyName);
+                }
+            }
+            return changes;
+        }
+
+        private void ApplyWorkingMaterial()
+        {
+            if (_preview == null || !_preview.HasPreview || !_session.SelectedRenderer || !_session.WorkingBaseMaterial)
+            {
+                return;
+            }
+
+            try
+            {
+                _preview.ApplyMaterial(
+                    _session.SelectedRenderer,
+                    _session.SelectedMaterialSlot,
+                    _session.WorkingBaseMaterial,
+                    _session.WorkingChanges);
+            }
+            catch (Exception exception)
+            {
+                _status = "Live material preview failed: " + exception.Message;
+                WMRecipeCust.WLog.LogWarning(_status);
+            }
+        }
+
+        private void ResetPrefabPreview()
+        {
+            if (_session.SelectedObject == null || !_session.SelectedObject.Prefab)
+            {
+                return;
+            }
+
+            try
+            {
+                if (_preview == null)
+                {
+                    _preview = new WackyDbPreviewRenderer();
+                }
+                _preview.SetPrefab(_session.SelectedObject.Prefab);
+                _session.ClearMaterialSelection();
+                _materialLibrarySelection = string.Empty;
+                _materialSearch = string.Empty;
+                _sharedReferenceCount = 0;
+                _status = "Preview materials restored from the original prefab.";
+            }
+            catch (Exception exception)
+            {
+                _status = "Unable to reset preview: " + exception.Message;
+                WMRecipeCust.WLog.LogWarning(_status);
+            }
+        }
+
+        private void CenterWindow()
+        {
+            if (_fullScreen)
+            {
+                return;
+            }
+
+            float width = Mathf.Min(1250f, Mathf.Max(300f, Screen.width - 20f));
+            float height = Mathf.Min(700f, Mathf.Max(300f, Screen.height - 20f));
+            _windowRect = new Rect(
+                Mathf.Max(0f, (Screen.width - width) * 0.5f),
+                Mathf.Max(0f, (Screen.height - height) * 0.5f),
+                width,
+                height);
+            _normalWindowRect = _windowRect;
+        }
+
+        private void ToggleFullScreen()
+        {
+            if (_fullScreen)
+            {
+                _fullScreen = false;
+                _windowRect = _normalWindowRect.width > 0f ? _normalWindowRect : _windowRect;
+                CenterWindow();
+            }
+            else
+            {
+                _normalWindowRect = _windowRect;
+                _fullScreen = true;
+            }
+        }
+
+        private void Select(WackyDbObjectCandidate candidate)
+        {
+            _session.ClearSelection();
+            _session.SelectedObject = candidate;
+            _detailScroll = Vector2.zero;
+
+            try
+            {
+                _session.RendererInfos = _inspector.GetRendererInfos(candidate.Prefab);
+                _status = _session.RendererInfos.Count == 0
+                    ? "No renderers were found on this prefab."
+                    : _session.RendererInfos.Count + " renderers found.";
+            }
+            catch (Exception exception)
+            {
+                _status = "Material inspection failed: " + exception.Message;
+                WMRecipeCust.WLog.LogError(_status);
+            }
+
+            try
+            {
+                if (_preview == null)
+                {
+                    _preview = new WackyDbPreviewRenderer();
+                }
+                _preview.SetPrefab(candidate.Prefab);
+            }
+            catch (Exception exception)
+            {
+                _status += " Preview unavailable: " + exception.Message;
+                WMRecipeCust.WLog.LogWarning("Preview unavailable for " + candidate.Name + ": " + exception.Message);
+            }
+        }
+
+        private void Close()
+        {
+            if (_preview != null)
+            {
+                _preview.Dispose();
+                _preview = null;
+            }
+            enabled = false;
+        }
+
+        private void OnDestroy()
+        {
+            if (_preview != null)
+            {
+                _preview.Dispose();
+                _preview = null;
+            }
+        }
+    }
+}

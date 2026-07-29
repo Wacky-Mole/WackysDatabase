@@ -190,6 +190,12 @@
     <Compile Include="Utility\ConfigurationManagerAttributes.cs" />
     <Compile Include="Utility\functions.cs" />
     <Compile Include="Utility\SpriteTools.cs" />
+    <Compile Include="VisualEditor\WackyDbCreateWindow.cs" />
+    <Compile Include="VisualEditor\WackyDbEditorSession.cs" />
+    <Compile Include="VisualEditor\WackyDbMaterialLibrary.cs" />
+    <Compile Include="VisualEditor\WackyDbMaterialSlotInspector.cs" />
+    <Compile Include="VisualEditor\WackyDbObjectSelector.cs" />
+    <Compile Include="VisualEditor\WackyDbPreviewRenderer.cs" />
     <Compile Include="Visuals\DataManagers\DataManager.cs" />
     <Compile Include="Visuals\DataManagers\MaterialDataManager.cs" />
     <Compile Include="Visuals\DataManagers\TextureDataManager.cs" />
