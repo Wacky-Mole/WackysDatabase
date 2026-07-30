@@ -12,6 +12,20 @@ namespace wackydatabase.VisualEditor
         Prefab
     }
 
+    internal enum WackyDbMaterialRoute
+    {
+        Material,
+        Base,
+        Chest,
+        Legs
+    }
+
+    internal enum WackyDbPieceMaterialRoute
+    {
+        FullHealth,
+        Damaged
+    }
+
     internal sealed class WackyDbObjectCandidate
     {
         internal string Name = string.Empty;
@@ -37,6 +51,13 @@ namespace wackydatabase.VisualEditor
         internal bool MaterialChangesDirty;
         internal string CloneName = string.Empty;
         internal string DisplayName = string.Empty;
+        internal WackyDbMaterialRoute MaterialRoute = WackyDbMaterialRoute.Material;
+        internal string BaseMaterialName = string.Empty;
+        internal string ChestMaterialName = string.Empty;
+        internal string LegsMaterialName = string.Empty;
+        internal WackyDbPieceMaterialRoute PieceMaterialRoute = WackyDbPieceMaterialRoute.FullHealth;
+        internal string PieceMaterialName = string.Empty;
+        internal string DamagedPieceMaterialName = string.Empty;
 
         internal void ClearSelection()
         {
@@ -45,6 +66,13 @@ namespace wackydatabase.VisualEditor
             SelectedMaterialSlot = 0;
             RendererInfos.Clear();
             ClearMaterialSelection();
+            MaterialRoute = WackyDbMaterialRoute.Material;
+            BaseMaterialName = string.Empty;
+            ChestMaterialName = string.Empty;
+            LegsMaterialName = string.Empty;
+            PieceMaterialRoute = WackyDbPieceMaterialRoute.FullHealth;
+            PieceMaterialName = string.Empty;
+            DamagedPieceMaterialName = string.Empty;
         }
 
         internal void ClearMaterialSelection()
