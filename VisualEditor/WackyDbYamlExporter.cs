@@ -35,6 +35,7 @@ namespace wackydatabase.VisualEditor
             GameObject prefab,
             string prefabName,
             string materialName,
+            string[] materials,
             CustomVisual customVisual)
         {
             ItemDrop itemDrop = prefab ? prefab.GetComponent<ItemDrop>() : null;
@@ -47,7 +48,8 @@ namespace wackydatabase.VisualEditor
             {
                 name = prefabName,
                 m_weight = itemDrop.m_itemData.m_shared.m_weight,
-                material = customVisual == null ? materialName : null,
+                material = customVisual == null && materials == null ? materialName : null,
+                materials = customVisual == null ? materials : null,
                 customVisual = customVisual
             };
             return WriteObject(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(prefabName) + ".yml", data);
@@ -75,6 +77,7 @@ namespace wackydatabase.VisualEditor
             string cloneName,
             string displayName,
             string materialName,
+            string[] materials,
             CustomVisual customVisual)
         {
             if (!originalPrefab || !ObjectDB.instance)
@@ -91,8 +94,8 @@ namespace wackydatabase.VisualEditor
             data.name = cloneName;
             data.clonePrefabName = originalPrefabName;
             data.m_name = displayName;
-            data.material = customVisual == null ? materialName : null;
-            data.materials = null;
+            data.material = customVisual == null && materials == null ? materialName : null;
+            data.materials = customVisual == null ? materials : null;
             data.customVisual = customVisual;
             return WriteObject(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(cloneName) + ".yml", data);
         }

@@ -891,6 +891,10 @@ namespace wackydatabase.VisualEditor
             GUILayout.Label(string.IsNullOrEmpty(materialName)
                 ? "Material reference: choose an existing shared material or create a new one."
                 : "Material reference: " + materialName);
+            if (CanUseItemMaterialArray())
+            {
+                GUILayout.Label("Multi-slot item: only selected slot " + _session.SelectedMaterialSlot + " will change in the materials array.");
+            }
 
             GUILayout.BeginHorizontal();
             bool previousEnabled = GUI.enabled;
@@ -1336,12 +1340,13 @@ namespace wackydatabase.VisualEditor
 
             WackyDbObjectCandidate selected = _session.SelectedObject;
             CustomVisual customVisual = BuildCustomVisual(materialName);
+            string[] itemMaterials = BuildItemMaterialArray(materialName, customVisual);
             bool saved;
             if (selected.Type == WackyDbObjectType.Item)
             {
                 saved = clone
-                    ? _exporter.SaveItemClone(selected.Prefab, selected.Name, _session.CloneName.Trim(), _session.DisplayName.Trim(), materialName, customVisual)
-                    : _exporter.SaveItemOverwrite(selected.Prefab, selected.Name, materialName, customVisual);
+                    ? _exporter.SaveItemClone(selected.Prefab, selected.Name, _session.CloneName.Trim(), _session.DisplayName.Trim(), materialName, itemMaterials, customVisual)
+                    : _exporter.SaveItemOverwrite(selected.Prefab, selected.Name, materialName, itemMaterials, customVisual);
             }
             else
             {
@@ -1365,6 +1370,35 @@ namespace wackydatabase.VisualEditor
             {
                 ReloadSavedYaml();
             }
+        }
+
+        private bool CanUseItemMaterialArray()
+        {
+            return _session.SelectedObject?.Type == WackyDbObjectType.Item
+                && _session.MaterialRoute == WackyDbMaterialRoute.Material
+                && _session.SelectedRenderer
+                && _session.SelectedRenderer.sharedMaterials.Length > 1
+                && _session.SelectedMaterialSlot >= 0
+                && _session.SelectedMaterialSlot < _session.SelectedRenderer.sharedMaterials.Length;
+        }
+
+        private string[] BuildItemMaterialArray(string currentMaterialName, CustomVisual customVisual)
+        {
+            if (customVisual != null || !CanUseItemMaterialArray())
+            {
+                return null;
+            }
+
+            Material[] sourceMaterials = _session.SelectedRenderer.sharedMaterials;
+            string[] materials = new string[sourceMaterials.Length];
+            for (int index = 0; index < sourceMaterials.Length; index++)
+            {
+                Material source = sourceMaterials[index];
+                materials[index] = index == _session.SelectedMaterialSlot
+                    ? currentMaterialName
+                    : source ? source.name : currentMaterialName;
+            }
+            return materials;
         }
 
         private void GetPieceMaterialNames(
