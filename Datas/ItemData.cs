@@ -25,6 +25,8 @@ namespace wackydatabase.Datas
 
         public string? mockName;
 
+        public string? mockBasePrefab;
+
         public string? customIcon;
 
         //public string cloneEffects;

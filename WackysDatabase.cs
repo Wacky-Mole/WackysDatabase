@@ -60,7 +60,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.5.12" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.5.14" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;

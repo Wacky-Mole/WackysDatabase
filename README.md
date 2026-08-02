@@ -488,6 +488,7 @@ Maps are a type of texture file, saved as a .png file. When you clone a material
 - `m_description` (string): The description of the item.
 - `clonePrefabName` (string): The name of the prefab to clone.
 - `mockName` (string): The name of the mock object.
+- `mockBasePrefab` (string): Optional vanilla item prefab whose behavior is used by a mock. Use a food/drink, weapon, shield, helmet, cape, chest, or leg item as the donor to place the mock in that item library and inherit the required attacks, consumption behavior, or equipment data. The mock model replaces the donor's `attach` visual, and all other item properties can still be overridden in the YAML. Static OBJ models work for held items, dropped items, helmets, and similar attachments; skinned chest and leg armour visuals still require a Unity-built skinned prefab/asset bundle or `customVisual`.
 - `customIcon` (string): The custom icon for the item. PNG 64x64, Icon needs to be in the Icon folder ( doesn't server sync)
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 

@@ -23,6 +23,23 @@ public static class ObjModelLoader
 
     internal static void ClearObjs()
     {
+        foreach (GameObject model in _loadedModels.Values)
+        {
+            if (model != null)
+            {
+                UnityEngine.Object.Destroy(model);
+            }
+        }
+
+        foreach (Sprite icon in _loadedIcons.Values)
+        {
+            if (icon != null)
+            {
+                UnityEngine.Object.Destroy(icon.texture);
+                UnityEngine.Object.Destroy(icon);
+            }
+        }
+
         _loadedModels.Clear();
         _loadedIcons.Clear();
         pngFiles.Clear();
@@ -37,8 +54,15 @@ public static class ObjModelLoader
     }
     internal static void OnInit()
     {
+        if (MockItemBase != null)
+        {
+            return;
+        }
+
         asset = GetAssetBundle("rootcube");
-       MockItemBase = asset.LoadAsset<GameObject>("RootCube");
+        MockItemBase = asset.LoadAsset<GameObject>("RootCube");
+        asset.Unload(false);
+        asset = null;
     }
 
     internal static void LoadObjs()
@@ -54,11 +78,13 @@ public static class ObjModelLoader
             try
             {
                 GameObject obj = new OBJLoader().Load(file);
+                obj.SetActive(false);
                 UnityEngine.Object.DontDestroyOnLoad(obj);
                 string fileName = Path.GetFileNameWithoutExtension(file);
                 _loadedModels.Add(fileName, obj);
                 ParsePNGs(obj, fileName);
                 AddColliders(obj);
+                MakeMeshesNonReadable(obj);
             }
             catch (Exception ex)
             {
@@ -94,7 +120,7 @@ public static class ObjModelLoader
         if (pngFiles.TryGetValue(icon, out string iconFile))
         {
             Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(File.ReadAllBytes(iconFile));
+            texture.LoadImage(File.ReadAllBytes(iconFile), true);
             Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
             _loadedIcons.Add(name, sprite);
         }
@@ -103,7 +129,7 @@ public static class ObjModelLoader
         if (pngFiles.TryGetValue(albedo, out string file))
         {
             Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(File.ReadAllBytes(file));
+            texture.LoadImage(File.ReadAllBytes(file), true);
 
             foreach (var mesh in meshes)
             {
@@ -114,7 +140,7 @@ public static class ObjModelLoader
         if (pngFiles.TryGetValue(metallic, out file))
         {
             Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(File.ReadAllBytes(file));
+            texture.LoadImage(File.ReadAllBytes(file), true);
 
             foreach (var mesh in meshes)
             {
@@ -125,7 +151,7 @@ public static class ObjModelLoader
         if (pngFiles.TryGetValue(normal, out file))
         {
             Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(File.ReadAllBytes(file));
+            texture.LoadImage(File.ReadAllBytes(file), true);
 
             foreach (var mesh in meshes)
             {
@@ -136,14 +162,58 @@ public static class ObjModelLoader
 
     private static void AddColliders(GameObject go)
     {
-        var meshes = go.GetComponentsInChildren<MeshFilter>();
-        foreach (var mesh in meshes)
+        MeshFilter[] meshes = go.GetComponentsInChildren<MeshFilter>(true);
+        bool hasBounds = false;
+        Bounds combinedBounds = default;
+
+        foreach (MeshFilter meshFilter in meshes)
         {
-            Mesh shared = mesh.sharedMesh;
-            if (mesh == null) continue;
+            Mesh mesh = meshFilter.sharedMesh;
+            if (mesh == null)
+            {
+                continue;
+            }
+
+            Bounds bounds = mesh.bounds;
+            for (int x = -1; x <= 1; x += 2)
+            {
+                for (int y = -1; y <= 1; y += 2)
+                {
+                    for (int z = -1; z <= 1; z += 2)
+                    {
+                        Vector3 corner = bounds.center + Vector3.Scale(bounds.extents, new Vector3(x, y, z));
+                        Vector3 localCorner = go.transform.InverseTransformPoint(meshFilter.transform.TransformPoint(corner));
+                        if (!hasBounds)
+                        {
+                            combinedBounds = new Bounds(localCorner, Vector3.zero);
+                            hasBounds = true;
+                        }
+                        else
+                        {
+                            combinedBounds.Encapsulate(localCorner);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (hasBounds)
+        {
             BoxCollider boxCollider = go.AddComponent<BoxCollider>();
-            boxCollider.center = shared.bounds.center;
-            boxCollider.size = shared.bounds.size;
+            boxCollider.center = combinedBounds.center;
+            boxCollider.size = combinedBounds.size;
+        }
+    }
+
+    private static void MakeMeshesNonReadable(GameObject go)
+    {
+        foreach (MeshFilter meshFilter in go.GetComponentsInChildren<MeshFilter>(true))
+        {
+            Mesh mesh = meshFilter.sharedMesh;
+            if (mesh != null && mesh.isReadable)
+            {
+                mesh.UploadMeshData(true);
+            }
         }
     }
 }

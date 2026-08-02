@@ -2050,27 +2050,14 @@ namespace wackydatabase.SetData
                 {
                     if (WMRecipeCust.showLogs.Value)
                         WMRecipeCust.Dbgl("Mock Model is loaded" + data.name);
-                    LayerMask itemLayer = LayerMask.NameToLayer("item");
-                    GameObject inactive = new GameObject("Inactive_MockerBase");
-                    inactive.SetActive(false);
-                    GameObject newObj = UnityEngine.Object.Instantiate(ObjModelLoader.MockItemBase, inactive.transform);
-                    newObj.name = data.name;
+                    GameObject newObj = ObjectSetMock.Create(data, Instant);
                     ItemDrop itemDrop = newObj.GetComponent<ItemDrop>();
                     itemDrop.name = data.name;
                     itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "Cube";
 
                     if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                     {
-                        newObj.transform.Find("Cube").gameObject.SetActive(false);
-                        var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
-                        newModel.SetActive(true);
-                        newModel.name = "attach";
-                        newModel.transform.localScale = Vector3.one * 1; // default scale
-                        newModel.layer = itemLayer;
-                        foreach (var transform in newModel.GetComponentsInChildren<Transform>())
-                        {
-                            transform.gameObject.layer = itemLayer;
-                        }
+                        ObjectSetMock.ReplaceVisual(newObj, model);
                     }
                     else
                     {
@@ -2285,11 +2272,7 @@ namespace wackydatabase.SetData
                     {
                         if (WMRecipeCust.showLogs.Value)
                             WMRecipeCust.Dbgl("Mock Model is loading part 1 " + data.name);
-                        LayerMask itemLayer = LayerMask.NameToLayer("item");
-                        GameObject inactive = new GameObject("Inactive_MockerBase");
-                        inactive.SetActive(false);
-                        GameObject newObj = UnityEngine.Object.Instantiate(ObjModelLoader.MockItemBase, inactive.transform);
-                        newObj.name = data.name;
+                        GameObject newObj = ObjectSetMock.Create(data, Instant);
                         ItemDrop itemDrop = newObj.GetComponent<ItemDrop>();
                         itemDrop.name = data.name;
                         itemDrop.m_itemData.m_shared.m_name = data.m_name ?? "Cube";
@@ -2299,16 +2282,7 @@ namespace wackydatabase.SetData
                         if (ObjModelLoader._loadedModels.TryGetValue(data.mockName, out var model))
                         {
                             // WMRecipeCust.Dbgl("Mock Model is loading part 2 " + data.name);
-                            newObj.transform.Find("Cube").gameObject.SetActive(false);
-                            var newModel = UnityEngine.Object.Instantiate(model, newObj.transform);
-                            newModel.SetActive(true);
-                            newModel.name = "attach";
-                            newModel.transform.localScale = Vector3.one * 1; // default scale
-                            newModel.layer = itemLayer;
-                            foreach (var transform in newModel.GetComponentsInChildren<Transform>())
-                            {
-                                transform.gameObject.layer = itemLayer;
-                            }
+                            ObjectSetMock.ReplaceVisual(newObj, model);
                         }
                         else
                         {
