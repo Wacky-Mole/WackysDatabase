@@ -1,6 +1,6 @@
 {
   "name": "WackysDatabase",
-  "version_number": "2.5.14",
+  "version_number": "2.5.15",
   "website_url": "https://valheim.hexium.gg/mods/WackyMole/WackysDatabase",
   "description": "WackysDatabase allows you to control all items/recipes/pieces/creatures/materials/textures via YML files with ServerSync and so much more.",
   "dependencies": [

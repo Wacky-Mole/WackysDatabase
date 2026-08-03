@@ -1647,10 +1647,21 @@ namespace wackydatabase.SetData
 
             if (data.contData != null)
             {
-                go.TryGetComponent<Container>(out var cont);
-                cont.m_autoDestroyEmpty = data.contData.AutoDestoryIfEmpty ?? cont.m_autoDestroyEmpty;
-                cont.m_height = data.contData.Height ?? cont.m_height;
-                cont.m_width = data.contData.Width ?? cont.m_width;
+                if (go.TryGetComponent<Container>(out var cont))
+                {
+                    cont.m_autoDestroyEmpty = data.contData.AutoDestoryIfEmpty ?? cont.m_autoDestroyEmpty;
+                    cont.m_height = data.contData.Height ?? cont.m_height;
+                    cont.m_width = data.contData.Width ?? cont.m_width;
+
+                    if (data.contData.CheckWard.HasValue)
+                    {
+                        Traverse.Create(cont).Field("m_checkGuardStone").SetValue(data.contData.CheckWard.Value);
+                    }
+                }
+                else
+                {
+                    WMRecipeCust.WLog.LogWarning($"Container data was supplied for {data.name}, but its prefab has no Container component.");
+                }
             }
 
             if (data.sapData != null)
