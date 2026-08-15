@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.5.16  | Added SE_SET_Equips |
 | 2.5.15  | Fix for CheckWard|
 | 2.5.14  | Changed a Warning (Something went wrong in file) to an Error </br> Added mockBasePrefab to items for the mock system. This allows you to specify your mock as a "clone" of different vanilla prefab.|
 | 2.5.13  | Added Saftety checks to piece clones to prevent duplicates. </br> Tranaspiler patch for InventoryGui CanRepair for recipes that repairs past quality level 5 min.  |

@@ -716,6 +716,7 @@ You Can NOT clone feasts, they are complicated.
 
 `SE_Equip` (SE_Equip): The special effect data for equipping the item.</br> If you want an Item to have an Effect by itself, put the effect name here
 </br>`SE_SET_Equip` (SE_SET_Equip): All of this should be the same accross all items that have this set
+</br>`SE_SET_Equips` (SE_SET_Equip[]): Additional set effects. Each entry must be repeated on every item that belongs to that set.
 </br>You can delete an SE_Equip or SE_SET_Equip from item using EffectName : delete 
 ### SE_Equip 
 
@@ -726,6 +727,9 @@ You Can NOT clone feasts, they are complicated.
 - `SetName` (string): The name of the set.
 - `Size` (int): The size of the set.
 - `EffectName` (string): The name of the effect for equipping the set.
+- `HideEquipEffectsUntilSetComplete` (bool): When true, hides both the individual equip effects and set effect until the configured `Size` of this set is equipped. Set `Size: 3` for a three-piece set.
+
+`SE_SET_Equip` is the original native set effect. Use `SE_SET_Equips` for any additional sets an item belongs to. Each additional entry independently applies its `EffectName` once its matching `SetName` has the required number of equipped items.
 
 
 ![Delete](https://wackymole.com/hosts/Se_Set_delete.png)

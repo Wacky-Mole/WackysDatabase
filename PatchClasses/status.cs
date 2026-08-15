@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using wackydatabase.Armor;
@@ -18,6 +19,134 @@ using static wackydatabase.Armor.ArmorHelpers;
 
 namespace wackydatabase.PatchClasses
 {
+
+    [HarmonyPatch(typeof(Humanoid), "UpdateEquipmentStatusEffects")]
+    static class UpdateEquipmentStatusEffects_Patch
+    {
+        private sealed class AdditionalSetEffectState
+        {
+            internal readonly HashSet<int> ActiveEffectHashes = new();
+        }
+
+        private sealed class AdditionalSetEffectGroup
+        {
+            internal int RequiredCount;
+            internal readonly HashSet<ItemDrop.ItemData> Items = new();
+            internal readonly HashSet<string> EffectNames = new(StringComparer.Ordinal);
+        }
+
+        private static readonly ConditionalWeakTable<Humanoid, AdditionalSetEffectState> AdditionalSetEffectStates = new();
+
+        private sealed class SuppressedEffects
+        {
+            internal ItemDrop.ItemData.SharedData SharedData;
+            internal StatusEffect EquipStatusEffect;
+            internal StatusEffect SetStatusEffect;
+        }
+
+        static void Prefix(Humanoid __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem, ref List<SuppressedEffects> __state)
+        {
+            if (!__instance.IsPlayer() || !WMRecipeCust.modEnabled.Value || WMRecipeCust.HideEquipEffectsUntilSetComplete.Count == 0)
+                return;
+
+            var equippedItems = new[] { ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem }
+                .Where(item => item?.m_shared != null && !string.IsNullOrEmpty(item.m_shared.m_setName))
+                .ToList();
+
+            foreach (var set in equippedItems.GroupBy(item => item.m_shared.m_setName))
+            {
+                if (!WMRecipeCust.HideEquipEffectsUntilSetComplete.Contains(set.Key))
+                    continue;
+
+                int requiredCount = set.Max(item => item.m_shared.m_setSize);
+                if (requiredCount <= 0 || set.Count() >= requiredCount)
+                    continue;
+
+                __state ??= new List<SuppressedEffects>();
+                foreach (var item in set)
+                {
+                    var sharedData = item.m_shared;
+                    __state.Add(new SuppressedEffects
+                    {
+                        SharedData = sharedData,
+                        EquipStatusEffect = sharedData.m_equipStatusEffect,
+                        SetStatusEffect = sharedData.m_setStatusEffect
+                    });
+                    sharedData.m_equipStatusEffect = null;
+                    sharedData.m_setStatusEffect = null;
+                }
+            }
+        }
+
+        static void Postfix(Humanoid __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem)
+        {
+            if (!__instance.IsPlayer())
+                return;
+
+            var state = AdditionalSetEffectStates.GetValue(__instance, _ => new AdditionalSetEffectState());
+            var desiredEffectHashes = new HashSet<int>();
+
+            if (WMRecipeCust.modEnabled.Value && WMRecipeCust.AdditionalSetEffects.Count > 0)
+            {
+                var groups = new Dictionary<string, AdditionalSetEffectGroup>(StringComparer.Ordinal);
+                foreach (var item in new[] { ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem })
+                {
+                    var prefabName = item?.m_dropPrefab?.name;
+                    if (string.IsNullOrEmpty(prefabName) || !WMRecipeCust.AdditionalSetEffects.TryGetValue(prefabName, out var effects))
+                        continue;
+
+                    foreach (var effect in effects)
+                    {
+                        if (!groups.TryGetValue(effect.SetName, out var group))
+                        {
+                            group = new AdditionalSetEffectGroup();
+                            groups.Add(effect.SetName, group);
+                        }
+
+                        group.RequiredCount = Math.Max(group.RequiredCount, effect.Size ?? 0);
+                        group.Items.Add(item);
+                        group.EffectNames.Add(effect.EffectName);
+                    }
+                }
+
+                foreach (var group in groups.Values.Where(group => group.RequiredCount > 0 && group.Items.Count >= group.RequiredCount))
+                {
+                    foreach (var effectName in group.EffectNames)
+                    {
+                        if (ObjectDB.instance?.GetStatusEffect(effectName.GetStableHashCode()) != null)
+                            desiredEffectHashes.Add(effectName.GetStableHashCode());
+                    }
+                }
+            }
+
+            var seMan = __instance.GetSEMan();
+            foreach (var effectHash in state.ActiveEffectHashes.Except(desiredEffectHashes).ToList())
+            {
+                var statusEffect = seMan.GetStatusEffect(effectHash);
+                if (statusEffect != null)
+                    seMan.RemoveStatusEffect(statusEffect, true);
+            }
+            foreach (var effectHash in desiredEffectHashes.Except(state.ActiveEffectHashes))
+                seMan.AddStatusEffect(effectHash);
+
+            state.ActiveEffectHashes.Clear();
+            state.ActiveEffectHashes.UnionWith(desiredEffectHashes);
+        }
+
+        static Exception Finalizer(Exception __exception, List<SuppressedEffects> __state)
+        {
+            if (__state != null)
+            {
+                foreach (var suppressed in __state)
+                {
+                    suppressed.SharedData.m_equipStatusEffect = suppressed.EquipStatusEffect;
+                    suppressed.SharedData.m_setStatusEffect = suppressed.SetStatusEffect;
+                }
+            }
+
+            return __exception;
+        }
+    }
 
  
         [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
