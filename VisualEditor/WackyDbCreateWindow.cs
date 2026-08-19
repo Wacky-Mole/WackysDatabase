@@ -643,16 +643,11 @@ namespace wackydatabase.VisualEditor
                 GUI.enabled = pickerEnabled;
             }
 
-            if (GUILayout.Button(new GUIContent("Use Source Material (No Custom Material)", "Discard this slot's current edits and use the original prefab material when saving the object. No Material YAML will be created.")))
-            {
-                UseSourceMaterial();
-            }
-
             GUILayout.BeginHorizontal();
             GUILayout.Label("New shared material name", GUILayout.Width(155f));
             _session.NewMaterialName = GUILayout.TextField(_session.NewMaterialName);
             GUILayout.EndHorizontal();
-            GUILayout.Label("Only needed for a new reusable Material YAML. Use Source Material to keep the original unchanged.");
+            GUILayout.Label("Enter a name to create a reusable Material YAML.");
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("New Shared Material"))
@@ -1401,40 +1396,6 @@ namespace wackydatabase.VisualEditor
             ApplyWorkingMaterial();
         }
 
-        private void UseSourceMaterial()
-        {
-            if (!_session.SelectedRenderer
-                || _session.SelectedMaterialSlot < 0
-                || _session.SelectedMaterialSlot >= _session.SelectedRenderer.sharedMaterials.Length)
-            {
-                _status = "Select a material slot before using its source material.";
-                return;
-            }
-
-            Material sourceMaterial = _session.SelectedRenderer.sharedMaterials[_session.SelectedMaterialSlot];
-            if (!sourceMaterial)
-            {
-                _status = "The selected material slot has no source material.";
-                return;
-            }
-
-            _session.MaterialEdits.Remove(WackyDbEditorSession.GetMaterialEditKey(
-                _session.SelectedRenderer,
-                _session.SelectedMaterialSlot));
-            _session.OriginalMaterialName = sourceMaterial.name;
-            _session.SelectedSharedMaterialName = sourceMaterial.name;
-            _session.NewMaterialName = sourceMaterial.name + "_Wacky";
-            _session.WorkingBaseMaterial = sourceMaterial;
-            _session.WorkingChanges = GetColorChanges(sourceMaterial);
-            _session.IsCreatingNewMaterial = false;
-            _session.IsEditingExistingSharedMaterial = false;
-            _session.MaterialChangesDirty = false;
-            _materialLibrarySelection = string.Empty;
-            _sharedReferenceCount = 0;
-            ApplyWorkingMaterial();
-            _status = "Using source material " + sourceMaterial.name + ". No custom Material YAML will be created.";
-        }
-
         private void BeginNewSharedMaterial(bool duplicate)
         {
             if (!_session.WorkingBaseMaterial)
@@ -1959,16 +1920,13 @@ namespace wackydatabase.VisualEditor
 
     internal sealed class WackyDbCreateHotkeyListener : MonoBehaviour
     {
-        private void OnGUI()
+        private void Update()
         {
-            Event current = Event.current;
-            if (current.type == EventType.KeyDown
-                && WMRecipeCust.modEnabled.Value
+            if (WMRecipeCust.modEnabled.Value
                 && WMRecipeCust.creatorHotkey != null
-                && current.keyCode == WMRecipeCust.creatorHotkey.Value)
+                && ZInput.GetKeyDown(WMRecipeCust.creatorHotkey.Value))
             {
                 WackyDbCreateWindow.ToggleWithGameUi();
-                current.Use();
             }
         }
     }
