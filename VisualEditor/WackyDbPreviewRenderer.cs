@@ -2,6 +2,7 @@ using System;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using wackydatabase.Datas;
 
@@ -23,17 +24,17 @@ namespace wackydatabase.VisualEditor
         private float _yaw = 25f;
         private float _pitch = 15f;
         private float _zoom = 1f;
-        private Renderer _selectedRenderer;
-        private int _selectedSlot = -1;
-        private Material _originalSlotMaterial;
-        private Material _previewMaterial;
+        private readonly Dictionary<string, PreviewMaterial> _previewMaterials = new Dictionary<string, PreviewMaterial>();
         private Transform _sourceRoot;
+        private bool _usingPlayerModel;
         private readonly Dictionary<int, Renderer> _rendererMap = new Dictionary<int, Renderer>();
+        private readonly Dictionary<int, Renderer> _sourceRendererMap = new Dictionary<int, Renderer>();
 
         internal RenderTexture Texture => _texture;
         internal bool HasPreview => _clone && _camera && _texture;
+        internal bool CanPickRenderer => !_usingPlayerModel && _sourceRendererMap.Count > 0;
 
-        internal void SetPrefab(GameObject prefab)
+        internal void SetPrefab(GameObject prefab, bool usePlayerModel = false)
         {
             Dispose();
             if (!prefab)
@@ -43,6 +44,8 @@ namespace wackydatabase.VisualEditor
 
             try
             {
+                _usingPlayerModel = usePlayerModel;
+                ResetView();
                 CreateRenderEnvironment();
                 InstantiatePreview(prefab);
                 FramePreview();
@@ -63,15 +66,40 @@ namespace wackydatabase.VisualEditor
             ApplyView();
         }
 
+        internal bool TryPickRenderer(Vector2 viewportPosition, out Renderer sourceRenderer)
+        {
+            sourceRenderer = null;
+            if (!CanPickRenderer)
+            {
+                return false;
+            }
+
+            Ray ray = _camera.ViewportPointToRay(viewportPosition);
+            if (!Physics.Raycast(ray, out RaycastHit hit, _camera.farClipPlane, 1 << PreviewLayer, QueryTriggerInteraction.Collide))
+            {
+                return false;
+            }
+
+            Renderer cloneRenderer = hit.collider.GetComponent<Renderer>();
+            return cloneRenderer && _sourceRendererMap.TryGetValue(cloneRenderer.GetInstanceID(), out sourceRenderer);
+        }
+
         internal void ApplyMaterial(Renderer sourceRenderer, int slot, Material sourceMaterial, MaterialData changes)
         {
-            RestoreSelectedMaterial();
             if (!_clone || !sourceRenderer || !sourceMaterial)
             {
                 return;
             }
 
             _rendererMap.TryGetValue(sourceRenderer.GetInstanceID(), out Renderer cloneRenderer);
+            if (!cloneRenderer && _usingPlayerModel)
+            {
+                cloneRenderer = FindRendererUsingMaterial(sourceMaterial);
+                if (cloneRenderer)
+                {
+                    slot = FindMaterialSlot(cloneRenderer, sourceMaterial);
+                }
+            }
             if (!cloneRenderer)
             {
                 string relativePath = GetRelativePath(sourceRenderer.transform);
@@ -85,20 +113,27 @@ namespace wackydatabase.VisualEditor
                 throw new InvalidOperationException("The selected renderer slot could not be mapped to the preview clone.");
             }
 
+            string key = GetPreviewMaterialKey(cloneRenderer, slot);
+            RestorePreviewMaterial(key);
+
             Material[] materials = cloneRenderer.sharedMaterials;
-            _selectedRenderer = cloneRenderer;
-            _selectedSlot = slot;
-            _originalSlotMaterial = materials[slot];
-            _previewMaterial = UnityEngine.Object.Instantiate(sourceMaterial);
-            _previewMaterial.name = sourceMaterial.name + " (WackyDB Preview)";
-            _previewMaterial.hideFlags = HideFlags.HideAndDontSave;
+            Material previewMaterial = UnityEngine.Object.Instantiate(sourceMaterial);
+            previewMaterial.name = sourceMaterial.name + " (WackyDB Preview)";
+            previewMaterial.hideFlags = HideFlags.HideAndDontSave;
 
             if (changes != null)
             {
-                new MaterialManipulator(changes).Invoke(_previewMaterial, _clone);
+                new MaterialManipulator(changes).Invoke(previewMaterial, _clone);
             }
 
-            materials[slot] = _previewMaterial;
+            _previewMaterials[key] = new PreviewMaterial
+            {
+                Renderer = cloneRenderer,
+                Slot = slot,
+                OriginalMaterial = materials[slot],
+                Material = previewMaterial
+            };
+            materials[slot] = previewMaterial;
             cloneRenderer.sharedMaterials = materials;
             Render();
         }
@@ -111,8 +146,8 @@ namespace wackydatabase.VisualEditor
 
         internal void ResetView()
         {
-            _yaw = 25f;
-            _pitch = 15f;
+            _yaw = _usingPlayerModel ? 0f : 25f;
+            _pitch = _usingPlayerModel ? 0f : 15f;
             _zoom = 1f;
             ApplyView();
         }
@@ -127,7 +162,7 @@ namespace wackydatabase.VisualEditor
 
         public void Dispose()
         {
-            RestoreSelectedMaterial();
+            RestorePreviewMaterials();
             if (_camera)
             {
                 _camera.targetTexture = null;
@@ -161,29 +196,51 @@ namespace wackydatabase.VisualEditor
             _light = null;
             _sourceRoot = null;
             _rendererMap.Clear();
+            _sourceRendererMap.Clear();
         }
 
-        private void RestoreSelectedMaterial()
+        private void RestorePreviewMaterials()
         {
-            if (_selectedRenderer && _selectedSlot >= 0)
+            foreach (string key in _previewMaterials.Keys.ToArray())
             {
-                Material[] materials = _selectedRenderer.sharedMaterials;
-                if (_selectedSlot < materials.Length)
+                RestorePreviewMaterial(key);
+            }
+        }
+
+        private void RestorePreviewMaterial(string key)
+        {
+            if (!_previewMaterials.TryGetValue(key, out PreviewMaterial preview))
+            {
+                return;
+            }
+
+            if (preview.Renderer && preview.Slot >= 0)
+            {
+                Material[] materials = preview.Renderer.sharedMaterials;
+                if (preview.Slot < materials.Length)
                 {
-                    materials[_selectedSlot] = _originalSlotMaterial;
-                    _selectedRenderer.sharedMaterials = materials;
+                    materials[preview.Slot] = preview.OriginalMaterial;
+                    preview.Renderer.sharedMaterials = materials;
                 }
             }
-
-            if (_previewMaterial)
+            if (preview.Material)
             {
-                UnityEngine.Object.Destroy(_previewMaterial);
+                UnityEngine.Object.Destroy(preview.Material);
             }
+            _previewMaterials.Remove(key);
+        }
 
-            _selectedRenderer = null;
-            _selectedSlot = -1;
-            _originalSlotMaterial = null;
-            _previewMaterial = null;
+        private static string GetPreviewMaterialKey(Renderer renderer, int slot)
+        {
+            return renderer.GetInstanceID() + ":" + slot;
+        }
+
+        private sealed class PreviewMaterial
+        {
+            internal Renderer Renderer;
+            internal int Slot;
+            internal Material OriginalMaterial;
+            internal Material Material;
         }
 
         private void CreateRenderEnvironment()
@@ -229,7 +286,12 @@ namespace wackydatabase.VisualEditor
             ZNetView.m_forceDisableInit = true;
             try
             {
-                _clone = UnityEngine.Object.Instantiate(prefab, PreviewOrigin, Quaternion.identity);
+                GameObject source = _usingPlayerModel ? GetPlayerModelSource() : prefab;
+                if (!source)
+                {
+                    throw new InvalidOperationException("A player model is unavailable. Enter a world before using player preview.");
+                }
+                _clone = UnityEngine.Object.Instantiate(source, PreviewOrigin, Quaternion.identity);
             }
             finally
             {
@@ -240,15 +302,24 @@ namespace wackydatabase.VisualEditor
             _clone.hideFlags = HideFlags.HideAndDontSave;
             _clone.transform.SetParent(_pivot.transform, true);
 
-            Renderer[] sourceRenderers = prefab.GetComponentsInChildren<Renderer>(true);
-            Renderer[] cloneRenderers = _clone.GetComponentsInChildren<Renderer>(true);
-            int rendererCount = Mathf.Min(sourceRenderers.Length, cloneRenderers.Length);
-            for (int index = 0; index < rendererCount; index++)
+            if (_usingPlayerModel)
             {
-                if (sourceRenderers[index] && cloneRenderers[index]
-                    && sourceRenderers[index].GetType() == cloneRenderers[index].GetType())
+                EquipPlayerPreview(prefab.name);
+            }
+
+            if (!_usingPlayerModel)
+            {
+                Renderer[] sourceRenderers = prefab.GetComponentsInChildren<Renderer>(true);
+                Renderer[] cloneRenderers = _clone.GetComponentsInChildren<Renderer>(true);
+                int rendererCount = Mathf.Min(sourceRenderers.Length, cloneRenderers.Length);
+                for (int index = 0; index < rendererCount; index++)
                 {
-                    _rendererMap[sourceRenderers[index].GetInstanceID()] = cloneRenderers[index];
+                    if (sourceRenderers[index] && cloneRenderers[index]
+                        && sourceRenderers[index].GetType() == cloneRenderers[index].GetType())
+                    {
+                        _rendererMap[sourceRenderers[index].GetInstanceID()] = cloneRenderers[index];
+                        _sourceRendererMap[cloneRenderers[index].GetInstanceID()] = sourceRenderers[index];
+                    }
                 }
             }
 
@@ -278,7 +349,127 @@ namespace wackydatabase.VisualEditor
                 particleRenderer.enabled = false;
             }
 
+            if (!_usingPlayerModel)
+            {
+                AddPickingColliders();
+            }
+
             _clone.SetActive(true);
+        }
+
+        private void AddPickingColliders()
+        {
+            foreach (Renderer renderer in _clone.GetComponentsInChildren<Renderer>(true))
+            {
+                if (!(renderer is MeshRenderer meshRenderer)
+                    || !_sourceRendererMap.ContainsKey(meshRenderer.GetInstanceID()))
+                {
+                    continue;
+                }
+
+                MeshFilter filter = meshRenderer.GetComponent<MeshFilter>();
+                if (!filter || !filter.sharedMesh)
+                {
+                    continue;
+                }
+
+                MeshCollider collider = meshRenderer.gameObject.AddComponent<MeshCollider>();
+                collider.sharedMesh = filter.sharedMesh;
+            }
+        }
+
+        private static GameObject GetPlayerModelSource()
+        {
+            GameObject playerPrefab = ZNetScene.instance ? ZNetScene.instance.GetPrefab("Player") : null;
+            return playerPrefab ? playerPrefab : Player.m_localPlayer ? Player.m_localPlayer.gameObject : null;
+        }
+
+        private void EquipPlayerPreview(string itemName)
+        {
+            Component equipment = _clone.GetComponentInChildren<VisEquipment>(true);
+            ItemDrop itemDrop = _sourceRoot ? _sourceRoot.GetComponent<ItemDrop>() : null;
+            if (!equipment || !itemDrop)
+            {
+                return;
+            }
+
+            ClearPlayerEquipment(equipment);
+            RefreshEquipmentVisuals(equipment);
+            string itemType = itemDrop.m_itemData.m_shared.m_itemType.ToString();
+            string methodName = itemType.IndexOf("Chest", StringComparison.OrdinalIgnoreCase) >= 0 ? "SetChestItem"
+                : itemType.IndexOf("Leg", StringComparison.OrdinalIgnoreCase) >= 0 ? "SetLegItem"
+                : itemType.IndexOf("Helmet", StringComparison.OrdinalIgnoreCase) >= 0 ? "SetHelmetItem"
+                : itemType.IndexOf("Shoulder", StringComparison.OrdinalIgnoreCase) >= 0 ? "SetShoulderItem"
+                : null;
+            SetEquipmentItem(equipment, methodName, itemName);
+            RefreshEquipmentVisuals(equipment);
+        }
+
+        private static void ClearPlayerEquipment(Component equipment)
+        {
+            string[] equipmentSlots =
+            {
+                "SetRightItem", "SetLeftItem", "SetHelmetItem", "SetChestItem", "SetLegItem",
+                "SetShoulderItem", "SetUtilityItem", "SetBeardItem", "SetHairItem"
+            };
+            foreach (string slot in equipmentSlots)
+            {
+                SetEquipmentItem(equipment, slot, string.Empty);
+            }
+        }
+
+        private static void SetEquipmentItem(Component equipment, string methodName, string itemName)
+        {
+            if (string.IsNullOrEmpty(methodName))
+            {
+                return;
+            }
+
+            MethodInfo method = equipment.GetType().GetMethod(methodName, new[] { typeof(string) });
+            method?.Invoke(equipment, new object[] { itemName });
+        }
+
+        private static void RefreshEquipmentVisuals(Component equipment)
+        {
+            string[] refreshMethods = { "UpdateEquipmentVisuals", "UpdateVisuals" };
+            foreach (string methodName in refreshMethods)
+            {
+                MethodInfo method = equipment.GetType().GetMethod(
+                    methodName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    null,
+                    Type.EmptyTypes,
+                    null);
+                method?.Invoke(equipment, null);
+            }
+        }
+
+        private Renderer FindRendererUsingMaterial(Material material)
+        {
+            foreach (Renderer renderer in _clone.GetComponentsInChildren<Renderer>(true))
+            {
+                foreach (Material candidate in renderer.sharedMaterials)
+                {
+                    if (candidate && (candidate == material || candidate.name == material.name))
+                    {
+                        return renderer;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static int FindMaterialSlot(Renderer renderer, Material material)
+        {
+            Material[] materials = renderer.sharedMaterials;
+            for (int index = 0; index < materials.Length; index++)
+            {
+                if (materials[index] && (materials[index] == material || materials[index].name == material.name))
+                {
+                    return index;
+                }
+            }
+            return -1;
         }
 
         private void FramePreview()
@@ -286,6 +477,14 @@ namespace wackydatabase.VisualEditor
             Renderer[] renderers = _clone.GetComponentsInChildren<Renderer>(true)
                 .Where(renderer => renderer.enabled && !(renderer is ParticleSystemRenderer))
                 .ToArray();
+            if (_usingPlayerModel)
+            {
+                Renderer[] skinnedRenderers = renderers.Where(renderer => renderer is SkinnedMeshRenderer).ToArray();
+                if (skinnedRenderers.Length > 0)
+                {
+                    renderers = skinnedRenderers;
+                }
+            }
             if (renderers.Length == 0)
             {
                 throw new InvalidOperationException("The selected prefab has no previewable renderers.");

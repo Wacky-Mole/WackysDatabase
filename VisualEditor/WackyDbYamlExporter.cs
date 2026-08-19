@@ -36,7 +36,8 @@ namespace wackydatabase.VisualEditor
             string prefabName,
             string materialName,
             string[] materials,
-            CustomVisual customVisual)
+            CustomVisual customVisual,
+            string customIcon)
         {
             ItemDrop itemDrop = prefab ? prefab.GetComponent<ItemDrop>() : null;
             if (!itemDrop)
@@ -50,7 +51,8 @@ namespace wackydatabase.VisualEditor
                 m_weight = itemDrop.m_itemData.m_shared.m_weight,
                 material = customVisual == null && materials == null ? materialName : null,
                 materials = customVisual == null ? materials : null,
-                customVisual = customVisual
+                customVisual = customVisual,
+                customIcon = string.IsNullOrWhiteSpace(customIcon) ? null : customIcon
             };
             return WriteObject(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(prefabName) + ".yml", data);
         }
@@ -59,14 +61,16 @@ namespace wackydatabase.VisualEditor
             string prefabName,
             string pieceHammer,
             string materialName,
-            string damagedMaterialName)
+            string damagedMaterialName,
+            string customIcon)
         {
             PieceData data = new PieceData
             {
                 name = prefabName,
                 piecehammer = string.IsNullOrWhiteSpace(pieceHammer) ? "Hammer" : pieceHammer,
                 material = string.IsNullOrWhiteSpace(materialName) ? null : materialName,
-                damagedMaterial = string.IsNullOrWhiteSpace(damagedMaterialName) ? null : damagedMaterialName
+                damagedMaterial = string.IsNullOrWhiteSpace(damagedMaterialName) ? null : damagedMaterialName,
+                customIcon = string.IsNullOrWhiteSpace(customIcon) ? null : customIcon
             };
             return WriteObject(WMRecipeCust.assetPathPieces, "Piece_" + SanitizeFileName(prefabName) + ".yml", data);
         }
@@ -78,7 +82,8 @@ namespace wackydatabase.VisualEditor
             string displayName,
             string materialName,
             string[] materials,
-            CustomVisual customVisual)
+            CustomVisual customVisual,
+            string customIcon)
         {
             if (!originalPrefab || !ObjectDB.instance)
             {
@@ -97,6 +102,7 @@ namespace wackydatabase.VisualEditor
             data.material = customVisual == null && materials == null ? materialName : null;
             data.materials = customVisual == null ? materials : null;
             data.customVisual = customVisual;
+            data.customIcon = string.IsNullOrWhiteSpace(customIcon) ? null : customIcon;
             return WriteObject(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(cloneName) + ".yml", data);
         }
 
@@ -106,7 +112,8 @@ namespace wackydatabase.VisualEditor
             string displayName,
             string pieceHammer,
             string materialName,
-            string damagedMaterialName)
+            string damagedMaterialName,
+            string customIcon)
         {
             if (!ObjectDB.instance)
             {
@@ -125,6 +132,7 @@ namespace wackydatabase.VisualEditor
             data.piecehammer = string.IsNullOrWhiteSpace(pieceHammer) ? data.piecehammer : pieceHammer;
             data.material = string.IsNullOrWhiteSpace(materialName) ? null : materialName;
             data.damagedMaterial = string.IsNullOrWhiteSpace(damagedMaterialName) ? null : damagedMaterialName;
+            data.customIcon = string.IsNullOrWhiteSpace(customIcon) ? null : customIcon;
             return WriteObject(WMRecipeCust.assetPathPieces, "Piece_" + SanitizeFileName(cloneName) + ".yml", data);
         }
 
