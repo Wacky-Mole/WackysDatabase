@@ -62,6 +62,7 @@ namespace wackydatabase.Datas
         public SE_Equip? SE_Equip;
 
         public SE_SET_Equip? SE_SET_Equip;
+        public List<SE_SET_Equip>? SE_SET_Equips;
 
         public ShieldData? ShieldStats;
 
@@ -348,6 +349,7 @@ namespace wackydatabase.Datas
         public string? SetName;
         public int? Size;
         public string? EffectName;
+        public bool? HideEquipEffectsUntilSetComplete;
 
     }
 

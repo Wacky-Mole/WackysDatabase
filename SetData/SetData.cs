@@ -3134,6 +3134,23 @@ namespace wackydatabase.SetData
                             PrimaryItemData.m_shared.m_setName = data.SE_SET_Equip.SetName ?? PrimaryItemData.m_shared.m_setName;
                             PrimaryItemData.m_shared.m_setSize = data.SE_SET_Equip.Size ?? PrimaryItemData.m_shared.m_setSize;
                             PrimaryItemData.m_shared.m_setStatusEffect = Instant.GetStatusEffect(data.SE_SET_Equip.EffectName.GetStableHashCode()) ?? PrimaryItemData.m_shared.m_setStatusEffect;
+
+                            if (data.SE_SET_Equip.HideEquipEffectsUntilSetComplete == true && !string.IsNullOrEmpty(PrimaryItemData.m_shared.m_setName))
+                                WMRecipeCust.HideEquipEffectsUntilSetComplete.Add(PrimaryItemData.m_shared.m_setName);
+                        }
+                    }
+                    WMRecipeCust.AdditionalSetEffects.Remove(go.name);
+                    if (data.SE_SET_Equips != null)
+                    {
+                        var additionalSetEffects = data.SE_SET_Equips
+                            .Where(effect => !string.IsNullOrEmpty(effect.SetName) && effect.Size > 0 && !string.IsNullOrEmpty(effect.EffectName) && effect.EffectName != "delete" && effect.EffectName != "-")
+                            .ToList();
+
+                        if (additionalSetEffects.Count > 0)
+                        {
+                            WMRecipeCust.AdditionalSetEffects[go.name] = additionalSetEffects;
+                            foreach (var effect in additionalSetEffects.Where(effect => effect.HideEquipEffectsUntilSetComplete == true))
+                                WMRecipeCust.HideEquipEffectsUntilSetComplete.Add(effect.SetName);
                         }
                     }
 

@@ -188,6 +188,8 @@ namespace wackydatabase
         public static Dictionary<string, float> crossbowReloadingTime = new Dictionary<string, float>();
         public static Dictionary<Recipe, bool> RequiredUpgradeItemsString = new(); // holding
         public static Dictionary<Recipe, bool> RequiredCraftItemsString = new(); // holding
+        public static HashSet<string> HideEquipEffectsUntilSetComplete = new(StringComparer.Ordinal);
+        public static Dictionary<string, List<SE_SET_Equip>> AdditionalSetEffects = new(StringComparer.Ordinal);
         public static Dictionary<string, string> EndingStatusEffect = new(); // For SEs that want to chain
                                                                              // when you define it:
         public static readonly Dictionary<string, WackyStatusEffectBonus> SEaddBonus =  new Dictionary<string, WackyStatusEffectBonus>(StringComparer.Ordinal);// status effect addHP/stam/eitr

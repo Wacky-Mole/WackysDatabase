@@ -107,6 +107,8 @@ namespace wackydatabase.SetData
 
                 WMRecipeCust.MultiplayerApproved.Clear();
                 WMRecipeCust.SEaddBonus.Clear();
+                WMRecipeCust.HideEquipEffectsUntilSetComplete.Clear();
+                WMRecipeCust.AdditionalSetEffects.Clear();
 
                 //WMRecipeCust.RequiredCraftItemsString.Clear();
                 //WMRecipeCust.RequiredUpgradeItemsString.Clear();

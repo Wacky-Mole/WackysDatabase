@@ -1,6 +1,15 @@
 # WackysDatabase
 
 WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
+<div style="text-align: center;">
+  <a href="https://www.survivalservers.com/services/game_servers/valheim/?ref=WackyMole">
+    <img
+      src="https://www.wackymole.com/hosts/WackySurvivalBanner.png"
+      alt="Valheim Server Hosting - Survival Servers"
+      width=auto height="90" style="display: inline-block; max-width: 100%; height: auto;">
+  </a>
+</div>
+
 
 ![BlueMan](https://wackymole.com/hosts/Blueman.png)
 ![GreenMan](https://wackymole.com/hosts/Greenman.png)
@@ -716,6 +725,7 @@ You Can NOT clone feasts, they are complicated.
 
 `SE_Equip` (SE_Equip): The special effect data for equipping the item.</br> If you want an Item to have an Effect by itself, put the effect name here
 </br>`SE_SET_Equip` (SE_SET_Equip): All of this should be the same accross all items that have this set
+</br>`SE_SET_Equips` (SE_SET_Equip[]): Additional set effects. Each entry must be repeated on every item that belongs to that set.
 </br>You can delete an SE_Equip or SE_SET_Equip from item using EffectName : delete 
 ### SE_Equip 
 
@@ -726,6 +736,19 @@ You Can NOT clone feasts, they are complicated.
 - `SetName` (string): The name of the set.
 - `Size` (int): The size of the set.
 - `EffectName` (string): The name of the effect for equipping the set.
+- `HideEquipEffectsUntilSetComplete` (bool): When true, hides the individual equip effect and native set-effect tooltip until the configured `Size` of this set is equipped. Set `Size: 3` for a three-piece set.
+
+`SE_SET_Equip` is the original native set effect. Use `SE_SET_Equips` for any additional sets an item belongs to. `SE_SET_Equips` is an array of `SE_SET_Equip` entries; repeat each entry on every item that belongs to that additional set. Each entry independently applies its `EffectName` once its matching `SetName` has the required number of equipped items and adds a native-style set-effect entry to the item tooltip.
+
+```yaml
+SE_SET_Equips:
+  - SetName: OdinsBlessing
+    Size: 3
+    EffectName: OdinsBlessingEffect
+    HideEquipEffectsUntilSetComplete: true
+```
+
+For `SE_SET_Equips`, `HideEquipEffectsUntilSetComplete: true` hides that additional set-effect tooltip entry until its `Size` requirement is met. It does not hide other additional set effects on the same item.
 
 
 ![Delete](https://wackymole.com/hosts/Se_Set_delete.png)

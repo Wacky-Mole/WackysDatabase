@@ -8,6 +8,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using System.Reflection;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using wackydatabase.Armor;
@@ -18,6 +21,276 @@ using static wackydatabase.Armor.ArmorHelpers;
 
 namespace wackydatabase.PatchClasses
 {
+
+    [HarmonyPatch(typeof(Humanoid), "UpdateEquipmentStatusEffects")]
+    static class UpdateEquipmentStatusEffects_Patch
+    {
+        private sealed class AdditionalSetEffectState
+        {
+            internal readonly HashSet<int> ActiveEffectHashes = new();
+        }
+
+        private sealed class AdditionalSetTooltipCache
+        {
+            internal List<SE_SET_Equip> Effects;
+            internal int EquipmentStateHash;
+            internal string Tooltip;
+        }
+
+        private sealed class AdditionalSetEffectGroup
+        {
+            internal int RequiredCount;
+            internal readonly HashSet<ItemDrop.ItemData> Items = new();
+            internal readonly HashSet<string> EffectNames = new(StringComparer.Ordinal);
+        }
+
+        private static readonly ConditionalWeakTable<Humanoid, AdditionalSetEffectState> AdditionalSetEffectStates = new();
+        private static readonly ConditionalWeakTable<ItemDrop.ItemData, AdditionalSetTooltipCache> AdditionalSetTooltipCaches = new();
+        private static readonly FieldInfo[] EquipmentItemFields =
+        {
+            AccessTools.Field(typeof(Humanoid), "m_chestItem"),
+            AccessTools.Field(typeof(Humanoid), "m_legItem"),
+            AccessTools.Field(typeof(Humanoid), "m_helmetItem"),
+            AccessTools.Field(typeof(Humanoid), "m_shoulderItem")
+        };
+
+        private sealed class SuppressedEffects
+        {
+            internal ItemDrop.ItemData.SharedData SharedData;
+            internal StatusEffect EquipStatusEffect;
+            internal StatusEffect SetStatusEffect;
+        }
+
+        private static bool IsSetComplete(string setName, Player player)
+        {
+            var setItemCount = 0;
+            var requiredCount = 0;
+            foreach (var field in EquipmentItemFields)
+            {
+                var item = field?.GetValue(player) as ItemDrop.ItemData;
+                if (item?.m_shared == null || item.m_shared.m_setName != setName)
+                    continue;
+
+                setItemCount++;
+                requiredCount = Math.Max(requiredCount, item.m_shared.m_setSize);
+            }
+
+            return requiredCount > 0 && setItemCount >= requiredCount;
+        }
+
+        private static int GetEquipmentStateHash(Player player)
+        {
+            if (player == null)
+                return 0;
+
+            unchecked
+            {
+                var hash = 17;
+                foreach (var field in EquipmentItemFields)
+                {
+                    var item = field?.GetValue(player) as ItemDrop.ItemData;
+                    hash = (hash * 31) + (item == null ? 0 : RuntimeHelpers.GetHashCode(item));
+                }
+
+                return hash;
+            }
+        }
+
+        static void Prefix(Humanoid __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem, ref List<SuppressedEffects> __state)
+        {
+            if (!__instance.IsPlayer() || !WMRecipeCust.modEnabled.Value || WMRecipeCust.HideEquipEffectsUntilSetComplete.Count == 0)
+                return;
+
+            var equippedItems = new[] { ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem }
+                .Where(item => item?.m_shared != null && !string.IsNullOrEmpty(item.m_shared.m_setName))
+                .ToList();
+
+            foreach (var set in equippedItems.GroupBy(item => item.m_shared.m_setName))
+            {
+                if (!WMRecipeCust.HideEquipEffectsUntilSetComplete.Contains(set.Key))
+                    continue;
+
+                int requiredCount = set.Max(item => item.m_shared.m_setSize);
+                if (requiredCount <= 0 || set.Count() >= requiredCount)
+                    continue;
+
+                __state ??= new List<SuppressedEffects>();
+                foreach (var item in set)
+                {
+                    var sharedData = item.m_shared;
+                    __state.Add(new SuppressedEffects
+                    {
+                        SharedData = sharedData,
+                        EquipStatusEffect = sharedData.m_equipStatusEffect,
+                        SetStatusEffect = sharedData.m_setStatusEffect
+                    });
+                    sharedData.m_equipStatusEffect = null;
+                    sharedData.m_setStatusEffect = null;
+                }
+            }
+        }
+
+        static void Postfix(Humanoid __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem)
+        {
+            if (!__instance.IsPlayer())
+                return;
+
+            var state = AdditionalSetEffectStates.GetValue(__instance, _ => new AdditionalSetEffectState());
+            var desiredEffectHashes = new HashSet<int>();
+
+            if (WMRecipeCust.modEnabled.Value && WMRecipeCust.AdditionalSetEffects.Count > 0)
+            {
+                var groups = new Dictionary<string, AdditionalSetEffectGroup>(StringComparer.Ordinal);
+                foreach (var item in new[] { ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem })
+                {
+                    var prefabName = item?.m_dropPrefab?.name;
+                    if (string.IsNullOrEmpty(prefabName) || !WMRecipeCust.AdditionalSetEffects.TryGetValue(prefabName, out var effects))
+                        continue;
+
+                    foreach (var effect in effects)
+                    {
+                        if (!groups.TryGetValue(effect.SetName, out var group))
+                        {
+                            group = new AdditionalSetEffectGroup();
+                            groups.Add(effect.SetName, group);
+                        }
+
+                        group.RequiredCount = Math.Max(group.RequiredCount, effect.Size ?? 0);
+                        group.Items.Add(item);
+                        group.EffectNames.Add(effect.EffectName);
+                    }
+                }
+
+                foreach (var group in groups.Values.Where(group => group.RequiredCount > 0 && group.Items.Count >= group.RequiredCount))
+                {
+                    foreach (var effectName in group.EffectNames)
+                    {
+                        if (ObjectDB.instance?.GetStatusEffect(effectName.GetStableHashCode()) != null)
+                            desiredEffectHashes.Add(effectName.GetStableHashCode());
+                    }
+                }
+            }
+
+            var seMan = __instance.GetSEMan();
+            foreach (var effectHash in state.ActiveEffectHashes.Except(desiredEffectHashes).ToList())
+            {
+                var statusEffect = seMan.GetStatusEffect(effectHash);
+                if (statusEffect != null)
+                    seMan.RemoveStatusEffect(statusEffect, true);
+            }
+            foreach (var effectHash in desiredEffectHashes.Except(state.ActiveEffectHashes))
+                seMan.AddStatusEffect(effectHash);
+
+            state.ActiveEffectHashes.Clear();
+            state.ActiveEffectHashes.UnionWith(desiredEffectHashes);
+        }
+
+        static Exception Finalizer(Exception __exception, List<SuppressedEffects> __state)
+        {
+            if (__state != null)
+            {
+                foreach (var suppressed in __state)
+                {
+                    suppressed.SharedData.m_equipStatusEffect = suppressed.EquipStatusEffect;
+                    suppressed.SharedData.m_setStatusEffect = suppressed.SetStatusEffect;
+                }
+            }
+
+            return __exception;
+        }
+
+        [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int) })]
+        private static class ItemData_GetTooltip_Patch
+        {
+            private static void Prefix(ItemDrop.ItemData item, ref SuppressedEffects __state)
+            {
+                var sharedData = item?.m_shared;
+                if (sharedData == null || !WMRecipeCust.modEnabled.Value
+                    || string.IsNullOrEmpty(sharedData.m_setName)
+                    || !WMRecipeCust.HideEquipEffectsUntilSetComplete.Contains(sharedData.m_setName))
+                    return;
+
+                var player = Player.m_localPlayer;
+                if (player == null || IsSetComplete(sharedData.m_setName, player))
+                    return;
+
+                __state = new SuppressedEffects
+                {
+                    SharedData = sharedData,
+                    EquipStatusEffect = sharedData.m_equipStatusEffect,
+                    SetStatusEffect = sharedData.m_setStatusEffect
+                };
+                sharedData.m_equipStatusEffect = null;
+                sharedData.m_setStatusEffect = null;
+            }
+
+            private static void Postfix(ItemDrop.ItemData item, ref string __result)
+            {
+                var prefabName = item?.m_dropPrefab?.name;
+                if (string.IsNullOrEmpty(prefabName)
+                    || !WMRecipeCust.modEnabled.Value
+                    || !WMRecipeCust.AdditionalSetEffects.TryGetValue(prefabName, out var effects))
+                    return;
+
+                var player = Player.m_localPlayer;
+                var equipmentStateHash = GetEquipmentStateHash(player);
+                var cache = AdditionalSetTooltipCaches.GetValue(item, _ => new AdditionalSetTooltipCache());
+                if (cache.Effects == effects && cache.EquipmentStateHash == equipmentStateHash)
+                {
+                    __result += cache.Tooltip;
+                    return;
+                }
+
+                var objectDb = ObjectDB.instance;
+                var tooltip = new StringBuilder();
+                for (var i = 0; i < effects.Count; i++)
+                {
+                    var effect = effects[i];
+                    if (string.IsNullOrEmpty(effect.SetName) || effect.Size <= 0 || string.IsNullOrEmpty(effect.EffectName))
+                        continue;
+
+                    var duplicate = false;
+                    for (var j = 0; j < i; j++)
+                    {
+                        if (effects[j].SetName == effect.SetName && effects[j].EffectName == effect.EffectName)
+                        {
+                            duplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (duplicate)
+                        continue;
+
+                    if (effect.HideEquipEffectsUntilSetComplete == true && (player == null || !IsSetComplete(effect.SetName, player)))
+                        continue;
+
+                    var statusEffect = objectDb?.GetStatusEffect(effect.EffectName.GetStableHashCode());
+                    if (statusEffect == null)
+                        continue;
+
+                    tooltip.Append(Localization.instance.Localize($"\n\n$item_seteffect (<color=orange>{effect.Size}</color> $item_parts):<color=orange>{statusEffect.m_name}</color>\n{statusEffect.GetTooltipString()}"));
+                }
+
+                cache.Effects = effects;
+                cache.EquipmentStateHash = equipmentStateHash;
+                cache.Tooltip = tooltip.ToString();
+                __result += cache.Tooltip;
+            }
+
+            [HarmonyFinalizer]
+            private static Exception Finalizer(Exception __exception, SuppressedEffects __state)
+            {
+                if (__state != null)
+                {
+                    __state.SharedData.m_equipStatusEffect = __state.EquipStatusEffect;
+                    __state.SharedData.m_setStatusEffect = __state.SetStatusEffect;
+                }
+
+                return __exception;
+            }
+        }
+    }
 
  
         [HarmonyPatch(typeof(Player), "UpdateEnvStatusEffects")]
