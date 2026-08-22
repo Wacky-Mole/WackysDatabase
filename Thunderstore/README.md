@@ -736,9 +736,19 @@ You Can NOT clone feasts, they are complicated.
 - `SetName` (string): The name of the set.
 - `Size` (int): The size of the set.
 - `EffectName` (string): The name of the effect for equipping the set.
-- `HideEquipEffectsUntilSetComplete` (bool): When true, hides both the individual equip effects and set effect until the configured `Size` of this set is equipped. Set `Size: 3` for a three-piece set.
+- `HideEquipEffectsUntilSetComplete` (bool): When true, hides the individual equip effect and native set-effect tooltip until the configured `Size` of this set is equipped. Set `Size: 3` for a three-piece set.
 
-`SE_SET_Equip` is the original native set effect. Use `SE_SET_Equips` for any additional sets an item belongs to. Each additional entry independently applies its `EffectName` once its matching `SetName` has the required number of equipped items.
+`SE_SET_Equip` is the original native set effect. Use `SE_SET_Equips` for any additional sets an item belongs to. `SE_SET_Equips` is an array of `SE_SET_Equip` entries; repeat each entry on every item that belongs to that additional set. Each entry independently applies its `EffectName` once its matching `SetName` has the required number of equipped items and adds a native-style set-effect entry to the item tooltip.
+
+```yaml
+SE_SET_Equips:
+  - SetName: OdinsBlessing
+    Size: 3
+    EffectName: OdinsBlessingEffect
+    HideEquipEffectsUntilSetComplete: true
+```
+
+For `SE_SET_Equips`, `HideEquipEffectsUntilSetComplete: true` hides that additional set-effect tooltip entry until its `Size` requirement is met. It does not hide other additional set effects on the same item.
 
 
 ![Delete](https://wackymole.com/hosts/Se_Set_delete.png)

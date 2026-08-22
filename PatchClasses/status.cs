@@ -30,6 +30,13 @@ namespace wackydatabase.PatchClasses
             internal readonly HashSet<int> ActiveEffectHashes = new();
         }
 
+        private sealed class AdditionalSetTooltipCache
+        {
+            internal List<SE_SET_Equip> Effects;
+            internal int EquipmentStateHash;
+            internal string Tooltip;
+        }
+
         private sealed class AdditionalSetEffectGroup
         {
             internal int RequiredCount;
@@ -38,6 +45,7 @@ namespace wackydatabase.PatchClasses
         }
 
         private static readonly ConditionalWeakTable<Humanoid, AdditionalSetEffectState> AdditionalSetEffectStates = new();
+        private static readonly ConditionalWeakTable<ItemDrop.ItemData, AdditionalSetTooltipCache> AdditionalSetTooltipCaches = new();
         private static readonly FieldInfo[] EquipmentItemFields =
         {
             AccessTools.Field(typeof(Humanoid), "m_chestItem"),
@@ -68,6 +76,24 @@ namespace wackydatabase.PatchClasses
             }
 
             return requiredCount > 0 && setItemCount >= requiredCount;
+        }
+
+        private static int GetEquipmentStateHash(Player player)
+        {
+            if (player == null)
+                return 0;
+
+            unchecked
+            {
+                var hash = 17;
+                foreach (var field in EquipmentItemFields)
+                {
+                    var item = field?.GetValue(player) as ItemDrop.ItemData;
+                    hash = (hash * 31) + (item == null ? 0 : RuntimeHelpers.GetHashCode(item));
+                }
+
+                return hash;
+            }
         }
 
         static void Prefix(Humanoid __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem, ref List<SuppressedEffects> __state)
@@ -179,11 +205,13 @@ namespace wackydatabase.PatchClasses
             private static void Prefix(ItemDrop.ItemData item, ref SuppressedEffects __state)
             {
                 var sharedData = item?.m_shared;
-                var player = Player.m_localPlayer;
-                if (sharedData == null || player == null || !WMRecipeCust.modEnabled.Value
+                if (sharedData == null || !WMRecipeCust.modEnabled.Value
                     || string.IsNullOrEmpty(sharedData.m_setName)
-                    || !WMRecipeCust.HideEquipEffectsUntilSetComplete.Contains(sharedData.m_setName)
-                    || IsSetComplete(sharedData.m_setName, player))
+                    || !WMRecipeCust.HideEquipEffectsUntilSetComplete.Contains(sharedData.m_setName))
+                    return;
+
+                var player = Player.m_localPlayer;
+                if (player == null || IsSetComplete(sharedData.m_setName, player))
                     return;
 
                 __state = new SuppressedEffects
@@ -205,20 +233,49 @@ namespace wackydatabase.PatchClasses
                     return;
 
                 var player = Player.m_localPlayer;
-                foreach (var effect in effects
-                    .Where(effect => !string.IsNullOrEmpty(effect.SetName) && effect.Size > 0 && !string.IsNullOrEmpty(effect.EffectName))
-                    .GroupBy(effect => new { effect.SetName, effect.EffectName })
-                    .Select(group => group.First()))
+                var equipmentStateHash = GetEquipmentStateHash(player);
+                var cache = AdditionalSetTooltipCaches.GetValue(item, _ => new AdditionalSetTooltipCache());
+                if (cache.Effects == effects && cache.EquipmentStateHash == equipmentStateHash)
                 {
+                    __result += cache.Tooltip;
+                    return;
+                }
+
+                var objectDb = ObjectDB.instance;
+                var tooltip = new StringBuilder();
+                for (var i = 0; i < effects.Count; i++)
+                {
+                    var effect = effects[i];
+                    if (string.IsNullOrEmpty(effect.SetName) || effect.Size <= 0 || string.IsNullOrEmpty(effect.EffectName))
+                        continue;
+
+                    var duplicate = false;
+                    for (var j = 0; j < i; j++)
+                    {
+                        if (effects[j].SetName == effect.SetName && effects[j].EffectName == effect.EffectName)
+                        {
+                            duplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (duplicate)
+                        continue;
+
                     if (effect.HideEquipEffectsUntilSetComplete == true && (player == null || !IsSetComplete(effect.SetName, player)))
                         continue;
 
-                    var statusEffect = ObjectDB.instance?.GetStatusEffect(effect.EffectName.GetStableHashCode());
+                    var statusEffect = objectDb?.GetStatusEffect(effect.EffectName.GetStableHashCode());
                     if (statusEffect == null)
                         continue;
 
-                    __result += Localization.instance.Localize($"\n\n$item_seteffect (<color=orange>{effect.Size}</color> $item_parts):<color=orange>{statusEffect.m_name}</color>\n{statusEffect.GetTooltipString()}");
+                    tooltip.Append(Localization.instance.Localize($"\n\n$item_seteffect (<color=orange>{effect.Size}</color> $item_parts):<color=orange>{statusEffect.m_name}</color>\n{statusEffect.GetTooltipString()}"));
                 }
+
+                cache.Effects = effects;
+                cache.EquipmentStateHash = equipmentStateHash;
+                cache.Tooltip = tooltip.ToString();
+                __result += cache.Tooltip;
             }
 
             [HarmonyFinalizer]
