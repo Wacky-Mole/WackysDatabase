@@ -9,6 +9,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Reflection;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using wackydatabase.Armor;
@@ -36,12 +38,36 @@ namespace wackydatabase.PatchClasses
         }
 
         private static readonly ConditionalWeakTable<Humanoid, AdditionalSetEffectState> AdditionalSetEffectStates = new();
+        private static readonly FieldInfo[] EquipmentItemFields =
+        {
+            AccessTools.Field(typeof(Humanoid), "m_chestItem"),
+            AccessTools.Field(typeof(Humanoid), "m_legItem"),
+            AccessTools.Field(typeof(Humanoid), "m_helmetItem"),
+            AccessTools.Field(typeof(Humanoid), "m_shoulderItem")
+        };
 
         private sealed class SuppressedEffects
         {
             internal ItemDrop.ItemData.SharedData SharedData;
             internal StatusEffect EquipStatusEffect;
             internal StatusEffect SetStatusEffect;
+        }
+
+        private static bool IsSetComplete(string setName, Player player)
+        {
+            var setItemCount = 0;
+            var requiredCount = 0;
+            foreach (var field in EquipmentItemFields)
+            {
+                var item = field?.GetValue(player) as ItemDrop.ItemData;
+                if (item?.m_shared == null || item.m_shared.m_setName != setName)
+                    continue;
+
+                setItemCount++;
+                requiredCount = Math.Max(requiredCount, item.m_shared.m_setSize);
+            }
+
+            return requiredCount > 0 && setItemCount >= requiredCount;
         }
 
         static void Prefix(Humanoid __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem, ref List<SuppressedEffects> __state)
@@ -145,6 +171,67 @@ namespace wackydatabase.PatchClasses
             }
 
             return __exception;
+        }
+
+        [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int) })]
+        private static class ItemData_GetTooltip_Patch
+        {
+            private static void Prefix(ItemDrop.ItemData item, ref SuppressedEffects __state)
+            {
+                var sharedData = item?.m_shared;
+                var player = Player.m_localPlayer;
+                if (sharedData == null || player == null || !WMRecipeCust.modEnabled.Value
+                    || string.IsNullOrEmpty(sharedData.m_setName)
+                    || !WMRecipeCust.HideEquipEffectsUntilSetComplete.Contains(sharedData.m_setName)
+                    || IsSetComplete(sharedData.m_setName, player))
+                    return;
+
+                __state = new SuppressedEffects
+                {
+                    SharedData = sharedData,
+                    EquipStatusEffect = sharedData.m_equipStatusEffect,
+                    SetStatusEffect = sharedData.m_setStatusEffect
+                };
+                sharedData.m_equipStatusEffect = null;
+                sharedData.m_setStatusEffect = null;
+            }
+
+            private static void Postfix(ItemDrop.ItemData item, ref string __result)
+            {
+                var prefabName = item?.m_dropPrefab?.name;
+                if (string.IsNullOrEmpty(prefabName)
+                    || !WMRecipeCust.modEnabled.Value
+                    || !WMRecipeCust.AdditionalSetEffects.TryGetValue(prefabName, out var effects))
+                    return;
+
+                var player = Player.m_localPlayer;
+                foreach (var effect in effects
+                    .Where(effect => !string.IsNullOrEmpty(effect.SetName) && effect.Size > 0 && !string.IsNullOrEmpty(effect.EffectName))
+                    .GroupBy(effect => new { effect.SetName, effect.EffectName })
+                    .Select(group => group.First()))
+                {
+                    if (effect.HideEquipEffectsUntilSetComplete == true && (player == null || !IsSetComplete(effect.SetName, player)))
+                        continue;
+
+                    var statusEffect = ObjectDB.instance?.GetStatusEffect(effect.EffectName.GetStableHashCode());
+                    if (statusEffect == null)
+                        continue;
+
+                    __result += Localization.instance.Localize($"\n\n$item_seteffect (<color=orange>{effect.Size}</color> $item_parts):<color=orange>{statusEffect.m_name}</color>\n{statusEffect.GetTooltipString()}");
+                }
+            }
+
+            [HarmonyFinalizer]
+            private static Exception Finalizer(Exception __exception, SuppressedEffects __state)
+            {
+                if (__state != null)
+                {
+                    __state.SharedData.m_equipStatusEffect = __state.EquipStatusEffect;
+                    __state.SharedData.m_setStatusEffect = __state.SetStatusEffect;
+                }
+
+                return __exception;
+            }
         }
     }
 
