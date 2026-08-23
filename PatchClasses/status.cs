@@ -46,6 +46,7 @@ namespace wackydatabase.PatchClasses
 
         private static readonly ConditionalWeakTable<Humanoid, AdditionalSetEffectState> AdditionalSetEffectStates = new();
         private static readonly ConditionalWeakTable<ItemDrop.ItemData, AdditionalSetTooltipCache> AdditionalSetTooltipCaches = new();
+        private static readonly ConditionalWeakTable<SEMan, Dictionary<int, float>> StatusEffectReapplyTimes = new();
         private static readonly FieldInfo[] EquipmentItemFields =
         {
             AccessTools.Field(typeof(Humanoid), "m_chestItem"),
@@ -93,6 +94,23 @@ namespace wackydatabase.PatchClasses
                 }
 
                 return hash;
+            }
+        }
+
+        [HarmonyPatch(typeof(SEMan), nameof(SEMan.AddStatusEffect), new[] { typeof(int), typeof(bool), typeof(int), typeof(float) })]
+        private static class SEMan_AddStatusEffect_ReapplyCooldown_Patch
+        {
+            private static bool Prefix(SEMan __instance, int nameHash)
+            {
+                if (!WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(nameHash, out var cooldown))
+                    return true;
+
+                var reapplyTimes = StatusEffectReapplyTimes.GetValue(__instance, _ => new Dictionary<int, float>());
+                if (reapplyTimes.TryGetValue(nameHash, out var nextAllowedTime) && Time.time < nextAllowedTime)
+                    return false;
+
+                reapplyTimes[nameHash] = Time.time + cooldown;
+                return true;
             }
         }
 

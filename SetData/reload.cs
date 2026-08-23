@@ -109,6 +109,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.SEaddBonus.Clear();
                 WMRecipeCust.HideEquipEffectsUntilSetComplete.Clear();
                 WMRecipeCust.AdditionalSetEffects.Clear();
+                WMRecipeCust.StatusEffectReapplyCooldowns.Clear();
 
                 //WMRecipeCust.RequiredCraftItemsString.Clear();
                 //WMRecipeCust.RequiredUpgradeItemsString.Clear();

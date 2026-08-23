@@ -190,6 +190,7 @@ namespace wackydatabase
         public static Dictionary<Recipe, bool> RequiredCraftItemsString = new(); // holding
         public static HashSet<string> HideEquipEffectsUntilSetComplete = new(StringComparer.Ordinal);
         public static Dictionary<string, List<SE_SET_Equip>> AdditionalSetEffects = new(StringComparer.Ordinal);
+        public static Dictionary<int, float> StatusEffectReapplyCooldowns = new();
         public static Dictionary<string, string> EndingStatusEffect = new(); // For SEs that want to chain
                                                                              // when you define it:
         public static readonly Dictionary<string, WackyStatusEffectBonus> SEaddBonus =  new Dictionary<string, WackyStatusEffectBonus>(StringComparer.Ordinal);// status effect addHP/stam/eitr
@@ -217,7 +218,6 @@ namespace wackydatabase
         {
            // Localizer.Load();// Does not work because wackydb needs to key what to look for
             StartupConfig(); // startup varables
-            gameObject.AddComponent<VisualEditor.WackyDbCreateHotkeyListener>();
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
             assetPathconfig = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase");
             assetPathItems = Path.Combine(assetPathconfig, "Items");
