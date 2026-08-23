@@ -14,6 +14,7 @@ namespace wackydatabase.VisualEditor
         private const string TutorialPreferenceKey = "WackyDB.Creator.ShowTutorial";
 
         private static WackyDbCreateWindow _instance;
+        private static int _lastHotkeyToggleFrame = -1;
 
         private readonly WackyDbEditorSession _session = new WackyDbEditorSession();
         private readonly WackyDbObjectSelector _selector = new WackyDbObjectSelector();
@@ -27,10 +28,12 @@ namespace wackydatabase.VisualEditor
         private Rect _normalWindowRect;
         private Vector2 _resultScroll;
         private Vector2 _detailScroll;
+        private Vector2 _materialScroll;
         private string _searchText = string.Empty;
         private string _status = string.Empty;
         private string _materialSearch = string.Empty;
         private string _materialLibrarySelection = string.Empty;
+        private string _hoveredMaterialName = string.Empty;
         private int _sharedReferenceCount;
         private bool _previewDragging;
         private Vector2 _previewPointerDown;
@@ -120,6 +123,17 @@ namespace wackydatabase.VisualEditor
             WMRecipeCust.context.StartCoroutine(PrepareGameUi(opening));
         }
 
+        internal static void ToggleFromHotkey()
+        {
+            if (_lastHotkeyToggleFrame == Time.frameCount)
+            {
+                return;
+            }
+
+            _lastHotkeyToggleFrame = Time.frameCount;
+            ToggleWithGameUi();
+        }
+
         private static System.Collections.IEnumerator PrepareGameUi(bool opening)
         {
             yield return null;
@@ -162,6 +176,15 @@ namespace wackydatabase.VisualEditor
 
         private void OnGUI()
         {
+            if (Event.current.type == EventType.KeyDown
+                && WMRecipeCust.creatorHotkey != null
+                && Event.current.keyCode == WMRecipeCust.creatorHotkey.Value)
+            {
+                ToggleFromHotkey();
+                Event.current.Use();
+                return;
+            }
+
             if (_fullScreen)
             {
                 _windowRect = new Rect(10f, 10f, Mathf.Max(300f, Screen.width - 20f), Mathf.Max(300f, Screen.height - 20f));
@@ -178,6 +201,13 @@ namespace wackydatabase.VisualEditor
 
         private void DrawWindow(int id)
         {
+            if (GUI.Button(
+                    new Rect(_windowRect.width - 38f, 2f, 32f, 20f),
+                    new GUIContent("X", "Close the creator. You will be warned about unsaved material changes.")))
+            {
+                Close();
+            }
+
             GUILayout.BeginVertical();
             DrawToolbar();
             GUILayout.Label("1. Choose an object  >  2. Choose a material slot  >  3. Customize the material  >  4. Save the result");
@@ -244,11 +274,6 @@ namespace wackydatabase.VisualEditor
             if (GUILayout.Button(new GUIContent("Reset Edits", "Discard unsaved material edits and restore the original preview."), GUILayout.Width(78f)))
             {
                 ResetUnsavedMaterialEdits();
-            }
-
-            if (GUILayout.Button(new GUIContent("X", "Close the creator. You will be warned about unsaved material changes."), GUILayout.Width(28f)))
-            {
-                Close();
             }
 
             GUILayout.EndHorizontal();
@@ -341,7 +366,12 @@ namespace wackydatabase.VisualEditor
                 bool usePlayerModel = GUILayout.Toggle(_usePlayerModelPreview, previewModeLabel, GUI.skin.button);
                 if (usePlayerModel != _usePlayerModelPreview)
                 {
+                    SaveCurrentMaterialEdit();
                     _usePlayerModelPreview = usePlayerModel;
+                    if (_usePlayerModelPreview && IsLogRenderer(_session.SelectedRenderer))
+                    {
+                        _session.ClearMaterialSelection();
+                    }
                     ResetPrefabPreview();
                 }
             }
@@ -623,16 +653,36 @@ namespace wackydatabase.VisualEditor
                 }
                 GUILayout.EndHorizontal();
 
-                List<string> matches = _materialLibrary.Search(_materialSearch, 6);
+                GUILayout.BeginHorizontal();
+                float materialListWidth = Mathf.Max(180f, (_windowRect.width - 660f) * 0.75f);
+                GUILayout.BeginVertical(GUILayout.Width(materialListWidth));
+                List<string> matches = _materialLibrary.Search(_materialSearch, int.MaxValue);
+                if (Event.current.type == EventType.Repaint)
+                {
+                    _hoveredMaterialName = string.Empty;
+                }
+
+                _materialScroll = GUILayout.BeginScrollView(_materialScroll, GUILayout.Height(140f));
                 foreach (string materialName in matches)
                 {
                     string prefix = materialName == _materialLibrarySelection ? "[Selected] " : string.Empty;
-                    if (GUILayout.Button(prefix + materialName))
+                    if (GUILayout.Button(new GUIContent(prefix + materialName, "Hover to preview this material.")))
                     {
                         _materialLibrarySelection = materialName;
                         _materialSearch = materialName;
                     }
+
+                    if (Event.current.type == EventType.Repaint
+                        && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))
+                    {
+                        _hoveredMaterialName = materialName;
+                    }
                 }
+                GUILayout.EndScrollView();
+                GUILayout.EndVertical();
+
+                DrawMaterialVisualizer();
+                GUILayout.EndHorizontal();
 
                 bool pickerEnabled = GUI.enabled;
                 GUI.enabled = !string.IsNullOrEmpty(_materialLibrarySelection);
@@ -676,13 +726,26 @@ namespace wackydatabase.VisualEditor
             DrawMaterialRouteEditor();
             DrawPieceMaterialRouteEditor();
 
-            _showColorEditor = GUILayout.Toggle(
-                _showColorEditor,
-                (_showColorEditor ? "Hide " : "Show ") + "Colors",
-                GUI.skin.button);
-            if (_showColorEditor)
+            bool supportsColorChanges = _session.WorkingChanges?.colors != null
+                && _session.WorkingChanges.colors.Count > 0;
+            if (supportsColorChanges)
             {
-                DrawWorkingColors();
+                _showColorEditor = GUILayout.Toggle(
+                    _showColorEditor,
+                    (_showColorEditor ? "Hide " : "Show ") + "Colors",
+                    GUI.skin.button);
+                if (_showColorEditor)
+                {
+                    DrawWorkingColors();
+                }
+            }
+            else
+            {
+                GUILayout.Label(
+                    new GUIContent(
+                        "Colors unavailable for this material",
+                        "This material's shader has no RGB color properties, so color editing is hidden."),
+                    GUI.skin.box);
             }
 
             _showTextureEditor = GUILayout.Toggle(
@@ -703,6 +766,51 @@ namespace wackydatabase.VisualEditor
                 DrawWorkingFloats();
             }
             GUILayout.EndVertical();
+        }
+
+        private void DrawMaterialVisualizer()
+        {
+            string materialName = string.IsNullOrEmpty(_hoveredMaterialName)
+                ? _materialLibrarySelection
+                : _hoveredMaterialName;
+            Rect visualizerRect = GUILayoutUtility.GetRect(
+                140f,
+                140f,
+                GUILayout.Width(140f),
+                GUILayout.Height(140f));
+            GUI.Box(visualizerRect, GUIContent.none);
+            GUI.Label(
+                new Rect(visualizerRect.x + 6f, visualizerRect.y + 4f, 128f, 18f),
+                string.IsNullOrEmpty(_hoveredMaterialName) ? "Selected material" : "Hover preview");
+
+            Material material = string.IsNullOrEmpty(materialName)
+                ? null
+                : _materialLibrary.GetMaterial(materialName);
+            Rect thumbnail = new Rect(visualizerRect.x + 6f, visualizerRect.y + 24f, 96f, 76f);
+            if (material && material.mainTexture)
+            {
+                GUI.DrawTexture(thumbnail, material.mainTexture, ScaleMode.ScaleToFit, true);
+            }
+            else
+            {
+                GUI.Box(thumbnail, "No\ntexture");
+            }
+
+            string displayName = string.IsNullOrEmpty(materialName) ? "Hover over a material." : materialName;
+            string shaderName = material ? (material.shader ? material.shader.name : "<no shader>") : "Not loaded";
+            GUIStyle clippedLabel = new GUIStyle(GUI.skin.label)
+            {
+                clipping = TextClipping.Clip,
+                wordWrap = false
+            };
+            GUI.Label(
+                new Rect(visualizerRect.x + 6f, visualizerRect.y + 102f, 128f, 17f),
+                new GUIContent(displayName, displayName),
+                clippedLabel);
+            GUI.Label(
+                new Rect(visualizerRect.x + 6f, visualizerRect.y + 119f, 128f, 17f),
+                new GUIContent(shaderName, shaderName),
+                clippedLabel);
         }
 
         private void DrawPieceMaterialRouteEditor()
@@ -1025,6 +1133,25 @@ namespace wackydatabase.VisualEditor
             }
 
             GUILayout.BeginHorizontal();
+            bool textureButtonsEnabled = GUI.enabled;
+            GUI.enabled = currentTexture is Texture2D;
+            if (GUILayout.Button(new GUIContent(
+                    "Save + Open Current Texture",
+                    "Export the material's current texture to the WackyDB Textures folder and open it in the system image editor/viewer.")))
+            {
+                SaveAndOpenTexture(currentTexture);
+            }
+            GUI.enabled = textureButtonsEnabled && selectedTexture;
+            if (GUILayout.Button(new GUIContent(
+                    "Save + Open Selected Texture",
+                    "Export the selected browser texture to the WackyDB Textures folder and open it in the system image editor/viewer.")))
+            {
+                SaveAndOpenTexture(selectedTexture);
+            }
+            GUI.enabled = textureButtonsEnabled;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
             bool previousEnabled = GUI.enabled;
             GUI.enabled = selectedTexture;
             if (GUILayout.Button("Assign Selected Texture"))
@@ -1042,6 +1169,63 @@ namespace wackydatabase.VisualEditor
             }
             GUI.enabled = previousEnabled;
             GUILayout.EndHorizontal();
+        }
+
+        private void SaveAndOpenTexture(Texture texture)
+        {
+            if (!(texture is Texture2D))
+            {
+                _status = "The selected texture cannot be exported as a PNG.";
+                return;
+            }
+
+            try
+            {
+                System.IO.Directory.CreateDirectory(WMRecipeCust.assetPathTextures);
+                TextureDataManager.SaveTexture(texture.name, texture);
+                string path = System.IO.Path.Combine(WMRecipeCust.assetPathTextures, texture.name + ".png");
+                _textureBrowser.Refresh();
+                System.Diagnostics.Process.Start(path);
+                _status = "Saved and opened texture: " + path;
+            }
+            catch (Exception exception)
+            {
+                _status = "Unable to save or open texture: " + exception.Message;
+                WMRecipeCust.WLog.LogWarning(_status);
+            }
+        }
+
+        private int GetVisibleRendererCount()
+        {
+            int count = 0;
+            foreach (WackyDbRendererInfo rendererInfo in _session.RendererInfos)
+            {
+                if (IsRendererVisibleForPreview(rendererInfo))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        private bool IsRendererVisibleForPreview(WackyDbRendererInfo rendererInfo)
+        {
+            return rendererInfo != null
+                && (!_usePlayerModelPreview || !IsLogRenderer(rendererInfo.Renderer));
+        }
+
+        private static bool IsLogRenderer(Renderer renderer)
+        {
+            Transform current = renderer ? renderer.transform : null;
+            while (current)
+            {
+                if (current.name.Equals("log", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                current = current.parent;
+            }
+            return false;
         }
 
         private void DrawWorkingColors()
@@ -1890,9 +2074,8 @@ namespace wackydatabase.VisualEditor
         {
             if (_session.MaterialChangesDirty)
             {
-                _pendingSelection = null;
-                _pendingClose = true;
-                return;
+                ResetUnsavedMaterialEdits();
+                _session.MaterialChangesDirty = false;
             }
 
             CloseImmediately();
@@ -1918,15 +2101,17 @@ namespace wackydatabase.VisualEditor
         }
     }
 
+    [DefaultExecutionOrder(-10000)]
     internal sealed class WackyDbCreateHotkeyListener : MonoBehaviour
     {
         private void Update()
         {
-            if (WMRecipeCust.modEnabled.Value
+            if (WMRecipeCust.modEnabled != null
+                && WMRecipeCust.modEnabled.Value
                 && WMRecipeCust.creatorHotkey != null
                 && ZInput.GetKeyDown(WMRecipeCust.creatorHotkey.Value))
             {
-                WackyDbCreateWindow.ToggleWithGameUi();
+                WackyDbCreateWindow.ToggleFromHotkey();
             }
         }
     }

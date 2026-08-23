@@ -102,11 +102,7 @@ namespace wackydatabase.VisualEditor
             }
             if (!cloneRenderer)
             {
-                string relativePath = GetRelativePath(sourceRenderer.transform);
-                Transform cloneTransform = relativePath == null
-                    ? null
-                    : string.IsNullOrEmpty(relativePath) ? _clone.transform : _clone.transform.Find(relativePath);
-                cloneRenderer = cloneTransform ? cloneTransform.GetComponent(sourceRenderer.GetType()) as Renderer : null;
+                cloneRenderer = FindCloneRenderer(sourceRenderer, slot);
             }
             if (!cloneRenderer || slot < 0 || slot >= cloneRenderer.sharedMaterials.Length)
             {
@@ -310,16 +306,21 @@ namespace wackydatabase.VisualEditor
             if (!_usingPlayerModel)
             {
                 Renderer[] sourceRenderers = prefab.GetComponentsInChildren<Renderer>(true);
-                Renderer[] cloneRenderers = _clone.GetComponentsInChildren<Renderer>(true);
-                int rendererCount = Mathf.Min(sourceRenderers.Length, cloneRenderers.Length);
-                for (int index = 0; index < rendererCount; index++)
+                foreach (Renderer sourceRenderer in sourceRenderers)
                 {
-                    if (sourceRenderers[index] && cloneRenderers[index]
-                        && sourceRenderers[index].GetType() == cloneRenderers[index].GetType())
+                    if (!sourceRenderer)
                     {
-                        _rendererMap[sourceRenderers[index].GetInstanceID()] = cloneRenderers[index];
-                        _sourceRendererMap[cloneRenderers[index].GetInstanceID()] = sourceRenderers[index];
+                        continue;
                     }
+
+                    Renderer cloneRenderer = FindCloneRenderer(sourceRenderer, -1);
+                    if (!cloneRenderer)
+                    {
+                        continue;
+                    }
+
+                    _rendererMap[sourceRenderer.GetInstanceID()] = cloneRenderer;
+                    _sourceRendererMap[cloneRenderer.GetInstanceID()] = sourceRenderer;
                 }
             }
 
@@ -357,6 +358,65 @@ namespace wackydatabase.VisualEditor
             _clone.SetActive(true);
         }
 
+        private Renderer FindCloneRenderer(Renderer sourceRenderer, int slot)
+        {
+            string relativePath = GetRelativePath(sourceRenderer.transform);
+            Transform cloneTransform = relativePath == null
+                ? null
+                : string.IsNullOrEmpty(relativePath) ? _clone.transform : _clone.transform.Find(relativePath);
+            if (cloneTransform)
+            {
+                Component[] sourceComponents = sourceRenderer.transform.GetComponents(sourceRenderer.GetType());
+                Component[] cloneComponents = cloneTransform.GetComponents(sourceRenderer.GetType());
+                int componentIndex = Array.IndexOf(sourceComponents, sourceRenderer);
+                if (componentIndex >= 0 && componentIndex < cloneComponents.Length)
+                {
+                    return cloneComponents[componentIndex] as Renderer;
+                }
+            }
+
+            Material originalMaterial = slot >= 0 && slot < sourceRenderer.sharedMaterials.Length
+                ? sourceRenderer.sharedMaterials[slot]
+                : null;
+            Renderer[] candidates = _clone.GetComponentsInChildren<Renderer>(true)
+                .Where(candidate => candidate && candidate.GetType() == sourceRenderer.GetType())
+                .ToArray();
+
+            Renderer match = candidates.FirstOrDefault(candidate =>
+                candidate.name == sourceRenderer.name
+                && MaterialMatchesAtSlot(candidate, slot, originalMaterial));
+            if (match)
+            {
+                return match;
+            }
+
+            match = candidates.FirstOrDefault(candidate => MaterialMatchesAtSlot(candidate, slot, originalMaterial));
+            if (match)
+            {
+                return match;
+            }
+
+            return candidates.FirstOrDefault(candidate =>
+                candidate.name == sourceRenderer.name
+                && (slot < 0 || slot < candidate.sharedMaterials.Length));
+        }
+
+        private static bool MaterialMatchesAtSlot(Renderer renderer, int slot, Material material)
+        {
+            if (slot < 0)
+            {
+                return false;
+            }
+
+            Material[] materials = renderer.sharedMaterials;
+            if (slot >= materials.Length || !materials[slot] || !material)
+            {
+                return false;
+            }
+
+            return materials[slot] == material || materials[slot].name == material.name;
+        }
+
         private void AddPickingColliders()
         {
             foreach (Renderer renderer in _clone.GetComponentsInChildren<Renderer>(true))
@@ -368,7 +428,7 @@ namespace wackydatabase.VisualEditor
                 }
 
                 MeshFilter filter = meshRenderer.GetComponent<MeshFilter>();
-                if (!filter || !filter.sharedMesh)
+                if (!filter || !filter.sharedMesh || !filter.sharedMesh.isReadable)
                 {
                     continue;
                 }

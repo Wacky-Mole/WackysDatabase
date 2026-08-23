@@ -53,10 +53,11 @@ namespace wackydatabase.VisualEditor
 
             foreach (Renderer renderer in renderers.Where(renderer => renderer))
             {
+                string rendererPath = GetTransformPath(prefab.transform, renderer.transform);
                 WackyDbRendererInfo rendererInfo = new WackyDbRendererInfo
                 {
                     Renderer = renderer,
-                    Path = GetTransformPath(prefab.transform, renderer.transform)
+                    Path = rendererPath
                 };
 
                 Material[] materials = renderer.sharedMaterials;

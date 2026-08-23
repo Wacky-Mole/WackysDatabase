@@ -35,6 +35,7 @@ using wackydatabase.OBJimporter;
 using RainbowTrollArmor;
 using System.Runtime.CompilerServices;
 using LocalizationManager;
+using wackydatabase.VisualEditor;
 
 namespace wackydatabase
 {
@@ -314,6 +315,10 @@ namespace wackydatabase
 
             // ^^ // starting files
             context = this;
+            if (!GetComponent<WackyDbCreateHotkeyListener>())
+            {
+                gameObject.AddComponent<WackyDbCreateHotkeyListener>();
+            }
             modEnabled = config<bool>("General", "Enabled", true, "Enable this mod");
             NexusModID = config<string>("General", "NexusModID", "1825", "NexusModID Number", false);
             isDebug = config<bool>("General", "IsDebug", true, "Enable debug logs", false);
@@ -328,7 +333,7 @@ namespace wackydatabase
             maxAssetSyncFileSizeMBNew = config<int>("General", "Max Asset Sync Size MB", 3, "Maximum size per synced asset file. Larger files are skipped with a safe failure message to avoid issues. You must use Network mods for larger sizes, to uncap the network server speed. Network mods don't uncap with crossplay");
             // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
             extraEffectList = config<string>("Effects", "List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
-            creatorHotkey = config<KeyCode>("General", "Material Creator Hotkey", KeyCode.F11, "Hotkey used to open or close the WackyDB material creator", false);
+            creatorHotkey = config<KeyCode>("General", "Material Creator Hotkey", KeyCode.F6, "Hotkey used to open or close the WackyDB material creator", false);
             ConfigSync.CurrentVersion = ModVersion;
 
             WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);
