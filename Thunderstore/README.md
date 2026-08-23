@@ -1333,10 +1333,11 @@ You can replace all Boars in the game with this Dude.
 - `RepeatMessage` (string): The repeat message of the status effect.
 - `RepeatInterval` (float): The repeat interval of the status effect.
 - `TimeToLive` (float): The time to live of the status effect.
+- `ReapplyCooldown` (float): Minimum number of seconds before this status effect can be applied again. Use this for attack-applied effects that should not refresh on every hit. Omit or set to `0` to allow immediate reapplication.
 - `EndingStatusEffect`(string): At the end of one SE, you can start another. You can chain SEs together, run one after the other. Utilize the Category string.
 - `StartEffect_PLUS` (EffectVerse[]): The start effects for the status effect.
 - `StopEffect_PLUS` (EffectVerse[]): The stop effects for the status effect.
-- `Cooldown` (float): The cooldown of the gaurdian power status effect.
+- `Cooldown` (float): The cooldown of the gaurdian power status effect. Or for Potions/drinks. 
 - `ActivationAnimation` (string): The animation for the activation of the status effect.
 - `SeData` (SEdata): The additional data for the status effect.
 - `SeShield` (SEShield): The additional data for the shield status effect.

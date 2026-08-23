@@ -295,6 +295,14 @@ namespace wackydatabase.SetData
             go.m_repeatMessageType = data.RepeatMessageLoc ?? go.m_repeatMessageType;
             go.m_repeatMessage = data.RepeatMessage ?? go.m_repeatMessage;
             go.m_ttl = data.TimeToLive ?? go.m_ttl;
+            if (data.ReapplyCooldown.HasValue)
+            {
+                int statusEffectHash = data.Name.GetStableHashCode();
+                if (data.ReapplyCooldown.Value > 0f)
+                    WMRecipeCust.StatusEffectReapplyCooldowns[statusEffectHash] = data.ReapplyCooldown.Value;
+                else
+                    WMRecipeCust.StatusEffectReapplyCooldowns.Remove(statusEffectHash);
+            }
             if (!string.IsNullOrEmpty(data.EndingStatusEffect)) {
 
                 if (WMRecipeCust.EndingStatusEffect.TryGetValue(data.Name, out var useless)) {

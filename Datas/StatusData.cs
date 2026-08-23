@@ -33,6 +33,7 @@ namespace wackydatabase.Datas
         public string? RepeatMessage;
         public float? RepeatInterval;
         public float? TimeToLive;
+        public float? ReapplyCooldown;
         public string? EndingStatusEffect;
         public EffectVerse[] StartEffect_PLUS;
         public EffectVerse[] StopEffect_PLUS;

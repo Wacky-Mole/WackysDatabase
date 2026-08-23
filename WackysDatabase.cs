@@ -48,7 +48,7 @@ namespace wackydatabase
     public class WMRecipeCust : BaseUnityPlugin
     {
         internal const string ModName = "WackysDatabase";
-        internal const string ModVersion = "2.5.16";
+        internal const string ModVersion = "2.5.17";
         internal const string Author = "WackyMole";
         internal const string ModGUID = Author + "." + ModName;
         internal static string ConfigFileName = ModGUID + ".cfg";
@@ -60,7 +60,7 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.5.16" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.5.17" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
@@ -189,6 +189,7 @@ namespace wackydatabase
         public static Dictionary<Recipe, bool> RequiredCraftItemsString = new(); // holding
         public static HashSet<string> HideEquipEffectsUntilSetComplete = new(StringComparer.Ordinal);
         public static Dictionary<string, List<SE_SET_Equip>> AdditionalSetEffects = new(StringComparer.Ordinal);
+        public static Dictionary<int, float> StatusEffectReapplyCooldowns = new();
         public static Dictionary<string, string> EndingStatusEffect = new(); // For SEs that want to chain
                                                                              // when you define it:
         public static readonly Dictionary<string, WackyStatusEffectBonus> SEaddBonus =  new Dictionary<string, WackyStatusEffectBonus>(StringComparer.Ordinal);// status effect addHP/stam/eitr
