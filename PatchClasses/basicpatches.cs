@@ -26,49 +26,6 @@ using System.Web;
 
 namespace wackydatabase.PatchClasses
 {
-
-    /* Cookie Project
-     [HarmonyPatch(typeof(Hud), "UpdateMount")]
-     static class MountIconPatch 
-     {
-         public static string playerCurrentSaddle = "";
-         private static void Postfix(ref Player player, Hud __instance,  GameObject ___m_mountPanel)
-         {
-             Sadle sadle = player.GetDoodadController() as Sadle;
-             if (sadle != null)
-             {             
-                 Character character = sadle.GetCharacter(); // use this to select between your riding mobs
-                 var Icon = ___m_mountPanel;
-                 if (Icon == null) return; 
-                 var icon = Icon.transform.GetChild(0).Find("MountIcon")?.gameObject.GetComponent<UnityEngine.UI.Image>();
-                 if (icon != null && playerCurrentSaddle != character.name)
-                 {
-                     WMRecipeCust.WLog.LogWarning($"Mob with saddle is {character.name}"); // remove this just for testing
-                     SpriteToolsCombined spriteTool = new SpriteToolsCombined();
-                     switch (character.name)
-                     {
-                         case "Lox(Clone)":
-                             WMRecipeCust.WLog.LogInfo("Setting Wolf Icon");
-                             icon.sprite = spriteTool.CreateSprite(spriteTool.loadTexture("Wolf.png"), false);
-                             //icon.sprite = WMRecipeCust.Wolf; or better yet load this in your main awake once
-                             playerCurrentSaddle = character.name;
-                             break;
-
-                         case "Wolf(Clone)":
-                             icon.sprite = spriteTool.CreateSprite(spriteTool.loadTexture("Wolf.png"), false);
-                             playerCurrentSaddle = character.name;
-                             break;
-
-                         default:
-                             playerCurrentSaddle = character.name;
-                             break;
-                     }
-                 }
-             }
-         }
-     }
-     */
-
     [HarmonyPatch(typeof(Player), nameof(Player.QueueReloadAction))] // IG didn't add a check for Stamina for reloadStamina
     internal static class AddStaminaReloadCheck
     {
