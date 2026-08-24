@@ -49,8 +49,8 @@ namespace wackydatabase.VisualEditor
             {
                 name = prefabName,
                 m_weight = itemDrop.m_itemData.m_shared.m_weight,
-                material = customVisual == null && materials == null ? materialName : null,
-                materials = customVisual == null ? materials : null,
+                material = materials == null ? materialName : null,
+                materials = materials,
                 customVisual = customVisual,
                 customIcon = string.IsNullOrWhiteSpace(customIcon) ? null : customIcon
             };
@@ -99,8 +99,8 @@ namespace wackydatabase.VisualEditor
             data.name = cloneName;
             data.clonePrefabName = originalPrefabName;
             data.m_name = displayName;
-            data.material = customVisual == null && materials == null ? materialName : null;
-            data.materials = customVisual == null ? materials : null;
+            data.material = materials == null ? materialName : null;
+            data.materials = materials;
             data.customVisual = customVisual;
             data.customIcon = string.IsNullOrWhiteSpace(customIcon) ? null : customIcon;
             return WriteObject(WMRecipeCust.assetPathItems, "Item_" + SanitizeFileName(cloneName) + ".yml", data);

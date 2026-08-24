@@ -368,7 +368,9 @@ namespace wackydatabase.VisualEditor
                 {
                     SaveCurrentMaterialEdit();
                     _usePlayerModelPreview = usePlayerModel;
-                    if (_usePlayerModelPreview && IsLogRenderer(_session.SelectedRenderer))
+                    WackyDbRendererInfo selectedRendererInfo = _session.RendererInfos.Find(
+                        info => info.Renderer == _session.SelectedRenderer);
+                    if (_session.SelectedRenderer && !IsRendererVisibleForPreview(selectedRendererInfo))
                     {
                         _session.ClearMaterialSelection();
                     }
@@ -599,13 +601,16 @@ namespace wackydatabase.VisualEditor
             _detailScroll = GUILayout.BeginScrollView(_detailScroll, GUILayout.ExpandHeight(true));
             _showRendererSlots = GUILayout.Toggle(
                 _showRendererSlots,
-                (_showRendererSlots ? "Hide " : "Show ") + "Step 2 — Renderer / Material Slots (" + _session.RendererInfos.Count + ")",
+                (_showRendererSlots ? "Hide " : "Show ") + "Step 2 — Renderer / Material Slots (" + GetVisibleRendererCount() + ")",
                 GUI.skin.button);
             if (_showRendererSlots)
             {
                 foreach (WackyDbRendererInfo rendererInfo in _session.RendererInfos)
                 {
-                    DrawRendererInfo(rendererInfo);
+                    if (IsRendererVisibleForPreview(rendererInfo))
+                    {
+                        DrawRendererInfo(rendererInfo);
+                    }
                 }
             }
 
@@ -971,24 +976,24 @@ namespace wackydatabase.VisualEditor
             DrawMaterialRouteButton("Leg Armor", WackyDbMaterialRoute.Legs);
             GUILayout.EndHorizontal();
 
-            if (_session.MaterialRoute != WackyDbMaterialRoute.Material)
+            if (GUILayout.Button("Assign Current Material to " + _session.MaterialRoute))
             {
-                if (GUILayout.Button("Assign Current Material to " + _session.MaterialRoute))
-                {
-                    AssignCurrentMaterialRoute();
-                }
+                AssignCurrentMaterialRoute();
             }
 
-            if (!string.IsNullOrEmpty(_session.BaseMaterialName)
+            if (!string.IsNullOrEmpty(_session.StandardMaterialName)
+                || !string.IsNullOrEmpty(_session.BaseMaterialName)
                 || !string.IsNullOrEmpty(_session.ChestMaterialName)
                 || !string.IsNullOrEmpty(_session.LegsMaterialName))
             {
-                GUILayout.Label("Assigned armor materials:");
+                GUILayout.Label("Assigned item materials:");
+                GUILayout.Label("  Standard / item model: " + EmptyAsNone(_session.StandardMaterialName));
                 GUILayout.Label("  Base: " + EmptyAsNone(_session.BaseMaterialName));
                 GUILayout.Label("  Chest: " + EmptyAsNone(_session.ChestMaterialName));
                 GUILayout.Label("  Legs: " + EmptyAsNone(_session.LegsMaterialName));
-                if (GUILayout.Button("Clear Armor Assignments"))
+                if (GUILayout.Button("Clear Item Material Assignments"))
                 {
+                    _session.StandardMaterialName = string.Empty;
                     _session.BaseMaterialName = string.Empty;
                     _session.ChestMaterialName = string.Empty;
                     _session.LegsMaterialName = string.Empty;
@@ -997,6 +1002,9 @@ namespace wackydatabase.VisualEditor
 
             switch (_session.MaterialRoute)
             {
+                case WackyDbMaterialRoute.Material:
+                    GUILayout.Label("Saves to the standard material field used by the item model.");
+                    break;
                 case WackyDbMaterialRoute.Base:
                     GUILayout.Label("Saves as customVisual.base_mat for the item's rendered model.");
                     break;
@@ -1041,6 +1049,9 @@ namespace wackydatabase.VisualEditor
 
             switch (_session.MaterialRoute)
             {
+                case WackyDbMaterialRoute.Material:
+                    _session.StandardMaterialName = materialName;
+                    break;
                 case WackyDbMaterialRoute.Base:
                     _session.BaseMaterialName = materialName;
                     break;
@@ -1210,8 +1221,14 @@ namespace wackydatabase.VisualEditor
 
         private bool IsRendererVisibleForPreview(WackyDbRendererInfo rendererInfo)
         {
-            return rendererInfo != null
-                && (!_usePlayerModelPreview || !IsLogRenderer(rendererInfo.Renderer));
+            if (rendererInfo == null)
+            {
+                return false;
+            }
+
+            bool hasItemRenderer = _session.RendererInfos.Exists(info => IsLogRenderer(info.Renderer));
+            bool isItemRenderer = IsLogRenderer(rendererInfo.Renderer);
+            return _usePlayerModelPreview ? !isItemRenderer : !hasItemRenderer || isItemRenderer;
         }
 
         private static bool IsLogRenderer(Renderer renderer)
@@ -1219,7 +1236,7 @@ namespace wackydatabase.VisualEditor
             Transform current = renderer ? renderer.transform : null;
             while (current)
             {
-                if (current.name.Equals("log", StringComparison.OrdinalIgnoreCase))
+                if (current.name.StartsWith("log", StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -1491,6 +1508,12 @@ namespace wackydatabase.VisualEditor
             SaveCurrentMaterialEdit();
             _session.SelectedRenderer = renderer;
             _session.SelectedMaterialSlot = materialInfo.Slot;
+            if (_session.SelectedObject?.Type == WackyDbObjectType.Item)
+            {
+                _session.MaterialRoute = IsLogRenderer(renderer)
+                    ? WackyDbMaterialRoute.Material
+                    : GetDefaultMaterialRoute(_session.SelectedObject);
+            }
             string editKey = WackyDbEditorSession.GetMaterialEditKey(renderer, materialInfo.Slot);
             if (_session.MaterialEdits.TryGetValue(editKey, out WackyDbMaterialEditState existingEdit))
             {
@@ -1782,14 +1805,17 @@ namespace wackydatabase.VisualEditor
             }
 
             WackyDbObjectCandidate selected = _session.SelectedObject;
+            string itemMaterialName = _session.MaterialRoute == WackyDbMaterialRoute.Material
+                ? materialName
+                : NullIfEmpty(_session.StandardMaterialName);
             CustomVisual customVisual = BuildCustomVisual(materialName);
-            string[] itemMaterials = BuildItemMaterialArray(materialName, customVisual);
+            string[] itemMaterials = BuildItemMaterialArray(itemMaterialName, customVisual);
             bool saved;
             if (selected.Type == WackyDbObjectType.Item)
             {
                 saved = clone
-                    ? _exporter.SaveItemClone(selected.Prefab, selected.Name, _session.CloneName.Trim(), _session.DisplayName.Trim(), materialName, itemMaterials, customVisual, _session.SnapshotIconName)
-                    : _exporter.SaveItemOverwrite(selected.Prefab, selected.Name, materialName, itemMaterials, customVisual, _session.SnapshotIconName);
+                    ? _exporter.SaveItemClone(selected.Prefab, selected.Name, _session.CloneName.Trim(), _session.DisplayName.Trim(), itemMaterialName, itemMaterials, customVisual, _session.SnapshotIconName)
+                    : _exporter.SaveItemOverwrite(selected.Prefab, selected.Name, itemMaterialName, itemMaterials, customVisual, _session.SnapshotIconName);
             }
             else
             {
@@ -1863,7 +1889,10 @@ namespace wackydatabase.VisualEditor
 
         private CustomVisual BuildCustomVisual(string currentMaterialName)
         {
-            if (_session.MaterialRoute == WackyDbMaterialRoute.Material)
+            bool hasAssignedVisual = !string.IsNullOrWhiteSpace(_session.BaseMaterialName)
+                || !string.IsNullOrWhiteSpace(_session.ChestMaterialName)
+                || !string.IsNullOrWhiteSpace(_session.LegsMaterialName);
+            if (_session.MaterialRoute == WackyDbMaterialRoute.Material && !hasAssignedVisual)
             {
                 return null;
             }

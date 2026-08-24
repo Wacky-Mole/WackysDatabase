@@ -71,6 +71,7 @@ namespace wackydatabase.VisualEditor
         internal string BaseMaterialName = string.Empty;
         internal string ChestMaterialName = string.Empty;
         internal string LegsMaterialName = string.Empty;
+        internal string StandardMaterialName = string.Empty;
         internal WackyDbPieceMaterialRoute PieceMaterialRoute = WackyDbPieceMaterialRoute.FullHealth;
         internal string PieceMaterialName = string.Empty;
         internal string DamagedPieceMaterialName = string.Empty;
@@ -88,6 +89,7 @@ namespace wackydatabase.VisualEditor
             BaseMaterialName = string.Empty;
             ChestMaterialName = string.Empty;
             LegsMaterialName = string.Empty;
+            StandardMaterialName = string.Empty;
             PieceMaterialRoute = WackyDbPieceMaterialRoute.FullHealth;
             PieceMaterialName = string.Empty;
             DamagedPieceMaterialName = string.Empty;

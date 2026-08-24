@@ -285,9 +285,12 @@ namespace wackydatabase.VisualEditor
                 GameObject source = _usingPlayerModel ? GetPlayerModelSource() : prefab;
                 if (!source)
                 {
-                    throw new InvalidOperationException("A player model is unavailable. Enter a world before using player preview.");
+                    throw new InvalidOperationException("A player model is unavailable in the current game state.");
                 }
-                _clone = UnityEngine.Object.Instantiate(source, PreviewOrigin, Quaternion.identity);
+
+                _clone = _usingPlayerModel
+                    ? CreateCleanPlayerPreview(source, prefab)
+                    : UnityEngine.Object.Instantiate(source, PreviewOrigin, Quaternion.identity);
             }
             finally
             {
@@ -298,14 +301,18 @@ namespace wackydatabase.VisualEditor
             _clone.hideFlags = HideFlags.HideAndDontSave;
             _clone.transform.SetParent(_pivot.transform, true);
 
-            if (_usingPlayerModel)
-            {
-                EquipPlayerPreview(prefab.name);
-            }
-
             if (!_usingPlayerModel)
             {
                 Renderer[] sourceRenderers = prefab.GetComponentsInChildren<Renderer>(true);
+                bool hasItemRenderer = sourceRenderers.Any(renderer =>
+                    renderer && IsLogRenderer(renderer.transform));
+                if (hasItemRenderer)
+                {
+                    foreach (Renderer cloneRenderer in _clone.GetComponentsInChildren<Renderer>(true))
+                    {
+                        cloneRenderer.enabled = false;
+                    }
+                }
                 foreach (Renderer sourceRenderer in sourceRenderers)
                 {
                     if (!sourceRenderer)
@@ -321,6 +328,10 @@ namespace wackydatabase.VisualEditor
 
                     _rendererMap[sourceRenderer.GetInstanceID()] = cloneRenderer;
                     _sourceRendererMap[cloneRenderer.GetInstanceID()] = sourceRenderer;
+                    if (!hasItemRenderer || IsLogRenderer(sourceRenderer.transform))
+                    {
+                        cloneRenderer.enabled = true;
+                    }
                 }
             }
 
@@ -331,7 +342,10 @@ namespace wackydatabase.VisualEditor
 
             foreach (MonoBehaviour behaviour in _clone.GetComponentsInChildren<MonoBehaviour>(true))
             {
-                behaviour.enabled = false;
+                if (!_usingPlayerModel)
+                {
+                    behaviour.enabled = false;
+                }
             }
 
             foreach (Collider collider in _clone.GetComponentsInChildren<Collider>(true))
@@ -356,6 +370,197 @@ namespace wackydatabase.VisualEditor
             }
 
             _clone.SetActive(true);
+        }
+
+        private GameObject CreateCleanPlayerPreview(GameObject playerSource, GameObject itemPrefab)
+        {
+            Dictionary<Transform, Transform> transformMap = new Dictionary<Transform, Transform>();
+            GameObject cleanRoot = CopyTransformHierarchy(playerSource.transform, null, transformMap).gameObject;
+            cleanRoot.transform.position = PreviewOrigin;
+            HashSet<int> equippedRendererIds = GetEquippedRendererIds(playerSource);
+
+            foreach (Renderer renderer in playerSource.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer is ParticleSystemRenderer
+                    || equippedRendererIds.Contains(renderer.GetInstanceID())
+                    || !transformMap.TryGetValue(renderer.transform, out Transform targetTransform))
+                {
+                    continue;
+                }
+
+                CopyRenderer(renderer, targetTransform.gameObject, transformMap, null);
+            }
+
+            Dictionary<string, Transform> bonesByName = new Dictionary<string, Transform>(StringComparer.Ordinal);
+            foreach (Transform transform in cleanRoot.GetComponentsInChildren<Transform>(true))
+            {
+                if (!bonesByName.ContainsKey(transform.name))
+                {
+                    bonesByName[transform.name] = transform;
+                }
+            }
+
+            GameObject equipmentRoot = new GameObject("WackyDB Equipped Item");
+            equipmentRoot.transform.SetParent(cleanRoot.transform, false);
+            foreach (Renderer sourceRenderer in itemPrefab.GetComponentsInChildren<Renderer>(true))
+            {
+                if (sourceRenderer is ParticleSystemRenderer || IsLogRenderer(sourceRenderer.transform))
+                {
+                    continue;
+                }
+
+                GameObject rendererObject = new GameObject(sourceRenderer.name);
+                rendererObject.transform.SetParent(equipmentRoot.transform, false);
+                Renderer copiedRenderer = CopyRenderer(sourceRenderer, rendererObject, null, bonesByName);
+                if (copiedRenderer)
+                {
+                    _rendererMap[sourceRenderer.GetInstanceID()] = copiedRenderer;
+                    _sourceRendererMap[copiedRenderer.GetInstanceID()] = sourceRenderer;
+                }
+            }
+
+            return cleanRoot;
+        }
+
+        private static HashSet<int> GetEquippedRendererIds(GameObject playerSource)
+        {
+            HashSet<int> rendererIds = new HashSet<int>();
+            VisEquipment equipment = playerSource.GetComponentInChildren<VisEquipment>(true);
+            if (!equipment)
+            {
+                return rendererIds;
+            }
+
+            foreach (FieldInfo field in equipment.GetType().GetFields(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (field.Name.IndexOf("instance", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    continue;
+                }
+
+                AddEquippedRendererIds(field.GetValue(equipment), rendererIds);
+            }
+            return rendererIds;
+        }
+
+        private static void AddEquippedRendererIds(object value, HashSet<int> rendererIds)
+        {
+            GameObject gameObject = value as GameObject;
+            if (!gameObject && value is Component component)
+            {
+                gameObject = component.gameObject;
+            }
+            if (gameObject)
+            {
+                foreach (Renderer renderer in gameObject.GetComponentsInChildren<Renderer>(true))
+                {
+                    rendererIds.Add(renderer.GetInstanceID());
+                }
+                return;
+            }
+
+            if (value is System.Collections.IEnumerable values && !(value is string))
+            {
+                foreach (object entry in values)
+                {
+                    AddEquippedRendererIds(entry, rendererIds);
+                }
+            }
+        }
+
+        private static Transform CopyTransformHierarchy(
+            Transform source,
+            Transform parent,
+            Dictionary<Transform, Transform> transformMap)
+        {
+            GameObject copy = new GameObject(source.name);
+            Transform target = copy.transform;
+            target.SetParent(parent, false);
+            target.localPosition = source.localPosition;
+            target.localRotation = source.localRotation;
+            target.localScale = source.localScale;
+            transformMap[source] = target;
+            for (int index = 0; index < source.childCount; index++)
+            {
+                CopyTransformHierarchy(source.GetChild(index), target, transformMap);
+            }
+            return target;
+        }
+
+        private static Renderer CopyRenderer(
+            Renderer source,
+            GameObject target,
+            Dictionary<Transform, Transform> transformMap,
+            Dictionary<string, Transform> bonesByName)
+        {
+            Renderer result;
+            if (source is SkinnedMeshRenderer sourceSkinned)
+            {
+                SkinnedMeshRenderer targetSkinned = target.AddComponent<SkinnedMeshRenderer>();
+                targetSkinned.sharedMesh = sourceSkinned.sharedMesh;
+                targetSkinned.localBounds = sourceSkinned.localBounds;
+                targetSkinned.updateWhenOffscreen = true;
+                targetSkinned.bones = sourceSkinned.bones
+                    .Select(bone => ResolveBone(bone, transformMap, bonesByName))
+                    .ToArray();
+                targetSkinned.rootBone = ResolveBone(sourceSkinned.rootBone, transformMap, bonesByName);
+                result = targetSkinned;
+            }
+            else if (source is MeshRenderer)
+            {
+                MeshFilter sourceFilter = source.GetComponent<MeshFilter>();
+                if (!sourceFilter || !sourceFilter.sharedMesh)
+                {
+                    return null;
+                }
+
+                target.AddComponent<MeshFilter>().sharedMesh = sourceFilter.sharedMesh;
+                result = target.AddComponent<MeshRenderer>();
+            }
+            else
+            {
+                return null;
+            }
+
+            result.sharedMaterials = source.sharedMaterials;
+            result.enabled = true;
+            result.shadowCastingMode = source.shadowCastingMode;
+            result.receiveShadows = source.receiveShadows;
+            return result;
+        }
+
+        private static Transform ResolveBone(
+            Transform sourceBone,
+            Dictionary<Transform, Transform> transformMap,
+            Dictionary<string, Transform> bonesByName)
+        {
+            if (!sourceBone)
+            {
+                return null;
+            }
+            if (transformMap != null && transformMap.TryGetValue(sourceBone, out Transform mappedBone))
+            {
+                return mappedBone;
+            }
+            if (bonesByName != null && bonesByName.TryGetValue(sourceBone.name, out mappedBone))
+            {
+                return mappedBone;
+            }
+            return null;
+        }
+
+        private static bool IsLogRenderer(Transform transform)
+        {
+            while (transform)
+            {
+                if (transform.name.StartsWith("log", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                transform = transform.parent;
+            }
+            return false;
         }
 
         private Renderer FindCloneRenderer(Renderer sourceRenderer, int slot)
@@ -440,8 +645,70 @@ namespace wackydatabase.VisualEditor
 
         private static GameObject GetPlayerModelSource()
         {
+            if (Player.m_localPlayer)
+            {
+                return GetPlayerVisualSource(Player.m_localPlayer.gameObject);
+            }
+
+            FejdStartup startup = UnityEngine.Object.FindObjectOfType<FejdStartup>();
+            if (startup)
+            {
+                GameObject menuPlayer = GetGameObjectMember(startup, "m_playerInstance");
+                if (menuPlayer)
+                {
+                    GameObject menuVisual = GetPlayerVisualSource(menuPlayer);
+                    if (menuVisual)
+                    {
+                        return menuVisual;
+                    }
+                }
+            }
+
             GameObject playerPrefab = ZNetScene.instance ? ZNetScene.instance.GetPrefab("Player") : null;
-            return playerPrefab ? playerPrefab : Player.m_localPlayer ? Player.m_localPlayer.gameObject : null;
+            if (playerPrefab)
+            {
+                return GetPlayerVisualSource(playerPrefab);
+            }
+
+            GameObject menuPrefab = startup ? GetGameObjectMember(startup, "m_playerPrefab") : null;
+            return GetPlayerVisualSource(menuPrefab);
+        }
+
+        private static GameObject GetPlayerVisualSource(GameObject playerObject)
+        {
+            if (!playerObject)
+            {
+                return null;
+            }
+
+            VisEquipment equipment = playerObject.GetComponentInChildren<VisEquipment>(true);
+            return equipment ? equipment.gameObject : null;
+        }
+
+        private static GameObject GetGameObjectMember(object instance, string memberName)
+        {
+            Type type = instance.GetType();
+            FieldInfo field = type.GetField(
+                memberName,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            object value = field?.GetValue(instance);
+            if (value == null)
+            {
+                PropertyInfo property = type.GetProperty(
+                    memberName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                value = property?.GetValue(instance, null);
+            }
+
+            if (value is GameObject gameObject)
+            {
+                return gameObject;
+            }
+            if (value is Component component)
+            {
+                return component.gameObject;
+            }
+            return null;
         }
 
         private void EquipPlayerPreview(string itemName)
@@ -453,8 +720,6 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
-            ClearPlayerEquipment(equipment);
-            RefreshEquipmentVisuals(equipment);
             string itemType = itemDrop.m_itemData.m_shared.m_itemType.ToString();
             string methodName = itemType.IndexOf("Chest", StringComparison.OrdinalIgnoreCase) >= 0 ? "SetChestItem"
                 : itemType.IndexOf("Leg", StringComparison.OrdinalIgnoreCase) >= 0 ? "SetLegItem"
@@ -500,7 +765,11 @@ namespace wackydatabase.VisualEditor
                     null,
                     Type.EmptyTypes,
                     null);
-                method?.Invoke(equipment, null);
+                if (method != null)
+                {
+                    method.Invoke(equipment, null);
+                    return;
+                }
             }
         }
 
