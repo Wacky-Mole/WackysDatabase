@@ -97,19 +97,77 @@ namespace wackydatabase.PatchClasses
             }
         }
 
-        [HarmonyPatch(typeof(SEMan), nameof(SEMan.AddStatusEffect), new[] { typeof(int), typeof(bool), typeof(int), typeof(float) })]
-        private static class SEMan_AddStatusEffect_ReapplyCooldown_Patch
+        [HarmonyPatch]
+        internal static class SEMan_ReapplyCooldown_General
         {
-            private static bool Prefix(SEMan __instance, int nameHash)
+            private static readonly ConditionalWeakTable<Character, Dictionary<int, float>> nextAllowed = new();
+
+            [HarmonyPatch]
+            private static class AddStatusEffectPatch
             {
-                if (!WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(nameHash, out var cooldown))
+                private static IEnumerable<MethodBase> TargetMethods()
+                {
+                    return AccessTools.GetDeclaredMethods(typeof(SEMan))
+                        .Where(method => method.Name == "AddStatusEffect")
+                        .Where(method =>
+                        {
+                            var parameters = method.GetParameters();
+                            return parameters.Length > 0 && parameters[0].ParameterType == typeof(int);
+                        });
+                }
+
+                private static bool Prefix(SEMan __instance, int nameHash)
+                {
+                    if (!wackydatabase.WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(nameHash, out float cooldown) || cooldown <= 0f)
+                        return true;
+
+                    Character character = __instance.m_character;
+                    if (character == null)
+                        return true;
+
+                    var characterCooldowns = nextAllowed.GetOrCreateValue(character);
+                    if (characterCooldowns.TryGetValue(nameHash, out float allowedAt) && Time.time < allowedAt)
+                    {
+                        Debug.Log($"[ReapplyCooldown] {nameHash} application blocked, {allowedAt - Time.time:F1}s remaining");
+                        return false;
+                    }
+
+                    return true;
+                }
+            }
+
+            // Seed the cooldown window the moment the effect is genuinely first applied.
+            [HarmonyPatch(typeof(StatusEffect), "Setup")]
+            [HarmonyPostfix]
+            private static void OnSetup(StatusEffect __instance, Character character)
+            {
+                int hash = __instance.NameHash();
+                if (!wackydatabase.WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(hash, out float cooldown) || cooldown <= 0f)
+                    return;
+
+                nextAllowed.GetOrCreateValue(character)[hash] = Time.time + cooldown;
+            }
+
+            [HarmonyPatch(typeof(StatusEffect), "ResetTime")]
+            [HarmonyPrefix]
+            private static bool BlockReapply(StatusEffect __instance)
+            {
+                int hash = __instance.NameHash();
+                if (!WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(hash, out float cooldown) || cooldown <= 0f)
                     return true;
 
-                var reapplyTimes = StatusEffectReapplyTimes.GetValue(__instance, _ => new Dictionary<int, float>());
-                if (reapplyTimes.TryGetValue(nameHash, out var nextAllowedTime) && Time.time < nextAllowedTime)
-                    return false;
+                Character character = __instance.m_character;
+                if (character == null)
+                    return true;
 
-                reapplyTimes[nameHash] = Time.time + cooldown;
+                var characterCooldowns = nextAllowed.GetOrCreateValue(character);
+                if (characterCooldowns.TryGetValue(hash, out float allowedAt) && Time.time < allowedAt)
+                {
+                    Debug.Log($"[ReapplyCooldown] {hash} blocked, {allowedAt - Time.time:F1}s remaining");
+                    return false;
+                }
+
+                characterCooldowns[hash] = Time.time + cooldown;
                 return true;
             }
         }

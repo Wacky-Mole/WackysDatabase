@@ -6,7 +6,7 @@ WackysDatabase is a mod for Valheim created by Wackymole & Rexabyte.
     <img
       src="https://www.wackymole.com/hosts/WackySurvivalBanner.png"
       alt="Valheim Server Hosting - Survival Servers"
-      width=auto height="50" style="display: inline-block; max-width: 100%; height: auto;">
+      style="display: inline-block; width: 768px; max-width: 100%; height: auto;">
   </a>
 </div>
 
