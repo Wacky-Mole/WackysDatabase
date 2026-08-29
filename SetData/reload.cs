@@ -706,7 +706,44 @@ namespace wackydatabase.SetData
             }
             // END CLONE PASS
             // Real PASS NOW
-            
+
+            WMRecipeCust.WLog.LogInfo($"Setting Projectiles ");
+            foreach (var data in WMRecipeCust.projectileDatasYml)
+            {
+                try
+                {
+                    SetData.SetProjectileData(data);
+                }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Set projectile data for {data.proj_name} failed: {ex.Message}");
+                }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+            WMRecipeCust.WLog.LogInfo($"Setting Aoes ");
+            foreach (var data in WMRecipeCust.aoeDatasYml)
+            {
+                try
+                {
+                    SetData.SetAoeData(data);
+                }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Set AOE data for {data.aoe_name} failed: {ex.Message}");
+                }
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
+
             foreach (var data in WMRecipeCust.itemDatasYml) // call items first
             {
                 try
@@ -821,42 +858,7 @@ namespace wackydatabase.SetData
                     processcount = 0;
                 }
             }
-            WMRecipeCust.WLog.LogInfo($"Setting Projectiles ");
-            foreach (var data in WMRecipeCust.projectileDatasYml)
-            {
-                try
-                {
-                    SetData.SetProjectileData(data);
-                }
-                catch (Exception ex)
-                {
-                    WMRecipeCust.WLog.LogWarning($"Set projectile data for {data.proj_name} failed: {ex.Message}");
-                }
-                processcount++;
-                if (processcount > WMRecipeCust.ProcessWait && slowmode)
-                {
-                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                    processcount = 0;
-                }
-            }
-            WMRecipeCust.WLog.LogInfo($"Setting Aoes ");
-            foreach (var data in WMRecipeCust.aoeDatasYml)
-            {
-                try
-                {
-                    SetData.SetAoeData(data);
-                }
-                catch (Exception ex)
-                {
-                    WMRecipeCust.WLog.LogWarning($"Set AOE data for {data.aoe_name} failed: {ex.Message}");
-                }
-                processcount++;
-                if (processcount > WMRecipeCust.ProcessWait && slowmode)
-                {
-                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
-                    processcount = 0;
-                }
-            }
+
             foreach (var data in WMRecipeCust.recipeDatasYml) // recipes last
             {
                 try
