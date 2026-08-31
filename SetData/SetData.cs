@@ -2767,6 +2767,9 @@ namespace wackydatabase.SetData
                                 {
                                     foreach (var ob in AllObjects)
                                     {
+                                        if (ob == null)
+                                            continue;
+
                                         if (ob.name == data.Primary_Attack.SpawnOnHit)
                                         {
                                             if (found == null)
@@ -2959,6 +2962,9 @@ namespace wackydatabase.SetData
                                 {
                                     foreach (var ob in AllObjects)
                                     {
+                                        if (ob == null)
+                                            continue;
+
                                         if (ob.name == data.Secondary_Attack.SpawnOnHit)
                                         {
                                             if (found == null)
