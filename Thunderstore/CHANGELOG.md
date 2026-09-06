@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.5.21  | Moved AOES and projectiles right after SE's load and now wackydb waits to load all gameobjects until after AOEs complete.|
 | 2.5.20  | Bug fix for searching all objects in AOEs|
 | 2.5.19  | Moved AOES and projectiles earlier in reload|
 | 2.5.18  | Bug fix |

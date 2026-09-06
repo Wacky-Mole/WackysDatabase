@@ -2767,8 +2767,7 @@ namespace wackydatabase.SetData
                                 {
                                     foreach (var ob in AllObjects)
                                     {
-                                        if (ob == null)
-                                            continue;
+
 
                                         if (ob.name == data.Primary_Attack.SpawnOnHit)
                                         {
@@ -2781,7 +2780,7 @@ namespace wackydatabase.SetData
                                     }
                                 }
                                 catch (Exception ex) { WMRecipeCust.WLog.LogInfo("Error catch " + ex); }
-                                    PrimaryItemData.m_shared.m_attack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHit;
+                                PrimaryItemData.m_shared.m_attack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHit;
                             }
                         }
 
@@ -2962,9 +2961,6 @@ namespace wackydatabase.SetData
                                 {
                                     foreach (var ob in AllObjects)
                                     {
-                                        if (ob == null)
-                                            continue;
-
                                         if (ob.name == data.Secondary_Attack.SpawnOnHit)
                                         {
                                             if (found == null)
