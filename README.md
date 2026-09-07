@@ -724,8 +724,8 @@ You Can NOT clone feasts, they are complicated.
 
 
 `SE_Equip` (SE_Equip): The special effect data for equipping the item.</br> If you want an Item to have an Effect by itself, put the effect name here
-</br>`SE_SET_Equip` (SE_SET_Equip): All of this should be the same accross all items that have this set
-</br>`SE_SET_Equips` (SE_SET_Equip[]): Additional set effects. Each entry must be repeated on every item that belongs to that set.
+</br>`SE_SET_Equip` (SE_SET_Equip): All of this should be the same accross all items that have this set. Native set effects only count helmet, chest, legs, and cape slots.
+</br>`SE_SET_Equips` (SE_SET_Equip[]): Additional set effects. Each entry must be repeated on every item that belongs to that set. Additional sets count helmet, chest, legs, cape, right-hand, left-hand, and utility slots.
 </br>You can delete an SE_Equip or SE_SET_Equip from item using EffectName : delete 
 ### SE_Equip 
 
@@ -738,7 +738,7 @@ You Can NOT clone feasts, they are complicated.
 - `EffectName` (string): The name of the effect for equipping the set.
 - `HideEquipEffectsUntilSetComplete` (bool): When true, hides the individual equip effect and native set-effect tooltip until the configured `Size` of this set is equipped. Set `Size: 3` for a three-piece set.
 
-`SE_SET_Equip` is the original native set effect. Use `SE_SET_Equips` for any additional sets an item belongs to. `SE_SET_Equips` is an array of `SE_SET_Equip` entries; repeat each entry on every item that belongs to that additional set. Each entry independently applies its `EffectName` once its matching `SetName` has the required number of equipped items and adds a native-style set-effect entry to the item tooltip.
+`SE_SET_Equip` is the original native set effect and only counts helmet, chest, legs, and cape slots. Use `SE_SET_Equips` for any additional sets an item belongs to. `SE_SET_Equips` is an array of `SE_SET_Equip` entries; repeat each entry on every item that belongs to that additional set. Each entry independently applies its `EffectName` once its matching `SetName` has the required number of equipped items across helmet, chest, legs, cape, right-hand, left-hand, and utility slots, and adds a native-style set-effect entry to the item tooltip.
 
 ```yaml
 SE_SET_Equips:

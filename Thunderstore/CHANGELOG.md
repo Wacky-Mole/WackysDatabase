@@ -1,5 +1,6 @@
 | Version | Changes                                                                                                                                                                                                                                                                                                                                |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.5.22  | Added support for SE_SET_Equips to count right-hand, left-hand, and utility slots. |
 | 2.5.21  | Moved AOES and projectiles right after SE's load and now wackydb waits to load all gameobjects until after AOEs complete.|
 | 2.5.20  | Bug fix for searching all objects in AOEs|
 | 2.5.19  | Moved AOES and projectiles earlier in reload|
@@ -8,7 +9,7 @@
 | 2.5.16  | Added SE_SET_Equips and HideEquipEffectsUntilSetComplete |
 | 2.5.15  | Fix for CheckWard|
 | 2.5.14  | Changed a Warning (Something went wrong in file) to an Error </br> Added mockBasePrefab to items for the mock system. This allows you to specify your mock as a "clone" of different vanilla prefab.|
-| 2.5.13  | Added Saftety checks to piece clones to prevent duplicates. </br> Tranaspiler patch for InventoryGui CanRepair for recipes that repairs past quality level 5 min.  |
+| 2.5.13  | Added Saftety checks to piece clones to prevent duplicates. </br> Transpiler patch for InventoryGui CanRepair for recipes that repairs past quality level 5 min.  |
 | 2.5.12  | Fixed the bug for upgrade recipe showing other recipes when a material from it is picked up. </br> Made the maxStationLevelCap a bit more robust. </br> Changed how ServerSync Reloads are stored. When a second one comes in before the first one completes, it will be queued and processed. |
 | 2.5.11  | Bug Fix|
 | 2.5.00  | You asked for it for years. Wacky delivered. Projectile and Aoe support added. </br> Bug fix for creature materials. |
