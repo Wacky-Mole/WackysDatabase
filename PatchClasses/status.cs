@@ -54,6 +54,10 @@ namespace wackydatabase.PatchClasses
             AccessTools.Field(typeof(Humanoid), "m_helmetItem"),
             AccessTools.Field(typeof(Humanoid), "m_shoulderItem")
         };
+        private static readonly FieldInfo[] AdditionalSetEquipmentItemFields = typeof(Humanoid)
+            .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(field => field.FieldType == typeof(ItemDrop.ItemData) && field.Name.StartsWith("m_") && field.Name.EndsWith("Item"))
+            .ToArray();
 
         private sealed class SuppressedEffects
         {
@@ -95,6 +99,13 @@ namespace wackydatabase.PatchClasses
 
                 return hash;
             }
+        }
+
+        private static IEnumerable<ItemDrop.ItemData> GetAdditionalSetEquippedItems(Humanoid humanoid)
+        {
+            return AdditionalSetEquipmentItemFields
+                .Select(field => field.GetValue(humanoid) as ItemDrop.ItemData)
+                .Where(item => item != null);
         }
 
         [HarmonyPatch]
@@ -217,7 +228,7 @@ namespace wackydatabase.PatchClasses
             if (WMRecipeCust.modEnabled.Value && WMRecipeCust.AdditionalSetEffects.Count > 0)
             {
                 var groups = new Dictionary<string, AdditionalSetEffectGroup>(StringComparer.Ordinal);
-                foreach (var item in new[] { ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem, __instance.m_rightItem, __instance.m_leftItem, __instance.m_utilityItem })
+                foreach (var item in GetAdditionalSetEquippedItems(__instance))
                 {
                     var prefabName = item?.m_dropPrefab?.name;
                     if (string.IsNullOrEmpty(prefabName) || !WMRecipeCust.AdditionalSetEffects.TryGetValue(prefabName, out var effects))

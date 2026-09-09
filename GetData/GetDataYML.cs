@@ -418,6 +418,8 @@ namespace wackydatabase.GetData
                 maxStationLevelCap = null,
                 disabled = !data.m_enabled,
                 disabledUpgrade = false,
+                m_listSortWeight = data.m_listSortWeight,
+                m_noCraftOnlyUpgrade = data.m_noCraftOnlyUpgrade,
                 requireOnlyOneIngredient = data.m_requireOnlyOneIngredient,
                 reqs = reqs2,
 
@@ -599,6 +601,7 @@ namespace wackydatabase.GetData
                 //CustomIcon = effect.m_icon.name ?? "",
                 FlashIcon = effect.m_flashIcon,
                 CooldownIcon = effect.m_cooldownIcon,
+                Hidden = effect.m_hidden,
                 Tooltip = effect.m_tooltip ?? "",
                 Attributes = effect.m_attributes,
                 StartMessageLoc = effect.m_startMessageType,
@@ -814,6 +817,14 @@ namespace wackydatabase.GetData
                 allowedInDungeons = piece.m_allowedInDungeons,
                 canBeRemoved = piece.m_canBeRemoved,
                 notOnWood = piece.m_notOnWood,
+                allowedInDeepSnow = piece.m_allowedInDeepSnow,
+                requireDeepSnow = piece.m_requireDeepSnow,
+                spaceRequirement = piece.m_spaceRequirement,
+                repairPiece = piece.m_repairPiece,
+                isUpgrade = piece.m_isUpgrade,
+                usage = piece.m_usage,
+                blockingPieces = piece.m_blockingPieces?.Where(blockingPiece => blockingPiece != null).Select(blockingPiece => Utils.GetPrefabName(blockingPiece.gameObject)).ToList(),
+                canRockJade = piece.m_canRockJade,
                 build = new List<string>(),
 
             };
@@ -846,6 +857,9 @@ namespace wackydatabase.GetData
                  triggerPrivateArea = wear.m_triggerPrivateArea,
                  materialType = wear.m_materialType,
                  burnable = wear.m_burnable,
+                 snowDamageImmune = wear.m_snowDamageImmune,
+                 outsideRequiredBiomeDamage = wear.m_outsideRequiredBiomeDamage,
+                 minToolTier = wear.m_minToolTier,
                  };
 
                 data.wearNTearData = wearNTearData;
@@ -866,6 +880,7 @@ namespace wackydatabase.GetData
                  showBasicRecipes = station.m_showBasicRecipies,
                  useDistance = station.m_useDistance,
                  useAnimation = station.m_useAnimation,
+                 upgrader = station.m_upgrader,
                  };
                 data.craftingStationData = craftingStationData;
             }
@@ -1438,6 +1453,10 @@ namespace wackydatabase.GetData
                 sizeMultiplier = "1", // default scale
                 m_weight = data.m_shared.m_weight,
                 m_destroyBroken = data.m_shared.m_destroyBroken,
+                m_upgradeChance = data.m_shared.m_upgradeChance,
+                m_breakChance = data.m_shared.m_breakChance,
+                m_successUpgradeSteps = data.m_shared.m_successUpgradeSteps,
+                m_breakReturnIngreientsAmount = data.m_shared.m_breakReturnIngreientsAmount,
                 m_dodgeable = data.m_shared.m_dodgeable,
                 blockable = data.m_shared.m_blockable,
                 m_canBeReparied = data.m_shared.m_canBeReparied,

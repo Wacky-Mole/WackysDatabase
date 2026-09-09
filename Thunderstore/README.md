@@ -784,6 +784,10 @@ To delete existing
 - `m_maxStackSize` (int): The maximum stack size of the item.
 - `m_canBeReparied` (bool): Indicates whether the item can be repaired.
 - `m_destroyBroken` (bool): Indicates whether the item gets destroyed when broken.
+- `m_upgradeChance` (float): The chance for an upgrade attempt to succeed.
+- `m_breakChance` (float): The chance for an item to break when an upgrade attempt fails.
+- `m_successUpgradeSteps` (int): Number of successful upgrade steps required to gain an item quality level.
+- `m_breakReturnIngreientsAmount` (float): Amount of upgrade ingredients returned when an item breaks. This follows Valheim's field spelling lol.
 - `m_dodgeable` (bool): Indicates whether the item can be dodged.
 - `blockable` (bool): Indicates whether the item can be blocked.
 - `Attack_status_effect` (string): The attack status effect of the item.  (Can remove current status with 'delete')
@@ -976,6 +980,14 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `onlyinTeleportArea` (bool): Indicates whether the piece can only be placed in teleport areas. Stone Groups making a Circle
 - `allowedInDungeons` (bool): Indicates whether the piece is allowed in dungeons.
 - `canBeRemoved` (bool): Indicates whether the piece can be removed.
+- `allowedInDeepSnow` (bool): Allows placement in deep snow.
+- `requireDeepSnow` (bool): Requires deep snow at the placement location.
+- `spaceRequirement` (float): Minimum free-space radius required around the piece for placement.
+- `repairPiece` (bool): Marks this as a repair action/tool piece. ???
+- `isUpgrade` (bool): Marks this piece as an upgrade placement for another structure.
+- `usage` (Piece.UsageTagFlags): Build-menu usage filters. Available categories are `Misc`, `Crafting`, `Building`, `Floor`, `Wall`, `Roof`, `Architecture`, `Furniture`, `Lighting`, `Decor`, `Storage`, `Transport`, `Food`, `Meads`, `Feasts`, `Defense`, `Stacks`, `Stairs`, `Doors`, and `Seasonal`. Multiple categories can be combined with commas, such as `Building, Wall` or `Furniture, Decor`.
+- `blockingPieces` (List<string>): Prefab names of pieces that block placement of this piece. An empty list clears the existing blockers.
+- `canRockJade` (bool): Allows this piece to participate in Valheim's jade rocking interaction behavior. ???
 - `wearNTearData` (WearNTearData): The wear and tear data of the piece.
 - `craftingStationData` (CraftingStationData): The crafting station data of the piece.
 - `cSExtensionData` (CSExtensionData): The crafting station extension data of the piece. - OLD
@@ -996,6 +1008,7 @@ build:
 You can also force a zero-cost requirement line:
 - Wood:0:0:True
 
+
 ### ComfortData
 
 - `comfort` (int): The comfort value of the piece.
@@ -1012,6 +1025,9 @@ You can also force a zero-cost requirement line:
 - `triggerPrivateArea` (bool): Indicates whether the piece triggers the private area.
 - `materialType` (materialType): What is the material made out of? Different materials have different strengths. This should not change the look of the piece.
 - `burnable` (bool): Whether a piece is burnable or not.
+- `snowDamageImmune` (bool): Prevents snow damage from affecting this piece.
+- `outsideRequiredBiomeDamage` (float): Damage applied while the piece is outside its required biome.
+- `minToolTier` (int): Minimum tool tier required to damage or dismantle the piece.
 
 ![MaterialTypoe](https://wackymole.com/hosts/MaterialType.png)
 
@@ -1026,6 +1042,7 @@ Wackydb can now handle making normal pieces craftingstations. This is pretty bar
 - `showBasicRecipes` (bool): Indicates whether to show basic recipes at the station.
 - `useDistance` (float): The use distance of the station.
 - `useAnimation` (int): The animation to use for station usage.
+- `upgrader` (bool): Indicates whether this crafting station is treated as an upgrader station.
 
 ### CSExtensionData
 
@@ -1265,6 +1282,8 @@ Most recipes are saved with itemname in name for recipe. For actual recipes they
 - `amount` (int): The amount of the recipe.
 - `disabled` (bool): Indicates whether the recipe is disabled.
 - `disabledUpgrade` (bool): Disables allowing upgrades in the upgrade tab, can be used in combination with disable to only allow upgrading and not crafting.
+- `m_listSortWeight` (int): The recipe's ordering weight in the crafting list.
+- `m_noCraftOnlyUpgrade` (bool): Prevents this recipe from being available only for upgrades.
 - `requireOnlyOneIngredient` (bool): Indicates whether the recipe requires only one ingredient.
 - `upgrade_reqs ` (List<string>): By default will be empty, it allows you to speficy complete different requirements to upgrade than craft. </br>Actually adds a second hidden recipe to game with the name + _upgrade. 
 </br>(upgrade_reqs) requirements to upgrade: Item:amountPerLevel:[optional - starts at 2]level 
@@ -1323,6 +1342,7 @@ You can replace all Boars in the game with this Dude.
 - `CustomIcon` (string): The custom icon for the status effect. customIcon, jpeg or png. ie wacky.png 64 x 64. Use "delete" to remove existing icon.
 - `FlashIcon` (bool): Indicates whether the icon should flash.
 - `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
+- `Hidden` (bool): Indicates whether the status effect is hidden from the status-effect UI.
 - `Tooltip` (string): The tooltip for the status effect.
 - `Attributes` (StatusEffect.StatusAttribute): The attributes of the status effect.  None, ColdResistance, DoubleImpactDamage, SailingPower, TamingBoost
 - `StartMessageLoc` (MessageHud.MessageType): The localization message type for the start message.

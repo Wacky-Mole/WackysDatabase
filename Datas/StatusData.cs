@@ -23,6 +23,7 @@ namespace wackydatabase.Datas
         public string? CustomIcon;
         public bool? FlashIcon;
         public bool? CooldownIcon;
+        public bool? Hidden;
         public string? Tooltip;
         public StatusEffect.StatusAttribute? Attributes;
         public MessageHud.MessageType? StartMessageLoc;

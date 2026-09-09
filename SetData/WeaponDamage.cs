@@ -24,7 +24,8 @@ namespace wackydatabase.SetData
             damages.m_poison = dmg.Poison;
             damages.m_slash = dmg.Slash;
             damages.m_spirit = dmg.Spirit;
-            
+            damages.m_nonPlayer = dmg.NonPlayer;
+
             return damages;
         }
     }

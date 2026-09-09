@@ -198,7 +198,7 @@ namespace wackydatabase.PatchClasses
                 {
                     if (!recipeStates.ContainsKey(recipe))
                         recipeStates[recipe] = recipe.m_enabled;
-                    recipe.m_enabled = true;
+                    recipe.m_enabled = !recipe.m_noCraftOnlyUpgrade;
                 }
             }
             else
