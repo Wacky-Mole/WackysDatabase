@@ -38,6 +38,14 @@ namespace wackydatabase.Datas
         public bool? allowedInDungeons;
         public bool? canBeRemoved;
         public bool? notOnWood;
+        public bool? allowedInDeepSnow;
+        public bool? requireDeepSnow;
+        public float? spaceRequirement;
+        public bool? repairPiece;
+        public bool? isUpgrade;
+        public Piece.UsageTagFlags? usage;
+        public List<string>? blockingPieces;
+        public bool? canRockJade;
 
 
         public WearNTearData? wearNTearData;
@@ -95,6 +103,9 @@ namespace wackydatabase.Datas
         public bool? triggerPrivateArea;
         public WearNTear.MaterialType? materialType;
         public bool? burnable;
+        public bool? snowDamageImmune;
+        public float? outsideRequiredBiomeDamage;
+        public int? minToolTier;
 
     }
 
@@ -143,6 +154,7 @@ namespace wackydatabase.Datas
         public bool? showBasicRecipes;
         public float? useDistance;
         public int? useAnimation;
+        public bool? upgrader;
 
     }
     public class CSExtensionData

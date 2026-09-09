@@ -54,6 +54,10 @@ namespace wackydatabase.PatchClasses
             AccessTools.Field(typeof(Humanoid), "m_helmetItem"),
             AccessTools.Field(typeof(Humanoid), "m_shoulderItem")
         };
+        private static readonly FieldInfo[] AdditionalSetEquipmentItemFields = typeof(Humanoid)
+            .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(field => field.FieldType == typeof(ItemDrop.ItemData) && field.Name.StartsWith("m_") && field.Name.EndsWith("Item"))
+            .ToArray();
 
         private sealed class SuppressedEffects
         {
@@ -97,19 +101,84 @@ namespace wackydatabase.PatchClasses
             }
         }
 
-        [HarmonyPatch(typeof(SEMan), nameof(SEMan.AddStatusEffect), new[] { typeof(int), typeof(bool), typeof(int), typeof(float) })]
-        private static class SEMan_AddStatusEffect_ReapplyCooldown_Patch
+        private static IEnumerable<ItemDrop.ItemData> GetAdditionalSetEquippedItems(Humanoid humanoid)
         {
-            private static bool Prefix(SEMan __instance, int nameHash)
+            return AdditionalSetEquipmentItemFields
+                .Select(field => field.GetValue(humanoid) as ItemDrop.ItemData)
+                .Where(item => item != null);
+        }
+
+        [HarmonyPatch]
+        internal static class SEMan_ReapplyCooldown_General
+        {
+            private static readonly ConditionalWeakTable<Character, Dictionary<int, float>> nextAllowed = new();
+
+            [HarmonyPatch]
+            private static class AddStatusEffectPatch
             {
-                if (!WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(nameHash, out var cooldown))
+                private static IEnumerable<MethodBase> TargetMethods()
+                {
+                    return AccessTools.GetDeclaredMethods(typeof(SEMan))
+                        .Where(method => method.Name == "AddStatusEffect")
+                        .Where(method =>
+                        {
+                            var parameters = method.GetParameters();
+                            return parameters.Length > 0 && parameters[0].ParameterType == typeof(int);
+                        });
+                }
+
+                private static bool Prefix(SEMan __instance, int nameHash)
+                {
+                    if (!wackydatabase.WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(nameHash, out float cooldown) || cooldown <= 0f)
+                        return true;
+
+                    Character character = __instance.m_character;
+                    if (character == null)
+                        return true;
+
+                    var characterCooldowns = nextAllowed.GetOrCreateValue(character);
+                    if (characterCooldowns.TryGetValue(nameHash, out float allowedAt) && Time.time < allowedAt)
+                    {
+                        Debug.Log($"[ReapplyCooldown] {nameHash} application blocked, {allowedAt - Time.time:F1}s remaining");
+                        return false;
+                    }
+
+                    return true;
+                }
+            }
+
+            // Seed the cooldown window the moment the effect is genuinely first applied.
+            [HarmonyPatch(typeof(StatusEffect), "Setup")]
+            [HarmonyPostfix]
+            private static void OnSetup(StatusEffect __instance, Character character)
+            {
+                int hash = __instance.NameHash();
+                if (!wackydatabase.WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(hash, out float cooldown) || cooldown <= 0f)
+                    return;
+
+                nextAllowed.GetOrCreateValue(character)[hash] = Time.time + cooldown;
+            }
+
+            [HarmonyPatch(typeof(StatusEffect), "ResetTime")]
+            [HarmonyPrefix]
+            private static bool BlockReapply(StatusEffect __instance)
+            {
+                int hash = __instance.NameHash();
+                if (!WMRecipeCust.StatusEffectReapplyCooldowns.TryGetValue(hash, out float cooldown) || cooldown <= 0f)
                     return true;
 
-                var reapplyTimes = StatusEffectReapplyTimes.GetValue(__instance, _ => new Dictionary<int, float>());
-                if (reapplyTimes.TryGetValue(nameHash, out var nextAllowedTime) && Time.time < nextAllowedTime)
-                    return false;
+                Character character = __instance.m_character;
+                if (character == null)
+                    return true;
 
-                reapplyTimes[nameHash] = Time.time + cooldown;
+                var characterCooldowns = nextAllowed.GetOrCreateValue(character);
+                if (characterCooldowns.TryGetValue(hash, out float allowedAt) && Time.time < allowedAt)
+                {
+                    Debug.Log($"[ReapplyCooldown] {hash} blocked, {allowedAt - Time.time:F1}s remaining");
+                    return false;
+                }
+
+                characterCooldowns[hash] = Time.time + cooldown;
                 return true;
             }
         }
@@ -159,7 +228,7 @@ namespace wackydatabase.PatchClasses
             if (WMRecipeCust.modEnabled.Value && WMRecipeCust.AdditionalSetEffects.Count > 0)
             {
                 var groups = new Dictionary<string, AdditionalSetEffectGroup>(StringComparer.Ordinal);
-                foreach (var item in new[] { ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem })
+                foreach (var item in GetAdditionalSetEquippedItems(__instance))
                 {
                     var prefabName = item?.m_dropPrefab?.name;
                     if (string.IsNullOrEmpty(prefabName) || !WMRecipeCust.AdditionalSetEffects.TryGetValue(prefabName, out var effects))
@@ -217,7 +286,7 @@ namespace wackydatabase.PatchClasses
             return __exception;
         }
 
-        [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int) })]
+        [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool) })]
         private static class ItemData_GetTooltip_Patch
         {
             private static void Prefix(ItemDrop.ItemData item, ref SuppressedEffects __state)
@@ -395,7 +464,7 @@ namespace wackydatabase.PatchClasses
         }
 
 
-    [HarmonyPatch(typeof(SEMan), "AddStatusEffect", new Type[] { typeof(StatusEffect), typeof(bool), typeof(int), typeof(float) })]
+    [HarmonyPatch(typeof(SEMan), "AddStatusEffect", new Type[] { typeof(StatusEffect), typeof(bool), typeof(int), typeof(float), typeof(short) })]
     static class SEMan_AddStatusEffect_Patch
     {
         static bool Prefix(SEMan __instance, StatusEffect statusEffect, Character ___m_character, ref StatusEffect __result)
@@ -418,20 +487,6 @@ namespace wackydatabase.PatchClasses
 
     }
 
-
-
-    /*
-    [HarmonyPatch(typeof(ItemDrop), "SlowUpdate")]
-    static class ItemDrop_SlowUpdate_Patch
-    {
-        static void Postfix(ref ItemDrop __instance)
-        {
-            if (!WMRecipeCust.modEnabled.Value)
-                return;
-            //CheckArmorData(ref __instance.m_itemData); // from old jsson system, not needed anymore since we are using WItemDatas, but might be useful for compatibility with old jsons
-        }
-    }
-    */
 
 // public static string GetDamageModifiersTooltipString(List<HitData.DamageModPair> mods)
     [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]  

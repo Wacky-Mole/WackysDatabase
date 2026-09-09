@@ -272,7 +272,7 @@ namespace wackydatabase.PatchClasses
                                 if (WMRecipeCust.issettoSinglePlayer)
                                 {
                                     args.Context?.AddString("You are in singleplayer, no clients to send the load to.");
-                                    return;
+                                    return null;
                                 }
 
                                 ZPackage pkg = new ZPackage();
@@ -284,81 +284,85 @@ namespace wackydatabase.PatchClasses
                                 args.Context?.AddString($"Admin: Attempting to tell Server to Send the Motherload");
                             }
 
-
+                            return null;
                         });
 
 
                             Terminal.ConsoleCommand WackyitemSave =
                 new("wackydb_save_item", "Save an Item ",
-                    args =>
+                    (Terminal.ConsoleEventFailable)(args =>
                     {
                         string file = args[1];
                         GetDataYML ItemCheck = new GetDataYML();
 
                         WItemData recipData = ItemCheck.GetItemDataByName(file, ObjectDB.instance);
                         if (recipData == null)
-                            return;
+                            return null;
                         WMRecipeCust.CheckModFolder();
                         var serializer = new SerializerBuilder().WithNewLine("\n")
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved item data to Item_{file}.yml");
 
-                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                        return null;
+                    }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
             Terminal.ConsoleCommand WackyPieceSave =
                 new("wackydb_save_piece", "Save a piece ",
-                    args =>
+                    (Terminal.ConsoleEventFailable)(args =>
                     {
                         string file = args[1];
                         GetDataYML PieceCheck = new GetDataYML();
                         PieceData recipData = PieceCheck.GetPieceRecipeByName(file, ObjectDB.instance);
                         if (recipData == null)
-                            return;
+                            return null;
                         WMRecipeCust.CheckModFolder();
                         var serializer = new SerializerBuilder().WithNewLine("\n")
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathPieces, "Piece_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved data to Piece_{file}.yml");
 
-                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                        return null;
+                    }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
             Terminal.ConsoleCommand WackyRecipeSave =
                 new("wackydb_save_recipe", "Save a recipe ",
-                    args =>
+                    (Terminal.ConsoleEventFailable)(args =>
                     {
                         string file = args[1];
                         GetDataYML RecipeCheck = new GetDataYML();
                         RecipeData recipData = RecipeCheck.GetRecipeDataByName(file, ObjectDB.instance);
                         if (recipData == null)
-                            return;
+                            return null;
                         WMRecipeCust.CheckModFolder();
                         var serializer = new SerializerBuilder().WithNewLine("\n")
                             .Build();
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + recipData.name + ".yml"), serializer.Serialize(recipData));
                         args.Context?.AddString($"saved data to Recipe_{file}.yml");
 
-                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                        return null;
+                    }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
 
             Terminal.ConsoleCommand WackyCreatureSave =
                 new("wackydb_save_creature", "Save a Creature ",
-                args =>
+                (Terminal.ConsoleEventFailable)(args =>
                 {
                     string file = args[1];
                     GetDataYML CreatureCheck = new GetDataYML();
                     CreatureData creatureData = CreatureCheck.GetCreature(file);
                     if (creatureData == null)
-                        return;
+                        return null;
                     WMRecipeCust.CheckModFolder();
                     var serializer = new SerializerBuilder().WithNewLine("\n")
                         .Build();
                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathCreatures, "Creature_" + creatureData.name + ".yml"), serializer.Serialize(creatureData));
                     args.Context?.AddString($"saved data to Creature_{file}.yml");
 
-                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                    return null;
+                }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
             
             Terminal.ConsoleCommand WackyPickableSave =
                 new("wackydb_save_pickable", "Save a Pickable or Treebase ",
-                args =>
+                (Terminal.ConsoleEventFailable)(args =>
                 {
                     string file = args[1];
                     GetDataYML PickableCheck = new GetDataYML();
@@ -371,7 +375,7 @@ namespace wackydatabase.PatchClasses
                     {                   
                         tag = "Treebase_";
                         if (pics2 == null)
-                            return;
+                            return null;
                     }
                     WMRecipeCust.CheckModFolder();
                     var serializer = new SerializerBuilder().WithNewLine("\n")
@@ -387,11 +391,12 @@ namespace wackydatabase.PatchClasses
 
                     args.Context?.AddString($"Saved data to Folder Pickables {tag}_{file}.yml");
 
-                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                    return null;
+                }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
             Terminal.ConsoleCommand WackyRecipeItem =
             new("wackydb_save_recipeitem", "Save the recipe and item at the same time, this will create a recipe if not found",
-                args =>
+                (Terminal.ConsoleEventFailable)(args =>
                 {
 
                     WMRecipeCust.CheckModFolder();
@@ -409,7 +414,7 @@ namespace wackydatabase.PatchClasses
                         // string file = args[2];
                         WItemData item = RecipeCheck.GetItemDataByName(prefab, ObjectDB.instance);
                         if (item == null)
-                            return;
+                            return null;
 
                         File.WriteAllText(Path.Combine(WMRecipeCust.assetPathItems, "Item_" + item.name + ".yml"), serializer.Serialize(item));
                         string file = "";
@@ -425,7 +430,7 @@ namespace wackydatabase.PatchClasses
                         {
                             recipe = RecipeCheck.GetRecipeDataByName("Club", ObjectDB.instance);// Club clone
                             if (recipe == null)
-                                return;
+                                return null;
                             recipe.name = "R" + prefab;
                             recipe.clonePrefabName = prefab; // cloned item
                             file = "Item saved as Item_" + item.name + ".yml,  Recipe saved as a clone from 'Club' Recipe_" + recipe.name + ".yml";
@@ -436,7 +441,8 @@ namespace wackydatabase.PatchClasses
                         args.Context?.AddString($"{file}");
                     }
 
-                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                    return null;
+                }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
             Terminal.ConsoleCommand WackyMaterials =
                 new("wackydb_material", "Create txt file of materials",
@@ -894,7 +900,7 @@ namespace wackydatabase.PatchClasses
 
             Terminal.ConsoleCommand WackyClone =
                 new("wackydb_clone", "Clone an Item/Piece/Recipe/Material/creature/SE with different stats, names, effects ect... ",
-                    args =>
+                    (Terminal.ConsoleEventFailable)(args =>
                     {
                         if (args.Length - 1 < 3)
                         {
@@ -910,7 +916,7 @@ namespace wackydatabase.PatchClasses
                             if (newname == "SwordTest")
                             {
                                 args.Context?.AddString($"<color=red>{newname} is already a ingame name. -Bad </color>");
-                                return;
+                                return null;
                             }
                             var serializer = new SerializerBuilder()
                             .WithNewLine("\n")
@@ -924,7 +930,7 @@ namespace wackydatabase.PatchClasses
                                 {
                                     RecipeData clone = RecipeCheck.GetRecipeDataByName(prefab, ObjectDB.instance);// actually it could be a different prefab if cloned item
                                     if (clone == null)
-                                        return;
+                                        return null;
                                     clone.name = newname;
                                     clone.clonePrefabName = prefab;
                                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
@@ -935,7 +941,7 @@ namespace wackydatabase.PatchClasses
                                     string prefabitem = args[4];
                                     RecipeData clone = RecipeCheck.GetRecipeDataByName(prefabitem, ObjectDB.instance);//  prefab of cloned item
                                     if (clone == null)
-                                        return;
+                                        return null;
                                     clone.name = newname;
                                     clone.clonePrefabName = prefab; // cloned item
                                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
@@ -949,7 +955,7 @@ namespace wackydatabase.PatchClasses
                             {
                                 WItemData clone = RecipeCheck.GetItemDataByName(prefab, ObjectDB.instance);
                                 if (clone == null)
-                                    return;
+                                    return null;
                                 clone.name = newname;
                                 clone.clonePrefabName = prefab;
                                 clone.m_name = newname;
@@ -965,7 +971,7 @@ namespace wackydatabase.PatchClasses
                             {
                                 PieceData clone = RecipeCheck.GetPieceRecipeByName(prefab, ObjectDB.instance);
                                 if (clone == null)
-                                    return;
+                                    return null;
                                 clone.name = newname;
                                 clone.clonePrefabName = prefab;
 
@@ -979,7 +985,7 @@ namespace wackydatabase.PatchClasses
                                 Pickable[] pickAbles = Resources.FindObjectsOfTypeAll<Pickable>();
                                 PickableData clone = RecipeCheck.GetPickable(prefab, pickAbles);
                                 if (clone == null)
-                                    return;
+                                    return null;
                                 clone.name = newname;
                                 clone.cloneOfWhatPickable = prefab;
 
@@ -992,7 +998,7 @@ namespace wackydatabase.PatchClasses
                                 TreeBase[] treeBases = Resources.FindObjectsOfTypeAll<TreeBase>();
                                 TreeBaseData clone = RecipeCheck.GetTreeBase(prefab, treeBases);
                                 if (clone == null)
-                                    return;
+                                    return null;
                                 clone.name = newname;
                                 clone.cloneOfWhatTree = prefab;
 
@@ -1005,7 +1011,7 @@ namespace wackydatabase.PatchClasses
                             {
                                 CreatureData clone = RecipeCheck.GetCreature(prefab);
                                 if (clone == null)
-                                    return;
+                                    return null;
                                 clone.name = newname;
                                 clone.clone_creature = prefab;
 
@@ -1046,7 +1052,7 @@ namespace wackydatabase.PatchClasses
                             {
                                 ProjectileData clone = RecipeCheck.GetProjectileDataByName(prefab);
                                 if (clone == null)
-                                    return;
+                                    return null;
 
                                 clone.proj_name = newname;
                                 clone.clonePrefabName = prefab;
@@ -1059,7 +1065,7 @@ namespace wackydatabase.PatchClasses
                             {
                                 AoeData clone = RecipeCheck.GetAoeDataByName(prefab);
                                 if (clone == null)
-                                    return;
+                                    return null;
 
                                 clone.aoe_name = newname;
                                 clone.clonePrefabName = prefab;
@@ -1128,54 +1134,55 @@ namespace wackydatabase.PatchClasses
                             }
                         args.Context?.AddString($"saved cloned data to {file}.yml");
                         }
-                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                        return null;
+                    }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
             Terminal.ConsoleCommand WackySaveProjectile =
                 new("wackydb_save_projectile", "Save a Projectile prefab to WackyDB YAML",
-                    args =>
+                    (Terminal.ConsoleEventFailable)(args =>
                     {
                         if (args.Length < 2)
                         {
                             args.Context?.AddString("<color=red>Enter a projectile prefab name</color>");
-                            return;
+                            return null;
                         }
 
                         GetDataYML data = new GetDataYML();
                         ProjectileData projectile = data.GetProjectileDataByName(args[1]);
                         if (projectile == null)
-                            return;
+                            return null;
 
                         var serializer = new SerializerBuilder().WithNewLine("\n").Build();
                         string file = Path.Combine(WMRecipeCust.assetPathProjectiles, "Projectile_" + projectile.proj_name + ".yml");
                         File.WriteAllText(file, serializer.Serialize(projectile));
                         args.Context?.AddString($"Saved projectile data to {file}");
-                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false,
-                    () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                        return null;
+                    }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
             Terminal.ConsoleCommand WackySaveAoe =
                 new("wackydb_save_aoe", "Save an AOE prefab to WackyDB YAML",
-                    args =>
+                    (Terminal.ConsoleEventFailable)(args =>
                     {
                         if (args.Length < 2)
                         {
                             args.Context?.AddString("<color=red>Enter an AOE prefab name</color>");
-                            return;
+                            return null;
                         }
 
                         GetDataYML data = new GetDataYML();
                         AoeData aoe = data.GetAoeDataByName(args[1]);
                         if (aoe == null)
-                            return;
+                            return null;
 
                         var serializer = new SerializerBuilder().WithNewLine("\n").Build();
                         string file = Path.Combine(WMRecipeCust.assetPathAoes, "Aoe_" + aoe.aoe_name + ".yml");
                         File.WriteAllText(file, serializer.Serialize(aoe));
                         args.Context?.AddString($"Saved AOE data to {file}");
-                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false,
-                    () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                        return null;
+                    }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
             Terminal.ConsoleCommand WackyCloneRecipe =
                 new("wackydb_clone_recipeitem", "Clone recipe and item with the orginal prefab ",
-                    args =>
+                    (Terminal.ConsoleEventFailable)(args =>
                     {
 
                         WMRecipeCust.CheckModFolder();
@@ -1194,7 +1201,7 @@ namespace wackydatabase.PatchClasses
                             string file = args[2];
                             WItemData itemclone = RecipeCheck.GetItemDataByName(prefab, ObjectDB.instance);
                             if (itemclone == null)
-                                return;
+                                return null;
                             itemclone.name = newname;
                             itemclone.clonePrefabName = prefab;
                             itemclone.m_name = newname;
@@ -1202,7 +1209,7 @@ namespace wackydatabase.PatchClasses
 
                             RecipeData clone = RecipeCheck.GetRecipeDataByName(prefab, ObjectDB.instance);//  prefab of cloned item
                             if (clone == null)
-                                return;
+                                return null;
                             clone.name = "R" + newname;
                             clone.clonePrefabName = itemclone.name; // cloned item
                             File.WriteAllText(Path.Combine(WMRecipeCust.assetPathRecipes, "Recipe_" + clone.name + ".yml"), serializer.Serialize(clone));
@@ -1211,7 +1218,8 @@ namespace wackydatabase.PatchClasses
                             args.Context?.AddString($"{file}");
                         }
 
-                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                        return null;
+                    }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
 
             Terminal.ConsoleCommand Wackyadmin =    //dont look :)
@@ -1261,7 +1269,7 @@ namespace wackydatabase.PatchClasses
                }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: true, allowInDevBuild: false );
 
 
-            Terminal.ConsoleCommand WackyDescribe = new("wackydb_describe", "Export visual description information for an item", args =>
+             Terminal.ConsoleCommand WackyDescribe = new("wackydb_describe", "Export visual description information for an item", (Terminal.ConsoleEventFailable)(args =>
             {
                 if (args.Length - 1 < 1)
                 {
@@ -1281,7 +1289,8 @@ namespace wackydatabase.PatchClasses
                     args.Context?.AddString($"Saved in config folder Describe_{name}.yml");
                 }
 
-            }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
+                return null;
+            }), isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false, optionsFetcher: () => (!ZNetScene.instance) ? new List<string>() : ZNetScene.instance.GetPrefabNames());
 
 
             Terminal.ConsoleCommand WackySaveMaterial = new("wackydb_save_material", "Export default material settings for a material", args =>

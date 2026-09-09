@@ -286,6 +286,7 @@ namespace wackydatabase.SetData
             }
             go.m_flashIcon = data.FlashIcon ?? go.m_flashIcon;
             go.m_cooldownIcon = data.CooldownIcon ?? go.m_cooldownIcon;
+            go.m_hidden = data.Hidden ?? go.m_hidden;
             go.m_tooltip = data.Tooltip ?? go.m_tooltip;
             go.m_attributes = data.Attributes ?? go.m_attributes;
             go.m_startMessageType = data.StartMessageLoc ?? go.m_startMessageType;
@@ -621,6 +622,8 @@ namespace wackydatabase.SetData
             }
             RecipeR.m_minStationLevel = data.minStationLevel ?? RecipeR.m_minStationLevel;
             RecipeR.m_amount = data.amount ?? RecipeR.m_amount;
+            RecipeR.m_listSortWeight = data.m_listSortWeight ?? RecipeR.m_listSortWeight;
+            RecipeR.m_noCraftOnlyUpgrade = data.m_noCraftOnlyUpgrade ?? RecipeR.m_noCraftOnlyUpgrade;
             RecipeR.name = tempname;
 
             if (data.upgrade_reqs != null && data.upgrade_reqs.Any() )
@@ -684,6 +687,8 @@ namespace wackydatabase.SetData
                     RecipeRUPGRADE = ScriptableObject.Instantiate(RecipeR);
 
                     RecipeRUPGRADE.name = RecipeR.name + "_Upgrade";
+                    RecipeRUPGRADE.m_listSortWeight = RecipeR.m_listSortWeight;
+                    RecipeRUPGRADE.m_noCraftOnlyUpgrade = RecipeR.m_noCraftOnlyUpgrade;
                     RecipeRUPGRADE.m_resources = UpgradeReqs.ToArray();
                     RecipeRUPGRADE.m_enabled = false;
                     Instant.m_recipes.Add(RecipeRUPGRADE);
@@ -693,6 +698,8 @@ namespace wackydatabase.SetData
                 }
                 else 
                 {
+                    RecipeRUPGRADE.m_listSortWeight = RecipeR.m_listSortWeight;
+                    RecipeRUPGRADE.m_noCraftOnlyUpgrade = RecipeR.m_noCraftOnlyUpgrade;
                     RecipeRUPGRADE.m_resources = UpgradeReqs.ToArray();
                     RecipeRUPGRADE.m_enabled = false;
                     WMRecipeCust.RequiredUpgradeItemsString[RecipeRUPGRADE] = true;
@@ -1483,6 +1490,21 @@ namespace wackydatabase.SetData
             pi.m_allowedInDungeons = data.allowedInDungeons ?? pi.m_allowedInDungeons;
             pi.m_canBeRemoved = data.canBeRemoved ?? pi.m_canBeRemoved;
             pi.m_notOnWood = data.notOnWood ?? pi.m_notOnWood;
+            pi.m_allowedInDeepSnow = data.allowedInDeepSnow ?? pi.m_allowedInDeepSnow;
+            pi.m_requireDeepSnow = data.requireDeepSnow ?? pi.m_requireDeepSnow;
+            pi.m_spaceRequirement = data.spaceRequirement ?? pi.m_spaceRequirement;
+            pi.m_repairPiece = data.repairPiece ?? pi.m_repairPiece;
+            pi.m_isUpgrade = data.isUpgrade ?? pi.m_isUpgrade;
+            pi.m_usage = data.usage ?? pi.m_usage;
+            pi.m_canRockJade = data.canRockJade ?? pi.m_canRockJade;
+            if (data.blockingPieces != null)
+            {
+                pi.m_blockingPieces = data.blockingPieces
+                    .Where(pieceName => !string.IsNullOrWhiteSpace(pieceName))
+                    .Select(pieceName => FindPrefab(pieceName)?.GetComponent<Piece>())
+                    .Where(blockingPiece => blockingPiece != null)
+                    .ToList();
+            }
 
             if (data.comfort != null)
             {
@@ -1522,6 +1544,7 @@ namespace wackydatabase.SetData
                     station.m_showBasicRecipies = data.craftingStationData.showBasicRecipes ?? station.m_showBasicRecipies;
                     station.m_useDistance = data.craftingStationData.useDistance ?? station.m_useDistance;
                     station.m_useAnimation = data.craftingStationData.useAnimation ?? station.m_useAnimation;
+                    station.m_upgrader = data.craftingStationData.upgrader ?? station.m_upgrader;
                 }else
                 {
                     if (WMRecipeCust.showLogs.Value)
@@ -1561,6 +1584,7 @@ namespace wackydatabase.SetData
                     newstation.m_showBasicRecipies = data.craftingStationData.showBasicRecipes ?? newstation.m_showBasicRecipies;
                     newstation.m_useDistance = data.craftingStationData.useDistance ?? newstation.m_useDistance;
                     newstation.m_useAnimation = data.craftingStationData.useAnimation ?? newstation.m_useAnimation;
+                    newstation.m_upgrader = data.craftingStationData.upgrader ?? newstation.m_upgrader;
 
 
 
@@ -2767,6 +2791,8 @@ namespace wackydatabase.SetData
                                 {
                                     foreach (var ob in AllObjects)
                                     {
+
+
                                         if (ob.name == data.Primary_Attack.SpawnOnHit)
                                         {
                                             if (found == null)
@@ -2778,7 +2804,7 @@ namespace wackydatabase.SetData
                                     }
                                 }
                                 catch (Exception ex) { WMRecipeCust.WLog.LogInfo("Error catch " + ex); }
-                                    PrimaryItemData.m_shared.m_attack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHit;
+                                PrimaryItemData.m_shared.m_attack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHit;
                             }
                         }
 
@@ -3197,6 +3223,10 @@ namespace wackydatabase.SetData
                     PrimaryItemData.m_shared.m_maxStackSize = data.m_maxStackSize ?? PrimaryItemData.m_shared.m_maxStackSize;
                     PrimaryItemData.m_shared.m_canBeReparied = data.m_canBeReparied ?? PrimaryItemData.m_shared.m_canBeReparied;
                     PrimaryItemData.m_shared.m_destroyBroken = data.m_destroyBroken ?? PrimaryItemData.m_shared.m_destroyBroken;
+                    PrimaryItemData.m_shared.m_upgradeChance = data.m_upgradeChance ?? PrimaryItemData.m_shared.m_upgradeChance;
+                    PrimaryItemData.m_shared.m_breakChance = data.m_breakChance ?? PrimaryItemData.m_shared.m_breakChance;
+                    PrimaryItemData.m_shared.m_successUpgradeSteps = data.m_successUpgradeSteps ?? PrimaryItemData.m_shared.m_successUpgradeSteps;
+                    PrimaryItemData.m_shared.m_breakReturnIngreientsAmount = data.m_breakReturnIngreientsAmount ?? PrimaryItemData.m_shared.m_breakReturnIngreientsAmount;
                     PrimaryItemData.m_shared.m_dodgeable = data.m_dodgeable ?? PrimaryItemData.m_shared.m_dodgeable;
                     PrimaryItemData.m_shared.m_blockable = data.blockable ?? PrimaryItemData.m_shared.m_blockable;
                     PrimaryItemData.m_shared.m_questItem = data.m_questItem ?? PrimaryItemData.m_shared.m_questItem;

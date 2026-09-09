@@ -74,6 +74,14 @@ namespace wackydatabase.Datas
 
         public bool? m_destroyBroken;
 
+        public float? m_upgradeChance;
+
+        public float? m_breakChance;
+
+        public int? m_successUpgradeSteps;
+
+        public float? m_breakReturnIngreientsAmount;
+
         public bool? m_dodgeable;
 
         public bool? blockable;
@@ -416,6 +424,8 @@ namespace wackydatabase.Datas
         public float Slash;
 
         public float Spirit;
+
+        public float NonPlayer;
 
     }
 
