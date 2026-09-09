@@ -275,7 +275,7 @@ namespace wackydatabase.PatchClasses
             return __exception;
         }
 
-        [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int) })]
+        [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool) })]
         private static class ItemData_GetTooltip_Patch
         {
             private static void Prefix(ItemDrop.ItemData item, ref SuppressedEffects __state)
@@ -453,7 +453,7 @@ namespace wackydatabase.PatchClasses
         }
 
 
-    [HarmonyPatch(typeof(SEMan), "AddStatusEffect", new Type[] { typeof(StatusEffect), typeof(bool), typeof(int), typeof(float) })]
+    [HarmonyPatch(typeof(SEMan), "AddStatusEffect", new Type[] { typeof(StatusEffect), typeof(bool), typeof(int), typeof(float), typeof(short) })]
     static class SEMan_AddStatusEffect_Patch
     {
         static bool Prefix(SEMan __instance, StatusEffect statusEffect, Character ___m_character, ref StatusEffect __result)

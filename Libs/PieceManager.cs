@@ -1778,14 +1778,6 @@ public static class PiecePrefabManager
 
     private static void UpdateAvailable_Prefix(PieceTable __instance)
     {
-        if (__instance.m_availablePieces.Count > 0)
-        {
-            int missing = ModifiedMaxCategory() - __instance.m_availablePieces.Count;
-            for (int i = 0; i < missing; ++i)
-            {
-                __instance.m_availablePieces.Add(new List<Piece>());
-            }
-        }
     }
 
     private static void UpdateAvailable_Postfix(PieceTable __instance)
