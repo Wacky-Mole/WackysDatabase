@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.31
+
+Bug fix for wackydb_all_items
+
 ## 2.5.30
 
 Updated for the Valheim 1.07 release.

@@ -587,14 +587,23 @@ namespace wackydatabase.PatchClasses
 
                             while (count != max)
                             {
-                                var temp = ItemCheck.GetItemDataByCount(count, tod);
-                                count++;
-                                if (temp == null)
-                                    continue;
-                                var part1 = serializer.Serialize(temp);
+                                var itemIndex = count++;
+                                var prefab = tod.m_items[itemIndex];
+                                var prefabName = prefab != null ? prefab.name : "item at index " + itemIndex;
+                                try
+                                {
+                                    var temp = ItemCheck.GetItemDataByCount(itemIndex, tod);
+                                    if (temp == null)
+                                        continue;
+                                    var part1 = serializer.Serialize(temp);
 
 
-                                File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLItems, "Item_" + temp.name + ".yml"), part1);
+                                    File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLItems, "Item_" + temp.name + ".yml"), part1);
+                                }
+                                catch (Exception ex)
+                                {
+                                    WMRecipeCust.WLog.LogError($"Failed to export item {prefabName}: {ex}");
+                                }
 
                             }
                             args.Context?.AddString($"saved all Items in WackyBulk Items");
