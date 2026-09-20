@@ -1495,7 +1495,20 @@ namespace wackydatabase.SetData
             pi.m_spaceRequirement = data.spaceRequirement ?? pi.m_spaceRequirement;
             pi.m_repairPiece = data.repairPiece ?? pi.m_repairPiece;
             pi.m_isUpgrade = data.isUpgrade ?? pi.m_isUpgrade;
-            pi.m_usage = data.usage ?? pi.m_usage;
+            if (data.usage.HasValue)
+            {
+                pi.m_usage = data.usage.Value;
+            }
+            else if (!string.IsNullOrEmpty(data.piecehammerCategory) &&
+                     PieceManager.PiecePrefabManager.TryGetBuiltInUsageCategory(data.piecehammerCategory, out Piece.UsageTagFlags usageTag))
+            {
+                pi.m_usage = usageTag;
+            }
+            else if (!string.IsNullOrEmpty(data.piecehammerCategory) &&
+                     PieceManager.PiecePrefabManager.IsCustomUsageCategory(data.piecehammerCategory))
+            {
+                pi.m_usage = 0;
+            }
             pi.m_canRockJade = data.canRockJade ?? pi.m_canRockJade;
             if (data.blockingPieces != null)
             {

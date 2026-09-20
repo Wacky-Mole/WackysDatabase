@@ -1674,7 +1674,7 @@ Wackymole
 <details><summary>Feedback</summary>
 
 
-For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus) or my discord at [Wolf Den](https://discord.gg/uPjjH8y52j)
+For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/jkcJCq2sK5) or my discord at [Wolf Den](https://discord.gg/uPjjH8y52j)
 
 Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.32
+
+Started allowing the old category system to make new Usage categories. This is probably a work in progress.
+
 ## 2.5.31
 
 Bug fix for wackydb_all_items
