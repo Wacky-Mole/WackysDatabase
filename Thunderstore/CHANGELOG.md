@@ -1,15 +1,13 @@
 # Changelog
 
+## 2.5.34
+Added support for the Forge of Potential and Upgrader Resources (Armor/Weapon). They appear in new generated recipes. 
+</br> Wackydb searches for the Upgrader Resources in the vanilla recipes and adds them to game if they are missing from older recipes.
 ## 2.5.33
-
 Removed excess folder creation in BulkYML
-
 ## 2.5.32
-
 Started allowing the old category system to make new Usage categories. This is probably a work in progress.
-
 ## 2.5.31
-
 Bug fix for wackydb_all_items
 
 ## 2.5.30

@@ -1302,6 +1302,14 @@ You can leave the level out to always double for each upgrade or specify for tha
 
 (Required) requirements to build: Item:amount:amountPerLevel:refundable:
 
+### Ancient Upgrade Station resources
+
+Valheim handles `Upgrader<tier>Weapon` and `Upgrader<tier>Armor` ingredients as special upgrader resources. WackyDB automatically set it as m_upgraderResource. Leave the ingredient in `reqs` or `upgrade_reqs`; 
+
+Valheim will hide it at normal crafting stations and show, require, and consume it at the upgrader station such as `AncientUpgradeStation`.
+
+For existing recipe YAML that was saved before an upgrader resource was added to the base recipe, WackyDB retains any native upgrader resource from the original recipe when the YAML does not already contain that ingredient.
+
 
  </br>Arrows x50 will be put above Arrow x20
  </br>

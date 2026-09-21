@@ -135,6 +135,48 @@ namespace wackydatabase.SetData
             return new Vector3(value.x ?? 0f, value.y ?? 0f, value.z ?? 0f);
         }
 
+        private static bool IsUpgraderResource(string itemName)
+        {
+            const string prefix = "Upgrader";
+            if (!itemName.StartsWith(prefix, StringComparison.Ordinal))
+                return false;
+
+            string suffix;
+            if (itemName.EndsWith("Weapon", StringComparison.Ordinal))
+                suffix = "Weapon";
+            else if (itemName.EndsWith("Armor", StringComparison.Ordinal))
+                suffix = "Armor";
+            else
+                return false;
+
+            string tier = itemName.Substring(prefix.Length, itemName.Length - prefix.Length - suffix.Length);
+            return int.TryParse(tier, NumberStyles.None, CultureInfo.InvariantCulture, out int tierNumber) && tierNumber > 0;
+        }
+
+        private static void AddMissingUpgraderRequirements(List<Piece.Requirement> requirements, IEnumerable<Piece.Requirement> existingRequirements)
+        {
+            foreach (Piece.Requirement existingRequirement in existingRequirements)
+            {
+                if (existingRequirement?.m_resItem == null || !existingRequirement.m_upgraderResource)
+                    continue;
+
+                string prefabName = Utils.GetPrefabName(existingRequirement.m_resItem.gameObject);
+                if (requirements.Any(requirement => requirement?.m_resItem != null
+                    && Utils.GetPrefabName(requirement.m_resItem.gameObject) == prefabName))
+                    continue;
+
+                requirements.Add(new Piece.Requirement
+                {
+                    m_resItem = existingRequirement.m_resItem,
+                    m_amount = existingRequirement.m_amount,
+                    m_extraAmountOnlyOneIngredient = existingRequirement.m_extraAmountOnlyOneIngredient,
+                    m_amountPerLevel = existingRequirement.m_amountPerLevel,
+                    m_upgraderResource = true,
+                    m_recover = existingRequirement.m_recover
+                });
+            }
+        }
+
         private static void ApplyMatchingFields(object component, object data)
         {
             var componentType = component.GetType();
@@ -609,6 +651,10 @@ namespace wackydatabase.SetData
                 return;
             }
 
+            List<Piece.Requirement> existingUpgraderRequirements = RecipeR.m_resources?
+                .Where(requirement => requirement?.m_resItem != null && requirement.m_upgraderResource)
+                .ToList() ?? new List<Piece.Requirement>();
+
             if (ActualR == null)
                 RecipeR.m_item = go.GetComponent<ItemDrop>();
 
@@ -649,7 +695,8 @@ namespace wackydatabase.SetData
                                 {
                                     m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
                                     m_amountPerLevel = amountPerLevel,
-                                    m_amount = 0
+                                    m_amount = 0,
+                                    m_upgraderResource = IsUpgraderResource(itemname)
                                 };
                                 WMRecipeCust.requirementQuality.Add(item, new RequirementQuality { quality = quality });
                                 UpgradeReqs.Add(item);
@@ -660,7 +707,8 @@ namespace wackydatabase.SetData
                                 {
                                     m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
                                     m_amountPerLevel = amountPerLevel,
-                                    m_amount = 0
+                                    m_amount = 0,
+                                    m_upgraderResource = IsUpgraderResource(itemname)
                                 };
                                 UpgradeReqs.Add(item);
                             }
@@ -671,6 +719,8 @@ namespace wackydatabase.SetData
                         }
                     }
                 }
+
+                AddMissingUpgraderRequirements(UpgradeReqs, existingUpgraderRequirements);
 
                 Recipe RecipeRUPGRADE = null;
                 var upgadename = RecipeR.name + "_Upgrade"; // try to find
@@ -747,7 +797,8 @@ namespace wackydatabase.SetData
                             m_amount = amount,
                             m_recover = recover,
                             m_resItem = Instant.GetItemPrefab(itemname).GetComponent<ItemDrop>(),
-                            m_amountPerLevel = amountPerLevel
+                            m_amountPerLevel = amountPerLevel,
+                            m_upgraderResource = IsUpgraderResource(itemname)
                         };
                         reqs.Add(item);                         
 
@@ -758,6 +809,8 @@ namespace wackydatabase.SetData
                     }
                 }
             }// foreach
+
+            AddMissingUpgraderRequirements(reqs, existingUpgraderRequirements);
 
             int index = 0;
             RecipeR.m_resources = reqs.ToArray();
