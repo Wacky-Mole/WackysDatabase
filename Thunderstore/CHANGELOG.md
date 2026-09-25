@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.5.35
+Bug fix for Tier0 Upgrader Resources. 
 ## 2.5.34
 Added support for the Forge of Potential and Upgrader Resources (Armor/Weapon). They appear in new generated recipes. 
 </br> Wackydb searches for the Upgrader Resources in the vanilla recipes and adds them to game if they are missing from older recipes.

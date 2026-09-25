@@ -150,7 +150,7 @@ namespace wackydatabase.SetData
                 return false;
 
             string tier = itemName.Substring(prefix.Length, itemName.Length - prefix.Length - suffix.Length);
-            return int.TryParse(tier, NumberStyles.None, CultureInfo.InvariantCulture, out int tierNumber) && tierNumber > 0;
+            return int.TryParse(tier, NumberStyles.None, CultureInfo.InvariantCulture, out int tierNumber) && tierNumber >= 0;
         }
 
         private static void AddMissingUpgraderRequirements(List<Piece.Requirement> requirements, IEnumerable<Piece.Requirement> existingRequirements)
