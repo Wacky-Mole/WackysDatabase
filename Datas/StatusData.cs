@@ -87,6 +87,14 @@ namespace wackydatabase.Datas
 
     [Serializable]
     [CanBeNull]
+    public class StatusDamageModifier
+    {
+        public string? m_type;
+        public HitData.DamageModifier? m_modifier;
+    }
+
+    [Serializable]
+    [CanBeNull]
     public class SEdata 
     {
 
@@ -190,7 +198,7 @@ namespace wackydatabase.Datas
         public float? m_skillLevelModifier2;
 
         //[Header("Hit modifier")]
-        public List<HitData.DamageModPair>? m_mods = new List<HitData.DamageModPair>();
+        public List<StatusDamageModifier>? m_mods = new List<StatusDamageModifier>();
 
         //[Header("Attack")]
         public Skills.SkillType? m_modifyAttackSkill;

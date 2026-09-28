@@ -122,8 +122,8 @@ Frequently Asked Questions
     Q: Is the mod future-proof?
         A: Yes, you can add or remove components without much hassle.
 
-    Q: Does the Water resistant not work on set effect? Like m_mods: m_type: Water
-        A: Water is a DamageModifiers that I added from Aedenthorn mod.  I don't have plans to add it to m_mods.
+    Q: Does Water resistance work on potions and set effects with m_mods: m_type: Water?
+        A: Yes. Active status effects apply Water modifiers using the same resistance behavior as armor.
         
     Q: Do you have a Video;
         A: Not yet, but YOU could make one! Majestic has some short ones linked.
@@ -1466,7 +1466,7 @@ Core properties used by many status effects for health and stamina manipulation.
 - `m_skillLevel2` (Skills.SkillType): Another skill type to modify the level.Flat Rate
 - `m_skillLevelModifier2` (float): Another skill level modifier.
 #### Mods
-- `m_mods` (List<HitData.DamageModPair>): The list of damage modifiers for hit.
+- `m_mods` (List<HitData.DamageModPair>): The list of damage modifiers for hit. The custom `Water` type can be used by potions and other active status effects.
 #### Modifiers
 - `m_modifyAttackSkill` (Skills.SkillType): The skill type to modify the attack.
 - `m_damageModifier` (float): The damage modifier for the attack.

@@ -264,6 +264,25 @@ namespace wackydatabase.SetData
         
         #region Effects
 
+        private static List<HitData.DamageModPair>? ParseStatusDamageModifiers(List<StatusDamageModifier>? modifiers)
+        {
+            if (modifiers == null)
+                return null;
+
+            return modifiers.Select(modifier =>
+            {
+                int damageType = Enum.TryParse(modifier.m_type, true, out ArmorHelpers.NewDamageTypes customType)
+                    ? (int)customType
+                    : (int)Enum.Parse(typeof(HitData.DamageType), modifier.m_type, true);
+
+                return new HitData.DamageModPair
+                {
+                    m_type = (HitData.DamageType)damageType,
+                    m_modifier = modifier.m_modifier ?? HitData.DamageModifier.Normal
+                };
+            }).ToList();
+        }
+
         internal static void SetStatusData(StatusData data, ObjectDB Instant)
         {
             var name = data.Name;
@@ -454,7 +473,7 @@ namespace wackydatabase.SetData
             Functions.setValue(type, go, "m_skillLevel2", null, null, null, null, data.SeData.m_skillLevel2);
             Functions.setValue(type, go, "m_skillLevelModifier2", data.SeData.m_skillLevelModifier2);
 
-            Functions.setValue(type, go, "m_mods", null, null, null, data.SeData.m_mods);
+            Functions.setValue(type, go, "m_mods", null, null, null, ParseStatusDamageModifiers(data.SeData.m_mods));
 
             Functions.setValue(type, go, "m_modifyAttackSkill", null, null, null, null, data.SeData.m_modifyAttackSkill);
             Functions.setValue(type, go, "m_damageModifier", data.SeData.m_damageModifier);

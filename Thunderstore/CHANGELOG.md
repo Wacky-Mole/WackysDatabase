@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.5.36
+Added Water resistance to m_mods SEs. 
 ## 2.5.35
 Bug fix for Tier0 Upgrader Resources. 
 ## 2.5.34

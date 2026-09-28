@@ -15,11 +15,23 @@ using System.IO;
 using YamlDotNet.Serialization;
 using System.IO.Ports;
 using System.Configuration;
+using wackydatabase.Armor;
 
 
 namespace wackydatabase.GetData
 {
     public class GetDataYML     {
+        private static List<StatusDamageModifier>? GetStatusDamageModifiers(List<HitData.DamageModPair>? modifiers)
+        {
+            return modifiers?.Select(modifier => new StatusDamageModifier
+            {
+                m_type = (int)modifier.m_type == (int)ArmorHelpers.NewDamageTypes.Water
+                    ? ArmorHelpers.NewDamageTypes.Water.ToString()
+                    : modifier.m_type.ToString(),
+                m_modifier = modifier.m_modifier
+            }).ToList();
+        }
+
         private static string GetObjectName(UnityEngine.Object obj)
         {
             return obj != null ? obj.name : "";
@@ -569,7 +581,7 @@ namespace wackydatabase.GetData
                 m_skillLevelModifier = Functions.getCast<float>(f2, "m_skillLevelModifier", effect),
                 m_skillLevel2 = Functions.getCast<Skills.SkillType>(f2, "m_skillLevel2", effect),
                 m_skillLevelModifier2 = Functions.getCast<float>(f2, "m_skillLevelModifier2", effect),
-                m_mods = Functions.getCast<List<HitData.DamageModPair>>(f2, "m_mods", effect),
+                m_mods = GetStatusDamageModifiers(Functions.getCast<List<HitData.DamageModPair>>(f2, "m_mods", effect)),
                 m_modifyAttackSkill = Functions.getCast<Skills.SkillType>(f2, "m_modifyAttackSkill", effect),
                 m_damageModifier = Functions.getCast<float>(f2, "m_damageModifier",effect),
                 m_percentDamageModifiers = Functions.getCast<HitData.DamageTypes>(f2, "m_percentigeDamageModifiers", effect),
