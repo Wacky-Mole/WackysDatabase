@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.5.37
+Old crossbow bug fix.
 ## 2.5.36
 Added Water resistance to m_mods SEs. 
 ## 2.5.35
