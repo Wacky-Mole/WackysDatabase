@@ -20,6 +20,7 @@ namespace wackydatabase.Datas
         public string? damagedMaterial;
         public string? craftingStation;
         public string? piecehammerCategory;
+        public Piece.UsageTagFlags? usage;
         public string? categoryOrderBeforePrefab;
         public int? minStationLevel;
         //public int? amount;
@@ -43,7 +44,7 @@ namespace wackydatabase.Datas
         public float? spaceRequirement;
         public bool? repairPiece;
         public bool? isUpgrade;
-        public Piece.UsageTagFlags? usage;
+     
         public List<string>? blockingPieces;
         public bool? canRockJade;
 

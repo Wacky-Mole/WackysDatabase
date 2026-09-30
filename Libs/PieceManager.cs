@@ -1341,6 +1341,11 @@ public static class PiecePrefabManager
         harmony.Patch(AccessTools.DeclaredMethod(typeof(Hud), nameof(Hud.LateUpdate)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PiecePrefabManager), nameof(RepositionCatsIfNeeded))));
         harmony.Patch(AccessTools.DeclaredMethod(typeof(Enum), nameof(Enum.GetValues)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PiecePrefabManager), nameof(EnumGetValuesPatch))));
         harmony.Patch(AccessTools.DeclaredMethod(typeof(Enum), nameof(Enum.GetNames)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PiecePrefabManager), nameof(EnumGetNamesPatch))));
+        harmony.Patch(AccessTools.DeclaredMethod(typeof(ByUsagePieceList), nameof(ByUsagePieceList.UpdateAvailableTags)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PiecePrefabManager), nameof(UpdateAvailableUsageTagsPostfix))) { priority = Priority.Last });
+        harmony.Patch(AccessTools.DeclaredMethod(typeof(ByUsagePieceList), nameof(ByUsagePieceList.GetTagDisplayName)), prefix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PiecePrefabManager), nameof(GetVirtualUsageTagDisplayNamePrefix))) { priority = Priority.First });
+        harmony.Patch(AccessTools.DeclaredMethod(typeof(ByUsagePieceList), nameof(ByUsagePieceList.GetAvailablePiecesWithTag)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PiecePrefabManager), nameof(GetPiecesWithVirtualUsageTagPostfix))) { priority = Priority.Last });
+        harmony.Patch(AccessTools.DeclaredMethod(typeof(ByUsagePieceList), nameof(ByUsagePieceList.GetTagById)), prefix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PiecePrefabManager), nameof(GetVirtualUsageTagByIdPrefix))) { priority = Priority.First });
+        harmony.Patch(AccessTools.DeclaredMethod(typeof(Localization), nameof(Localization.LoadCSV)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PiecePrefabManager), nameof(AddCategoryLocalizedKeys))) { priority = Priority.Last });
     }
 
     private struct BundleId
@@ -1376,7 +1381,21 @@ public static class PiecePrefabManager
     private static readonly Dictionary<string, Piece.PieceCategory> PieceCategories = new();
     private static readonly Dictionary<string, Piece.PieceCategory> OtherPieceCategories = new();
     private static readonly Dictionary<Piece.PieceCategory, string> VanillaLabels = new();
+    private static readonly HashSet<string> CustomUsageCategories = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<ByUsagePieceList, Dictionary<int, VirtualUsageTag>> VirtualUsageTags = new();
     internal static bool CategoryRefreshNeeded;
+
+    private readonly struct VirtualUsageTag
+    {
+        internal readonly string Name;
+        internal readonly Piece.PieceCategory Category;
+
+        internal VirtualUsageTag(string name, Piece.PieceCategory category)
+        {
+            Name = name;
+            Category = category;
+        }
+    }
 
     public static GameObject RegisterPrefab(string assetBundleFileName, string prefabName, string folderName = "assets") => RegisterPrefab(RegisterAssetBundle(assetBundleFileName, folderName), prefabName);
 
@@ -1496,10 +1515,149 @@ public static class PiecePrefabManager
         // create a new category
         category = (Piece.PieceCategory)categories.Count - 1;
         PieceCategories[name] = category;
-        string tokenName = GetCategoryToken(name);
-        Localization.instance.AddWord(tokenName, name);
+        AddCategoryLocalizedKey(Localization.instance, name);
 
         return category;
+    }
+
+    internal static void RegisterUsageCategories(IEnumerable<string> categoryNames)
+    {
+        CustomUsageCategories.Clear();
+
+        foreach (string categoryName in categoryNames
+                     .Where(name => !string.IsNullOrWhiteSpace(name))
+                     .Where(name => !TryGetBuiltInUsageCategory(name, out _))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(name => name, StringComparer.Ordinal))
+        {
+            CustomUsageCategories.Add(categoryName);
+        }
+
+        if (Localization.m_instance != null)
+        {
+            AddCategoryLocalizedKeys(Localization.instance);
+        }
+    }
+
+    internal static bool TryGetBuiltInUsageCategory(string categoryName, out Piece.UsageTagFlags usageTag)
+    {
+        if (Enum.TryParse(categoryName, true, out usageTag) && Enum.IsDefined(typeof(Piece.UsageTagFlags), usageTag))
+        {
+            return true;
+        }
+
+        if (categoryName.Equals(nameof(BuildPieceCategory.BuildingWorkbench), StringComparison.OrdinalIgnoreCase) ||
+            categoryName.Equals(nameof(BuildPieceCategory.BuildingStonecutter), StringComparison.OrdinalIgnoreCase))
+        {
+            usageTag = Piece.UsageTagFlags.Building;
+            return true;
+        }
+
+        usageTag = default;
+        return false;
+    }
+
+    private static void AddCategoryLocalizedKeys(Localization __instance)
+    {
+        foreach (string categoryName in PieceCategories.Keys.Concat(CustomUsageCategories).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            AddCategoryLocalizedKey(__instance, categoryName);
+        }
+    }
+
+    private static void AddCategoryLocalizedKey(Localization localization, string categoryName) =>
+        localization.AddWord(GetCategoryToken(categoryName), categoryName);
+
+    internal static bool IsCustomUsageCategory(string categoryName) => CustomUsageCategories.Contains(categoryName);
+
+    private static void UpdateAvailableUsageTagsPostfix(ByUsagePieceList __instance, PieceTable pieceTable)
+    {
+        HashSet<int> previousTagIds = VirtualUsageTags.TryGetValue(__instance, out Dictionary<int, VirtualUsageTag> previousTags)
+            ? new HashSet<int>(previousTags.Keys)
+            : new HashSet<int>();
+
+        for (int index = __instance.m_availableTags.Count - 1; index >= 0; --index)
+        {
+            int existingTagId = __instance.m_availableTags[index];
+            if (previousTagIds.Contains(existingTagId))
+            {
+                __instance.m_availableTags.RemoveAt(index);
+            }
+        }
+
+        Dictionary<int, VirtualUsageTag> tags = new();
+        VirtualUsageTags[__instance] = tags;
+        if (pieceTable == null)
+        {
+            return;
+        }
+
+        HashSet<Piece.PieceCategory> availableCategories = new(pieceTable.m_availablePieces.Select(piece => piece.m_category));
+        int tagId = int.MinValue;
+        foreach (string categoryName in CustomUsageCategories.OrderBy(name => name, StringComparer.Ordinal))
+        {
+            Piece.PieceCategory category = GetCategory(categoryName);
+            if (!availableCategories.Contains(category))
+            {
+                continue;
+            }
+
+            while (__instance.m_availableTags.Contains(tagId))
+            {
+                ++tagId;
+            }
+
+            __instance.m_availableTags.Add(tagId);
+            tags[tagId] = new VirtualUsageTag(categoryName, category);
+            ++tagId;
+        }
+    }
+
+    private static bool GetVirtualUsageTagDisplayNamePrefix(ByUsagePieceList __instance, int index, ref string __result)
+    {
+        if (!VirtualUsageTags.TryGetValue(__instance, out Dictionary<int, VirtualUsageTag> tags))
+        {
+            return true;
+        }
+
+        if (!tags.TryGetValue(index, out VirtualUsageTag tag) &&
+            (index < 0 || index >= __instance.m_availableTags.Count ||
+             !tags.TryGetValue(__instance.m_availableTags[index], out tag)))
+        {
+            return true;
+        }
+
+        __result = $"${GetCategoryToken(tag.Name)}";
+        return false;
+    }
+
+    private static void GetPiecesWithVirtualUsageTagPostfix(ByUsagePieceList __instance, int tagId, PieceTable pieceTable, IList<Piece> resultOut)
+    {
+        if (pieceTable == null ||
+            !VirtualUsageTags.TryGetValue(__instance, out Dictionary<int, VirtualUsageTag> tags) ||
+            !tags.TryGetValue(tagId, out VirtualUsageTag tag))
+        {
+            return;
+        }
+
+        foreach (Piece piece in pieceTable.m_availablePieces)
+        {
+            if (piece.m_category == tag.Category && !resultOut.Contains(piece))
+            {
+                resultOut.Add(piece);
+            }
+        }
+    }
+
+    private static bool GetVirtualUsageTagByIdPrefix(ByUsagePieceList __instance, int id, ref Piece.UsageTagFlags __result)
+    {
+        if (!VirtualUsageTags.TryGetValue(__instance, out Dictionary<int, VirtualUsageTag> tags) || !tags.ContainsKey(id))
+        {
+            return true;
+        }
+
+        __result = (Piece.UsageTagFlags)(-1);
+        return false;
     }
 
     internal static void CreateCategoryTabs()

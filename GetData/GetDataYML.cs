@@ -15,11 +15,23 @@ using System.IO;
 using YamlDotNet.Serialization;
 using System.IO.Ports;
 using System.Configuration;
+using wackydatabase.Armor;
 
 
 namespace wackydatabase.GetData
 {
     public class GetDataYML     {
+        private static List<StatusDamageModifier>? GetStatusDamageModifiers(List<HitData.DamageModPair>? modifiers)
+        {
+            return modifiers?.Select(modifier => new StatusDamageModifier
+            {
+                m_type = (int)modifier.m_type == (int)ArmorHelpers.NewDamageTypes.Water
+                    ? ArmorHelpers.NewDamageTypes.Water.ToString()
+                    : modifier.m_type.ToString(),
+                m_modifier = modifier.m_modifier
+            }).ToList();
+        }
+
         private static string GetObjectName(UnityEngine.Object obj)
         {
             return obj != null ? obj.name : "";
@@ -569,7 +581,7 @@ namespace wackydatabase.GetData
                 m_skillLevelModifier = Functions.getCast<float>(f2, "m_skillLevelModifier", effect),
                 m_skillLevel2 = Functions.getCast<Skills.SkillType>(f2, "m_skillLevel2", effect),
                 m_skillLevelModifier2 = Functions.getCast<float>(f2, "m_skillLevelModifier2", effect),
-                m_mods = Functions.getCast<List<HitData.DamageModPair>>(f2, "m_mods", effect),
+                m_mods = GetStatusDamageModifiers(Functions.getCast<List<HitData.DamageModPair>>(f2, "m_mods", effect)),
                 m_modifyAttackSkill = Functions.getCast<Skills.SkillType>(f2, "m_modifyAttackSkill", effect),
                 m_damageModifier = Functions.getCast<float>(f2, "m_damageModifier",effect),
                 m_percentDamageModifiers = Functions.getCast<HitData.DamageTypes>(f2, "m_percentigeDamageModifiers", effect),
@@ -1251,19 +1263,18 @@ namespace wackydatabase.GetData
                 return null;
             }
 
-            ItemDrop.ItemData data = go.GetComponent<ItemDrop>().m_itemData;
-            if (data == null)
-            {
-                WMRecipeCust.Dbgl("Item GetItemDataByName not found! - componets");
-                return null;
-            }
-
             return GetItem(go, tod);
             
         }
 
         internal WItemData GetItemDataByCount(int count, ObjectDB tod)
         {
+            if (tod == null || tod.m_items == null || count < 0 || count >= tod.m_items.Count)
+            {
+                WMRecipeCust.Dbgl($"GetItemDataByCount item not found at index {count}");
+                return null;
+            }
+
             var go = tod.m_items[count];
             return GetItem(go, tod);
 
@@ -1333,12 +1344,20 @@ namespace wackydatabase.GetData
         }
 
         private WItemData GetItem(GameObject go, ObjectDB tod) {
-            ItemDrop.ItemData data = go.GetComponent<ItemDrop>().m_itemData;
-            if (data == null)
+            if (go == null)
             {
-                WMRecipeCust.Dbgl("Item GetItemDataByName not found! - componets");
+                WMRecipeCust.Dbgl("Item not found while exporting item data");
                 return null;
             }
+
+            ItemDrop itemDrop = go.GetComponent<ItemDrop>();
+            if (itemDrop == null || itemDrop.m_itemData == null)
+            {
+                WMRecipeCust.Dbgl($"Item {go.name} has no ItemDrop data, skipping");
+                return null;
+            }
+
+            ItemDrop.ItemData data = itemDrop.m_itemData;
 
             bool hasdmg = false;
             WDamages damages = null;
@@ -1411,10 +1430,10 @@ namespace wackydatabase.GetData
             AEffectsPLUS aEffects = new AEffectsPLUS()
             {
                 Hit_Effects = ConvertEffectstoVerse(data.m_shared.m_attack?.m_hitEffect?.m_effectPrefabs) ,
-                Hit_Terrain_Effects = ConvertEffectstoVerse(data.m_shared.m_attack?.m_hitTerrainEffect.m_effectPrefabs),
-                Start_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_startEffect.m_effectPrefabs),
-                Trigger_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_triggerEffect.m_effectPrefabs),
-                Trail_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_trailStartEffect.m_effectPrefabs),
+                Hit_Terrain_Effects = ConvertEffectstoVerse(data.m_shared.m_attack?.m_hitTerrainEffect?.m_effectPrefabs),
+                Start_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_startEffect?.m_effectPrefabs),
+                Trigger_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_triggerEffect?.m_effectPrefabs),
+                Trail_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_trailStartEffect?.m_effectPrefabs),
                 Burst_Effect = ConvertEffectstoVerse(data.m_shared.m_attack?.m_burstEffect?.m_effectPrefabs),
 
             };
@@ -1422,10 +1441,10 @@ namespace wackydatabase.GetData
             AEffectsPLUS sEffects = new AEffectsPLUS()
             {
                 Hit_Effects = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_hitEffect?.m_effectPrefabs),
-                Hit_Terrain_Effects = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_hitTerrainEffect.m_effectPrefabs),
-                Start_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_startEffect.m_effectPrefabs),
-                Trigger_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_triggerEffect.m_effectPrefabs),
-                Trail_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_trailStartEffect.m_effectPrefabs),
+                Hit_Terrain_Effects = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_hitTerrainEffect?.m_effectPrefabs),
+                Start_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_startEffect?.m_effectPrefabs),
+                Trigger_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_triggerEffect?.m_effectPrefabs),
+                Trail_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_trailStartEffect?.m_effectPrefabs),
                 Burst_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_burstEffect?.m_effectPrefabs),
             };
 

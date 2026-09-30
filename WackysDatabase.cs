@@ -483,10 +483,6 @@ namespace wackydatabase
                 Dbgl("Creating Pickable folder");
                 Directory.CreateDirectory(assetPathPickables);
             }
-            if (!Directory.Exists(assetPathBulkYMLProjectiles))
-                Directory.CreateDirectory(assetPathBulkYMLProjectiles);
-            if (!Directory.Exists(assetPathBulkYMLAoes))
-                Directory.CreateDirectory(assetPathBulkYMLAoes);
             if (!Directory.Exists(assetPathProjectiles))
             {
                 Dbgl("Creating Projectile folder");

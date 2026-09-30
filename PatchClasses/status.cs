@@ -416,14 +416,14 @@ namespace wackydatabase.PatchClasses
                 return outCodes.AsEnumerable();
 
             }
-            static void Postfix(float dt, Player __instance, ItemDrop.ItemData ___m_chestItem, ItemDrop.ItemData ___m_legItem, ItemDrop.ItemData ___m_helmetItem, ItemDrop.ItemData ___m_shoulderItem, SEMan ___m_seman)
+            static void Postfix(float dt, Player __instance, SEMan ___m_seman)
             {
                 if (!WMRecipeCust.modEnabled.Value)
                     return;
 
                 if (___m_seman.HaveStatusEffect("Wet".GetStableHashCode()))
                 {
-                    HitData.DamageModifier water = GetNewDamageTypeMod(NewDamageTypes.Water, ___m_chestItem, ___m_legItem, ___m_helmetItem, ___m_shoulderItem);
+                    HitData.DamageModifier water = GetNewDamageTypeMod(NewDamageTypes.Water, __instance);
                     var wet = ___m_seman.GetStatusEffect("Wet".GetStableHashCode());
                     var t = Traverse.Create(wet);
 

@@ -618,6 +618,9 @@ namespace wackydatabase.SetData
             ObjectDB Instant = ObjectDB.instance;
             //GameObject[] AllObjects = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
             WMRecipeCust.SEWeaponChoice.Clear();
+            PieceManager.PiecePrefabManager.RegisterUsageCategories(WMRecipeCust.pieceDatasYml
+                .Where(data => !data.usage.HasValue)
+                .Select(data => data.piecehammerCategory));
 
             if (slowmode)
             {

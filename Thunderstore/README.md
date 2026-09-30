@@ -122,8 +122,8 @@ Frequently Asked Questions
     Q: Is the mod future-proof?
         A: Yes, you can add or remove components without much hassle.
 
-    Q: Does the Water resistant not work on set effect? Like m_mods: m_type: Water
-        A: Water is a DamageModifiers that I added from Aedenthorn mod.  I don't have plans to add it to m_mods.
+    Q: Does Water resistance work on potions and set effects with m_mods: m_type: Water?
+        A: Yes. Active status effects apply Water modifiers using the same resistance behavior as armor.
         
     Q: Do you have a Video;
         A: Not yet, but YOU could make one! Majestic has some short ones linked.
@@ -1302,6 +1302,14 @@ You can leave the level out to always double for each upgrade or specify for tha
 
 (Required) requirements to build: Item:amount:amountPerLevel:refundable:
 
+### Ancient Upgrade Station resources
+
+Valheim handles `Upgrader<tier>Weapon` and `Upgrader<tier>Armor` ingredients as special upgrader resources. WackyDB automatically set it as m_upgraderResource. Leave the ingredient in `reqs` or `upgrade_reqs`; 
+
+Valheim will hide it at normal crafting stations and show, require, and consume it at the upgrader station such as `AncientUpgradeStation`.
+
+For existing recipe YAML that was saved before an upgrader resource was added to the base recipe, WackyDB retains any native upgrader resource from the original recipe when the YAML does not already contain that ingredient.
+
 
  </br>Arrows x50 will be put above Arrow x20
  </br>
@@ -1458,7 +1466,7 @@ Core properties used by many status effects for health and stamina manipulation.
 - `m_skillLevel2` (Skills.SkillType): Another skill type to modify the level.Flat Rate
 - `m_skillLevelModifier2` (float): Another skill level modifier.
 #### Mods
-- `m_mods` (List<HitData.DamageModPair>): The list of damage modifiers for hit.
+- `m_mods` (List<HitData.DamageModPair>): The list of damage modifiers for hit. The custom `Water` type can be used by potions and other active status effects.
 #### Modifiers
 - `m_modifyAttackSkill` (Skills.SkillType): The skill type to modify the attack.
 - `m_damageModifier` (float): The damage modifier for the attack.
@@ -1674,7 +1682,7 @@ Wackymole
 <details><summary>Feedback</summary>
 
 
-For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/odinplus) or my discord at [Wolf Den](https://discord.gg/uPjjH8y52j)
+For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/jkcJCq2sK5) or my discord at [Wolf Den](https://discord.gg/uPjjH8y52j)
 
 Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole
 

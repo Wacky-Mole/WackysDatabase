@@ -55,10 +55,28 @@ namespace wackydatabase.Armor
         } */
 
         internal static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, Character character)
-    {
-        Traverse t = Traverse.Create(character);
-        return GetNewDamageTypeMod(type, t.Field("m_chestItem").GetValue<ItemDrop.ItemData>(), t.Field("m_legItem").GetValue<ItemDrop.ItemData>(), t.Field("m_helmetItem").GetValue<ItemDrop.ItemData>(), t.Field("m_shoulderItem").GetValue<ItemDrop.ItemData>());
-    }
+        {
+            Traverse t = Traverse.Create(character);
+            var modifier = GetNewDamageTypeMod(type, t.Field("m_chestItem").GetValue<ItemDrop.ItemData>(), t.Field("m_legItem").GetValue<ItemDrop.ItemData>(), t.Field("m_helmetItem").GetValue<ItemDrop.ItemData>(), t.Field("m_shoulderItem").GetValue<ItemDrop.ItemData>());
+            var statusEffects = character.GetSEMan()?.GetStatusEffects();
+
+            if (statusEffects == null)
+                return modifier;
+
+            foreach (var statusEffect in statusEffects)
+            {
+                if (statusEffect is not SE_Stats stats || stats.m_mods == null)
+                    continue;
+
+                foreach (var statusModifier in stats.m_mods)
+                {
+                    if ((int)statusModifier.m_type == (int)type && ShouldOverride(modifier, statusModifier.m_modifier))
+                        modifier = statusModifier.m_modifier;
+                }
+            }
+
+            return modifier;
+        }
 
   internal static HitData.DamageModifier GetNewDamageTypeMod(NewDamageTypes type, ItemDrop.ItemData chestItem, ItemDrop.ItemData legItem, ItemDrop.ItemData helmetItem, ItemDrop.ItemData shoulderItem)
     {
