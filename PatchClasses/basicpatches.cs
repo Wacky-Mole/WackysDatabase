@@ -53,6 +53,30 @@ namespace wackydatabase.PatchClasses
         }
     }
 
+    [HarmonyPatch(typeof(Aoe), nameof(Aoe.Setup))]
+    internal static class Aoe_Setup_PreserveStatusEffect_Patch
+    {
+        private static void Prefix(Aoe __instance, HitData hitData, out (int Hash, string Name) __state)
+        {
+            __state = default;
+            if (!WMRecipeCust.modEnabled.Value || !__instance.m_useAttackSettings
+                || hitData == null || hitData.m_statusEffectHash != 0)
+                return;
+
+            __state = (__instance.m_statusEffectHash, __instance.m_statusEffect);
+        }
+
+        private static void Postfix(Aoe __instance, (int Hash, string Name) __state)
+        {
+            if (__state.Hash == 0)
+                return;
+
+            // Attack settings without a status effect must not erase the AOE's native effect.
+            __instance.m_statusEffectHash = __state.Hash;
+            __instance.m_statusEffect = __state.Name;
+        }
+    }
+
     [HarmonyPatch(typeof(Attack), nameof(Attack.ModifyDamage))]
     internal static class ModifyDamageWM
     {

@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.5.38
+Bug fix for Aoe Preserve StatusEffect when the attack has no status effect and m_useAttackSettings is set to true.
 ## 2.5.37
 Old crossbow bug fix.
 ## 2.5.36
