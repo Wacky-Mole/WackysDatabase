@@ -298,15 +298,18 @@ namespace wackydatabase.GetData
 
         internal  RecipeData GetRecipeDataByName(string name, ObjectDB tod)
         {
+            if (string.IsNullOrWhiteSpace(name) || !tod)
+                return null;
+
             GameObject go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
             if (go == null)
                 go = tod.GetItemPrefab(name);
 
-            if (go == null)
+            if (go == null && tod.m_recipes != null)
             {
                 foreach (Recipe recipes in tod.m_recipes)
                 {
-                    if (!(recipes.m_item == null) && recipes.name == name)
+                    if (recipes != null && recipes.m_item != null && recipes.name == name)
                     {
                         WMRecipeCust.Dbgl($"An actual Recipe_ {name} has been found!-- Only Modification - No Cloning");
                         return GetRecip(recipes, tod, false);
@@ -320,7 +323,14 @@ namespace wackydatabase.GetData
                 return null; //GetPieceRecipeByName(name);
             }
 
-            ItemDrop.ItemData item = go.GetComponent<ItemDrop>().m_itemData;
+            ItemDrop itemDrop = go.GetComponent<ItemDrop>();
+            if (!itemDrop)
+            {
+                WMRecipeCust.Dbgl($"Prefab {name} is not an item; use wackydb_save_piece for building pieces.");
+                return null;
+            }
+
+            ItemDrop.ItemData item = itemDrop.m_itemData;
             if (item == null)
             {
                 WMRecipeCust.Dbgl("Item data not found!");

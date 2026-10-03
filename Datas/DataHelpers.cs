@@ -188,15 +188,19 @@ namespace wackydatabase.Datas
             if (ZnetName == "")
                 return null;
 
+            ZNetScene scene = ZNetScene.instance;
+            if (!scene)
+                return null;
+
             try
             {
                 WMRecipeCust.WLog.LogInfo($"   ZnetScene Special Object Search with {ZnetName}");
-                go = ZNetScene.instance.GetPrefab(ZnetName); // damn why didn't I discover this sooner// that is sooo brutal. 
+                go = scene.GetPrefab(ZnetName); // damn why didn't I discover this sooner// that is sooo brutal. 
                 // no loginfo for this
 
                 if (hash != 0)
                 {
-                    go = ZNetScene.instance.GetPrefab(hash);
+                    go = scene.GetPrefab(hash);
 
                     if (go != null)
                         WMRecipeCust.WLog.LogInfo($"Found Special Object with Hash {go.name} known issue");

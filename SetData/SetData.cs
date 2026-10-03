@@ -190,7 +190,9 @@ namespace wackydatabase.SetData
                     continue;
 
                 var targetField = componentType.GetField(sourceField.Name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-                if (targetField != null && targetField.FieldType == sourceField.FieldType)
+                // Non-null Nullable<T> values are boxed as T; null means keep the prefab value.
+                Type sourceType = Nullable.GetUnderlyingType(sourceField.FieldType) ?? sourceField.FieldType;
+                if (targetField != null && targetField.FieldType == sourceType)
                     targetField.SetValue(component, value);
             }
         }

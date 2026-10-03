@@ -328,11 +328,25 @@ namespace wackydatabase.PatchClasses
                 new("wackydb_save_recipe", "Save a recipe ",
                     (Terminal.ConsoleEventFailable)(args =>
                     {
+                        if (args.Length < 2 || string.IsNullOrWhiteSpace(args[1]))
+                        {
+                            args.Context?.AddString("Usage: wackydb_save_recipe [RecipeName]");
+                            return null;
+                        }
+                        if (!ObjectDB.instance)
+                        {
+                            args.Context?.AddString("ObjectDB is not ready; load a world before saving recipes.");
+                            return null;
+                        }
+
                         string file = args[1];
                         GetDataYML RecipeCheck = new GetDataYML();
                         RecipeData recipData = RecipeCheck.GetRecipeDataByName(file, ObjectDB.instance);
                         if (recipData == null)
+                        {
+                            args.Context?.AddString($"Recipe {file} not found. For building pieces, use wackydb_save_piece.");
                             return null;
+                        }
                         WMRecipeCust.CheckModFolder();
                         var serializer = new SerializerBuilder().WithNewLine("\n")
                             .Build();
