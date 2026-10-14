@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.5.40
+Changed how attack items are discovered. 
 ## 2.5.39
 bug fix: more defensive around console commands. 
 ## 2.5.38

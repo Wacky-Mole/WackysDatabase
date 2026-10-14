@@ -2753,8 +2753,15 @@ namespace wackydatabase.SetData
                         }
                     }
                
+                    if ((data.Primary_Attack != null || data.Secondary_Attack != null) && !WMRecipeCust.AttackSpeed.ContainsKey(tempname))
+                    {
+                        WMRecipeCust.AttackSpeed.Add(tempname, new Dictionary<bool, float> { { false, 1 }, { true, 1 } });
+                    }
+
                     if (data.Primary_Attack != null)
                     {
+                        if (PrimaryItemData.m_shared.m_attack == null)
+                            PrimaryItemData.m_shared.m_attack = new Attack();
                         if (WMRecipeCust.showLogs.Value)
                             WMRecipeCust.Dbgl($"   {data.name} Item attacks ");
                         PrimaryItemData.m_shared.m_attack.m_attackType = data.Primary_Attack.AttackType ?? PrimaryItemData.m_shared.m_attack.m_attackType;
@@ -2764,12 +2771,6 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_hitTerrain = data.Primary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_attack.m_hitTerrain;
                         PrimaryItemData.m_shared.m_attack.m_hitFriendly = data.Primary_Attack.Hit_Friendly ?? PrimaryItemData.m_shared.m_attack.m_hitFriendly;
                         PrimaryItemData.m_shared.m_attack.m_isHomeItem = data.Primary_Attack.is_HomeItem ?? PrimaryItemData.m_shared.m_attack.m_isHomeItem;
-                        if (!WMRecipeCust.AttackSpeed.ContainsKey(tempname))
-                        {
-                            WMRecipeCust.AttackSpeed.Add(tempname, new Dictionary<bool, float>());
-                            WMRecipeCust.AttackSpeed[tempname].Add(false, 1); // Just go ahead and add both of them.
-                            WMRecipeCust.AttackSpeed[tempname].Add(true, 1);
-                        }
                         if (data.Primary_Attack.Custom_AttackSpeed != null)
                             WMRecipeCust.AttackSpeed[tempname][false] = (float)data.Primary_Attack.Custom_AttackSpeed;
 
@@ -2944,20 +2945,25 @@ namespace wackydatabase.SetData
                         //WMRecipeCust.Dbgl($"   {data.name} Item AEffectsPLUS ");
                         if (data.Primary_Attack.AEffectsPLUS != null)
                         {
-                            if (data.Primary_Attack.AEffectsPLUS.Hit_Effects.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Hit_Effects?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitEffect, data.Primary_Attack.AEffectsPLUS.Hit_Effects);
-                            if (data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect, data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
-                            if (data.Primary_Attack.AEffectsPLUS.Start_Effect.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Start_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_startEffect, data.Primary_Attack.AEffectsPLUS.Start_Effect);
-                            if (data.Primary_Attack.AEffectsPLUS.Trigger_Effect.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Trigger_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_triggerEffect, data.Primary_Attack.AEffectsPLUS.Trigger_Effect);
-                            if (data.Primary_Attack.AEffectsPLUS.Trail_Effect.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Trail_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffectsPLUS.Trail_Effect);
-                            if (data.Primary_Attack.AEffectsPLUS.Burst_Effect.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Burst_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffectsPLUS.Burst_Effect);
                         }
-                        // Secondary
+                    }
+
+                    if (data.Secondary_Attack != null)
+                    {
+                        if (PrimaryItemData.m_shared.m_secondaryAttack == null)
+                            PrimaryItemData.m_shared.m_secondaryAttack = new Attack();
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackType = data.Secondary_Attack.AttackType ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackType;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation = data.Secondary_Attack.Attack_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations = data.Secondary_Attack.Attack_Random_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations;
@@ -3133,17 +3139,17 @@ namespace wackydatabase.SetData
                         }
                         if (data.Secondary_Attack.AEffectsPLUS != null)
                         {
-                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Effects.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Effects?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Effects);
-                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
-                            if (data.Secondary_Attack.AEffectsPLUS.Start_Effect.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Start_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect, data.Secondary_Attack.AEffectsPLUS.Start_Effect);
-                            if (data.Secondary_Attack.AEffectsPLUS.Trigger_Effect.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Trigger_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect, data.Secondary_Attack.AEffectsPLUS.Trigger_Effect);
-                            if (data.Secondary_Attack.AEffectsPLUS.Trail_Effect.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Trail_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect, data.Secondary_Attack.AEffectsPLUS.Trail_Effect);
-                            if (data.Secondary_Attack.AEffectsPLUS.Burst_Effect.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Burst_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect, data.Secondary_Attack.AEffectsPLUS.Burst_Effect);
 
                         }
