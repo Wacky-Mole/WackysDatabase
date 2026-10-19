@@ -1,7 +1,8 @@
 # Changelog
 
+
 ## 2.5.40
-Changed how attack items are discovered. 
+Changed how attack items are discovered. Added a config for base game to utilize Secondary Attack Eitr - transpiler. 
 ## 2.5.39
 bug fix: more defensive around console commands. 
 ## 2.5.38

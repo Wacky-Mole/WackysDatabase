@@ -60,10 +60,11 @@ namespace wackydatabase
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         internal static readonly ConfigSync ConfigSync = new(ModGUID)
-        { DisplayName = ModName, MinimumRequiredVersion = "2.5.36" }; // it is very picky on version number
+        { DisplayName = ModName, MinimumRequiredVersion = "2.5.40" }; // it is very picky on version number
 
         public static ConfigEntry<string> NexusModID;
         public static ConfigEntry<bool> modEnabled;
+        public static ConfigEntry<bool> independentAttackEitrCosts;
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isautoreload;
         public static ConfigEntry<bool> isDebugString;
@@ -314,6 +315,7 @@ namespace wackydatabase
             // ^^ // starting files
             context = this;
             modEnabled = config<bool>("General", "Enabled", true, "Enable this mod");
+            independentAttackEitrCosts = config<bool>("Combat", "Independent Attack Eitr Costs", true, "Use each attack's own m_eitrCost for primary and secondary attacks, preserving skill-based cost reduction. Takes effect immediately.");
             NexusModID = config<string>("General", "NexusModID", "1825", "NexusModID Number", false);
             isDebug = config<bool>("General", "IsDebug", true, "Enable debug logs", false);
             isDebugString = config<bool>("General", "StringisDebug", false, "Do You want to see the String Debug Log - extra logs");

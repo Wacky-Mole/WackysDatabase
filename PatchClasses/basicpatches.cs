@@ -77,6 +77,38 @@ namespace wackydatabase.PatchClasses
         }
     }
 
+    [HarmonyPatch(typeof(Attack), nameof(Attack.GetAttackEitr), new[] { typeof(Character), typeof(ItemDrop.ItemData) })]
+    internal static class Attack_GetAttackEitr_Patch
+    {
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            var eitrField = AccessTools.Field(typeof(Attack), nameof(Attack.m_attackEitr));
+            var getCost = AccessTools.Method(typeof(Attack_GetAttackEitr_Patch), nameof(GetBaseEitrCost));
+
+            for (var i = 0; i < codes.Count; i++)
+            {
+                if (!codes[i].LoadsField(eitrField))
+                    continue;
+
+                // Vanilla reads the primary attack here, even when executing the secondary attack.
+                codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldarg_0));
+                codes.Insert(i + 2, new CodeInstruction(OpCodes.Call, getCost));
+                return codes;
+            }
+
+            WMRecipeCust.WLog.LogWarning("Failed to patch Attack.GetAttackEitr independent attack costs");
+            return codes;
+        }
+
+        private static float GetBaseEitrCost(float primaryCost, Attack attack)
+        {
+            return WMRecipeCust.modEnabled.Value && WMRecipeCust.independentAttackEitrCosts.Value
+                ? attack.m_attackEitr
+                : primaryCost;
+        }
+    }
+
     [HarmonyPatch(typeof(Attack), nameof(Attack.ModifyDamage))]
     internal static class ModifyDamageWM
     {

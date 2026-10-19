@@ -538,7 +538,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `Hit_Friendly` (bool): Indicates whether the attack can friendly targets. I am not sure what this will do, but have fun. 
 - `Custom_AttackSpeed` (float): This mod keeps track of this adjustment 1.0 is normal speed. 2.0 is twice as fast. Should be compatible with most other mods that increase speed.
 - `m_attackStamina` (float): The stamina cost of the attack.
-- `m_eitrCost` (float): The eitr cost of the attack.
+- `m_eitrCost` (float): The base eitr cost, configured independently under `Primary_Attack` and `Secondary_Attack` when `[Combat] Independent Attack Eitr Costs` is enabled (default: `true`, synced with the server). Disable that config option to use the primary attack's cost for both attacks, as in vanilla; changes take effect immediately without modifying YAML values. Set `0` for a free attack; omit or use null to retain that attack's existing value. The game's skill-based cost reduction still applies.
 - `m_attackAdrenaline` (float): The Adrenaline gained for using attack?
 - `m_attackUseAdrenaline` (float): The Adrenaline cost of the attack.( It doesn't seem like they actually added the code for this yet, I guess the devs thought about it, but never finished it)( It seems to directly restore the Adrenaline at point X.)
 - `AttackHealthCost` (float): The health cost of the attack.
