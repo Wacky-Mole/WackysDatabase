@@ -220,6 +220,8 @@ You will can reference https://valheim-modding.github.io/Jotunn/data/objects/ite
 
 To use the console commands, press F5 in the game to open the game console. Make sure to enable the console for Valheim by adding "-console" to the launch options.
 
+When a local reload finishes, WDB prints `[WackysDatabase]: You finished wackydb reload` to the F5 console as well as the BepInEx log. This does not require Valheim's test logging mode.
+
 - `wackydb_reload`: Reloads all the YML files in the wackysDatabase folder. : This now works for admins on server now. So you could turn off Filewatcher and just do a manual reload on your client and forces all clients to reload. 
 - `wackydb_reload_fast`: Fast reload that may cause game stutter.
 - `wackydb_save_recipe [ItemName]`: Saves a recipe YML in the wackysDatabase Recipe folder.
@@ -243,34 +245,6 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_se_create`: Creates a clone of SetEffect_TrollArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
 - `wackydb_clone [recipe/item/piece/creature/mat/materials/se/pickable/treebase/projectile/aoe] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword` or `wackydb_clone projectile arrow WackyArrow`.
-
-### Item custom-data rules
-
-Export an example from your character, edit the generated file, then use `wackydb_reload`:
-
-```yaml
-name: SwordIron
-applyTo: NewItems
-set:
-  "othermod:effect": "fire"
-  "othermod:power": "25"
-remove:
-  - "othermod:obsolete"
-```
-
-- `ExportOnly` (the export default): keeps a reference snapshot without applying it.
-- `NewItems`: applies to newly created matching items, including crafting, generated loot, and spawning. Loading, picking up, moving, splitting, dropping, or upgrading an existing item does not make it new. Normal copies of existing items retain their data.
-- `AllItems`: also updates existing matching items in your inventory, owned loaded containers, and owned world drops. Offline characters and unloaded storage update when their items are loaded and their owning game instance has the rules. This does not edit offline save files.
-
-Rules target an exact prefab name, including WDB clone names, not every item type. `set` merges only the listed keys; `remove` explicitly deletes listed keys. All other keys are preserved. Values must be strings (quote numbers, booleans, and empty strings). Empty `set: {}` and `remove: []` are valid. A key cannot occur in both lists; duplicate rules for one prefab, null values, unknown fields, and invalid modes are rejected, with the previous rule set retained and an error in the log.
-
-In multiplayer, install and edit rule files on the server, then have an administrator use `wackydb_reload`. Rules are synchronized separately from ordinary item YAML and are applied by the owning client/server. Local client exports do not change server rules. This also works when the dedicated server's prefab-loading option is disabled. Rule files participate in the existing YAML watcher when it is enabled, so editing or exporting can queue a reload; exports reset to `ExportOnly` and therefore do not apply captured data.
-
-Application is event-driven, not enforced every frame: `AllItems` applies once per item per rules reload and again when saved data is restored. Later in-memory changes by another mod are not continuously overwritten. Removing a key from `set`, disabling a rule, or deleting a rule does not undo values already saved to items; use `remove` to erase a key explicitly. Custom data alone does not change stats or visuals unless another system reads those keys.
-
-Custom data belongs to an entire stack. WDB does not change vanilla stacking, capacity checks, or world auto-stacking. Items with different custom data can merge, retaining the destination stack's data and discarding the incoming item's differing values. This also means `NewItems` defaults may be lost when a new item merges into an existing stack. Splitting a stack keeps its custom data. Other mods that create items outside Valheim's normal lifecycle may require compatibility support.
-
-Older exports in `wackysDatabase-ItemInstances` remain export-only and are not loaded as rules; use the new command to generate the new format.
 
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
@@ -511,6 +485,46 @@ Maps are a type of texture file, saved as a .png file. When you clone a material
 
 </details>
 
+<details><summary> Custom Data</summary>
+
+### Item custom-data rules
+
+Export an example from your character, edit the generated file, then use `wackydb_reload`:
+
+```yaml
+name: SwordIron
+applyTo: NewItems
+set:
+  "othermod:effect": "fire"
+  "othermod:power": "25"
+  "othermod:timestamp": "9223372036854775807"
+  "othermod:multiplier": "1.25"
+types:
+  "othermod:power": int
+  "othermod:timestamp": long
+  "othermod:multiplier": float
+remove:
+  - "othermod:obsolete"
+```
+
+- `ExportOnly` (the export default): keeps a reference snapshot without applying it.
+- `NewItems`: applies to newly created matching items, including crafting, generated loot, and spawning. Loading, picking up, moving, splitting, dropping, or upgrading an existing item does not make it new. Normal copies of existing items retain their data.
+- `AllItems`: also updates existing matching items in your inventory, owned loaded containers, and owned world drops. Offline characters and unloaded storage update when their items are loaded and their owning game instance has the rules. This does not edit offline save files.
+
+Rules target an exact prefab name, including WDB clone names, not every item type. `set` merges only the listed keys; `remove` explicitly deletes listed keys. All other keys are preserved. Values must be strings (quote numbers, booleans, and empty strings). Empty `set: {}` and `remove: []` are valid. A key cannot occur in both lists; duplicate rules for one prefab, null values, unknown fields, and invalid modes are rejected, with the previous rule set retained and an error in the log.
+
+Optional `types` entries validate and format individual `set` values: `string` (unchanged), `int` (signed 32-bit), `long` (signed 64-bit), or `float` (finite 32-bit floating point). Type names are case-sensitive. Numeric values use invariant culture (a dot for decimals); integers reject fractions and overflow, and floats use round-trip formatting. Keys without a type remain exact strings, preserving existing rules. Each type key must exist in `set`; invalid types or values reject the entire reload and retain the previous rules. Omit `types` or use `types: {}` for string-only behavior.
+
+Valheim's `m_customData` is still a string dictionary: these hints do not store native numeric types or instruct other mods how to parse them. An int, long, and float can still have identical stored text such as `"25"`; the consuming mod determines its meaning. Exports preserve exact strings and do not guess types, since the original type cannot be recovered reliably. Add hints manually when needed. Floats have single-precision limits; use `long` for large integer IDs/timestamps that must remain exact.
+
+In multiplayer, install and edit rule files on the server, then have an administrator use `wackydb_reload`. Rules are synchronized separately from ordinary item YAML and are applied by the owning client/server. Local client exports do not change server rules. This also works when the dedicated server's prefab-loading option is disabled. Rule files participate in the existing YAML watcher when it is enabled, so editing or exporting can queue a reload; exports reset to `ExportOnly` and therefore do not apply captured data.
+
+Application is event-driven, not enforced every frame: `AllItems` applies once per item per rules reload and again when saved data is restored. Later in-memory changes by another mod are not continuously overwritten. Removing a key from `set`, disabling a rule, or deleting a rule does not undo values already saved to items; use `remove` to erase a key explicitly. Custom data alone does not change stats or visuals unless another system reads those keys.
+
+Custom data belongs to an entire stack. WDB does not change vanilla stacking, capacity checks, or world auto-stacking. Items with different custom data can merge, retaining the destination stack's data and discarding the incoming item's differing values. This also means `NewItems` defaults may be lost when a new item merges into an existing stack. Splitting a stack keeps its custom data. Other mods that create items outside Valheim's normal lifecycle may require compatibility support.
+
+</details>
+
 <details><summary> Item components</summary>
 
 
@@ -540,6 +554,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 
 - `customVisual` (CustomVisual): The custom visual data of the item.
 - `snapshotRotation` ((string) (x,y,z)int,int,int) - Default null - Changes  the angle of snapshot cam. 0-360 degrees. Can do 33,44,55 for example. </br> Very annoying to perfect, but it's an option now for the masochists. 
+- `attachRotation` (string, optional): Overrides the item's equipment rotation with X,Y,Z Euler angles in degrees, such as `attachRotation: "0,90,0"`. Negative and decimal angles are supported; use a dot for decimals. Uses Valheim's `equipoffset` for held weapons/tools, shields, helmets and other standard attachments, including stowed/back attachments. Does not rotate the dropped model, change the attachment bone, or affect skinned chest/leg armour and other visuals equipped through `AttachArmor`. Existing equipment-position offsets are preserved. Omit or set to null to leave the current offset unchanged; `"0,0,0"` sets a neutral equipment-rotation offset. Reload WDB, then unequip/re-equip the item to refresh an existing equipped visual. Saved item YAML includes the current attachment rotation. Like other item YAML settings, this is a prefab setting shared by all matching items, not an individual player's instance.
 -  `snapshotOnMaterialChange` (bool) - Default true - Makes a snapshot on item material change
 - `sizeMultiplier` (string): The size multiplier of the item. You can go from .01 to 1000.5 if you want. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"  Have fun
 - `scale_weight_by_quality` (float): The scaling factor for weight based on quality.

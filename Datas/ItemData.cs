@@ -39,6 +39,8 @@ namespace wackydatabase.Datas
 
         public string? snapshotRotation;
 
+        public string? attachRotation;
+
         public bool? snapshotOnMaterialChange;
 
         public string? sizeMultiplier;

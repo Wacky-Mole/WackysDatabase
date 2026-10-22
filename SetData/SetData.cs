@@ -2156,6 +2156,35 @@ namespace wackydatabase.SetData
 
         #region Items
 
+        private static void ApplyItemAttachRotation(GameObject prefab, string value)
+        {
+            if (value == null)
+                return;
+
+            string[] axes = value.Split(',');
+            if (axes.Length != 3
+                || !float.TryParse(axes[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x)
+                || !float.TryParse(axes[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y)
+                || !float.TryParse(axes[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float z)
+                || float.IsNaN(x) || float.IsInfinity(x)
+                || float.IsNaN(y) || float.IsInfinity(y)
+                || float.IsNaN(z) || float.IsInfinity(z))
+            {
+                WMRecipeCust.WLog.LogWarning($"Item '{prefab.name}': invalid attachRotation '{value}'. Expected three finite angles in degrees, such as '0,90,0'. Attachment rotation was not changed.");
+                return;
+            }
+
+            Transform offset = prefab.transform.Find("equipoffset");
+            if (offset == null)
+            {
+                offset = new GameObject("equipoffset").transform;
+                offset.SetParent(prefab.transform, false);
+                offset.position = Vector3.zero;
+            }
+            // Valheim reads equipoffset in world space after resetting the equipped visual's rotation.
+            offset.rotation = Quaternion.Euler(x, y, z);
+        }
+
         private static GameObject ResolveItemSpawnPrefab(string itemName, string setting, string requestedName, GameObject current, GameObject[] allObjects, bool allowDashDelete = true)
         {
             if (string.IsNullOrEmpty(requestedName))
@@ -2263,6 +2292,7 @@ namespace wackydatabase.SetData
                         }
                         catch (Exception e) { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly: " + e.Message); }
                     }
+                    ApplyItemAttachRotation(newObj, data.attachRotation);
                     return newObj;
                 }
                 else
@@ -2381,6 +2411,7 @@ namespace wackydatabase.SetData
                 if (!WMRecipeCust.ClonedPrefabsMap.ContainsKey(data.name))
                     WMRecipeCust.ClonedPrefabsMap.Add(data.name, data.clonePrefabName); // cache map of source prefab for each clone
 
+                ApplyItemAttachRotation(newItem, data.attachRotation);
                 return newItem;
             }
             return null;
@@ -2765,6 +2796,8 @@ namespace wackydatabase.SetData
                         }
                     }
                
+                    ApplyItemAttachRotation(go, data.attachRotation);
+
                     if ((data.Primary_Attack != null || data.Secondary_Attack != null) && !WMRecipeCust.AttackSpeed.ContainsKey(tempname))
                     {
                         WMRecipeCust.AttackSpeed.Add(tempname, new Dictionary<bool, float> { { false, 1 }, { true, 1 } });

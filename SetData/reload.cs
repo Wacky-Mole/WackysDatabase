@@ -975,7 +975,9 @@ namespace wackydatabase.SetData
 
 
             WMRecipeCust.WLog.LogInfo($" You finished wackydb reload");
-            Terminal.Log($"[{WMRecipeCust.ModName}]: You finished wackydb reload");
+            var console = global::Console.instance;
+            if (console != null)
+                console.Print($"[{WMRecipeCust.ModName}]: You finished wackydb reload");
 
             OnAllReloaded?.Invoke();
 

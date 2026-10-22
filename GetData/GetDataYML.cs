@@ -15,6 +15,7 @@ using System.IO;
 using YamlDotNet.Serialization;
 using System.IO.Ports;
 using System.Configuration;
+using System.Globalization;
 using wackydatabase.Armor;
 
 
@@ -1471,6 +1472,9 @@ namespace wackydatabase.GetData
                 Burst_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_burstEffect?.m_effectPrefabs),
             };
 
+            Transform equipOffset = go.transform.Find("equipoffset");
+            Vector3 attachAngles = equipOffset != null ? equipOffset.rotation.eulerAngles : Vector3.zero;
+
             WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " Main ");
             WItemData ItemData = new WItemData
             {
@@ -1493,6 +1497,7 @@ namespace wackydatabase.GetData
                 m_value = data.m_shared.m_value,
                 scale_weight_by_quality = data.m_shared.m_scaleWeightByQuality,
                 sizeMultiplier = "1", // default scale
+                attachRotation = string.Format(CultureInfo.InvariantCulture, "{0:R},{1:R},{2:R}", attachAngles.x, attachAngles.y, attachAngles.z),
                 m_weight = data.m_shared.m_weight,
                 m_destroyBroken = data.m_shared.m_destroyBroken,
                 m_upgradeChance = data.m_shared.m_upgradeChance,
