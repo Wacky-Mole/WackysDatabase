@@ -225,6 +225,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_save_recipe [ItemName]`: Saves a recipe YML in the wackysDatabase Recipe folder.
 - `wackydb_save_piece [PieceName]`: Saves a piece YML in the wackysDatabase Piece folder.
 - `wackydb_save_item [ItemName]`: Saves an item YML in the wackysDatabase Item folder.
+- `wackydb_save_item_onmyplayer <PrefabName> [match number]`: Exports an inventory item's `m_customData` as an editable rule in `BepInEx\config\wackysDatabase\CustomData\CustomData_<PrefabName>.yml`. Uses prefab names (for example, `SwordIron`), with autocomplete from your inventory. Prefers the matching held weapon/tool; otherwise selects a unique match. If there are multiple matches, lists them with quality, stack count, and custom-data summaries; specify a 1-based match number to choose one, for example `wackydb_save_item_onmyplayer SwordIron 2`. Matches are ordered by inventory row, then column, so rerun the command if you rearrange your inventory. Each export overwrites that prefab's rule and resets it to `ExportOnly`; it never changes the source item. See **Item custom-data rules** below.
 - `wackydb_save_creature [CreatureName]`: Saves a Creature YML in the wackysDatabase Creature folder.
 - `wackydb_save_pickable [pickableOrTreebaseName]`: Saves a Pickable/Treebase YML in the wackysDatabase Pickable folder.
 - `wackydb_save_projectile [ProjectileName]`: Saves a Projectile YML in the wackysDatabase Projectiles folder.
@@ -242,6 +243,34 @@ To use the console commands, press F5 in the game to open the game console. Make
 - `wackydb_se_create`: Creates a clone of SetEffect_TrollArmor in the Status folder. You can edit it as needed.
 - `wackydb_help`: Shows a list of commands.
 - `wackydb_clone [recipe/item/piece/creature/mat/materials/se/pickable/treebase/projectile/aoe] [Prefab to clone] [Unique name for the clone]`: Clones an object and changes it differently than a base game object. For example: `wackydb_clone item SwordIron WackySword` or `wackydb_clone projectile arrow WackyArrow`.
+
+### Item custom-data rules
+
+Export an example from your character, edit the generated file, then use `wackydb_reload`:
+
+```yaml
+name: SwordIron
+applyTo: NewItems
+set:
+  "othermod:effect": "fire"
+  "othermod:power": "25"
+remove:
+  - "othermod:obsolete"
+```
+
+- `ExportOnly` (the export default): keeps a reference snapshot without applying it.
+- `NewItems`: applies to newly created matching items, including crafting, generated loot, and spawning. Loading, picking up, moving, splitting, dropping, or upgrading an existing item does not make it new. Normal copies of existing items retain their data.
+- `AllItems`: also updates existing matching items in your inventory, owned loaded containers, and owned world drops. Offline characters and unloaded storage update when their items are loaded and their owning game instance has the rules. This does not edit offline save files.
+
+Rules target an exact prefab name, including WDB clone names, not every item type. `set` merges only the listed keys; `remove` explicitly deletes listed keys. All other keys are preserved. Values must be strings (quote numbers, booleans, and empty strings). Empty `set: {}` and `remove: []` are valid. A key cannot occur in both lists; duplicate rules for one prefab, null values, unknown fields, and invalid modes are rejected, with the previous rule set retained and an error in the log.
+
+In multiplayer, install and edit rule files on the server, then have an administrator use `wackydb_reload`. Rules are synchronized separately from ordinary item YAML and are applied by the owning client/server. Local client exports do not change server rules. This also works when the dedicated server's prefab-loading option is disabled. Rule files participate in the existing YAML watcher when it is enabled, so editing or exporting can queue a reload; exports reset to `ExportOnly` and therefore do not apply captured data.
+
+Application is event-driven, not enforced every frame: `AllItems` applies once per item per rules reload and again when saved data is restored. Later in-memory changes by another mod are not continuously overwritten. Removing a key from `set`, disabling a rule, or deleting a rule does not undo values already saved to items; use `remove` to erase a key explicitly. Custom data alone does not change stats or visuals unless another system reads those keys.
+
+Custom data belongs to an entire stack. WDB does not change vanilla stacking, capacity checks, or world auto-stacking. Items with different custom data can merge, retaining the destination stack's data and discarding the incoming item's differing values. This also means `NewItems` defaults may be lost when a new item merges into an existing stack. Splitting a stack keeps its custom data. Other mods that create items outside Valheim's normal lifecycle may require compatibility support.
+
+Older exports in `wackysDatabase-ItemInstances` remain export-only and are not loaded as rules; use the new command to generate the new format.
 
 --There is a optional 4th parameter for clone RECIPES ONLY [original item prefab to use for recipe](Optional 4th parameter for a cloned item's recipes ONLY)
 --For example you can already have item WackySword loaded in game, but now want a recipe. WackySword Uses SwordIron  - wackydb_clone recipe WackySword RWackySword SwordIron - otherwise manually edit
@@ -815,6 +844,8 @@ To delete existing
 - `AppendToolTip` (string): (name of item) Appends the tooltip of another item onto this item. Useful for non editable foods etc. (Use "delete" to remove existing.) (This is ignored for feasts, as I have to do it a differnt way)
 - `damageModifiers` (List<string>): The list of damage modifiers for the item.
 
+Item and primary/secondary attack spawn references ignore destroyed Unity objects during reload. If a requested spawn prefab is unavailable, WDB logs the item name, setting, and missing prefab and preserves the current live reference. Missing item-prefab warnings identify both the configured item and the prefab being looked up; check the required content mod and exact prefab name. Failed clone lookups do not rename the YAML entry in memory, so later reloads can retry the same item.
+
 ### DamageModifiers
 The first value is the damage type, the second value is the resistance level.</br>
 Blunt Slash Pierce Chop Pickaxe Physical Fire Frost Lightning Elemental Poison Spirit Water 
@@ -968,7 +999,7 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
     You can chain up to 100 pieces (A before B, B before C) before the logic breaks down. If you reference any non existing prefab, the piece will be added at the end of the list. 
 - `minStationLevel` (int): The minimum level of the crafting station required.
 - `amount` (int): Not Used
-- `disabled` (bool): Indicates whether the piece is disabled.
+- `disabled` (bool): Indicates whether the piece is disabled and not shown in build menu. Reloading an intentionally disabled piece does not produce a missing-piece warning; enabled pieces still warn if their prefab cannot be found.
 - `adminonly` (bool): Indicates whether the piece is admin-only.
 - `comfort` (ComfortData): The comfort data of the piece.
 - `groundPiece` (bool): Indicates whether the piece is a ground piece.

@@ -144,6 +144,7 @@
     <Compile Include="Datas\CreatureData.cs" />
     <Compile Include="Datas\DataHelpers.cs" />
     <Compile Include="Datas\DescriptorData.cs" />
+    <Compile Include="Datas\ItemCustomDataRule.cs" />
     <Compile Include="Datas\ItemData.cs" />
     <Compile Include="Datas\MaterialData.cs" />
     <Compile Include="Datas\PickableData.cs" />
@@ -177,6 +178,7 @@
     <Compile Include="otherAPI\Marketplace_API.cs" />
     <Compile Include="PatchClasses\basicpatches.cs" />
     <Compile Include="PatchClasses\console.cs" />
+    <Compile Include="PatchClasses\ItemCustomData.cs" />
     <Compile Include="PatchClasses\status.cs" />
     <Compile Include="SetData\ObjectSetMock.cs" />
     <Compile Include="SetData\Reload.cs" />
@@ -189,6 +191,7 @@
     <Compile Include="Utility\color.cs" />
     <Compile Include="Utility\ConfigurationManagerAttributes.cs" />
     <Compile Include="Utility\functions.cs" />
+    <Compile Include="Utility\ItemCustomDataManager.cs" />
     <Compile Include="Utility\SpriteTools.cs" />
     <Compile Include="Visuals\DataManagers\DataManager.cs" />
     <Compile Include="Visuals\DataManagers\MaterialDataManager.cs" />

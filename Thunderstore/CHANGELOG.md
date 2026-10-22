@@ -1,6 +1,8 @@
 # Changelog
 
 
+## 2.5.42
+Add additional log for in game console reload. </br> Additional Null checks for SpawnOnHit. </br> Fixed excessive warning for disabled piece.
 ## 2.5.40
 Changed how attack items are discovered. Added a config for base game to utilize Secondary Attack Eitr - transpiler. 
 ## 2.5.39

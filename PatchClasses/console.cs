@@ -36,6 +36,92 @@ namespace wackydatabase.PatchClasses
     [HarmonyPatch(typeof(Terminal), nameof(Terminal.InitTerminal))]
     public static class Console_Patch
     {
+        private static void SaveItemOnPlayer(Terminal.ConsoleEventArgs args)
+        {
+            const string usage = "Usage: wackydb_save_item_onmyplayer <PrefabName> [match number].";
+            Player player = Player.m_localPlayer;
+            if (!player)
+            {
+                args.Context?.AddString("No local player is available. Join a world first.");
+                return;
+            }
+            if (args.Length < 2 || args.Length > 3)
+            {
+                args.Context?.AddString(usage);
+                return;
+            }
+
+            var matches = player.GetInventory().GetAllItems()
+                .Where(item => string.Equals(ItemCustomDataManager.PrefabName(item), args[1], StringComparison.OrdinalIgnoreCase))
+                .OrderBy(item => item.m_gridPos.y).ThenBy(item => item.m_gridPos.x).ToList();
+            if (matches.Count == 0)
+            {
+                args.Context?.AddString($"No {args[1]} is in your inventory. Use the prefab name, not the translated item name.");
+                return;
+            }
+
+            ItemDrop.ItemData item;
+            if (args.Length == 3)
+            {
+                if (!int.TryParse(args[2], out int index) || index < 1 || index > matches.Count)
+                {
+                    args.Context?.AddString($"Match number must be between 1 and {matches.Count}. " + usage);
+                    return;
+                }
+                item = matches[index - 1];
+            }
+            else if (matches.Contains(player.GetCurrentWeapon()))
+            {
+                item = player.GetCurrentWeapon();
+            }
+            else if (matches.Count == 1)
+            {
+                item = matches[0];
+            }
+            else
+            {
+                args.Context?.AddString($"Found {matches.Count} matching items. Hold the intended item or specify its match number:");
+                for (int index = 0; index < matches.Count; index++)
+                {
+                    var match = matches[index];
+                    string summary = string.Join(", ", match.m_customData.OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                        .Select(pair => $"{pair.Key}={pair.Value}"));
+                    summary = summary.Replace("\r", "\\r").Replace("\n", "\\n");
+                    if (summary.Length > 160)
+                        summary = summary.Substring(0, 160) + "...";
+                    args.Context?.AddString($"{index + 1}: quality {match.m_quality}, stack {match.m_stack}, {match.m_customData.Count} custom keys [{summary}]");
+                }
+                args.Context?.AddString(usage);
+                return;
+            }
+
+            string prefab = item.m_dropPrefab.name;
+            string safeName = string.Concat(prefab.Select(character =>
+                Path.GetInvalidFileNameChars().Contains(character) ? '_' : character));
+            string path = Path.Combine(ItemCustomDataManager.RuleDirectory, $"CustomData_{safeName}.yml");
+
+            try
+            {
+                var data = new ItemCustomDataRule
+                {
+                    name = prefab,
+                    set = item.m_customData.OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                        .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal)
+                };
+                data.Validate();
+                string yaml = ItemCustomDataManager.CreateSerializer().Serialize(data);
+                Directory.CreateDirectory(ItemCustomDataManager.RuleDirectory);
+                File.WriteAllText(path, yaml);
+                args.Context?.AddString($"Saved {data.set.Count} custom data entries from {prefab} to {path}. The file is now ExportOnly; the item was not changed. Edit applyTo to NewItems or AllItems and use wackydb_reload to apply it.");
+                if (ZNet.instance && !ZNet.instance.IsServer())
+                    args.Context?.AddString("This is a local export. An administrator must install the rule on the server; local client rules are not applied in multiplayer.");
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is YamlException || ex is ArgumentException)
+            {
+                WMRecipeCust.WLog.LogError($"Failed to export item custom data to {path}: {ex}");
+                args.Context?.AddString($"Could not save item custom data: {ex.Message}");
+            }
+        }
 
         /*
          * 
@@ -127,6 +213,7 @@ namespace wackydatabase.PatchClasses
                         + $"wackydb_save_recipe  [RecipeName](recipe output)\r\n"
                         + $"wackydb_save_piece [PieceName](piece output) \r\n"
                         + $"wackydb_save_item [ItemName](item Output)\r\n"
+                        + $"wackydb_save_item_onmyplayer <PrefabName> [match number] Export instance custom data as an editable rule\r\n"
                         + $"wackydb_save_creature [CreatureName](Creature Output)\r\n"
                         + $"wackydb_save_pickable [PickableName](Pickable Output)\r\n"
                         + $"wackydb_save_material [MaterialName] Save Material Info - Usually has _mat\r\n"
@@ -165,6 +252,7 @@ namespace wackydatabase.PatchClasses
                         + $"wackydb_save_recipe  [RecipeName](recipe output)\r\n"
                         + $"wackydb_save_piece [PieceName](piece output) \r\n"
                         + $"wackydb_save_item [ItemName](item Output)\r\n"
+                        + $"wackydb_save_item_onmyplayer <PrefabName> [match number] Export instance custom data as an editable rule\r\n"
                         + $"wackydb_save_creature [CreatureName](Creature Output)\r\n"
                         + $"wackydb_save_pickable [PickableName](Pickable Output)\r\n"
                         + $"wackydb_save_material [MaterialName] Save Material Info - Usually has _mat\r\n"
@@ -259,7 +347,7 @@ namespace wackydatabase.PatchClasses
 
 
 
-                         args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
+                         //args.Context?.AddString($"WackyDatabase reloaded recipes/items/pieces from files");
                      }
 
                  });
@@ -288,6 +376,14 @@ namespace wackydatabase.PatchClasses
                             return null;
                         });
 
+
+            Terminal.ConsoleCommand WackyItemOnPlayerSave =
+                new("wackydb_save_item_onmyplayer", "<PrefabName> [match number] - Export an inventory item's m_customData as an ExportOnly rule. Prefers the matching held item.",
+                    args => SaveItemOnPlayer(args), isCheat: false, isNetwork: false, onlyServer: false,
+                    isSecret: false, allowInDevBuild: false, hideBehindDevCommands: false,
+                    optionsFetcher: () => Player.m_localPlayer ? Player.m_localPlayer.GetInventory().GetAllItems()
+                        .Where(item => item.m_dropPrefab).Select(item => item.m_dropPrefab.name)
+                        .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(name => name, StringComparer.Ordinal).ToList() : new List<string>());
 
                             Terminal.ConsoleCommand WackyitemSave =
                 new("wackydb_save_item", "Save an Item ",
