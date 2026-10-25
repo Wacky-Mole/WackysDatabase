@@ -3,22 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using ServerSync;
 using UnityEngine;
 using wackydatabase.Datas;
-using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
 namespace wackydatabase
 {
     internal static class ItemCustomDataManager
     {
-        private static readonly CustomSyncedValue<string> SyncedRules = new(WMRecipeCust.ConfigSync, "itemCustomDataRules", "[]");
         private static Dictionary<string, ItemCustomDataRule> rules = new(StringComparer.Ordinal);
         private static readonly ConditionalWeakTable<ItemDrop.ItemData, AppliedRule> Applied = new();
         private static readonly ConditionalWeakTable<Inventory, Container> Containers = new();
         private static int generation;
-        private static string authoritativeYaml = "[]";
 
         [ThreadStatic] internal static int SuppressNewItems;
 
@@ -28,18 +24,16 @@ namespace wackydatabase
             internal Dictionary<string, string>? data;
         }
 
-        internal static string RuleDirectory => Path.Combine(WMRecipeCust.assetPathconfig, "CustomData");
+        internal static string RuleDirectory => WMRecipeCust.assetPathCustomData;
         internal static bool Enabled => WMRecipeCust.modEnabled.Value && !WMRecipeCust.NoMoreLoading;
 
         internal static void Initialize()
         {
-            SyncedRules.ValueChanged += ReadSyncedRules;
             SetData.Reload.OnAllReloaded += ApplyLoadedItems;
         }
 
         internal static void Dispose()
         {
-            SyncedRules.ValueChanged -= ReadSyncedRules;
             SetData.Reload.OnAllReloaded -= ApplyLoadedItems;
             Reset();
         }
@@ -48,101 +42,26 @@ namespace wackydatabase
         {
             rules = new Dictionary<string, ItemCustomDataRule>(StringComparer.Ordinal);
             generation++;
-            // ServerSync restores this value during a full sync before assigning server values.
-            if (ZNet.instance && !ZNet.instance.IsServer())
-                SyncedRules.LocalBaseValue = "[]";
         }
 
         internal static bool IsRuleFile(string path) =>
-            Path.GetFileName(path).StartsWith("CustomData_", StringComparison.OrdinalIgnoreCase);
+            Path.GetFileName(path).StartsWith("CustomData_", StringComparison.OrdinalIgnoreCase)
+            || Path.GetFullPath(path).StartsWith(Path.GetFullPath(RuleDirectory) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+
+        internal static bool IsRuleYaml(string yaml) =>
+            System.Text.RegularExpressions.Regex.IsMatch(yaml, "(?m)^(?:applyTo|\"applyTo\"|'applyTo')\\s*:");
 
         internal static ISerializer CreateSerializer() => new SerializerBuilder()
             .WithNewLine("\n").WithQuotingNecessaryStrings().Build();
 
-        private static Dictionary<string, ItemCustomDataRule> Validate(IEnumerable<ItemCustomDataRule> data)
+        internal static void SetRule(ItemCustomDataRule rule)
         {
-            var result = new Dictionary<string, ItemCustomDataRule>(StringComparer.Ordinal);
-            foreach (var rule in data)
-            {
-                if (rule == null)
-                    throw new ArgumentException("A custom-data rule must not be null.");
-                rule.Validate();
-                if (result.ContainsKey(rule.name))
-                    throw new ArgumentException($"More than one custom-data rule targets {rule.name}.");
-                result.Add(rule.name, rule);
-            }
-            return result;
-        }
-
-        internal static void LoadFromDisk()
-        {
-            if (ZNet.instance && !ZNet.instance.IsServer())
-                return;
-
-            string currentFile = RuleDirectory;
-            Dictionary<string, ItemCustomDataRule> validated;
-            string yaml;
-            try
-            {
-                Directory.CreateDirectory(RuleDirectory);
-                var deserializer = new DeserializerBuilder().Build();
-                var loaded = new List<ItemCustomDataRule>();
-                foreach (string file in Directory.GetFiles(RuleDirectory, "CustomData_*.yml", SearchOption.AllDirectories).OrderBy(path => path, StringComparer.Ordinal))
-                {
-                    currentFile = file;
-                    var rule = deserializer.Deserialize<ItemCustomDataRule>(File.ReadAllText(file));
-                    if (rule == null)
-                        throw new ArgumentException("The custom-data rule is empty.");
-                    loaded.Add(rule);
-                }
-                validated = Validate(loaded);
-                yaml = CreateSerializer().Serialize(loaded);
-            }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is YamlException || ex is ArgumentException)
-            {
-                WMRecipeCust.WLog.LogError($"Custom-data rules were not reloaded; previous rules remain active. File: {currentFile}. {ex.Message}");
-                return;
-            }
-            authoritativeYaml = yaml;
-            SyncedRules.Value = yaml;
-            Activate(validated);
-        }
-
-        private static void ReadSyncedRules()
-        {
-            if (!ZNet.instance || WMRecipeCust.NoMoreLoading)
-                return;
-            if (ZNet.instance.IsServer())
-            {
-                if (SyncedRules.Value != authoritativeYaml)
-                {
-                    WMRecipeCust.WLog.LogWarning("Rejected a client custom-data rule update. Rules must be installed on the server and reloaded by an administrator.");
-                    SyncedRules.Value = authoritativeYaml;
-                }
-                return;
-            }
-            Dictionary<string, ItemCustomDataRule> validated;
-            try
-            {
-                var loaded = new DeserializerBuilder().Build().Deserialize<List<ItemCustomDataRule>>(SyncedRules.Value);
-                if (loaded == null)
-                    throw new ArgumentException("The synchronized custom-data rule list is null.");
-                validated = Validate(loaded);
-            }
-            catch (Exception ex) when (ex is YamlException || ex is ArgumentException)
-            {
-                WMRecipeCust.WLog.LogError($"Synchronized custom-data rules were rejected; previous rules remain active. {ex.Message}");
-                return;
-            }
-            Activate(validated);
-        }
-
-        private static void Activate(Dictionary<string, ItemCustomDataRule> loaded)
-        {
-            rules = loaded.Where(pair => pair.Value.applyTo != ItemCustomDataScope.ExportOnly)
-                .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-            generation++;
-            ApplyLoadedItems();
+            if (rule == null)
+                throw new ArgumentException("A custom-data rule must not be null.");
+            rule.Validate();
+            if (rules.ContainsKey(rule.name))
+                throw new ArgumentException($"More than one custom-data rule targets {rule.name}.");
+            rules.Add(rule.name, rule);
         }
 
         internal static string? PrefabName(ItemDrop.ItemData item) => item.m_dropPrefab ? item.m_dropPrefab.name : null;

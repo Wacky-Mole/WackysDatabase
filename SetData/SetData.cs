@@ -2156,6 +2156,8 @@ namespace wackydatabase.SetData
 
         #region Items
 
+        internal static void SetItemCustomData(ItemCustomDataRule data) => ItemCustomDataManager.SetRule(data);
+
         private static void ApplyItemAttachRotation(GameObject prefab, string value)
         {
             if (value == null)

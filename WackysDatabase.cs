@@ -104,6 +104,7 @@ namespace wackydatabase
 
         public static List<RecipeData> recipeDatasYml = new List<RecipeData>();
         public static List<WItemData> itemDatasYml = new List<WItemData>();
+        public static List<ItemCustomDataRule> customDataDatasYml = new List<ItemCustomDataRule>();
         public static List<PieceData> pieceDatasYml = new List<PieceData>();
         public static List<ArmorData> armorDatasYml = new List<ArmorData>();
         public static List<StatusData> effectDataYml = new List<StatusData>();
@@ -137,6 +138,7 @@ namespace wackydatabase
         internal static string assetPath;
         internal static string assetPathconfig;
         internal static string assetPathItems;
+        internal static string assetPathCustomData;
         internal static string assetPathRecipes;
         internal static string assetPathPieces;
         internal static string assetPathTextures;
@@ -221,6 +223,7 @@ namespace wackydatabase
             assetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wackysDatabase");
             assetPathconfig = Path.Combine(Path.GetDirectoryName(Paths.ConfigPath + Path.DirectorySeparatorChar), "wackysDatabase");
             assetPathItems = Path.Combine(assetPathconfig, "Items");
+            assetPathCustomData = Path.Combine(assetPathconfig, "CustomData");
             assetPathRecipes = Path.Combine(assetPathconfig, "Recipes");
             assetPathPieces = Path.Combine(assetPathconfig, "Pieces");
             assetPathMaterials = Path.Combine(assetPathconfig, "Materials");
@@ -428,6 +431,12 @@ namespace wackydatabase
                 Directory.CreateDirectory(assetPathItems);
             }
 
+            if (!Directory.Exists(assetPathCustomData))
+            {
+                Dbgl("Creating CustomData Folder");
+                Directory.CreateDirectory(assetPathCustomData);
+            }
+
             if (!Directory.Exists(assetPathPieces))
             {
                 Dbgl("Creating Pieces Folder");
@@ -536,11 +545,7 @@ namespace wackydatabase
 
                 SetData.Reload josh = new SetData.Reload();
                 WMRecipeCust.CurrentReload = josh;
-                WMRecipeCust.skillConfigData.Value = ymlstring;// push to clients after disk read completes
-                WMRecipeCust.WLog.LogInfo("Sent YML to clients");
-
-                if (WMRecipeCust.ServerDedLoad.Value)
-                    yield return WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true)); // Admin Reload
+                yield return WMRecipeCust.context.StartCoroutine(josh.LoadAllRecipeData(true, true, true)); // Read once, publish once, then apply enabled object setters.
             }
             finally
             {

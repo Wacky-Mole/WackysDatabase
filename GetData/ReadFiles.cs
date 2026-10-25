@@ -100,8 +100,7 @@ namespace wackydatabase.Read
                     WMRecipeCust.CurrentReload = new SetData.Reload();
                 }
 
-                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
-                yield return WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true));
+                yield return WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true, true));
             }
             finally
             {
@@ -144,6 +143,7 @@ namespace wackydatabase.Read
             //wackydatabase.WMRecipeCust.WLog.LogWarning("Running Get DataFromFiles");
             WMRecipeCust.recipeDatasYml.Clear();
             WMRecipeCust.itemDatasYml.Clear();
+            WMRecipeCust.customDataDatasYml.Clear();
             WMRecipeCust.pieceDatasYml.Clear();
             WMRecipeCust.creatureDatasYml.Clear();
             WMRecipeCust.pieceWithLvl.Clear(); // ready for new
@@ -232,6 +232,23 @@ namespace wackydatabase.Read
             */
 
 
+
+            foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "*.yml", SearchOption.AllDirectories) // custom Data Reading
+                .Where(ItemCustomDataManager.IsRuleFile).OrderBy(path => path, StringComparer.Ordinal))
+            {
+                var ymlread = File.ReadAllText(file);
+                if (ItemCustomDataManager.IsRuleYaml(ymlread))
+                {
+                    yaml.Load<ItemCustomDataRule>(file, WMRecipeCust.customDataDatasYml, ymlread);
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWaitforRead && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
+            }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "?tem_*.yml", SearchOption.AllDirectories))
             {
@@ -344,8 +361,7 @@ namespace wackydatabase.Read
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "*.yml", SearchOption.AllDirectories)
-                .Where(file => !ItemCustomDataManager.IsRuleFile(file)
-                    && Path.GetFileNameWithoutExtension(file).IndexOf("projectile", StringComparison.OrdinalIgnoreCase) >= 0))
+                .Where(file => Path.GetFileNameWithoutExtension(file).IndexOf("projectile", StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 yaml.Load<ProjectileData>(file, WMRecipeCust.projectileDatasYml);
 
@@ -358,8 +374,7 @@ namespace wackydatabase.Read
             }
 
             foreach (string file in Directory.GetFiles(WMRecipeCust.assetPathconfig, "*.yml", SearchOption.AllDirectories)
-                .Where(file => !ItemCustomDataManager.IsRuleFile(file)
-                    && Path.GetFileNameWithoutExtension(file).IndexOf("aoe", StringComparison.OrdinalIgnoreCase) >= 0))
+                .Where(file => Path.GetFileNameWithoutExtension(file).IndexOf("aoe", StringComparison.OrdinalIgnoreCase) >= 0))
             {
 
                 yaml.Load<AoeData>(file, WMRecipeCust.aoeDatasYml);
@@ -418,7 +433,6 @@ namespace wackydatabase.Read
             GetAllTextures();
 
             WMRecipeCust.LockReload = false;
-            ItemCustomDataManager.LoadFromDisk();
             if (slowmode)
             {
                 WMRecipeCust.WLog.LogInfo($"Finished SLOW Reading");

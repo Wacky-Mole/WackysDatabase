@@ -107,17 +107,6 @@ namespace wackydatabase.PatchClasses
         private static void Prefix(Inventory __instance) => ItemCustomDataManager.ApplyInventory(__instance);
     }
 
-    [HarmonyPatch(typeof(ZNet), nameof(ZNet.Awake))]
-    internal static class ItemCustomDataWorldStart
-    {
-        [HarmonyPriority(Priority.Last)]
-        private static void Postfix(ZNet __instance)
-        {
-            ItemCustomDataManager.Reset();
-            if (__instance.IsServer())
-                ItemCustomDataManager.LoadFromDisk();
-        }
-    }
 
     [HarmonyPatch(typeof(ZNet), nameof(ZNet.Shutdown))]
     internal static class ItemCustomDataWorldEnd
