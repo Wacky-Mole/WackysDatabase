@@ -499,10 +499,6 @@ set:
   "othermod:power": "25"
   "othermod:timestamp": "9223372036854775807"
   "othermod:multiplier": "1.25"
-types:
-  "othermod:power": int
-  "othermod:timestamp": long
-  "othermod:multiplier": float
 remove:
   - "othermod:obsolete"
 ```
@@ -513,9 +509,7 @@ remove:
 
 Rules target an exact prefab name, including WDB clone names, not every item type. `set` merges only the listed keys; `remove` explicitly deletes listed keys. All other keys are preserved. Values must be strings (quote numbers, booleans, and empty strings). Empty `set: {}` and `remove: []` are valid. A key cannot occur in both lists; duplicate rules for one prefab, null values, unknown fields, and invalid modes are rejected, with the previous rule set retained and an error in the log.
 
-Optional `types` entries validate and format individual `set` values: `string` (unchanged), `int` (signed 32-bit), `long` (signed 64-bit), or `float` (finite 32-bit floating point). Type names are case-sensitive. Numeric values use invariant culture (a dot for decimals); integers reject fractions and overflow, and floats use round-trip formatting. Keys without a type remain exact strings, preserving existing rules. Each type key must exist in `set`; invalid types or values reject the entire reload and retain the previous rules. Omit `types` or use `types: {}` for string-only behavior.
-
-Valheim's `m_customData` is still a string dictionary: these hints do not store native numeric types or instruct other mods how to parse them. An int, long, and float can still have identical stored text such as `"25"`; the consuming mod determines its meaning. Exports preserve exact strings and do not guess types, since the original type cannot be recovered reliably. Add hints manually when needed. Floats have single-precision limits; use `long` for large integer IDs/timestamps that must remain exact.
+Valheim's `m_customData` is a string dictionary. WDB preserves values exactly without numeric conversion; the consuming mod decides how to interpret them. There is no `types` option. Remove any previously added `types` section from rule files before reloading.
 
 In multiplayer, install and edit rule files on the server, then have an administrator use `wackydb_reload`. Rules are synchronized separately from ordinary item YAML and are applied by the owning client/server. Local client exports do not change server rules. This also works when the dedicated server's prefab-loading option is disabled. Rule files participate in the existing YAML watcher when it is enabled, so editing or exporting can queue a reload; exports reset to `ExportOnly` and therefore do not apply captured data.
 

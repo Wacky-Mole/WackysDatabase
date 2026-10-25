@@ -1,7 +1,9 @@
 # Changelog
 
 
-## 2.5.42
+## 2.6.10
+Big Update, You can now save and edit m_customData for items. - Use wackydb_save_item_onmyplayer to save a prefab's custom data in the new Folder.</br>
+This should allow for finetuning more modded items.</br>
 Add additional log for in game console reload. </br> Additional Null checks for SpawnOnHit. </br> Fixed excessive warning for disabled piece. </br> Added attached rotation attachRotation to items.
 ## 2.5.40
 Changed how attack items are discovered. Added a config for base game to utilize Secondary Attack Eitr - transpiler. 
