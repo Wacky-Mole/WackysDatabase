@@ -225,7 +225,7 @@ To use the console commands, press F5 in the game to open the game console. Make
 
 When a local reload finishes, WDB prints `[WackysDatabase]: You finished wackydb reload` to the F5 console as well as the BepInEx log. This does not require Valheim's test logging mode.
 
-- `wackydb_reload`: Reloads all the YML files in the wackysDatabase folder. : This now works for admins on server now. So you could turn off Filewatcher and just do a manual reload on your client and forces all clients to reload. 
+- `wackydb_reload`: Reloads all the YML files in the wackysDatabase folder without causing lockup. - Slowly. Can be done live by admins. 
 - `wackydb_reload_fast`: Fast reload that may cause game stutter.
 - `wackydb_save_recipe [ItemName]`: Saves a recipe YML in the wackysDatabase Recipe folder.
 - `wackydb_save_piece [PieceName]`: Saves a piece YML in the wackysDatabase Piece folder.
@@ -341,27 +341,6 @@ Feel free to removed the cache folder for big changes, but try to leave it for n
 
 </br>
 
-## Loading Order
-
-This only really applies to other mods and sometimes server admins
-
-Wackydb mod will load towards the end of the startup but that doesn't matter. The question is where to load the files and clones.
-
-Too early and you won't get the files from the server/ Too late and you miss out on generating important things. 
-
-Cache clones are loaded in ZNetScene.Awake and ObjectDB.awake
-
-Dedicated Servers (With DedLoad ON) and Servers( COOP server) and SOLO Clients load at ZoneSystem.Start [HarmonyPriority(Priority.HigherThanNormal)]
-
-Connecting Clients load at Game._RequestRespawn [HarmonyPriority(Priority.Low)] ( always consistent is pretty important)
-
-Console wackydb_reload - Slow Mode  /_fast - always reload immediately. 
-
-Anyway, it's hard to find a good spot so that you touch all base objects and not too late to add the clones.
-
-Use wackydb_reload for servers, slow reloads all clients without noticable stutter, fast reload is good for singleplayer or if you don't care about stutter.
-
-</br>
 
 </details>
 
@@ -485,7 +464,6 @@ Maps are a type of texture file, saved as a .png file. When you clone a material
 </br></br>https://valheim-modding.Prefab material listgithub.io/Jotunn/data/prefabs/material-list.html
 
 
-
 </details>
 
 <details><summary> Custom Data</summary>
@@ -524,11 +502,6 @@ Rules target an exact prefab name, including WDB clone names, not every item typ
 
 Valheim's `m_customData` is a string dictionary. WDB preserves values exactly without numeric conversion; the consuming mod decides how to interpret them.
 
-In multiplayer, install and edit rule files on the server, then have an administrator use `wackydb_reload`. Rules are applied by the owning client/server. Local client exports do not change server rules. 
-
-Application is event-driven, not enforced every frame: `AllItems` applies once per item per rules reload and again when saved data is restored. Later in-memory changes by another mod are not continuously overwritten. Removing a key from `set`, disabling a rule, or deleting a rule does not undo values already saved to items; use `remove` to erase a key explicitly. Custom data alone does not change stats or visuals unless another system reads those keys.
-
-Custom data belongs to an entire stack. WDB does not change vanilla stacking, capacity checks, or world auto-stacking. Items with different custom data can merge, retaining the destination stack's data and discarding the incoming item's differing values. This also means `NewItems` defaults may be lost when a new item merges into an existing stack. Splitting a stack keeps its custom data. Other mods that create items outside Valheim's normal lifecycle may require compatibility support.
 
 </details>
 
@@ -1266,7 +1239,6 @@ Changing this dramtically allows the obliterator/incinerator to become a recycle
 
 - `name` (string): The name of the fuel item.
 
-
 ### Fireplace
 
 - `StartFuel` (float): How much fuel the piece starts with with you first build it.
@@ -1317,7 +1289,6 @@ Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 </details>
 
 <details><summary> Recipe Components</summary>
-
 
 ## Recipes
 
@@ -1708,63 +1679,16 @@ This system is not well tested, so please give me feedback and submit bug report
 
 2.3.1, I made default material as wood. I think it can be overwritten, but I am unsure.
 
-
-
 </details>
-
-<details><summary>Full Features</summary>
-
-Planned features
-- [x] Able to modify item data.
-- [x] Able to modify recipes.
-- [x] Able to modify pieces.
-- [x] Able to modify materials on clones
-- [x] Custom items/pieces
-- [x] Custom recipes
-- [x] Able to modify Set effects
-- [x] Cloned Items show up on MainScreen
-- [x] Adjust attack values of items
-- [x] Able to add or remove conversions on smelter pieces
-- [x] Able to change the size of anything
-Wackymole
-
-</details>
-
 
 
 <details><summary>Feedback</summary>
-
 
 For questions or suggestions please join discord channel: [Odin Plus Team](https://discord.gg/jkcJCq2sK5) or my discord at [Wolf Den](https://discord.gg/uPjjH8y52j)
 
 Support me at https://www.buymeacoffee.com/WackyMole  or https://ko-fi.com/wackymole
 
-<a href="https://www.buymeacoffee.com/WackyMole" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
-<a href='https://ko-fi.com/H2H6LL5GA' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
-
-<img src="https://wackymole.com/hosts/bmc_qr.png" width="100"/>
-
 </details> 
-
-<details><summary> Last notes</summary>
-
-## Last notes:
-
- This mod loads at various places to ensure that it can touch all objects while allowing other mods to touch some wackydb clones.
-
- The primary purpose of this mod is to edit objects, not to create clones/mocks. - This is less true in 2.0
-
- A mispelling like "Like <colorz = blue> Hi</color>?" or dmg modifier that is wrong can break Azu show container contents
-
-(Note!: If you want the game to have default values, close the game and delete the wackysDatabase folder).
-
-If you null out piece WearNTearData, unexpected things might happen to your world. 
-
-</br>
-</details>
-
-
 
 <details><summary>Credits</summary>
 
@@ -1781,10 +1705,5 @@ This mod was the culmination of hundreds of hours.
 Do whatever you want with this mod.
 </details>
 
-Known issues: </br>
- </br>
- </br>
- </br>
- Making any piece into a craftingstation is a bit buggy. (It's really at the limit to what wackydb can do without Unity)
- </br>
+
 Stay Wacky.
