@@ -190,7 +190,9 @@ namespace wackydatabase.SetData
                     continue;
 
                 var targetField = componentType.GetField(sourceField.Name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-                if (targetField != null && targetField.FieldType == sourceField.FieldType)
+                // Non-null Nullable<T> values are boxed as T; null means keep the prefab value.
+                Type sourceType = Nullable.GetUnderlyingType(sourceField.FieldType) ?? sourceField.FieldType;
+                if (targetField != null && targetField.FieldType == sourceType)
                     targetField.SetValue(component, value);
             }
         }
@@ -930,6 +932,10 @@ namespace wackydatabase.SetData
 
         internal static void SetPieceRecipeData(PieceData data, ObjectDB Instant, GameObject[] AllObjects = null, bool cloneonly = false)
         {
+            bool disabledForPlayer = data.disabled == true || (data.adminonly == true && !WMRecipeCust.Admin);
+            if (disabledForPlayer && DisabledPieceandHam.Keys.Any(disabledPiece => disabledPiece != null && disabledPiece.name == data.name))
+                return;
+
             bool skip = false;
             foreach (var citem in WMRecipeCust.ClonedP)
             {
@@ -963,7 +969,8 @@ namespace wackydatabase.SetData
                         }
                         if (go == null)
                         {
-                            WMRecipeCust.WLog.LogWarning($"Piece {data.name} not found! 4 layer search"); // usual end
+                            if (!disabledForPlayer)
+                                WMRecipeCust.WLog.LogWarning($"Piece {data.name} not found! 4 layer search"); // usual end
                            /* if (skip)
                             {
                                 data.name = data.clonePrefabName;
@@ -1010,15 +1017,8 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl("Piece data not found!");
                 return;
             }
-            if (DisabledPieceandHam.ContainsKey(go))
-            {
-                if (data.disabled == true)
-                    return;
-
-                if (data.adminonly == true && !WMRecipeCust.Admin)
-                    return;
-
-            } 
+            if (DisabledPieceandHam.ContainsKey(go) && disabledForPlayer)
+                return;
 
             if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // object is a clone do clonethings
             {
@@ -2156,6 +2156,61 @@ namespace wackydatabase.SetData
 
         #region Items
 
+        internal static void SetItemCustomData(ItemCustomDataRule data) => ItemCustomDataManager.SetRule(data);
+
+        private static void ApplyItemAttachRotation(GameObject prefab, string value)
+        {
+            if (value == null)
+                return;
+
+            string[] axes = value.Split(',');
+            if (axes.Length != 3
+                || !float.TryParse(axes[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x)
+                || !float.TryParse(axes[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y)
+                || !float.TryParse(axes[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float z)
+                || float.IsNaN(x) || float.IsInfinity(x)
+                || float.IsNaN(y) || float.IsInfinity(y)
+                || float.IsNaN(z) || float.IsInfinity(z))
+            {
+                WMRecipeCust.WLog.LogWarning($"Item '{prefab.name}': invalid attachRotation '{value}'. Expected three finite angles in degrees, such as '0,90,0'. Attachment rotation was not changed.");
+                return;
+            }
+
+            Transform offset = prefab.transform.Find("equipoffset");
+            if (offset == null)
+            {
+                offset = new GameObject("equipoffset").transform;
+                offset.SetParent(prefab.transform, false);
+                offset.position = Vector3.zero;
+            }
+            // Valheim reads equipoffset in world space after resetting the equipped visual's rotation.
+            offset.rotation = Quaternion.Euler(x, y, z);
+        }
+
+        private static GameObject ResolveItemSpawnPrefab(string itemName, string setting, string requestedName, GameObject current, GameObject[] allObjects, bool allowDashDelete = true)
+        {
+            if (string.IsNullOrEmpty(requestedName))
+                return current;
+            if (requestedName == "delete" || (allowDashDelete && requestedName == "-"))
+                return null;
+            if (current != null && current.name == requestedName)
+                return current;
+
+            GameObject found = null;
+            foreach (GameObject candidate in allObjects ?? Resources.FindObjectsOfTypeAll<GameObject>())
+            {
+                if (candidate == null || candidate.name != requestedName)
+                    continue;
+                if (found == null || candidate.TryGetComponent<MonsterAI>(out _) || candidate.TryGetComponent<AnimalAI>(out _))
+                    found = candidate;
+            }
+            if (found != null)
+                return found;
+
+            WMRecipeCust.WLog.LogWarning($"Item '{itemName}': prefab '{requestedName}' for {setting} was not found among live objects. Keeping the current setting.");
+            return current != null ? current : null;
+        }
+
         internal static GameObject SetClonedItemsDataCache(WItemData data, ObjectDB Instant, bool WithZDO = false) // need to add mock items as well I guess
         {
             bool skip = false;
@@ -2239,6 +2294,7 @@ namespace wackydatabase.SetData
                         }
                         catch (Exception e) { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly: " + e.Message); }
                     }
+                    ApplyItemAttachRotation(newObj, data.attachRotation);
                     return newObj;
                 }
                 else
@@ -2251,22 +2307,17 @@ namespace wackydatabase.SetData
             if (!skip)
             {
                 string tempname = data.name;
-                if (!string.IsNullOrEmpty(data.clonePrefabName))
-                {
-                    data.name = data.clonePrefabName;
-                }
-                else
-                {
+                string lookupName = data.clonePrefabName;
+                if (string.IsNullOrEmpty(lookupName))
                     return null;
-                }
 
-                GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
+                GameObject go = DataHelpers.CheckforSpecialObjects(lookupName);// check for special cases
                 if (go == null)
-                    go = Instant.GetItemPrefab(data.name); // normal check
+                    go = Instant.GetItemPrefab(lookupName); // normal check
 
                 if (go == null)
                 {
-                    WMRecipeCust.WLog.LogWarning(" item is null " + data.name);
+                    WMRecipeCust.WLog.LogWarning($"Cached item '{tempname}' could not be loaded: source prefab '{lookupName}' was not found. Check required mods and prefab names.");
                     return null;
                 }
                 if (go.GetComponent<ItemDrop>() == null)
@@ -2359,10 +2410,10 @@ namespace wackydatabase.SetData
                     catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
                 }
                 WMRecipeCust.ClonedI.Add(tempname);
-                data.name = tempname; // putting back name
                 if (!WMRecipeCust.ClonedPrefabsMap.ContainsKey(data.name))
                     WMRecipeCust.ClonedPrefabsMap.Add(data.name, data.clonePrefabName); // cache map of source prefab for each clone
 
+                ApplyItemAttachRotation(newItem, data.attachRotation);
                 return newItem;
             }
             return null;
@@ -2483,31 +2534,28 @@ namespace wackydatabase.SetData
             }
             
             string tempname = data.name;
-            if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip)
-            {
-                data.name = data.clonePrefabName;
-            }
+            string lookupName = !string.IsNullOrEmpty(data.clonePrefabName) && !skip ? data.clonePrefabName : tempname;
 
-            GameObject go = DataHelpers.CheckforSpecialObjects(data.name);// check for special cases
+            GameObject go = DataHelpers.CheckforSpecialObjects(lookupName);// check for special cases
             if (go == null)
-                go = Instant.GetItemPrefab(data.name); // normal check
+                go = Instant.GetItemPrefab(lookupName); // normal check
 
             if (go == null && !string.IsNullOrEmpty(data.clonePrefabName))
             {
                 go = Instant.GetItemPrefab(data.clonePrefabName);
                 if (go != null)
                 {
-                    WMRecipeCust.WLog.LogInfo($"Last ditch effort to catch {data.name} worked, restoring clone");
+                    WMRecipeCust.WLog.LogInfo($"Source prefab '{data.clonePrefabName}' was found; restoring clone '{tempname}'.");
                     skip = false;
-                    WMRecipeCust.ClonedI.Remove(data.name);
-                    data.name = data.clonePrefabName;
+                    WMRecipeCust.ClonedI.Remove(tempname);
+                    lookupName = data.clonePrefabName;
                 }
             }
            // WMRecipeCust.WLog.LogWarning("Stable Hash " + go.name.GetStableHashCode());
 
             if (go == null)
             {
-                WMRecipeCust.WLog.LogWarning("Item is null " + data.name);
+                WMRecipeCust.WLog.LogWarning($"Item '{tempname}' could not be loaded: prefab '{lookupName}' was not found. Check required mods and prefab names.");
                 return;
             }
             if (go.GetComponent<ItemDrop>() == null)
@@ -2523,7 +2571,7 @@ namespace wackydatabase.SetData
 
             for (int i = Instant.m_items.Count - 1; i >= 0; i--)  // need to handle clones
             {
-                if (Instant.m_items[i] == go || Instant.m_items[i]?.name == go.name)
+                if (Instant.m_items[i] != null && (Instant.m_items[i] == go || Instant.m_items[i].name == go.name))
                 {
                     ItemDrop.ItemData PrimaryItemData = Instant.m_items[i].GetComponent<ItemDrop>().m_itemData;
                     if (!string.IsNullOrEmpty(data.clonePrefabName) && !skip) // clone setup for new clones
@@ -2574,7 +2622,6 @@ namespace wackydatabase.SetData
                         go = Instant.GetItemPrefab(tempname);
                         PrimaryItemData = go.GetComponent<ItemDrop>().m_itemData; // get ready to set stuff
                         PrimaryItemData.m_dropPrefab = go;
-                        data.name = tempname; // putting back name
                         go.SetActive(true);
                     } // end clone creation
                     if (skip || mockskip)
@@ -2751,8 +2798,17 @@ namespace wackydatabase.SetData
                         }
                     }
                
+                    ApplyItemAttachRotation(go, data.attachRotation);
+
+                    if ((data.Primary_Attack != null || data.Secondary_Attack != null) && !WMRecipeCust.AttackSpeed.ContainsKey(tempname))
+                    {
+                        WMRecipeCust.AttackSpeed.Add(tempname, new Dictionary<bool, float> { { false, 1 }, { true, 1 } });
+                    }
+
                     if (data.Primary_Attack != null)
                     {
+                        if (PrimaryItemData.m_shared.m_attack == null)
+                            PrimaryItemData.m_shared.m_attack = new Attack();
                         if (WMRecipeCust.showLogs.Value)
                             WMRecipeCust.Dbgl($"   {data.name} Item attacks ");
                         PrimaryItemData.m_shared.m_attack.m_attackType = data.Primary_Attack.AttackType ?? PrimaryItemData.m_shared.m_attack.m_attackType;
@@ -2762,12 +2818,6 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_hitTerrain = data.Primary_Attack.Hit_Terrain ?? PrimaryItemData.m_shared.m_attack.m_hitTerrain;
                         PrimaryItemData.m_shared.m_attack.m_hitFriendly = data.Primary_Attack.Hit_Friendly ?? PrimaryItemData.m_shared.m_attack.m_hitFriendly;
                         PrimaryItemData.m_shared.m_attack.m_isHomeItem = data.Primary_Attack.is_HomeItem ?? PrimaryItemData.m_shared.m_attack.m_isHomeItem;
-                        if (!WMRecipeCust.AttackSpeed.ContainsKey(tempname))
-                        {
-                            WMRecipeCust.AttackSpeed.Add(tempname, new Dictionary<bool, float>());
-                            WMRecipeCust.AttackSpeed[tempname].Add(false, 1); // Just go ahead and add both of them.
-                            WMRecipeCust.AttackSpeed[tempname].Add(true, 1);
-                        }
                         if (data.Primary_Attack.Custom_AttackSpeed != null)
                             WMRecipeCust.AttackSpeed[tempname][false] = (float)data.Primary_Attack.Custom_AttackSpeed;
 
@@ -2797,26 +2847,8 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_attackRange = data.Primary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_attack.m_attackRange;
                         PrimaryItemData.m_shared.m_attack.m_attackHeight = data.Primary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_attack.m_attackHeight;
 
-                        if (!string.IsNullOrEmpty(data.Primary_Attack.Spawn_On_Trigger) && (data.Primary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger?.name))
-                        {
-                            if (data.Primary_Attack.Spawn_On_Trigger == "delete" || data.Primary_Attack.Spawn_On_Trigger == "-")
-                            {
-                                PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = null;
-                            }
-                            GameObject found = null;
-                            foreach (var ob in AllObjects)
-                            {
-                                if (ob.name == data.Primary_Attack.Spawn_On_Trigger)
-                                {
-                                    if (found == null)
-                                        found = ob;
-                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                        found = ob;
-                                    else { }
-                                }
-                            }
-                            PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger;
-                        }
+                        PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger = ResolveItemSpawnPrefab(data.name, "Primary_Attack.Spawn_On_Trigger",
+                            data.Primary_Attack.Spawn_On_Trigger, PrimaryItemData.m_shared.m_attack.m_spawnOnTrigger, AllObjects);
                         PrimaryItemData.m_shared.m_attack.m_cantUseInDungeon = data.Primary_Attack.cant_Use_InDungeon ?? PrimaryItemData.m_shared.m_attack.m_cantUseInDungeon;
 
                         PrimaryItemData.m_shared.m_attack.m_requiresReload = data.Primary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_attack.m_requiresReload;
@@ -2861,37 +2893,8 @@ namespace wackydatabase.SetData
                         }
                         PrimaryItemData.m_shared.m_attack.m_resetChainIfHit = data.Primary_Attack.Reset_Chain_If_hit ?? PrimaryItemData.m_shared.m_attack.m_resetChainIfHit;
 
-                        if (!string.IsNullOrEmpty(data.Primary_Attack.SpawnOnHit) && (data.Primary_Attack.SpawnOnHit != PrimaryItemData.m_shared.m_attack.m_spawnOnHit?.name))
-                        {
-                            if (data.Primary_Attack.SpawnOnHit == "delete" || data.Primary_Attack.SpawnOnHit == "-")
-                            {
-                                PrimaryItemData.m_shared.m_attack.m_spawnOnHit = null;
-                            }
-                            else
-                            {
-                                if (WMRecipeCust.showLogs.Value)
-                                    WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit m_attack added ");
-                                GameObject found = null;
-                                try
-                                {
-                                    foreach (var ob in AllObjects)
-                                    {
-
-
-                                        if (ob.name == data.Primary_Attack.SpawnOnHit)
-                                        {
-                                            if (found == null)
-                                                found = ob;
-                                            else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                                found = ob;
-                                            else { }
-                                        }
-                                    }
-                                }
-                                catch (Exception ex) { WMRecipeCust.WLog.LogInfo("Error catch " + ex); }
-                                PrimaryItemData.m_shared.m_attack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHit;
-                            }
-                        }
+                        PrimaryItemData.m_shared.m_attack.m_spawnOnHit = ResolveItemSpawnPrefab(data.name, "Primary_Attack.SpawnOnHit",
+                            data.Primary_Attack.SpawnOnHit, PrimaryItemData.m_shared.m_attack.m_spawnOnHit, AllObjects);
 
                         PrimaryItemData.m_shared.m_attack.m_spawnOnHitChance = data.Primary_Attack.SpawnOnHit_Chance ?? PrimaryItemData.m_shared.m_attack.m_spawnOnHitChance;
                         
@@ -2942,20 +2945,25 @@ namespace wackydatabase.SetData
                         //WMRecipeCust.Dbgl($"   {data.name} Item AEffectsPLUS ");
                         if (data.Primary_Attack.AEffectsPLUS != null)
                         {
-                            if (data.Primary_Attack.AEffectsPLUS.Hit_Effects.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Hit_Effects?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitEffect, data.Primary_Attack.AEffectsPLUS.Hit_Effects);
-                            if (data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_hitTerrainEffect, data.Primary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
-                            if (data.Primary_Attack.AEffectsPLUS.Start_Effect.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Start_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_startEffect, data.Primary_Attack.AEffectsPLUS.Start_Effect);
-                            if (data.Primary_Attack.AEffectsPLUS.Trigger_Effect.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Trigger_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_triggerEffect, data.Primary_Attack.AEffectsPLUS.Trigger_Effect);
-                            if (data.Primary_Attack.AEffectsPLUS.Trail_Effect.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Trail_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_trailStartEffect, data.Primary_Attack.AEffectsPLUS.Trail_Effect);
-                            if (data.Primary_Attack.AEffectsPLUS.Burst_Effect.Length > 0)
+                            if (data.Primary_Attack.AEffectsPLUS.Burst_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_attack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_attack.m_burstEffect, data.Primary_Attack.AEffectsPLUS.Burst_Effect);
                         }
-                        // Secondary
+                    }
+
+                    if (data.Secondary_Attack != null)
+                    {
+                        if (PrimaryItemData.m_shared.m_secondaryAttack == null)
+                            PrimaryItemData.m_shared.m_secondaryAttack = new Attack();
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackType = data.Secondary_Attack.AttackType ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackType;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation = data.Secondary_Attack.Attack_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAnimation;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations = data.Secondary_Attack.Attack_Random_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRandomAnimations;
@@ -2991,26 +2999,8 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange = data.Secondary_Attack.AttackRange ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackRange;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight = data.Secondary_Attack.AttackHeight ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackHeight;
 
-                        if (!string.IsNullOrEmpty(data.Secondary_Attack.Spawn_On_Trigger) && (data.Secondary_Attack.Spawn_On_Trigger != PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger?.name))
-                        {
-                            if (data.Secondary_Attack.Spawn_On_Trigger == "delete" || data.Secondary_Attack.Spawn_On_Trigger == "-")
-                            {
-                                PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = null;
-                            }
-                            GameObject found = null;
-                            foreach (var ob in AllObjects)
-                            {
-                                if (ob.name == data.Secondary_Attack.Spawn_On_Trigger)
-                                {
-                                    if (found == null)
-                                        found = ob;
-                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                        found = ob;
-                                    else { }
-                                }
-                            }
-                            PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger;
-                        }
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger = ResolveItemSpawnPrefab(data.name, "Secondary_Attack.Spawn_On_Trigger",
+                            data.Secondary_Attack.Spawn_On_Trigger, PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnTrigger, AllObjects);
                         PrimaryItemData.m_shared.m_secondaryAttack.m_cantUseInDungeon = data.Secondary_Attack.cant_Use_InDungeon ?? PrimaryItemData.m_shared.m_secondaryAttack.m_cantUseInDungeon;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload = data.Secondary_Attack.Requires_Reload ?? PrimaryItemData.m_shared.m_secondaryAttack.m_requiresReload;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation = data.Secondary_Attack.Reload_Animation ?? PrimaryItemData.m_shared.m_secondaryAttack.m_reloadAnimation;
@@ -3055,35 +3045,8 @@ namespace wackydatabase.SetData
                         }
                         PrimaryItemData.m_shared.m_secondaryAttack.m_resetChainIfHit = data.Secondary_Attack.Reset_Chain_If_hit ?? PrimaryItemData.m_shared.m_secondaryAttack.m_resetChainIfHit;
 
-                        if (!string.IsNullOrEmpty(data.Secondary_Attack.SpawnOnHit) && (data.Secondary_Attack.SpawnOnHit != PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit?.name))
-                        {
-                            if (data.Secondary_Attack.SpawnOnHit == "delete" || data.Secondary_Attack.SpawnOnHit == "-")
-                            {
-                                PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit = null;
-                            }
-                            else
-                            {
-                                if (WMRecipeCust.showLogs.Value)
-                                    WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit m_secondaryAttack added ");
-                                GameObject found = null;
-                                try
-                                {
-                                    foreach (var ob in AllObjects)
-                                    {
-                                        if (ob.name == data.Secondary_Attack.SpawnOnHit)
-                                        {
-                                            if (found == null)
-                                                found = ob;
-                                            else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                                found = ob;
-                                            else { }
-                                        }
-                                    }
-                                }
-                                catch (Exception ex) { WMRecipeCust.WLog.LogInfo("Error catch " + ex); }
-                                PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit;
-                            }
-                        }
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit = ResolveItemSpawnPrefab(data.name, "Secondary_Attack.SpawnOnHit",
+                            data.Secondary_Attack.SpawnOnHit, PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHit, AllObjects);
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHitChance = data.Secondary_Attack.SpawnOnHit_Chance ?? PrimaryItemData.m_shared.m_secondaryAttack.m_spawnOnHitChance;
                         
@@ -3131,17 +3094,17 @@ namespace wackydatabase.SetData
                         }
                         if (data.Secondary_Attack.AEffectsPLUS != null)
                         {
-                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Effects.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Effects?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Effects);
-                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_hitTerrainEffect, data.Secondary_Attack.AEffectsPLUS.Hit_Terrain_Effects);
-                            if (data.Secondary_Attack.AEffectsPLUS.Start_Effect.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Start_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_startEffect, data.Secondary_Attack.AEffectsPLUS.Start_Effect);
-                            if (data.Secondary_Attack.AEffectsPLUS.Trigger_Effect.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Trigger_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_triggerEffect, data.Secondary_Attack.AEffectsPLUS.Trigger_Effect);
-                            if (data.Secondary_Attack.AEffectsPLUS.Trail_Effect.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Trail_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_trailStartEffect, data.Secondary_Attack.AEffectsPLUS.Trail_Effect);
-                            if (data.Secondary_Attack.AEffectsPLUS.Burst_Effect.Length > 0)
+                            if (data.Secondary_Attack.AEffectsPLUS.Burst_Effect?.Length > 0)
                                 PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect = FindEffect(PrimaryItemData.m_shared.m_secondaryAttack.m_burstEffect, data.Secondary_Attack.AEffectsPLUS.Burst_Effect);
 
                         }
@@ -3346,65 +3309,10 @@ namespace wackydatabase.SetData
                         WMRecipeCust.SEWeaponChoice.Add(data.name, new Tuple<string,float, string, float>( data.Primary_Attack.Attack_status_effect ?? "", data.Primary_Attack.Attack_status_effect_chance ?? 0, data.Secondary_Attack.Attack_status_effect ?? "", data.Secondary_Attack.Attack_status_effect_chance ?? 0));
                     }
 
-                    if (!string.IsNullOrEmpty(data.spawn_on_hit) && (data.spawn_on_hit != PrimaryItemData.m_shared.m_spawnOnHit?.name))
-                    {
-                        if (data.spawn_on_hit == "delete")
-                        {
-                            if (WMRecipeCust.showLogs.Value)
-                                WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit deleted ");
-                            PrimaryItemData.m_shared.m_spawnOnHit = null;
-                        }
-                        else
-                        {
-                            if (WMRecipeCust.showLogs.Value)
-                                WMRecipeCust.Dbgl($"   {data.name} SpawnOnHit Main added ");
-                            GameObject found = null;
-                            try
-                            {
-                                foreach (var ob in AllObjects)
-                                {
-                                    if (ob.name == data.spawn_on_hit)
-                                    {
-                                        if (found == null)
-                                            found = ob;
-                                        else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                            found = ob;
-                                        else { }
-                                    }
-                                }
-                            }
-                            catch (Exception ex) { WMRecipeCust.WLog.LogInfo("Error catch " + ex); }
-                            PrimaryItemData.m_shared.m_spawnOnHit = found ?? PrimaryItemData.m_shared.m_spawnOnHit;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(data.spawn_on_terrain_hit) && (data.spawn_on_terrain_hit != PrimaryItemData.m_shared.m_spawnOnHitTerrain?.name))
-                    {
-                        if (data.spawn_on_terrain_hit == "delete")
-                        {
-                            if (WMRecipeCust.showLogs.Value)
-                                WMRecipeCust.Dbgl($"   {data.name} spawn_on_terrain_hit deleted ");
-                            PrimaryItemData.m_shared.m_spawnOnHitTerrain = null;
-                        }
-                        else
-                        {
-                            if (WMRecipeCust.showLogs.Value)
-                                WMRecipeCust.Dbgl($"   {data.name} SpawnOnHitTerrain added ");
-                            GameObject found = null;
-                            foreach (var ob in AllObjects)
-                            {
-                                if (ob.name == data.spawn_on_terrain_hit)
-                                {
-                                    if (found == null)
-                                        found = ob;
-                                    else if (ob.TryGetComponent<MonsterAI>(out var an1) || ob.TryGetComponent<AnimalAI>(out var an2))
-                                        found = ob;
-                                    else { }
-                                }
-                            }
-                            PrimaryItemData.m_shared.m_spawnOnHitTerrain = found ?? PrimaryItemData.m_shared.m_spawnOnHitTerrain;
-                        }
-                    }
+                    PrimaryItemData.m_shared.m_spawnOnHit = ResolveItemSpawnPrefab(data.name, "spawn_on_hit",
+                        data.spawn_on_hit, PrimaryItemData.m_shared.m_spawnOnHit, AllObjects, false);
+                    PrimaryItemData.m_shared.m_spawnOnHitTerrain = ResolveItemSpawnPrefab(data.name, "spawn_on_terrain_hit",
+                        data.spawn_on_terrain_hit, PrimaryItemData.m_shared.m_spawnOnHitTerrain, AllObjects, false);
                     PrimaryItemData.m_shared.m_useDurability = data.m_useDurability ?? PrimaryItemData.m_shared.m_useDurability;
                     PrimaryItemData.m_shared.m_useDurabilityDrain = data.m_useDurabilityDrain ?? PrimaryItemData.m_shared.m_useDurabilityDrain;
                     // WMRecipeCust.WLog.LogWarning($"use Durabilty is " + data.m_useDurability); // test temp

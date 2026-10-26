@@ -15,6 +15,7 @@ using System.IO;
 using YamlDotNet.Serialization;
 using System.IO.Ports;
 using System.Configuration;
+using System.Globalization;
 using wackydatabase.Armor;
 
 
@@ -298,15 +299,18 @@ namespace wackydatabase.GetData
 
         internal  RecipeData GetRecipeDataByName(string name, ObjectDB tod)
         {
+            if (string.IsNullOrWhiteSpace(name) || !tod)
+                return null;
+
             GameObject go = DataHelpers.CheckforSpecialObjects(name);// check for special cases
             if (go == null)
                 go = tod.GetItemPrefab(name);
 
-            if (go == null)
+            if (go == null && tod.m_recipes != null)
             {
                 foreach (Recipe recipes in tod.m_recipes)
                 {
-                    if (!(recipes.m_item == null) && recipes.name == name)
+                    if (recipes != null && recipes.m_item != null && recipes.name == name)
                     {
                         WMRecipeCust.Dbgl($"An actual Recipe_ {name} has been found!-- Only Modification - No Cloning");
                         return GetRecip(recipes, tod, false);
@@ -320,7 +324,14 @@ namespace wackydatabase.GetData
                 return null; //GetPieceRecipeByName(name);
             }
 
-            ItemDrop.ItemData item = go.GetComponent<ItemDrop>().m_itemData;
+            ItemDrop itemDrop = go.GetComponent<ItemDrop>();
+            if (!itemDrop)
+            {
+                WMRecipeCust.Dbgl($"Prefab {name} is not an item; use wackydb_save_piece for building pieces.");
+                return null;
+            }
+
+            ItemDrop.ItemData item = itemDrop.m_itemData;
             if (item == null)
             {
                 WMRecipeCust.Dbgl("Item data not found!");
@@ -1343,6 +1354,17 @@ namespace wackydatabase.GetData
             } catch { WMRecipeCust.WLog.LogWarning(" One Effect returned null - be careful with last item " ); return null; }
         }
 
+        private static bool HasExportableAttack(Attack? attack)
+        {
+            // Attacks belong to ItemDrop shared data, not to a prefab component.
+            // Support zero-damage spells without treating default Attack objects as configured attacks.
+            return attack != null &&
+                (!string.IsNullOrEmpty(attack.m_attackAnimation) ||
+                 attack.m_attackProjectile != null ||
+                 attack.m_spawnOnTrigger != null ||
+                 attack.m_spawnOnHit != null);
+        }
+
         private WItemData GetItem(GameObject go, ObjectDB tod) {
             if (go == null)
             {
@@ -1359,9 +1381,11 @@ namespace wackydatabase.GetData
 
             ItemDrop.ItemData data = itemDrop.m_itemData;
 
-            bool hasdmg = false;
+            // Export a complete editable combat template for detected weapons, even when
+            // their damage is supplied by projectiles and their secondary slot is unused.
+            bool hasdmg = HasExportableAttack(data.m_shared.m_attack) || HasExportableAttack(data.m_shared.m_secondaryAttack);
             WDamages damages = null;
-            if (data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
+            if (hasdmg || data.m_shared.m_damages.m_blunt > 0f || data.m_shared.m_damages.m_chop > 0f || data.m_shared.m_damages.m_damage > 0f || data.m_shared.m_damages.m_fire > 0f || data.m_shared.m_damages.m_frost > 0f || data.m_shared.m_damages.m_lightning > 0f || data.m_shared.m_damages.m_pickaxe > 0f || data.m_shared.m_damages.m_pierce > 0f || data.m_shared.m_damages.m_poison > 0f || data.m_shared.m_damages.m_slash > 0f || data.m_shared.m_damages.m_spirit > 0f)
             {
                 WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " damage on ");
                 hasdmg = true;
@@ -1382,7 +1406,7 @@ namespace wackydatabase.GetData
                 };
             }
             WDamages damagesPerLevel = null;
-            if (data.m_shared.m_damagesPerLevel.m_blunt > 0f || data.m_shared.m_damagesPerLevel.m_chop > 0f || data.m_shared.m_damagesPerLevel.m_damage > 0f || data.m_shared.m_damagesPerLevel.m_fire > 0f || data.m_shared.m_damagesPerLevel.m_frost > 0f || data.m_shared.m_damagesPerLevel.m_lightning > 0f || data.m_shared.m_damagesPerLevel.m_pickaxe > 0f || data.m_shared.m_damagesPerLevel.m_pierce > 0f || data.m_shared.m_damagesPerLevel.m_poison > 0f || data.m_shared.m_damagesPerLevel.m_slash > 0f || data.m_shared.m_damagesPerLevel.m_spirit > 0f)
+            if (hasdmg || data.m_shared.m_damagesPerLevel.m_blunt > 0f || data.m_shared.m_damagesPerLevel.m_chop > 0f || data.m_shared.m_damagesPerLevel.m_damage > 0f || data.m_shared.m_damagesPerLevel.m_fire > 0f || data.m_shared.m_damagesPerLevel.m_frost > 0f || data.m_shared.m_damagesPerLevel.m_lightning > 0f || data.m_shared.m_damagesPerLevel.m_pickaxe > 0f || data.m_shared.m_damagesPerLevel.m_pierce > 0f || data.m_shared.m_damagesPerLevel.m_poison > 0f || data.m_shared.m_damagesPerLevel.m_slash > 0f || data.m_shared.m_damagesPerLevel.m_spirit > 0f)
             {
                 damagesPerLevel = new WDamages
                 {
@@ -1448,6 +1472,9 @@ namespace wackydatabase.GetData
                 Burst_Effect = ConvertEffectstoVerse(data.m_shared.m_secondaryAttack?.m_burstEffect?.m_effectPrefabs),
             };
 
+            Transform equipOffset = go.transform.Find("equipoffset");
+            Vector3 attachAngles = equipOffset != null ? equipOffset.rotation.eulerAngles : Vector3.zero;
+
             WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " Main ");
             WItemData ItemData = new WItemData
             {
@@ -1470,6 +1497,7 @@ namespace wackydatabase.GetData
                 m_value = data.m_shared.m_value,
                 scale_weight_by_quality = data.m_shared.m_scaleWeightByQuality,
                 sizeMultiplier = "1", // default scale
+                attachRotation = string.Format(CultureInfo.InvariantCulture, "{0:R},{1:R},{2:R}", attachAngles.x, attachAngles.y, attachAngles.z),
                 m_weight = data.m_shared.m_weight,
                 m_destroyBroken = data.m_shared.m_destroyBroken,
                 m_upgradeChance = data.m_shared.m_upgradeChance,
@@ -1524,19 +1552,9 @@ namespace wackydatabase.GetData
                 };
                 ItemData.SE_SET_Equip = SE_SET_Equip2;
             }
-            if(go.name == "StaffShield" || go.name == "StaffSkeleton" ||  go.name == "StaffRedTroll") // for the special cases
-                hasdmg = true;
 
-            if (go.TryGetComponent<Attack>(out var attackcheck) )
-            {
-                if (attackcheck != null)
-                {
-                    if (attackcheck.m_attackAnimation != null || attackcheck.m_attackAnimation != "")
-                        hasdmg = true;
-                }
-            }
-
-            if (hasdmg)
+            // Include unused attack slots as templates without inventing an attack animation.
+            if (data.m_shared.m_attack != null && hasdmg)
             {
                 WMRecipeCust.Dbgl("Item " + go.GetComponent<ItemDrop>().name + " attack ");
                 AttackArm Primary_Attack = new AttackArm
@@ -1629,7 +1647,11 @@ namespace wackydatabase.GetData
 
                     AEffectsPLUS = aEffects,
                 };
+                ItemData.Primary_Attack = Primary_Attack;
+            }
 
+            if (data.m_shared.m_secondaryAttack != null && hasdmg)
+            {
                 AttackArm Secondary_Attack = new AttackArm
                 {
                     AttackType = data.m_shared.m_secondaryAttack.m_attackType,
@@ -1714,7 +1736,6 @@ namespace wackydatabase.GetData
 
                     AEffectsPLUS = sEffects,
                 };
-                ItemData.Primary_Attack = Primary_Attack;
                 ItemData.Secondary_Attack = Secondary_Attack;
 
             }

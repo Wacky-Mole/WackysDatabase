@@ -53,6 +53,62 @@ namespace wackydatabase.PatchClasses
         }
     }
 
+    [HarmonyPatch(typeof(Aoe), nameof(Aoe.Setup))]
+    internal static class Aoe_Setup_PreserveStatusEffect_Patch
+    {
+        private static void Prefix(Aoe __instance, HitData hitData, out (int Hash, string Name) __state)
+        {
+            __state = default;
+            if (!WMRecipeCust.modEnabled.Value || !__instance.m_useAttackSettings
+                || hitData == null || hitData.m_statusEffectHash != 0)
+                return;
+
+            __state = (__instance.m_statusEffectHash, __instance.m_statusEffect);
+        }
+
+        private static void Postfix(Aoe __instance, (int Hash, string Name) __state)
+        {
+            if (__state.Hash == 0)
+                return;
+
+            // Attack settings without a status effect must not erase the AOE's native effect.
+            __instance.m_statusEffectHash = __state.Hash;
+            __instance.m_statusEffect = __state.Name;
+        }
+    }
+
+    [HarmonyPatch(typeof(Attack), nameof(Attack.GetAttackEitr), new[] { typeof(Character), typeof(ItemDrop.ItemData) })]
+    internal static class Attack_GetAttackEitr_Patch
+    {
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            var eitrField = AccessTools.Field(typeof(Attack), nameof(Attack.m_attackEitr));
+            var getCost = AccessTools.Method(typeof(Attack_GetAttackEitr_Patch), nameof(GetBaseEitrCost));
+
+            for (var i = 0; i < codes.Count; i++)
+            {
+                if (!codes[i].LoadsField(eitrField))
+                    continue;
+
+                // Vanilla reads the primary attack here, even when executing the secondary attack.
+                codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldarg_0));
+                codes.Insert(i + 2, new CodeInstruction(OpCodes.Call, getCost));
+                return codes;
+            }
+
+            WMRecipeCust.WLog.LogWarning("Failed to patch Attack.GetAttackEitr independent attack costs");
+            return codes;
+        }
+
+        private static float GetBaseEitrCost(float primaryCost, Attack attack)
+        {
+            return WMRecipeCust.modEnabled.Value && WMRecipeCust.independentAttackEitrCosts.Value
+                ? attack.m_attackEitr
+                : primaryCost;
+        }
+    }
+
     [HarmonyPatch(typeof(Attack), nameof(Attack.ModifyDamage))]
     internal static class ModifyDamageWM
     {

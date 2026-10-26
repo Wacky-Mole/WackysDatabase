@@ -96,6 +96,7 @@ namespace wackydatabase.SetData
                 WMRecipeCust.pieceWithLvl.Clear(); 
                 WMRecipeCust.recipeDatasYml.Clear();
                 WMRecipeCust.itemDatasYml.Clear();
+                WMRecipeCust.customDataDatasYml.Clear();
                 WMRecipeCust.pieceDatasYml.Clear();
                 WMRecipeCust.effectDataYml.Clear();
                 WMRecipeCust.cacheItemsYML.Clear();
@@ -135,6 +136,7 @@ namespace wackydatabase.SetData
 
                         try
                         {
+
                             if (word.Contains("m_weight")) //item
                             {
                                 WMRecipeCust.itemDatasYml.Add(deserializer.Deserialize<WItemData>(word));
@@ -170,6 +172,10 @@ namespace wackydatabase.SetData
                             {
                             WMRecipeCust.projectileDatasYml.Add(deserializer.Deserialize<ProjectileData>(word));
                             }
+                            else if (ItemCustomDataManager.IsRuleYaml(word)) // custom data
+                            {
+                                WMRecipeCust.customDataDatasYml.Add(deserializer.Deserialize<ItemCustomDataRule>(word));
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -199,6 +205,7 @@ namespace wackydatabase.SetData
                 else
                 {
                     WMRecipeCust.WLog.LogWarning("Synced String was blank " + SyncedString);
+                    ItemCustomDataManager.Reset();
                     CompleteSyncReload();
                 }
             }
@@ -584,6 +591,7 @@ namespace wackydatabase.SetData
 
         internal IEnumerator LoadAllRecipeData(bool reload, bool slowmode = false, bool forcepush= false) // same as LoadAllRecipeData except broken into chunks// maybe replace?
         {
+            bool pushToClients = forcepush;
 
             if (reload)
             {
@@ -605,12 +613,18 @@ namespace wackydatabase.SetData
 
                 if (WMRecipeCust.IsDedServer)
                 {
-                    WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
-                }else if (WMRecipeCust.LobbyRegistered) // COOP
-                {
-                   // WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring; // doesn't fire because lobbyReg happens after reload
+                    pushToClients = true;
                 }
             }           
+
+            while (WMRecipeCust.LockReload)
+                yield return new WaitForSeconds(1f);
+
+            if (pushToClients && ZNet.instance != null && ZNet.instance.IsServer())
+            {
+                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+                WMRecipeCust.WLog.LogInfo("Sent YML to clients");
+            }
 
             if (!WMRecipeCust.ServerDedLoad.Value && WMRecipeCust.IsDedServer)
                 yield break;
@@ -624,11 +638,6 @@ namespace wackydatabase.SetData
 
             if (slowmode)
             {
-                while (WMRecipeCust.LockReload)
-                {
-                    yield return new WaitForSeconds(1f);
-                }
-
                 WMRecipeCust.WLog.LogInfo($"Beginning SLOW Update");
 
             }
@@ -636,12 +645,28 @@ namespace wackydatabase.SetData
                 WMRecipeCust.WLog.LogInfo($"Beginning Update");
 
 
-            if (forcepush)
+            int processcount = 0;
+            WMRecipeCust.WLog.LogInfo("Setting CustomData");
+            ItemCustomDataManager.Reset();
+            foreach (var data in WMRecipeCust.customDataDatasYml)
             {
-                WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+                try
+                {
+                    SetData.SetItemCustomData(data);
+                }
+                catch (ArgumentException ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Set custom data for {data?.name} failed: {ex.Message}");
+                }
+
+                processcount++;
+                if (processcount > WMRecipeCust.ProcessWait && slowmode)
+                {
+                    yield return new WaitForSeconds(WMRecipeCust.WaitTime);
+                    processcount = 0;
+                }
             }
 
-            int processcount = 0;
             // effects first
             foreach (var data in WMRecipeCust.effectDataYml) // recipes last
             {
@@ -975,6 +1000,9 @@ namespace wackydatabase.SetData
 
 
             WMRecipeCust.WLog.LogInfo($" You finished wackydb reload");
+            var console = global::Console.instance;
+            if (console != null)
+                console.Print($"[{WMRecipeCust.ModName}]: You finished wackydb reload");
 
             OnAllReloaded?.Invoke();
 
