@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -51,11 +52,16 @@ namespace wackydatabase.Datas {
                     items.Add(result);
                     return true;
                 }
-            } catch(Exception ex)
+            }
+            catch (YamlException ex)
+            {
+                WMRecipeCust.WLog.LogError($"Something went wrong in file {file} at line {ex.Start.Line}, column {ex.Start.Column}");
+                WMRecipeCust.WLog.LogError(ex.Message);
+            }
+            catch (Exception ex)
             {
                 WMRecipeCust.WLog.LogError("Something went wrong in file " + file);
                 WMRecipeCust.WLog.LogError(ex.Message);
-                
             }
 
             return false;

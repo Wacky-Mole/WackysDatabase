@@ -261,7 +261,7 @@ namespace wackydatabase.Startup
 
         public static bool CheckSecurity()
         {
-            if (WMRecipeCust.extraSecurity.Value && WMRecipeCust.ForceLogout  )
+            if (WMRecipeCust.IsExtraSecurityEnabled && WMRecipeCust.ForceLogout  )
             { 
                 WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
                 WMRecipeCust.WLog.LogError("You ARE kicked from Multiplayer Servers! " +" 0.0.1");

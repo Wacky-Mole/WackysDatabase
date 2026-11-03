@@ -385,7 +385,7 @@ namespace wackydatabase.SetData
         {
             if (!ZNet.instance.IsServer())// for everyone not the server
             {
-                if (WMRecipeCust.extraSecurity.Value)
+                if (WMRecipeCust.IsExtraSecurityEnabled)
                 {
                     WMRecipeCust.WLog.LogInfo("Removing SinglePlayer Clones not in Multiplayer Server");
                     foreach (var item in WMRecipeCust.MasterCloneList)
