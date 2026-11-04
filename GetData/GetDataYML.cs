@@ -845,7 +845,7 @@ namespace wackydatabase.GetData
                 spaceRequirement = piece.m_spaceRequirement,
                 repairPiece = piece.m_repairPiece,
                 isUpgrade = piece.m_isUpgrade,
-                usage = piece.m_usage,
+                usage = PieceManager.PiecePrefabManager.GetUsageString(piece),
                 blockingPieces = piece.m_blockingPieces?.Where(blockingPiece => blockingPiece != null).Select(blockingPiece => Utils.GetPrefabName(blockingPiece.gameObject)).ToList(),
                 canRockJade = piece.m_canRockJade,
                 build = new List<string>(),

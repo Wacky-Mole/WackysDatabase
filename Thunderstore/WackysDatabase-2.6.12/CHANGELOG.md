@@ -1,6 +1,12 @@
 # Changelog
 
 
+## 2.6.12
+Updated documenation and code for Usage and piecehammerCategory to show you can set custom categories. Wackydb virtual system allows more valheim limits. 
+
+## 2.6.11
+Added Line number to YAML error. </br> Added bug fix for ExtraSecurity if it is off on server. 
+
 ## 2.6.10
 Big Update, You can now save and edit m_customData for items. - Use wackydb_save_item_onmyplayer to save a prefab's custom data in the new Folder.</br>
 This should allow for finetuning more modded items.</br>

@@ -989,7 +989,7 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `material` (string):  Visit Material Section and Custom Visual Section
 - `damagedMaterial` (string): The material of the piece when damaged.
 - `craftingStation` (string): The crafting station required to craft the piece.
-- `piecehammerCategory` (string): The category of the piece hammer.
+- `piecehammerCategory` (string): The category of the piece hammer. (This is not really used anymore, but you can still use it to create a custom category. See Custom Piece Categories below.))
 - `categoryOrderBeforePrefab` (string): The unique prefab name of the piece you want your modded or vanilla piece to appear BEFORE in the build menu. Example: wood_wall_half is placed before wood_wall
     You can chain up to 100 pieces (A before B, B before C) before the logic breaks down. If you reference any non existing prefab, the piece will be added at the end of the list. 
 - `minStationLevel` (int): The minimum level of the crafting station required.
@@ -1011,7 +1011,7 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `spaceRequirement` (float): Minimum free-space radius required around the piece for placement.
 - `repairPiece` (bool): Marks this as a repair action/tool piece. ???
 - `isUpgrade` (bool): Marks this piece as an upgrade placement for another structure.
-- `usage` (Piece.UsageTagFlags): Build-menu usage filters. Available categories are `Misc`, `Crafting`, `Building`, `Floor`, `Wall`, `Roof`, `Architecture`, `Furniture`, `Lighting`, `Decor`, `Storage`, `Transport`, `Food`, `Meads`, `Feasts`, `Defense`, `Stacks`, `Stairs`, `Doors`, and `Seasonal`. Multiple categories can be combined with commas, such as `Building, Wall` or `Furniture, Decor`.
+- `usage` (string): Build-menu usage filters. Built-in categories are `Misc`, `Crafting`, `Building`, `Floor`, `Wall`, `Roof`, `Architecture`, `Furniture`, `Lighting`, `Decor`, `Storage`, `Transport`, `Food`, `Meads`, `Feasts`, `Defense`, `Stacks`, `Stairs`, `Doors`, and `Seasonal`. Combine multiple built-in tags or custom filter names with commas, such as `Building, Wall, Masonry`.
 - `blockingPieces` (List<string>): Prefab names of pieces that block placement of this piece. An empty list clears the existing blockers.
 - `canRockJade` (bool): Allows this piece to participate in Valheim's jade rocking interaction behavior. ???
 - `wearNTearData` (WearNTearData): The wear and tear data of the piece.
@@ -1034,6 +1034,43 @@ build:
 You can also force a zero-cost requirement line:
 - Wood:0:0:True
 
+#### Custom Piece Categories and Usage Filters
+
+Use `usage` by itself to assign a piece to one or more built-in **By Usage** filters; it does not require `piecehammerCategory`:
+
+```yaml
+usage: Building, Wall
+```
+
+To create a custom **By Usage** filter, use a new name in `usage` on any piece. You can also create the filter by setting `piecehammerCategory` to a new name on a piece whose `usage` is unset. Other pieces can join the same custom filter by using its name in `usage`, even if they have a different `piecehammerCategory`. You can combine custom names with built-in usage tags:
+
+Declares the Masonry filter and puts this piece in the Masonry build category:
+
+```yaml
+name: Piece_CustomStone
+piecehammer: Hammer
+piecehammerCategory: Masonry
+```
+
+Another piece can join Masonry without changing its build category:
+
+```yaml
+name: Piece_OtherMasonry
+piecehammer: Hammer
+piecehammerCategory: Building
+usage: Masonry
+```
+
+A piece can match built-in and custom filters at the same time:
+
+```yaml
+name: Piece_MasonryWall
+piecehammer: Hammer
+piecehammerCategory: Building
+usage: Building, Wall, Masonry
+```
+
+Custom names in `usage` are matched case-insensitively. Built-in usage tags remain available as listed above.
 
 ### ComfortData
 

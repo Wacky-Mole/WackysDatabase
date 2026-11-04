@@ -20,7 +20,7 @@ namespace wackydatabase.Datas
         public string? damagedMaterial;
         public string? craftingStation;
         public string? piecehammerCategory;
-        public Piece.UsageTagFlags? usage;
+        public string? usage;
         public string? categoryOrderBeforePrefab;
         public int? minStationLevel;
         //public int? amount;

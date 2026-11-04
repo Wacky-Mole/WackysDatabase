@@ -55,7 +55,7 @@ namespace wackydatabase.Datas {
             }
             catch (YamlException ex)
             {
-                WMRecipeCust.WLog.LogError($"Something went wrong in file {file} at line {ex.Start.Line}, column {ex.Start.Column}");
+                WMRecipeCust.WLog.LogError($"Something went wrong in file {file} at line {ex.Start.Line}, char {ex.Start.Column}");
                 WMRecipeCust.WLog.LogError(ex.Message);
             }
             catch (Exception ex)

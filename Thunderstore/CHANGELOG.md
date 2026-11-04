@@ -1,6 +1,9 @@
 # Changelog
 
 
+## 2.6.12
+Updated documenation and code for Usage and piecehammerCategory to show you can set custom categories. Wackydb virtual system allows more valheim limits. 
+
 ## 2.6.11
 Added Line number to YAML error. </br> Added bug fix for ExtraSecurity if it is off on server. 
 

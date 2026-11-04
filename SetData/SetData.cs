@@ -1567,9 +1567,11 @@ namespace wackydatabase.SetData
             pi.m_spaceRequirement = data.spaceRequirement ?? pi.m_spaceRequirement;
             pi.m_repairPiece = data.repairPiece ?? pi.m_repairPiece;
             pi.m_isUpgrade = data.isUpgrade ?? pi.m_isUpgrade;
-            if (data.usage.HasValue)
+            PieceManager.PiecePrefabManager.SetCustomUsageCategories(pi, Array.Empty<string>());
+            if (!string.IsNullOrWhiteSpace(data.usage))
             {
-                pi.m_usage = data.usage.Value;
+                pi.m_usage = PieceManager.PiecePrefabManager.ParseUsage(data.usage, out HashSet<string> customUsageCategories);
+                PieceManager.PiecePrefabManager.SetCustomUsageCategories(pi, customUsageCategories);
             }
             else if (!string.IsNullOrEmpty(data.piecehammerCategory) &&
                      PieceManager.PiecePrefabManager.TryGetBuiltInUsageCategory(data.piecehammerCategory, out Piece.UsageTagFlags usageTag))
