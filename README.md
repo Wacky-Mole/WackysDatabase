@@ -205,6 +205,7 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 - NexusModID: 1825 (does not have much functionality)
 - DedServer load Memory: false (dedicated server loads objects into the game like a client)
 - ExtraSecurity on Servers: true (prevents loading into singleplayer and then loading into multiplayer)
+- Armor / WaterName: Water (client-local label shown for water resistance in tooltips)
 - FileWatcher for YMLs: true (reloads the mod on any changes to the wackydatabase folder on the server)
 - Enable Asset Sync: true (allows server to sync missing Icons/Objects/Textures to clients after player spawn)
 - Max Asset Sync File Size MB: 5 (per-file safety limit for sync; oversized files fail gracefully and must be installed manually)
@@ -1329,6 +1330,8 @@ Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 
 ## Recipes
 
+Recipe warnings explain why an entry could not be applied (missing item/recipe, invalid output prefab, or ambiguous recipe matches). Other recipes continue loading. Use `wackydb_all_recipes` to find exact recipe names; unexpected exceptions include details and may leave the affected recipe partially applied.
+
 Most recipes are saved with itemname in name for recipe. For actual recipes they will have Recipe_ in the name like Recipe_Bronze or Recipe_Bronze5.
 <br/>You should try to <b>avoid </b> actual recipes when possible. </br> wackydb_all_recipes should list both normal recipes and actual recipes
 <br/></br>Actual recipes can be found in bulk save now and with JVL docs.  https://valheim-modding.github.io/Jotunn/data/objects/recipe-list.html
@@ -1408,7 +1411,7 @@ You can replace all Boars in the game with this Dude.
 - `Category` (string): The category of the status effect. Prevents other SEs in this category from being active while one is active. "" is default with no category, so no restrictions.
 - `IconName` (string): The name of the icon for the status effect. Doesn't do much, can't change.
 - `ClonedSE` (string): Holds the name of the SE you are cloning. Otherwise new SE's will use SetEffect_TrollArmor
-- `CustomIcon` (string): The custom icon for the status effect. customIcon, jpeg or png. ie wacky.png 64 x 64. Use "delete" to remove existing icon.
+- `CustomIcon` (string): A JPEG or PNG filename in the Icons folder, e.g. `wacky.png` (64 x 64). Omit it to keep the existing icon, or use `delete` to remove it. Missing or unreadable files cause the effect load to fail with a one-line warning naming the icon and reason; invalid image data logs a warning and keeps the existing icon.
 - `FlashIcon` (bool): Indicates whether the icon should flash.
 - `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
 - `Hidden` (bool): Indicates whether the status effect is hidden from the status-effect UI.

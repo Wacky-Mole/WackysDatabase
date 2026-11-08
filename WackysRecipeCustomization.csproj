@@ -157,6 +157,7 @@
     <Compile Include="GetData\Converters\TextureConverter.cs" />
     <Compile Include="GetData\GetDataYML.cs" />
     <Compile Include="GetData\YamlLoader.cs" />
+    <Compile Include="Libs\AnimationSpeedManager.cs" />
     <Compile Include="Libs\PieceManager.cs" />
     <Compile Include="Libs\ServerSync.cs" />
     <Compile Include="OBJimporter\HandleData.cs" />
@@ -214,9 +215,6 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="ILRepack.targets" />
-    <Content Include="Libs\AnimationSpeedManager.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Libs\LocalizationManager.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

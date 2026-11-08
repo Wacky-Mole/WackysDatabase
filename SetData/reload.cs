@@ -290,7 +290,10 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetStatusData(data, Instant);// has issues sometimes
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"SetEffect {data?.Name} failed (cache): {ex.Message.Replace('\r', ' ').Replace('\n', ' ')}");
+                }
             }
 
         }
@@ -672,7 +675,10 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetStatusData(data, Instant);// has issues
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"SetEffect {data?.Name} failed: {ex.Message.Replace('\r', ' ').Replace('\n', ' ')}");
+                }
 
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
@@ -890,7 +896,10 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetRecipeData(data, Instant);
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Recipe '{data?.name}' failed (may be partially applied): {ex.Message.Replace('\r', ' ').Replace('\n', ' ')}");
+                }
                 processcount++; 
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
                 {

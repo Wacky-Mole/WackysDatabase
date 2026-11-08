@@ -271,11 +271,18 @@ namespace wackydatabase.SetData
             if (modifiers == null)
                 return null;
 
-            return modifiers.Select(modifier =>
+            return modifiers.Select((modifier, index) =>
             {
-                int damageType = Enum.TryParse(modifier.m_type, true, out ArmorHelpers.NewDamageTypes customType)
-                    ? (int)customType
-                    : (int)Enum.Parse(typeof(HitData.DamageType), modifier.m_type, true);
+                if (modifier == null || string.IsNullOrWhiteSpace(modifier.m_type))
+                    throw new InvalidOperationException($"SeData.m_mods entry {index + 1} is missing m_type. Specify a damage type (e.g. Fire or Water), or remove the empty entry.");
+
+                int damageType;
+                if (Enum.TryParse(modifier.m_type, true, out ArmorHelpers.NewDamageTypes customType))
+                    damageType = (int)customType;
+                else if (Enum.TryParse(modifier.m_type, true, out HitData.DamageType standardType))
+                    damageType = (int)standardType;
+                else
+                    throw new InvalidOperationException($"SeData.m_mods entry {index + 1} has invalid m_type '{modifier.m_type}'. Specify a valid damage type (e.g. Fire or Water).");
 
                 return new HitData.DamageModPair
                 {
@@ -296,6 +303,9 @@ namespace wackydatabase.SetData
                     go = Instant.GetStatusEffect("SetEffect_TrollArmor".GetStableHashCode());// cloned
                 else 
                     go = Instant.GetStatusEffect(data.ClonedSE.GetStableHashCode());// cloned
+
+                if (go == null)
+                    throw new InvalidOperationException($"Cannot create status effect '{name}': clone source '{data.ClonedSE ?? "SetEffect_TrollArmor"}' was not found in ObjectDB.");
 
                 //WMRecipeCust.WLog.LogDebug($"Item CLONE DATA in SetItemData for {tempname} from cache ");
                 WMRecipeCust.ClonedE.Add(name);
@@ -331,19 +341,35 @@ namespace wackydatabase.SetData
                 else
                 {
                     var pathI = Path.Combine(WMRecipeCust.assetPathIcons, data.CustomIcon);
-                    var nullcheck = File.ReadAllBytes(pathI);
-                    if (nullcheck != null)
+                    try
                     {
-                        try
-                        {
-                            var Spri = SpriteTools.LoadNewSprite(pathI);
-                            go.m_icon = Spri;
-                        }
-                        catch { WMRecipeCust.WLog.LogInfo("customIcon failed"); }
+                        File.ReadAllBytes(pathI);
                     }
-                    else
+                    catch (FileNotFoundException ex)
                     {
-                        WMRecipeCust.WLog.LogInfo($"No Img with the name {data.CustomIcon} in Icon Folder - ");
+                        throw new IOException($"CustomIcon '{data.CustomIcon}' was not found in the Icons folder. Install the image or omit CustomIcon to keep the existing icon.", ex);
+                    }
+                    catch (DirectoryNotFoundException ex)
+                    {
+                        throw new IOException($"CustomIcon '{data.CustomIcon}' could not be read because its Icons folder or subfolder is missing.", ex);
+                    }
+                    catch (IOException ex)
+                    {
+                        throw new IOException($"Could not read CustomIcon '{data.CustomIcon}': {ex.Message}", ex);
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        throw new UnauthorizedAccessException($"Access denied reading CustomIcon '{data.CustomIcon}'. Check file permissions.", ex);
+                    }
+
+                    try
+                    {
+                        var Spri = SpriteTools.LoadNewSprite(pathI);
+                        go.m_icon = Spri;
+                    }
+                    catch (Exception ex)
+                    {
+                        WMRecipeCust.WLog.LogWarning($"SetEffect {name}: CustomIcon '{data.CustomIcon}' could not be loaded; keeping the existing icon. Check for a valid PNG or JPEG. {ex.Message.Replace('\r', ' ').Replace('\n', ' ')}");
                     }
                 }
             }
@@ -580,7 +606,8 @@ namespace wackydatabase.SetData
 
             if (go == null && ActualR == null)
             {
-                WMRecipeCust.WLog.LogWarning(" null " + searchname);
+                string target = searchname == tempname ? "item/recipe not found" : $"item/recipe '{searchname}' not found";
+                WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' skipped: {target}.");
                 return;
             }
 
@@ -588,7 +615,7 @@ namespace wackydatabase.SetData
             {
                 if (go.GetComponent<ItemDrop>() == null)
                 {
-                    WMRecipeCust.WLog.LogWarning($"Recipe data for {searchname} not found!");
+                    WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' skipped: '{searchname}' has no ItemDrop.");
                     return;
                 } // it is a prefab and it is an item.
             }
@@ -657,18 +684,22 @@ namespace wackydatabase.SetData
                     {
                         RecipeR = displayNameMatches[0];
                         RecipeR.m_enabled = true;
-                        WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' matched '{RecipeR.name}' by display name only. Rename the recipe YAML to its exact recipe name to avoid ambiguity.");
+                        WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' matched by display name; use exact name '{RecipeR.name}'.");
                     }
                     else if (displayNameMatches.Count > 1)
                     {
-                        WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' has {displayNameMatches.Count} display-name matches for '{targetItem.m_itemData.m_shared.m_name}'. No recipe was modified; use the exact recipe name.");
+                        WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' skipped: {displayNameMatches.Count} ambiguous matches. Use the exact recipe name.");
+                        return;
                     }
                 }
             }
 
             if (RecipeR == null)
             {
-                WMRecipeCust.Dbgl("Recipe failed inside of " + tempname);
+                if (skip)
+                    WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' skipped: tracked clone missing from ObjectDB.");
+                else
+                    WMRecipeCust.WLog.LogWarning($"Recipe '{tempname}' skipped: no matching recipe for item '{searchname}'.");
                 return;
             }
 
