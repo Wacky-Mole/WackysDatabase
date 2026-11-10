@@ -155,6 +155,8 @@ namespace wackydatabase.Datas
     [Serializable]
     public class AttackArm  //:Attack
     {
+        public WDamages? Damage;
+        public WDamages? Damage_Per_Level;
         public Attack.AttackType? AttackType;
         public string? Attack_Animation;
         public int? Attack_Random_Animation;

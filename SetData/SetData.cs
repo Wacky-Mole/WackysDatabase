@@ -3143,6 +3143,10 @@ namespace wackydatabase.SetData
                         }
                     }
 
+                    if (data.Primary_Attack?.Damage != null || data.Primary_Attack?.Damage_Per_Level != null)
+                        WMRecipeCust.WLog.LogWarning($"Item '{data.name}': primary damage belongs in top-level Damage/Damage_Per_Level, not Primary_Attack.");
+                    API.SecondaryAttackDamage.Set(PrimaryItemData.m_shared.m_secondaryAttack, data.Secondary_Attack, data.name);
+
                     if (data.Armor != null)
                     {
                         if (WMRecipeCust.showLogs.Value)

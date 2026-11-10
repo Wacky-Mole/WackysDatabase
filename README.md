@@ -552,6 +552,28 @@ Visit the Material and CustomVisual Section to understand this complex system.
 
 `Primary_Attack` (AttackArm): The primary attack data.
 `Secondary_Attack` (AttackArm): The secondary(middle mouse) attack data.
+
+### Optional secondary-attack damage companion SubMod
+
+- `Damage` / `Damage_Per_Level` (WDamages): Optional secondary-only damage overrides ONLY; requires submod WackyDBSecondaryAttacks.
+
+
+Install `WackyDBSecondaryAttacks.dll` alongside WackyDB 2.6.14 or newer in `BepInEx\plugins` on the server and every client. Without the companion, WackyDB still loads/exports the fields but warns that their combat overrides cannot be applied.
+
+```yaml
+name: SwordIron
+Secondary_Attack:
+  Damage:
+    Slash: 90
+    Pierce: 20
+  Damage_Per_Level:
+    Slash: 6
+```
+
+These two optional blocks are supported **only under `Secondary_Attack`**. Each supplied block replaces the entire corresponding damage block (unlisted damage types become zero). An omitted block inherits the weapon's normal `Damage` or `Damage_Per_Level`; omit both to keep vanilla/shared secondary damage. Removing the blocks or deleting the item YAML clears the override on the next full reload. Primary attacks still use the top-level damage settings.
+
+Quality upgrades and world-level scaling use the native damage calculation. Existing secondary `DmgMultiplier`, chain bonuses, skills, status effects, and other native attack modifiers still apply afterward. Melee, area attacks, and projectile bursts are covered; projectile ammunition damage remains additive and unchanged. The tooltip adds **Secondary base damage**, before attack multipliers and ammunition. WackyDB's normal YAML sync and item exports preserve these blocks.
+
 ### Primary/Secondary_Attack AttackArm
 
 - `AttackType` (Attack.AttackType): The type of attack.

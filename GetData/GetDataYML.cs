@@ -1650,10 +1650,13 @@ namespace wackydatabase.GetData
                 ItemData.Primary_Attack = Primary_Attack;
             }
 
-            if (data.m_shared.m_secondaryAttack != null && hasdmg)
+            bool hasSecondaryDamage = API.SecondaryAttackDamage.TryGet(data, out var secondaryDamage);
+            if (data.m_shared.m_secondaryAttack != null && (hasdmg || hasSecondaryDamage))
             {
                 AttackArm Secondary_Attack = new AttackArm
                 {
+                    Damage = secondaryDamage?.Damage,
+                    Damage_Per_Level = secondaryDamage?.DamagePerLevel,
                     AttackType = data.m_shared.m_secondaryAttack.m_attackType,
                     Attack_Animation = data.m_shared.m_secondaryAttack.m_attackAnimation,
                     Attack_Random_Animation = data.m_shared.m_secondaryAttack.m_attackRandomAnimations,
