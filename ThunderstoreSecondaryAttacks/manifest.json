@@ -4,7 +4,7 @@
     "website_url":  "https://github.com/Wacky-Mole/WackysDatabase",
     "description":  "Optional WackyDB companion that gives secondary attacks independent damage through item YAML.",
     "dependencies":  [
-                         "denikson-BepInExPack_Valheim-5.4.2350",
+                         "denikson-BepInExPack_Valheim-5.4.2360",
                          "WackyMole-WackysDatabase-2.6.14"
                      ]
 }

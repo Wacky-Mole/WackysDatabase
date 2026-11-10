@@ -26,6 +26,14 @@ namespace wackydatabase.SetData
         internal static ItemDrop lastItemSet = null;
         private bool syncReloadQueued;
 
+        private static void LogPieceFailure(string pieceName, string phase, Exception exception)
+        {
+            var reason = exception.GetBaseException();
+            var message = reason.Message.Replace('\r', ' ').Replace('\n', ' ');
+            WMRecipeCust.WLog.LogWarning($"Piece '{pieceName}' failed ({phase}): {reason.GetType().Name}: {message} May be partially applied.");
+            WMRecipeCust.WLog.LogDebug($"Piece '{pieceName}' failure details ({phase}): {exception}");
+        }
+
         private void CompleteSyncReload()
         {
             WMRecipeCust.ssLock = false;
@@ -748,7 +756,7 @@ namespace wackydatabase.SetData
                             }
                         }
                     }
-                    catch { WMRecipeCust.WLog.LogWarning($"Setting Early Cloned CraftingStation for {data3.name} didn't complete"); } // spams just catch any empty
+                    catch (Exception ex) { LogPieceFailure(data3?.name, "crafting station clone", ex); }
                 }
 
                 else if ( data3.craftingStationData != null && DataHelpers.GetCraftingStation(data3.m_name) == null){
@@ -765,7 +773,7 @@ namespace wackydatabase.SetData
                         }
 
                     }
-                    catch { WMRecipeCust.WLog.LogWarning($"Setting CraftingStation for {data3.name} didn't complete"); } // spams just catch any empty
+                    catch (Exception ex) { LogPieceFailure(data3?.name, "crafting station", ex); }
                 }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
@@ -867,7 +875,7 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetPieceRecipeData(data, Instant, AllObjects);
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetPiece Clone for {data.name} failed"); }
+                catch (Exception ex) { LogPieceFailure(data?.name, "clone", ex); }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
                 {
@@ -882,7 +890,7 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetPieceRecipeData(data, Instant, AllObjects);
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data.name} failed"); }
+                catch (Exception ex) { LogPieceFailure(data?.name, "data", ex); }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode )
                 {

@@ -558,7 +558,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `Damage` / `Damage_Per_Level` (WDamages): Optional secondary-only damage overrides ONLY; requires submod WackyDBSecondaryAttacks.
 
 
-Install `WackysSecondaryAttacks.dll` alongside WackyDB 2.6.14 or newer in `BepInEx\plugins` on the server and every client. Without the companion, WackyDB still loads/exports the fields but warns that their combat overrides cannot be applied.
+Install `WackyDBSecondaryAttacks.dll` alongside WackyDB 2.6.14 or newer in `BepInEx\plugins` on the server and every client. Without the companion, WackyDB still loads/exports the fields but warns that their combat overrides cannot be applied.
 
 ```yaml
 name: SwordIron

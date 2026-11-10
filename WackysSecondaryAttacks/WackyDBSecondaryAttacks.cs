@@ -18,7 +18,7 @@ namespace WackysSecondaryAttacks
     [BepInDependency("WackyMole.WackysDatabase", "2.6.14")]
     public sealed class WackyDBSecondaryAttacks : BaseUnityPlugin
     {
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
         private readonly Harmony harmony = new Harmony(SecondaryAttackDamage.PluginGuid);
         private ConfigSync configSync;
 
@@ -211,15 +211,28 @@ namespace WackysSecondaryAttacks
                 return;
 
             var damage = DamageContext.GetDamage(item, attack, qualityLevel, worldLevel);
-            var damageTooltip = damage.GetTooltipString(item.m_shared.m_skillType);
+            var damageTooltip = GetDamageTooltip(damage, item.m_shared.m_skillType);
             if (attack.m_damageMultiplier > 1f)
             {
                 damage.Modify(attack.m_damageMultiplier);
-                damageTooltip = AppendMultipliedValues(damageTooltip, damage.GetTooltipString(item.m_shared.m_skillType));
+                damageTooltip = AppendMultipliedValues(damageTooltip, GetDamageTooltip(damage, item.m_shared.m_skillType));
             }
 
             __result += "\n\n<color=orange>Secondary base damage</color>" + damageTooltip +
                 $"\nSecondary damage multiplier: <color=#66B2FF>{attack.m_damageMultiplier:0.###}x</color>";
+        }
+
+        internal static string GetDamageTooltip(HitData.DamageTypes damage, Skills.SkillType skill)
+        {
+            var tooltip = damage.GetTooltipString(skill);
+            // Native tooltips omit Chop and Pickaxe; reuse their generic damage row for identical skill ranges.
+            if (damage.m_chop != 0f)
+                tooltip += new HitData.DamageTypes { m_damage = damage.m_chop }.GetTooltipString(skill)
+                    .Replace("$inventory_damage", "Chop");
+            if (damage.m_pickaxe != 0f)
+                tooltip += new HitData.DamageTypes { m_damage = damage.m_pickaxe }.GetTooltipString(skill)
+                    .Replace("$inventory_damage", "Pickaxe");
+            return tooltip;
         }
 
         internal static string AppendMultipliedValues(string baseTooltip, string multipliedTooltip)
@@ -236,8 +249,7 @@ namespace WackysSecondaryAttacks
                     continue;
 
                 var values = multipliedLines[i].Substring(valueStart).TrimEnd()
-                    .Replace("<color=orange>", "<color=#66B2FF>")
-                    .Replace("<color=yellow>", "<color=#66B2FF>");
+                    .Replace("<color=orange>", "<color=#66B2FF>");
                 baseLines[i] = baseLines[i].TrimEnd() + " " + values;
             }
             return string.Join("\n", baseLines);

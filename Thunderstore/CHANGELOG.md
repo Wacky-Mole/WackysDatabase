@@ -2,6 +2,8 @@
 
 
 ## 2.6.13
+Improved piece logs. </br> Added support for WackyDBSecondaryAttacks
+## 2.6.13
 Updated Water Resistance tooltip. </br> Better warnings for SEs. </br> Updated Speed Control Manager code for increase performance. Thx Tyrodus
 ## 2.6.12
 Updated documenation and code for Usage and piecehammerCategory to show you can set custom categories. Wackydb virtual system allows more than valheim limits. 
