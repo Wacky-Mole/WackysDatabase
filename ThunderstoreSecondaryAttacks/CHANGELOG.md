@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.1
+ Icon Update
+
 ## 1.0.0
 
 - Add independent secondary-attack damage and damage per upgrade level through WackyDB YAML.
