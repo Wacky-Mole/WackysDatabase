@@ -1,7 +1,9 @@
 # Changelog
 
 
-## 2.6.13
+## 2.6.15
+Rewrote ExtraSecurity again. </br> Allow customIcons to ommit their .png file type in the yaml. customIcons can still be  .png, .jpg, and .jpeg 
+## 2.6.14
 Improved piece logs. </br> Added support for WackyDBSecondaryAttacks
 ## 2.6.13
 Updated Water Resistance tooltip. </br> Better warnings for SEs. </br> Updated Speed Control Manager code for increase performance. Thx Tyrodus

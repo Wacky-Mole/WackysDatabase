@@ -18,29 +18,23 @@ namespace WackysSecondaryAttacks
     [BepInDependency("WackyMole.WackysDatabase", "2.6.14")]
     public sealed class WackyDBSecondaryAttacks : BaseUnityPlugin
     {
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.2";
         private readonly Harmony harmony = new Harmony(SecondaryAttackDamage.PluginGuid);
         private ConfigSync configSync;
 
         private void Awake()
         {
-            try
+ 
+            harmony.PatchAll(typeof(WackyDBSecondaryAttacks).Assembly);
+            configSync = new ConfigSync(SecondaryAttackDamage.PluginGuid)
             {
-                harmony.PatchAll(typeof(WackyDBSecondaryAttacks).Assembly);
-                configSync = new ConfigSync(SecondaryAttackDamage.PluginGuid)
-                {
-                    DisplayName = "WackyMole.WackyDBSecondaryAttacks",
-                    CurrentVersion = Version,
-                    MinimumRequiredVersion = Version,
-                    ModRequired = true
-                };
-                SecondaryAttackDamage.ProviderAvailable = true;
-            }
-            catch
-            {
-                harmony.UnpatchSelf();
-                throw;
-            }
+                DisplayName = "WackyMole.WackyDBSecondaryAttacks",
+                CurrentVersion = Version,
+                MinimumRequiredVersion = Version,
+                ModRequired = true
+            };
+            SecondaryAttackDamage.ProviderAvailable = true;
+
         }
 
         private void OnDestroy()

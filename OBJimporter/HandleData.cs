@@ -90,6 +90,26 @@ namespace wackydatabase.OBJimporter
                 }
 
                 AddFiles(WMRecipeCust.assetPathIcons, "icon", "*.png");
+                if (Directory.Exists(WMRecipeCust.assetPathIcons))
+                {
+                    foreach (var file in Directory.GetFiles(WMRecipeCust.assetPathIcons, "*.*", SearchOption.AllDirectories))
+                    {
+                        string fileExt = Path.GetExtension(file);
+                        string iconType = null;
+                        if (string.Equals(fileExt, ".jpg", StringComparison.OrdinalIgnoreCase))
+                            iconType = "icon_jpg";
+                        else if (string.Equals(fileExt, ".jpeg", StringComparison.OrdinalIgnoreCase))
+                            iconType = "icon_jpeg";
+
+                        if (iconType == null)
+                            continue;
+
+                        string filename = Path.GetFileNameWithoutExtension(file);
+                        byte[] bytes = File.ReadAllBytes(file);
+                        string hash = Convert.ToBase64String(md5.ComputeHash(bytes));
+                        sb.Append($"{filename}:{iconType}:{hash}?");
+                    }
+                }
                 AddFiles(WMRecipeCust.assetPathObjects, "obj", "*.obj");
                 AddFiles(WMRecipeCust.assetPathObjects, "png", "*.png");
                 AddFiles(WMRecipeCust.assetPathTextures, "tex", "*.png");
@@ -482,6 +502,8 @@ namespace wackydatabase.OBJimporter
                     
                     string path = "";
                     if (type == "icon") path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".png");
+                    else if (type == "icon_jpg") path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".jpg");
+                    else if (type == "icon_jpeg") path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".jpeg");
                     else if (type == "png") path = Path.Combine(WMRecipeCust.assetPathObjects, filename + ".png");
                     else if (type == "obj") path = Path.Combine(WMRecipeCust.assetPathObjects, filename + ".obj");
                     else if (type == "tex") path = Path.Combine(WMRecipeCust.assetPathTextures, filename + ".png");
@@ -570,12 +592,15 @@ namespace wackydatabase.OBJimporter
                 
                 string folder = "";
                 string ext = "";
-                
+                string exactExt = null;
+
                 if (type == "icon") { folder = WMRecipeCust.assetPathIcons; ext = "*.png"; }
+                else if (type == "icon_jpg") { folder = WMRecipeCust.assetPathIcons; ext = ".jpg"; exactExt = ".jpg"; }
+                else if (type == "icon_jpeg") { folder = WMRecipeCust.assetPathIcons; ext = ".jpeg"; exactExt = ".jpeg"; }
                 else if (type == "png") { folder = WMRecipeCust.assetPathObjects; ext = "*.png"; }
                 else if (type == "obj") { folder = WMRecipeCust.assetPathObjects; ext = "*.obj"; }
                 else if (type == "tex") { folder = WMRecipeCust.assetPathTextures; ext = "*.png"; }
-                
+
                 if (string.IsNullOrEmpty(folder))
                 {
                     string warn = $"WackyDB: Unknown requested asset type '{type}' for '{filename}'. Aborting asset sync for peer {targetPeer}.";
@@ -585,8 +610,12 @@ namespace wackydatabase.OBJimporter
                     CheckPendingSyncClients();
                     yield break;
                 }
-                
+
                 var files = Directory.GetFiles(folder, filename + ext, SearchOption.AllDirectories);
+                if (exactExt != null)
+                {
+                    files = files.Where(f => string.Equals(Path.GetExtension(f), exactExt, StringComparison.OrdinalIgnoreCase)).ToArray();
+                }
                 if (files.Length > 0)
                 {
                     string filePath = files[0];
@@ -672,6 +701,8 @@ namespace wackydatabase.OBJimporter
                 string path = "";
                 
                 if (type == "icon") path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".png");
+                else if (type == "icon_jpg") path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".jpg");
+                else if (type == "icon_jpeg") path = Path.Combine(WMRecipeCust.assetPathIcons, filename + ".jpeg");
                 else if (type == "png") path = Path.Combine(WMRecipeCust.assetPathObjects, filename + ".png");
                 else if (type == "obj") path = Path.Combine(WMRecipeCust.assetPathObjects, filename + ".obj");
                 else if (type == "tex") path = Path.Combine(WMRecipeCust.assetPathTextures, filename + ".png");

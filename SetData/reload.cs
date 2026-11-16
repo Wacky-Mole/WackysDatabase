@@ -203,6 +203,8 @@ namespace wackydatabase.SetData
 
                     if (WMRecipeCust.FirstSS)
                         WMRecipeCust.waitingforFirstLoad = true; // WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReloadWait());
+                    else if (!WMRecipeCust.ConfigSync.IsSourceOfTruth && WMRecipeCust.extraSecurity.Value && WMRecipeCust.ForceLogout)
+                        CompleteSyncReload();
                     else WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); // slow mode
 
                     //if (firstsyncreload)

@@ -151,7 +151,7 @@ Frequently Asked Questions
             Null is like I don't know, so I don't care, use the original values. To delete the existing values you will use either '' for strings, "delete" for SE Effects or "-" for multiliners. 
 
     Q: How do I make custom Icons?
-        A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename. ie. wacky.png
+        A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename (extension optional; `.png`, `.jpg`, and `.jpeg` are supported, defaulting to `.png` if omitted, e.g. `wacky`, `wacky.png`, or `wacky.jpg`).
 
 ![Custom Icon Gif](https://wackymole.com/hosts/customicon.gif)
 
@@ -522,7 +522,7 @@ Valheim's `m_customData` is a string dictionary. WDB preserves values exactly wi
 - `clonePrefabName` (string): The name of the prefab to clone.
 - `mockName` (string): The name of the mock object.
 - `mockBasePrefab` (string): Optional vanilla item prefab whose behavior is used by a mock. Use a food/drink, weapon, shield, helmet, cape, chest, or leg item as the donor to place the mock in that item library and inherit the required attacks, consumption behavior, or equipment data. The mock model replaces the donor's `attach` visual, and all other item properties can still be overridden in the YAML. Static OBJ models work for held items, dropped items, helmets, and similar attachments; skinned chest and leg armour visuals still require a Unity-built skinned prefab/asset bundle or `customVisual`.
-- `customIcon` (string): The custom icon for the item. PNG 64x64, Icon needs to be in the Icon folder ( doesn't server sync)
+- `customIcon` (string): The custom icon for the item. PNG or JPEG 64x64 in the Icons folder (`.png` extension may be omitted, e.g. `wacky` or `wacky.png`)
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 
 
@@ -1007,7 +1007,7 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `m_name` (string): The In Game Piece Name
 - `sizeMultiplier` (string): The size multiplier of the piece. Any float range 1.0 is normal size. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"
 - `m_description` (string): The description of the piece.
-- `customIcon` (string): The custom icon for the piece. PNG or JPEG, 64 x 64, Must be in Icon Folder (Icons do not Synced)
+- `customIcon` (string): The custom icon for the piece. PNG or JPEG, 64 x 64, Must be in Icon Folder (`.png` extension may be omitted)
 - `clonePrefabName` (string): The name of the prefab to clone.
 - `material` (string):  Visit Material Section and Custom Visual Section
 - `damagedMaterial` (string): The material of the piece when damaged.
@@ -1433,7 +1433,7 @@ You can replace all Boars in the game with this Dude.
 - `Category` (string): The category of the status effect. Prevents other SEs in this category from being active while one is active. "" is default with no category, so no restrictions.
 - `IconName` (string): The name of the icon for the status effect. Doesn't do much, can't change.
 - `ClonedSE` (string): Holds the name of the SE you are cloning. Otherwise new SE's will use SetEffect_TrollArmor
-- `CustomIcon` (string): A JPEG or PNG filename in the Icons folder, e.g. `wacky.png` (64 x 64). Omit it to keep the existing icon, or use `delete` to remove it. Missing or unreadable files cause the effect load to fail with a one-line warning naming the icon and reason; invalid image data logs a warning and keeps the existing icon.
+- `CustomIcon` (string): A JPEG or PNG filename in the Icons folder, e.g. `wacky`, `wacky.png`, or `wacky.jpg` (when no extension is given, `.png`, `.jpg`, and `.jpeg` are checked in order, 64 x 64). Omit it to keep the existing icon, or use `delete` to remove it. Missing or unreadable files cause the effect load to fail with a one-line warning naming the icon and reason; invalid image data logs a warning and keeps the existing icon.
 - `FlashIcon` (bool): Indicates whether the icon should flash.
 - `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
 - `Hidden` (bool): Indicates whether the status effect is hidden from the status-effect UI.

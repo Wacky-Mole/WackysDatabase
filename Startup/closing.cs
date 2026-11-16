@@ -28,6 +28,8 @@ namespace wackydatabase.Startup
                 WMRecipeCust.Dbgl("logoff");
                 WMRecipeCust.LobbyRegistered = false;
                 WMRecipeCust.FirstSS = true;// Reset for next SS connection
+                WMRecipeCust.issettoSinglePlayer = false;
+                WMRecipeCust.waitingforFirstLoad = false;
                 HandleData.ResetAutoSyncRequestState();
                 if (WMRecipeCust.issettoSinglePlayer)
                 {
@@ -49,6 +51,7 @@ namespace wackydatabase.Startup
             { // The Server send once last config sync before destory, but after Shutdown which messes stuff up. 
                 WMRecipeCust.recieveServerInfo = false;
                 WMRecipeCust.NoMoreLoading = false;
+                WMRecipeCust.waitingforFirstLoad = false;
             }
         }
 
