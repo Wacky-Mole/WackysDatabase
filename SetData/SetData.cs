@@ -140,30 +140,69 @@ namespace wackydatabase.SetData
             return prefab ?? Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(obj => obj != null && obj.name == name);
         }
 
-        private static GameObject GetOrClonePrefab(string name, string clonePrefabName)
+        private static GameObject FindChildOrPrefab(GameObject root, string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            if (root != null)
+            {
+                foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+                {
+                    if (child != null && child.gameObject.name == name)
+                        return child.gameObject;
+                }
+            }
+
+            return FindPrefab(name);
+        }
+
+        private static void EnsurePrefabRegisteredInZNetScene(GameObject prefab)
+        {
+            if (prefab == null || ZNetScene.instance == null)
+                return;
+
+            int hash = prefab.name.GetStableHashCode();
+            if (ZNetScene.instance.m_namedPrefabs.ContainsKey(hash))
+                return;
+
+            if (prefab.GetComponent<ZNetView>() != null)
+            {
+                if (!ZNetScene.instance.m_prefabs.Contains(prefab))
+                    ZNetScene.instance.m_prefabs.Add(prefab);
+            }
+            else
+            {
+                if (!ZNetScene.instance.m_nonNetViewPrefabs.Contains(prefab))
+                    ZNetScene.instance.m_nonNetViewPrefabs.Add(prefab);
+            }
+
+            ZNetScene.instance.m_namedPrefabs.Add(hash, prefab);
+        }
+
+        private static GameObject GetOrClonePrefab(string name, string clonePrefabName, bool warnIfMissing = true)
         {
             GameObject prefab = FindPrefab(name);
-            if (prefab != null || string.IsNullOrEmpty(clonePrefabName))
+            if (prefab != null)
+            {
+                EnsurePrefabRegisteredInZNetScene(prefab);
                 return prefab;
+            }
+
+            if (string.IsNullOrEmpty(clonePrefabName))
+                return null;
 
             GameObject source = FindPrefab(clonePrefabName);
             if (source == null)
             {
-                WMRecipeCust.WLog.LogWarning($"Unable to clone {name}: prefab {clonePrefabName} was not found.");
+                if (warnIfMissing)
+                    WMRecipeCust.WLog.LogWarning($"Unable to clone {name}: prefab {clonePrefabName} was not found.");
                 return null;
             }
 
             prefab = WMRecipeCust.Instantiate(source, WMRecipeCust.Root.transform, false);
             prefab.name = name;
-            int hash = name.GetStableHashCode();
-            if (ZNetScene.instance != null && !ZNetScene.instance.m_namedPrefabs.ContainsKey(hash))
-            {
-                if (prefab.GetComponent<ZNetView>() != null)
-                    ZNetScene.instance.m_prefabs.Add(prefab);
-                else
-                    ZNetScene.instance.m_nonNetViewPrefabs.Add(prefab);
-                ZNetScene.instance.m_namedPrefabs.Add(hash, prefab);
-            }
+            EnsurePrefabRegisteredInZNetScene(prefab);
 
             return prefab;
         }
@@ -240,11 +279,41 @@ namespace wackydatabase.SetData
             }
         }
 
-        internal static void SetProjectileData(ProjectileData data)
+        private static bool IsExplicitClearValue(string value)
+        {
+            return value == "" || value == "-" || value == "delete";
+        }
+
+        private static GameObject ResolveOptionalPrefab(string ownerName, string fieldName, string requestedName, GameObject current, GameObject localRoot = null)
+        {
+            if (requestedName == null)
+                return current;
+
+            if (IsExplicitClearValue(requestedName))
+                return null;
+
+            GameObject resolved = localRoot != null ? FindChildOrPrefab(localRoot, requestedName) : FindPrefab(requestedName);
+            if (resolved == null)
+            {
+                WMRecipeCust.WLog.LogWarning($"{ownerName}: prefab '{requestedName}' for {fieldName} was not found.");
+                return null;
+            }
+
+            return resolved;
+        }
+
+        internal static bool EnsureProjectilePrefab(ProjectileData data, bool warnIfMissing = true)
+        {
+            if (data == null || string.IsNullOrEmpty(data.proj_name))
+                return true;
+
+            return GetOrClonePrefab(data.proj_name, data.clonePrefabName, warnIfMissing) != null;
+        }
+
+        internal static void ApplyProjectileData(ProjectileData data)
         {
             if (data == null || string.IsNullOrEmpty(data.proj_name))
                 return;
-
 
             GameObject prefab = GetOrClonePrefab(data.proj_name, data.clonePrefabName);
             Projectile projectile = DataHelpers.FindComponentOnPrefab<Projectile>(prefab);
@@ -258,10 +327,25 @@ namespace wackydatabase.SetData
             if (data.Damage != null) projectile.m_damage = WeaponDamage.ParseDamageTypes(data.Damage);
             if (data.m_spawnOffset != null) projectile.m_spawnOffset = GetVector3(data.m_spawnOffset);
             if (data.StatusEffect != null) projectile.m_statusEffect = data.StatusEffect;
-            if (data.HideOnHit != null) projectile.m_hideOnHit = FindPrefab(data.HideOnHit);
-            if (data.Visual != null) projectile.m_visual = FindPrefab(data.Visual);
-            if (data.SpawnOnHit != null) projectile.m_spawnOnHit = FindPrefab(data.SpawnOnHit);
-            if (data.RandomSpawnOnHit != null) projectile.m_randomSpawnOnHit = data.RandomSpawnOnHit.Select(FindPrefab).Where(obj => obj != null).ToList();
+            if (data.HideOnHit != null) projectile.m_hideOnHit = ResolveOptionalPrefab(data.proj_name, nameof(ProjectileData.HideOnHit), data.HideOnHit, projectile.m_hideOnHit, prefab);
+            if (data.Visual != null) projectile.m_visual = ResolveOptionalPrefab(data.proj_name, nameof(ProjectileData.Visual), data.Visual, projectile.m_visual, prefab);
+            if (data.SpawnOnHit != null) projectile.m_spawnOnHit = ResolveOptionalPrefab(data.proj_name, nameof(ProjectileData.SpawnOnHit), data.SpawnOnHit, projectile.m_spawnOnHit);
+            if (data.RandomSpawnOnHit != null)
+            {
+                var randomSpawns = new List<GameObject>();
+                foreach (string entry in data.RandomSpawnOnHit)
+                {
+                    if (string.IsNullOrEmpty(entry) || entry == "-" || entry == "delete")
+                        continue;
+
+                    GameObject resolved = FindPrefab(entry);
+                    if (resolved != null)
+                        randomSpawns.Add(resolved);
+                    else
+                        WMRecipeCust.WLog.LogWarning($"{data.proj_name}: prefab '{entry}' for {nameof(ProjectileData.RandomSpawnOnHit)} was not found.");
+                }
+                projectile.m_randomSpawnOnHit = randomSpawns;
+            }
             if (data.HitEffects != null) projectile.m_hitEffects = FindEffect(projectile.m_hitEffects, data.HitEffects);
             if (data.HitWaterEffects != null) projectile.m_hitWaterEffects = FindEffect(projectile.m_hitWaterEffects, data.HitWaterEffects);
             if (data.SpawnOnHitEffects != null) projectile.m_spawnOnHitEffects = FindEffect(projectile.m_spawnOnHitEffects, data.SpawnOnHitEffects);
@@ -270,11 +354,24 @@ namespace wackydatabase.SetData
                 WMRecipeCust.Dbgl($"Applied Projectile data {data.proj_name}");
         }
 
-        internal static void SetAoeData(AoeData data)
+        internal static void SetProjectileData(ProjectileData data)
+        {
+            EnsureProjectilePrefab(data);
+            ApplyProjectileData(data);
+        }
+
+        internal static bool EnsureAoePrefab(AoeData data, bool warnIfMissing = true)
+        {
+            if (data == null || string.IsNullOrEmpty(data.aoe_name))
+                return true;
+
+            return GetOrClonePrefab(data.aoe_name, data.clonePrefabName, warnIfMissing) != null;
+        }
+
+        internal static void ApplyAoeData(AoeData data)
         {
             if (data == null || string.IsNullOrEmpty(data.aoe_name))
                 return;
-
 
             GameObject prefab = GetOrClonePrefab(data.aoe_name, data.clonePrefabName);
             Aoe aoe = DataHelpers.FindComponentOnPrefab<Aoe>(prefab);
@@ -291,14 +388,20 @@ namespace wackydatabase.SetData
             if (data.StatusEffect != null) aoe.m_statusEffect = data.StatusEffect;
             if (data.StatusEffectIfBoss != null) aoe.m_statusEffectIfBoss = data.StatusEffectIfBoss;
             if (data.StatusEffectIfPlayer != null) aoe.m_statusEffectIfPlayer = data.StatusEffectIfPlayer;
-            if (data.SpawnOnHitTerrain != null) aoe.m_spawnOnHitTerrain = FindPrefab(data.SpawnOnHitTerrain);
-            if (data.ChainObject != null) aoe.m_chainObj = FindPrefab(data.ChainObject);
+            if (data.SpawnOnHitTerrain != null) aoe.m_spawnOnHitTerrain = ResolveOptionalPrefab(data.aoe_name, nameof(AoeData.SpawnOnHitTerrain), data.SpawnOnHitTerrain, aoe.m_spawnOnHitTerrain);
+            if (data.ChainObject != null) aoe.m_chainObj = ResolveOptionalPrefab(data.aoe_name, nameof(AoeData.ChainObject), data.ChainObject, aoe.m_chainObj);
             if (data.ChainEffects != null) aoe.m_chainEffects = FindEffect(aoe.m_chainEffects, data.ChainEffects);
             if (data.HitEffects != null) aoe.m_hitEffects = FindEffect(aoe.m_hitEffects, data.HitEffects);
             if (data.InitiateEffects != null) aoe.m_initiateEffect = FindEffect(aoe.m_initiateEffect, data.InitiateEffects);
 
             if (WMRecipeCust.isDebug.Value)
                 WMRecipeCust.Dbgl($"Applied AOE data {data.aoe_name}");
+        }
+
+        internal static void SetAoeData(AoeData data)
+        {
+            EnsureAoePrefab(data);
+            ApplyAoeData(data);
         }
 
         private static void AddPieceToTable(PieceTable table, GameObject piece)
@@ -3547,7 +3650,7 @@ namespace wackydatabase.SetData
             if (WMRecipeCust.originalSFX.TryGetValue(name, out GameObject sfx)) return sfx;
             if (WMRecipeCust.originalFX.TryGetValue(name, out GameObject fx)) return fx;
             if (WMRecipeCust.extraEffects.TryGetValue(name, out GameObject extra)) return extra;
-            return null;
+            return FindPrefab(name);
         }
 
         private static EffectList FindEffect(EffectList current, EffectVerse[] userlist, string name = "")
