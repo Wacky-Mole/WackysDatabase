@@ -3049,6 +3049,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_attack.m_bowDraw = data.Primary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_attack.m_bowDraw;
                         PrimaryItemData.m_shared.m_attack.m_drawDurationMin = data.Primary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_attack.m_drawDurationMin;
                         PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain = data.Primary_Attack.Bow_Stamina_Drain ?? PrimaryItemData.m_shared.m_attack.m_drawStaminaDrain;
+                        PrimaryItemData.m_shared.m_attack.m_drawEitrDrain = data.Primary_Attack.Bow_Eitr_Drain ?? PrimaryItemData.m_shared.m_attack.m_drawEitrDrain;
                         PrimaryItemData.m_shared.m_attack.m_drawAnimationState = data.Primary_Attack.Bow_Animation_State ?? PrimaryItemData.m_shared.m_attack.m_drawAnimationState;
 
                         PrimaryItemData.m_shared.m_attack.m_attackAngle = data.Primary_Attack.Attack_Angle ?? PrimaryItemData.m_shared.m_attack.m_attackAngle;
@@ -3201,6 +3202,7 @@ namespace wackydatabase.SetData
                         PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw = data.Secondary_Attack.Bow_Draw ?? PrimaryItemData.m_shared.m_secondaryAttack.m_bowDraw;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_drawDurationMin = data.Secondary_Attack.Bow_Duration_Min ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawDurationMin;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_drawStaminaDrain = data.Secondary_Attack.Bow_Stamina_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawStaminaDrain;
+                        PrimaryItemData.m_shared.m_secondaryAttack.m_drawEitrDrain = data.Secondary_Attack.Bow_Eitr_Drain ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawEitrDrain;
                         PrimaryItemData.m_shared.m_secondaryAttack.m_drawAnimationState = data.Secondary_Attack.Bow_Animation_State ?? PrimaryItemData.m_shared.m_secondaryAttack.m_drawAnimationState;
 
                         PrimaryItemData.m_shared.m_secondaryAttack.m_attackAngle = data.Secondary_Attack.Attack_Angle ?? PrimaryItemData.m_shared.m_secondaryAttack.m_attackAngle;

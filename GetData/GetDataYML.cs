@@ -1641,6 +1641,7 @@ namespace wackydatabase.GetData
                     Bow_Draw = data.m_shared.m_attack.m_bowDraw,
                     Bow_Duration_Min = data.m_shared.m_attack.m_drawDurationMin,
                     Bow_Stamina_Drain = data.m_shared.m_attack.m_drawStaminaDrain,
+                    Bow_Eitr_Drain = data.m_shared.m_attack.m_drawEitrDrain,
                     Bow_Animation_State = data.m_shared.m_attack.m_drawAnimationState,
 
                     Attack_Angle = data.m_shared.m_attack.m_attackAngle,
@@ -1735,6 +1736,7 @@ namespace wackydatabase.GetData
                     Bow_Draw = data.m_shared.m_secondaryAttack.m_bowDraw,
                     Bow_Duration_Min = data.m_shared.m_secondaryAttack.m_drawDurationMin,
                     Bow_Stamina_Drain = data.m_shared.m_secondaryAttack.m_drawStaminaDrain,
+                    Bow_Eitr_Drain = data.m_shared.m_secondaryAttack.m_drawEitrDrain,
                     Bow_Animation_State = data.m_shared.m_secondaryAttack.m_drawAnimationState,
 
                     Attack_Angle = data.m_shared.m_secondaryAttack.m_attackAngle,

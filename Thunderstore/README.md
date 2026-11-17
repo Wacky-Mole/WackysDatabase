@@ -627,6 +627,7 @@ Quality upgrades and world-level scaling use the native damage calculation. Exis
 - `Bow_Draw` (bool): Indicates whether the bow is drawn for the attack.
 - `Bow_Duration_Min` (float): The minimum duration of the bow.
 - `Bow_Stamina_Drain` (float): The stamina drain during bow usage.
+- `Bow_Eitr_Drain` (float): The Eitr drain while drawing the bow.
 - `Bow_Animation_State` (string): The animation state for the bow.
 - `Attack_Angle` (float): The angle of the attack.
 - `Attack_Ray_Width` (float): The width of the attack ray.

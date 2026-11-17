@@ -91,6 +91,7 @@
           "Bow_Draw": { "$ref": "#/definitions/boolean_or_null" },
           "Bow_Duration_Min": { "$ref" : "#/definitions/number_or_null" },
           "Bow_Stamina_Drain": { "$ref" : "#/definitions/number_or_null" },
+          "Bow_Eitr_Drain": { "$ref" : "#/definitions/number_or_null" },
           "Bow_Animation_State": { "$ref": "#/definitions/string_or_null" },
           "Attack_Angle": { "$ref" : "#/definitions/number_or_null" },
           "Attack_Ray_Width": { "$ref" : "#/definitions/number_or_null" },

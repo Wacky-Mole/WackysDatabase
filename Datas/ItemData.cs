@@ -202,6 +202,7 @@ namespace wackydatabase.Datas
         public bool? Bow_Draw;
         public float? Bow_Duration_Min;
         public float? Bow_Stamina_Drain;
+        public float? Bow_Eitr_Drain;
         public string? Bow_Animation_State;
 
         public float? Attack_Angle;
