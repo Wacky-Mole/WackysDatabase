@@ -75,6 +75,7 @@ namespace wackydatabase
         public static ConfigEntry<string> waterModifierName;
         public static ConfigEntry<bool> ServerDedLoad;
         public static ConfigEntry<bool> extraSecurity;
+        internal static bool IsExtraSecurityEnabled => ConfigSync.InitialSyncDone && extraSecurity.Value;
         public static ConfigEntry<bool> enableYMLWatcher;
         public static ConfigEntry<bool> enableAssetSync;
         public static ConfigEntry<int> maxAssetSyncFileSizeMBNew;

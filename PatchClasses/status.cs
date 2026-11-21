@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Reflection;
@@ -488,69 +487,42 @@ namespace wackydatabase.PatchClasses
     }
 
 
-// public static string GetDamageModifiersTooltipString(List<HitData.DamageModPair> mods)
-    [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]  
+    [HarmonyPatch(typeof(SE_Stats), "GetDamageModifiersTooltipString")]
     static class GetDamageModifiersTooltipString_Patch
+    {
+        static void Prefix(ref List<HitData.DamageModPair> mods, out List<HitData.DamageModPair> __state)
         {
-            static void Postfix(ref string __result, List<HitData.DamageModPair> mods)
-            {
-                if (!wackydatabase.WMRecipeCust.modEnabled.Value || mods.Count == 0)
-                    return;
+            __state = null;
+            if (!WMRecipeCust.modEnabled.Value || mods == null)
+                return;
 
-                // Optimization: Quick scan to see if we even have valid custom mods to process
-                bool hasCustomMods = false;
-                foreach (var mod in mods)
-                {
-                    // Check if it's NOT a standard defined enum (meaning it's custom) 
-                    // AND not the special "None" or "chop" type if 1024 is pertinent
-                    if (!Enum.IsDefined(typeof(HitData.DamageType), mod.m_type))
-                    {
-                        hasCustomMods = true;
-                        break;
-                    }
-                }
-
-                if (!hasCustomMods) return;
-
-                __result = Regex.Replace(__result, @"\n.*<color=orange></color>", "");
-                foreach (HitData.DamageModPair damageModPair in mods)
-                {
-                //WMRecipeCust.WLog.LogInfo("Tooltip type " + (int)damageModPair.m_type);
-                if (Enum.IsDefined(typeof(HitData.DamageType), damageModPair.m_type) && (int)damageModPair.m_type != 1024)
-                        continue;
-
-                    if (damageModPair.m_modifier != HitData.DamageModifier.Ignore && damageModPair.m_modifier != HitData.DamageModifier.Normal)
-                    {
-                        switch (damageModPair.m_modifier)
-                        {
-                            case HitData.DamageModifier.SlightlyResistant:
-                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_resistant</color> VS ";
-                                break;
-                            case HitData.DamageModifier.Resistant:
-                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_resistant</color> VS ";
-                                break;
-                            case HitData.DamageModifier.Weak:
-                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_weak</color> VS ";
-                                break;
-                            case HitData.DamageModifier.Immune:
-                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_immune</color> VS ";
-                                break;
-                            case HitData.DamageModifier.VeryResistant:
-                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_veryresistant</color> VS ";
-                                break;
-                            case HitData.DamageModifier.VeryWeak:
-                                __result += "\n$inventory_dmgmod: <color=orange>$inventory_veryweak</color> VS ";
-                                break;
-                        }
-                   
-                        if ((int)damageModPair.m_type == (int)ArmorHelpers.NewDamageTypes.Water)
-                        {
-                            __result += "<color=orange>" + wackydatabase.WMRecipeCust.WaterName.Value + "</color>";
-                        }
-                    }
-                }
-            }          // water patch  https://www.nexusmods.com/valheim/mods/1162
+            __state = mods.Where(mod => (int)mod.m_type == (int)NewDamageTypes.Water).ToList();
+            if (__state.Count > 0)
+                mods = mods.Where(mod => (int)mod.m_type != (int)NewDamageTypes.Water).ToList();
         }
+
+        static void Postfix(ref string __result, List<HitData.DamageModPair> __state)
+        {
+            if (__state == null)
+                return;
+
+            foreach (HitData.DamageModPair water in __state)
+            {
+                string modifier = water.m_modifier switch
+                {
+                    HitData.DamageModifier.SlightlyResistant => "$inventory_slightlyresistant",
+                    HitData.DamageModifier.Resistant => "$inventory_resistant",
+                    HitData.DamageModifier.VeryResistant => "$inventory_veryresistant",
+                    HitData.DamageModifier.Weak => "$inventory_weak",
+                    HitData.DamageModifier.VeryWeak => "$inventory_veryweak",
+                    HitData.DamageModifier.Immune => "$inventory_immune",
+                    _ => null
+                };
+                if (modifier != null)
+                    __result += $"\n$inventory_dmgmod: <color=orange>{modifier}</color> VS <color=orange>{WMRecipeCust.WaterName.Value}</color>";
+            }
+        }
+    }
 
 
     [HarmonyPatch(typeof(Player), nameof(Player.GetTotalFoodValue))]

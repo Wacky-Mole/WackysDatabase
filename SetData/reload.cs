@@ -26,6 +26,14 @@ namespace wackydatabase.SetData
         internal static ItemDrop lastItemSet = null;
         private bool syncReloadQueued;
 
+        private static void LogPieceFailure(string pieceName, string phase, Exception exception)
+        {
+            var reason = exception.GetBaseException();
+            var message = reason.Message.Replace('\r', ' ').Replace('\n', ' ');
+            WMRecipeCust.WLog.LogWarning($"Piece '{pieceName}' failed ({phase}): {reason.GetType().Name}: {message} May be partially applied.");
+            WMRecipeCust.WLog.LogDebug($"Piece '{pieceName}' failure details ({phase}): {exception}");
+        }
+
         private void CompleteSyncReload()
         {
             WMRecipeCust.ssLock = false;
@@ -195,6 +203,8 @@ namespace wackydatabase.SetData
 
                     if (WMRecipeCust.FirstSS)
                         WMRecipeCust.waitingforFirstLoad = true; // WMRecipeCust.context.StartCoroutine(Startup.Startup.CleartoReloadWait());
+                    else if (!WMRecipeCust.ConfigSync.IsSourceOfTruth && WMRecipeCust.extraSecurity.Value && WMRecipeCust.ForceLogout)
+                        CompleteSyncReload();
                     else WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true, true)); // slow mode
 
                     //if (firstsyncreload)
@@ -290,7 +300,10 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetStatusData(data, Instant);// has issues sometimes
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"SetEffect {data?.Name} failed (cache): {ex.Message.Replace('\r', ' ').Replace('\n', ' ')}");
+                }
             }
 
         }
@@ -385,7 +398,7 @@ namespace wackydatabase.SetData
         {
             if (!ZNet.instance.IsServer())// for everyone not the server
             {
-                if (WMRecipeCust.extraSecurity.Value)
+                if (WMRecipeCust.IsExtraSecurityEnabled)
                 {
                     WMRecipeCust.WLog.LogInfo("Removing SinglePlayer Clones not in Multiplayer Server");
                     foreach (var item in WMRecipeCust.MasterCloneList)
@@ -632,9 +645,8 @@ namespace wackydatabase.SetData
             ObjectDB Instant = ObjectDB.instance;
             //GameObject[] AllObjects = Resources.FindObjectsOfTypeAll<GameObject>(); // this is going slow down things
             WMRecipeCust.SEWeaponChoice.Clear();
-            PieceManager.PiecePrefabManager.RegisterUsageCategories(WMRecipeCust.pieceDatasYml
-                .Where(data => !data.usage.HasValue)
-                .Select(data => data.piecehammerCategory));
+            PieceManager.PiecePrefabManager.RegisterUsageCategories(WMRecipeCust.pieceDatasYml);
+            API.SecondaryAttackDamage.Reset();
 
             if (slowmode)
             {
@@ -674,7 +686,10 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetStatusData(data, Instant);// has issues
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetEffect  {data.Name} failed"); }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"SetEffect {data?.Name} failed: {ex.Message.Replace('\r', ' ').Replace('\n', ' ')}");
+                }
 
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
@@ -684,12 +699,68 @@ namespace wackydatabase.SetData
                 }
             }
             WMRecipeCust.WLog.LogInfo($" Set Effects Loaded");
+            WMRecipeCust.WLog.LogInfo($"Preparing Projectiles and Aoes ");
+            var pendingPrefabs = new List<(bool isAoe, object data)>();
+            foreach (var data in WMRecipeCust.projectileDatasYml)
+                pendingPrefabs.Add((false, data));
+            foreach (var data in WMRecipeCust.aoeDatasYml)
+                pendingPrefabs.Add((true, data));
+
+            while (pendingPrefabs.Count > 0)
+            {
+                bool progressMade = false;
+                var nextPending = new List<(bool isAoe, object data)>();
+                foreach (var entry in pendingPrefabs)
+                {
+                    bool ready = false;
+                    try
+                    {
+                        ready = entry.isAoe
+                            ? SetData.EnsureAoePrefab((AoeData)entry.data, false)
+                            : SetData.EnsureProjectilePrefab((ProjectileData)entry.data, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        string entryName = entry.isAoe ? ((AoeData)entry.data)?.aoe_name : ((ProjectileData)entry.data)?.proj_name;
+                        WMRecipeCust.WLog.LogWarning($"Prepare {(entry.isAoe ? "AOE" : "Projectile")} prefab for {entryName} failed: {ex.Message}");
+                        ready = true;
+                    }
+
+                    if (ready)
+                        progressMade = true;
+                    else
+                        nextPending.Add(entry);
+                }
+
+                if (!progressMade)
+                {
+                    foreach (var entry in nextPending)
+                    {
+                        try
+                        {
+                            if (entry.isAoe)
+                                SetData.EnsureAoePrefab((AoeData)entry.data, true);
+                            else
+                                SetData.EnsureProjectilePrefab((ProjectileData)entry.data, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            string entryName = entry.isAoe ? ((AoeData)entry.data)?.aoe_name : ((ProjectileData)entry.data)?.proj_name;
+                            WMRecipeCust.WLog.LogWarning($"Prepare {(entry.isAoe ? "AOE" : "Projectile")} prefab for {entryName} failed: {ex.Message}");
+                        }
+                    }
+                    break;
+                }
+
+                pendingPrefabs = nextPending;
+            }
+
             WMRecipeCust.WLog.LogInfo($"Setting Projectiles ");
             foreach (var data in WMRecipeCust.projectileDatasYml)
             {
                 try
                 {
-                    SetData.SetProjectileData(data);
+                    SetData.ApplyProjectileData(data);
                 }
                 catch (Exception ex)
                 {
@@ -707,7 +778,7 @@ namespace wackydatabase.SetData
             {
                 try
                 {
-                    SetData.SetAoeData(data);
+                    SetData.ApplyAoeData(data);
                 }
                 catch (Exception ex)
                 {
@@ -743,7 +814,7 @@ namespace wackydatabase.SetData
                             }
                         }
                     }
-                    catch { WMRecipeCust.WLog.LogWarning($"Setting Early Cloned CraftingStation for {data3.name} didn't complete"); } // spams just catch any empty
+                    catch (Exception ex) { LogPieceFailure(data3?.name, "crafting station clone", ex); }
                 }
 
                 else if ( data3.craftingStationData != null && DataHelpers.GetCraftingStation(data3.m_name) == null){
@@ -760,7 +831,7 @@ namespace wackydatabase.SetData
                         }
 
                     }
-                    catch { WMRecipeCust.WLog.LogWarning($"Setting CraftingStation for {data3.name} didn't complete"); } // spams just catch any empty
+                    catch (Exception ex) { LogPieceFailure(data3?.name, "crafting station", ex); }
                 }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
@@ -862,7 +933,7 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetPieceRecipeData(data, Instant, AllObjects);
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetPiece Clone for {data.name} failed"); }
+                catch (Exception ex) { LogPieceFailure(data?.name, "clone", ex); }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
                 {
@@ -877,7 +948,7 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetPieceRecipeData(data, Instant, AllObjects);
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetPiece Data for {data.name} failed"); }
+                catch (Exception ex) { LogPieceFailure(data?.name, "data", ex); }
                 processcount++;
                 if (processcount > WMRecipeCust.ProcessWait && slowmode )
                 {
@@ -892,7 +963,10 @@ namespace wackydatabase.SetData
                 {
                     SetData.SetRecipeData(data, Instant);
                 }
-                catch { WMRecipeCust.WLog.LogWarning($"SetRecipe Data for {data.name} failed"); }
+                catch (Exception ex)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Recipe '{data?.name}' failed (may be partially applied): {ex.Message.Replace('\r', ' ').Replace('\n', ' ')}");
+                }
                 processcount++; 
                 if (processcount > WMRecipeCust.ProcessWait && slowmode)
                 {

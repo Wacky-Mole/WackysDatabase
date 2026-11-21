@@ -1382,15 +1382,16 @@ public static class PiecePrefabManager
     private static readonly Dictionary<string, Piece.PieceCategory> OtherPieceCategories = new();
     private static readonly Dictionary<Piece.PieceCategory, string> VanillaLabels = new();
     private static readonly HashSet<string> CustomUsageCategories = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<Piece, HashSet<string>> CustomUsageAssignments = new();
     private static readonly Dictionary<ByUsagePieceList, Dictionary<int, VirtualUsageTag>> VirtualUsageTags = new();
     internal static bool CategoryRefreshNeeded;
 
     private readonly struct VirtualUsageTag
     {
         internal readonly string Name;
-        internal readonly Piece.PieceCategory Category;
+        internal readonly Piece.PieceCategory? Category;
 
-        internal VirtualUsageTag(string name, Piece.PieceCategory category)
+        internal VirtualUsageTag(string name, Piece.PieceCategory? category)
         {
             Name = name;
             Category = category;
@@ -1520,23 +1521,82 @@ public static class PiecePrefabManager
         return category;
     }
 
-    internal static void RegisterUsageCategories(IEnumerable<string> categoryNames)
+    internal static void RegisterUsageCategories(IEnumerable<wackydatabase.Datas.PieceData> pieces)
     {
         CustomUsageCategories.Clear();
+        CustomUsageAssignments.Clear();
 
-        foreach (string categoryName in categoryNames
-                     .Where(name => !string.IsNullOrWhiteSpace(name))
-                     .Where(name => !TryGetBuiltInUsageCategory(name, out _))
-                     .Distinct(StringComparer.OrdinalIgnoreCase)
-                     .OrderBy(name => name, StringComparer.Ordinal))
+        foreach (wackydatabase.Datas.PieceData piece in pieces)
         {
-            CustomUsageCategories.Add(categoryName);
+            if (!string.IsNullOrWhiteSpace(piece.usage))
+            {
+                ParseUsage(piece.usage, out HashSet<string> customCategories);
+                CustomUsageCategories.UnionWith(customCategories);
+            }
+            else if (!string.IsNullOrWhiteSpace(piece.piecehammerCategory) &&
+                     !TryGetBuiltInUsageCategory(piece.piecehammerCategory, out _))
+            {
+                CustomUsageCategories.Add(piece.piecehammerCategory);
+            }
         }
 
         if (Localization.m_instance != null)
         {
             AddCategoryLocalizedKeys(Localization.instance);
         }
+    }
+
+    internal static Piece.UsageTagFlags ParseUsage(string usage, out HashSet<string> customCategories)
+    {
+        Piece.UsageTagFlags usageFlags = 0;
+        customCategories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string categoryName in usage.Split(','))
+        {
+            string trimmedCategoryName = categoryName.Trim();
+            if (string.IsNullOrEmpty(trimmedCategoryName))
+            {
+                continue;
+            }
+
+            if (TryGetBuiltInUsageCategory(trimmedCategoryName, out Piece.UsageTagFlags usageTag))
+            {
+                usageFlags |= usageTag;
+            }
+            else if (int.TryParse(trimmedCategoryName, out int numericUsage))
+            {
+                usageFlags |= (Piece.UsageTagFlags)numericUsage;
+            }
+            else
+            {
+                customCategories.Add(trimmedCategoryName);
+            }
+        }
+
+        return usageFlags;
+    }
+
+    internal static void SetCustomUsageCategories(Piece piece, IEnumerable<string> categoryNames)
+    {
+        HashSet<string> matchingCategories = new(categoryNames.Where(CustomUsageCategories.Contains), StringComparer.OrdinalIgnoreCase);
+        if (matchingCategories.Count == 0)
+        {
+            CustomUsageAssignments.Remove(piece);
+            return;
+        }
+
+        CustomUsageAssignments[piece] = matchingCategories;
+    }
+
+    internal static string GetUsageString(Piece piece)
+    {
+        string usage = piece.m_usage.ToString();
+        if (!CustomUsageAssignments.TryGetValue(piece, out HashSet<string> customCategories))
+        {
+            return usage;
+        }
+
+        return string.Join(", ", new[] { usage }.Concat(customCategories.OrderBy(name => name, StringComparer.Ordinal)));
     }
 
     internal static bool TryGetBuiltInUsageCategory(string categoryName, out Piece.UsageTagFlags usageTag)
@@ -1596,8 +1656,14 @@ public static class PiecePrefabManager
         int tagId = int.MinValue;
         foreach (string categoryName in CustomUsageCategories.OrderBy(name => name, StringComparer.Ordinal))
         {
-            Piece.PieceCategory category = GetCategory(categoryName);
-            if (!availableCategories.Contains(category))
+            Piece.PieceCategory? category = PieceCategories
+                .Where(entry => entry.Key.Equals(categoryName, StringComparison.OrdinalIgnoreCase))
+                .Select(entry => (Piece.PieceCategory?)entry.Value)
+                .FirstOrDefault();
+            bool hasCategoryPieces = category.HasValue && availableCategories.Contains(category.Value);
+            bool hasAssignedPieces = pieceTable.m_availablePieces.Any(piece =>
+                CustomUsageAssignments.TryGetValue(piece, out HashSet<string> assignedCategories) && assignedCategories.Contains(categoryName));
+            if (!hasCategoryPieces && !hasAssignedPieces)
             {
                 continue;
             }
@@ -1640,9 +1706,12 @@ public static class PiecePrefabManager
             return;
         }
 
+        resultOut.Clear();
         foreach (Piece piece in pieceTable.m_availablePieces)
         {
-            if (piece.m_category == tag.Category && !resultOut.Contains(piece))
+            bool matchesCategory = tag.Category.HasValue && piece.m_category == tag.Category.Value;
+            bool matchesUsage = CustomUsageAssignments.TryGetValue(piece, out HashSet<string> assignedCategories) && assignedCategories.Contains(tag.Name);
+            if ((matchesCategory || matchesUsage) && !resultOut.Contains(piece))
             {
                 resultOut.Add(piece);
             }

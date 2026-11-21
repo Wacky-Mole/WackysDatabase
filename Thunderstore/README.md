@@ -151,7 +151,7 @@ Frequently Asked Questions
             Null is like I don't know, so I don't care, use the original values. To delete the existing values you will use either '' for strings, "delete" for SE Effects or "-" for multiliners. 
 
     Q: How do I make custom Icons?
-        A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename. ie. wacky.png
+        A: Make a png or jpeg 64 x 64 px. Put it in Icons folder. In the customIcon line, put the filename (extension optional; `.png`, `.jpg`, and `.jpeg` are supported, defaulting to `.png` if omitted, e.g. `wacky`, `wacky.png`, or `wacky.jpg`).
 
 ![Custom Icon Gif](https://wackymole.com/hosts/customicon.gif)
 
@@ -205,6 +205,7 @@ The configuration file for WackysDatabase is located at BepInEx/config/WackyMole
 - NexusModID: 1825 (does not have much functionality)
 - DedServer load Memory: false (dedicated server loads objects into the game like a client)
 - ExtraSecurity on Servers: true (prevents loading into singleplayer and then loading into multiplayer)
+- Armor / WaterName: Water (client-local label shown for water resistance in tooltips)
 - FileWatcher for YMLs: true (reloads the mod on any changes to the wackydatabase folder on the server)
 - Enable Asset Sync: true (allows server to sync missing Icons/Objects/Textures to clients after player spawn)
 - Max Asset Sync File Size MB: 5 (per-file safety limit for sync; oversized files fail gracefully and must be installed manually)
@@ -521,7 +522,7 @@ Valheim's `m_customData` is a string dictionary. WDB preserves values exactly wi
 - `clonePrefabName` (string): The name of the prefab to clone.
 - `mockName` (string): The name of the mock object.
 - `mockBasePrefab` (string): Optional vanilla item prefab whose behavior is used by a mock. Use a food/drink, weapon, shield, helmet, cape, chest, or leg item as the donor to place the mock in that item library and inherit the required attacks, consumption behavior, or equipment data. The mock model replaces the donor's `attach` visual, and all other item properties can still be overridden in the YAML. Static OBJ models work for held items, dropped items, helmets, and similar attachments; skinned chest and leg armour visuals still require a Unity-built skinned prefab/asset bundle or `customVisual`.
-- `customIcon` (string): The custom icon for the item. PNG 64x64, Icon needs to be in the Icon folder ( doesn't server sync)
+- `customIcon` (string): The custom icon for the item. PNG or JPEG 64x64 in the Icons folder (`.png` extension may be omitted, e.g. `wacky` or `wacky.png`)
 - `material` (string): The material of the item. Images on nexus https://www.nexusmods.com/valheim/mods/1825 of the various changes you can make. </br>
 Visit the Material and CustomVisual Section to understand this complex system. 
 
@@ -551,6 +552,28 @@ Visit the Material and CustomVisual Section to understand this complex system.
 
 `Primary_Attack` (AttackArm): The primary attack data.
 `Secondary_Attack` (AttackArm): The secondary(middle mouse) attack data.
+
+### Optional secondary-attack damage companion SubMod
+
+- `Damage` / `Damage_Per_Level` (WDamages): Optional secondary-only damage overrides ONLY; requires submod WackyDBSecondaryAttacks.
+
+
+Install `WackyDBSecondaryAttacks.dll` alongside WackyDB 2.6.14 or newer in `BepInEx\plugins` on the server and every client. Without the companion, WackyDB still loads/exports the fields but warns that their combat overrides cannot be applied.
+
+```yaml
+name: SwordIron
+Secondary_Attack:
+  Damage:
+    Slash: 90
+    Pierce: 20
+  Damage_Per_Level:
+    Slash: 6
+```
+
+These two optional blocks are supported **only under `Secondary_Attack`**. Each supplied block replaces the entire corresponding damage block (unlisted damage types become zero). An omitted block inherits the weapon's normal `Damage` or `Damage_Per_Level`; omit both to keep vanilla/shared secondary damage. Removing the blocks or deleting the item YAML clears the override on the next full reload. Primary attacks still use the top-level damage settings.
+
+Quality upgrades and world-level scaling use the native damage calculation. Existing secondary `DmgMultiplier`, chain bonuses, skills, status effects, and other native attack modifiers still apply afterward. Melee, area attacks, and projectile bursts are covered; projectile ammunition damage remains additive and unchanged. The tooltip adds **Secondary base damage**, before attack multipliers and ammunition. WackyDB's normal YAML sync and item exports preserve these blocks.
+
 ### Primary/Secondary_Attack AttackArm
 
 - `AttackType` (Attack.AttackType): The type of attack.
@@ -604,6 +627,7 @@ Visit the Material and CustomVisual Section to understand this complex system.
 - `Bow_Draw` (bool): Indicates whether the bow is drawn for the attack.
 - `Bow_Duration_Min` (float): The minimum duration of the bow.
 - `Bow_Stamina_Drain` (float): The stamina drain during bow usage.
+- `Bow_Eitr_Drain` (float): The Eitr drain while drawing the bow.
 - `Bow_Animation_State` (string): The animation state for the bow.
 - `Attack_Angle` (float): The angle of the attack.
 - `Attack_Ray_Width` (float): The width of the attack ray.
@@ -984,12 +1008,12 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `m_name` (string): The In Game Piece Name
 - `sizeMultiplier` (string): The size multiplier of the piece. Any float range 1.0 is normal size. You can specify x|y|z like "1.23|3.0|2" or a singular value "2.0"
 - `m_description` (string): The description of the piece.
-- `customIcon` (string): The custom icon for the piece. PNG or JPEG, 64 x 64, Must be in Icon Folder (Icons do not Synced)
+- `customIcon` (string): The custom icon for the piece. PNG or JPEG, 64 x 64, Must be in Icon Folder (`.png` extension may be omitted)
 - `clonePrefabName` (string): The name of the prefab to clone.
 - `material` (string):  Visit Material Section and Custom Visual Section
 - `damagedMaterial` (string): The material of the piece when damaged.
 - `craftingStation` (string): The crafting station required to craft the piece.
-- `piecehammerCategory` (string): The category of the piece hammer.
+- `piecehammerCategory` (string): The category of the piece hammer. (This is not really used anymore, but you can still use it to create a custom category. See Custom Piece Categories below.))
 - `categoryOrderBeforePrefab` (string): The unique prefab name of the piece you want your modded or vanilla piece to appear BEFORE in the build menu. Example: wood_wall_half is placed before wood_wall
     You can chain up to 100 pieces (A before B, B before C) before the logic breaks down. If you reference any non existing prefab, the piece will be added at the end of the list. 
 - `minStationLevel` (int): The minimum level of the crafting station required.
@@ -1011,7 +1035,7 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `spaceRequirement` (float): Minimum free-space radius required around the piece for placement.
 - `repairPiece` (bool): Marks this as a repair action/tool piece. ???
 - `isUpgrade` (bool): Marks this piece as an upgrade placement for another structure.
-- `usage` (Piece.UsageTagFlags): Build-menu usage filters. Available categories are `Misc`, `Crafting`, `Building`, `Floor`, `Wall`, `Roof`, `Architecture`, `Furniture`, `Lighting`, `Decor`, `Storage`, `Transport`, `Food`, `Meads`, `Feasts`, `Defense`, `Stacks`, `Stairs`, `Doors`, and `Seasonal`. Multiple categories can be combined with commas, such as `Building, Wall` or `Furniture, Decor`.
+- `usage` (string): Build-menu usage filters. Built-in categories are `Misc`, `Crafting`, `Building`, `Floor`, `Wall`, `Roof`, `Architecture`, `Furniture`, `Lighting`, `Decor`, `Storage`, `Transport`, `Food`, `Meads`, `Feasts`, `Defense`, `Stacks`, `Stairs`, `Doors`, and `Seasonal`. Combine multiple built-in tags or custom filter names with commas, such as `Building, Wall, Masonry`.
 - `blockingPieces` (List<string>): Prefab names of pieces that block placement of this piece. An empty list clears the existing blockers.
 - `canRockJade` (bool): Allows this piece to participate in Valheim's jade rocking interaction behavior. ???
 - `wearNTearData` (WearNTearData): The wear and tear data of the piece.
@@ -1034,6 +1058,43 @@ build:
 You can also force a zero-cost requirement line:
 - Wood:0:0:True
 
+#### Custom Piece Categories and Usage Filters
+
+Use `usage` by itself to assign a piece to one or more built-in **By Usage** filters; it does not require `piecehammerCategory`:
+
+```yaml
+usage: Building, Wall
+```
+
+To create a custom **By Usage** filter, use a new name in `usage` on any piece. You can also create the filter by setting `piecehammerCategory` to a new name on a piece whose `usage` is unset. Other pieces can join the same custom filter by using its name in `usage`, even if they have a different `piecehammerCategory`. You can combine custom names with built-in usage tags:
+
+Declares the Masonry filter and puts this piece in the Masonry build category:
+
+```yaml
+name: Piece_CustomStone
+piecehammer: Hammer
+piecehammerCategory: Masonry
+```
+
+Another piece can join Masonry without changing its build category:
+
+```yaml
+name: Piece_OtherMasonry
+piecehammer: Hammer
+piecehammerCategory: Building
+usage: Masonry
+```
+
+A piece can match built-in and custom filters at the same time:
+
+```yaml
+name: Piece_MasonryWall
+piecehammer: Hammer
+piecehammerCategory: Building
+usage: Building, Wall, Masonry
+```
+
+Custom names in `usage` are matched case-insensitively. Built-in usage tags remain available as listed above.
 
 ### ComfortData
 
@@ -1292,6 +1353,8 @@ Change the size of any Piece, make adminonly and build HUGE or TINY structures.
 
 ## Recipes
 
+Recipe warnings explain why an entry could not be applied (missing item/recipe, invalid output prefab, or ambiguous recipe matches). Other recipes continue loading. Use `wackydb_all_recipes` to find exact recipe names; unexpected exceptions include details and may leave the affected recipe partially applied.
+
 Most recipes are saved with itemname in name for recipe. For actual recipes they will have Recipe_ in the name like Recipe_Bronze or Recipe_Bronze5.
 <br/>You should try to <b>avoid </b> actual recipes when possible. </br> wackydb_all_recipes should list both normal recipes and actual recipes
 <br/></br>Actual recipes can be found in bulk save now and with JVL docs.  https://valheim-modding.github.io/Jotunn/data/objects/recipe-list.html
@@ -1371,7 +1434,7 @@ You can replace all Boars in the game with this Dude.
 - `Category` (string): The category of the status effect. Prevents other SEs in this category from being active while one is active. "" is default with no category, so no restrictions.
 - `IconName` (string): The name of the icon for the status effect. Doesn't do much, can't change.
 - `ClonedSE` (string): Holds the name of the SE you are cloning. Otherwise new SE's will use SetEffect_TrollArmor
-- `CustomIcon` (string): The custom icon for the status effect. customIcon, jpeg or png. ie wacky.png 64 x 64. Use "delete" to remove existing icon.
+- `CustomIcon` (string): A JPEG or PNG filename in the Icons folder, e.g. `wacky`, `wacky.png`, or `wacky.jpg` (when no extension is given, `.png`, `.jpg`, and `.jpeg` are checked in order, 64 x 64). Omit it to keep the existing icon, or use `delete` to remove it. Missing or unreadable files cause the effect load to fail with a one-line warning naming the icon and reason; invalid image data logs a warning and keeps the existing icon.
 - `FlashIcon` (bool): Indicates whether the icon should flash.
 - `CooldownIcon` (bool): Indicates whether the icon is for a cooldown.
 - `Hidden` (bool): Indicates whether the status effect is hidden from the status-effect UI.

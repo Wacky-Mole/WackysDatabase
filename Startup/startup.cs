@@ -184,6 +184,38 @@ namespace wackydatabase.Startup
 
             }
         }
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.Awake))]
+        public static class ZNetAwakeSecurityPatch
+        {
+            static void Postfix(ZNet __instance)
+            {
+                WMRecipeCust.ConnectionError = "";
+                WMRecipeCust.waitingforFirstLoad = false;
+                WMRecipeCust.NoMoreLoading = false;
+                IsLocalInstance(__instance);
+            }
+        }
+
+        [HarmonyPriority(Priority.Low)]
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.RPC_PeerInfo))]
+        public static class ZNetPeerInfoSecurityPatch
+        {
+            static bool Prefix(ZNet __instance, bool __runOriginal)
+            {
+                if (!__runOriginal)
+                {
+                    return false;
+                }
+
+                if (__instance != null && !__instance.IsServer())
+                {
+                    return CheckSecurity();
+                }
+
+                return true;
+            }
+        }
+
         [HarmonyPatch(typeof(ZNet), nameof(ZNet.OpenServer))]
         public static class OpenServerWacky
         {
@@ -206,7 +238,21 @@ namespace wackydatabase.Startup
 
 
                         }
+                        else
+                        {
+                            WMRecipeCust.WLog.LogWarning("Server Lobby is active");
+                            WMRecipeCust.LobbyRegistered = true;
+                            WMRecipeCust.skillConfigData.Value = WMRecipeCust.ymlstring;
+                        }
                     } catch { WMRecipeCust.WLog.LogWarning("Steam or Gamepass wasn't found"); }
+
+                    WMRecipeCust.issettoSinglePlayer = false;
+                    WMRecipeCust.ConfigSync.CurrentVersion = WMRecipeCust.ModVersion;
+                    if (__instance != null && !__instance.IsDedicated() && !WMRecipeCust.IsDedServer)
+                    {
+                        WMRecipeCust.HasLobbied = true;
+                        WMRecipeCust.ForceLogout = true;
+                    }
                 }
 
             }
@@ -261,14 +307,20 @@ namespace wackydatabase.Startup
 
         public static bool CheckSecurity()
         {
-            if (WMRecipeCust.extraSecurity.Value && WMRecipeCust.ForceLogout  )
-            { 
-                WMRecipeCust.ConfigSync.CurrentVersion = "0.0.1"; // kicking player from server
+            if (ZNet.instance != null && ZNet.instance.IsServer())
+            {
+                return true;
+            }
+
+            if (WMRecipeCust.IsExtraSecurityEnabled && WMRecipeCust.ForceLogout)
+            {
                 WMRecipeCust.WLog.LogError("You ARE kicked from Multiplayer Servers! " +" 0.0.1");
                 WMRecipeCust.ConnectionError =$"{WMRecipeCust.ModName} You started a Local Game before Multiplayer. That is Not allowed. -Restart Game";
                 WMRecipeCust.WLog.LogError(WMRecipeCust.ConnectionError);
-                //ServerSync.VersionCheck.Logout();
-                Game.instance.Logout();
+                if (Game.instance != null)
+                {
+                    Game.instance.Logout();
+                }
                 AccessTools.DeclaredField(typeof(ZNet), "m_connectionStatus").SetValue(null, ZNet.ConnectionStatus.ErrorVersion);
                 return false;
             }
@@ -278,18 +330,36 @@ namespace wackydatabase.Startup
 
         public static bool IsLocalInstance(ZNet znet)
         {
-            if (znet.IsServer() && !znet.IsDedicated() && !WMRecipeCust.LobbyRegistered)
+            if (znet == null)
             {
-                WMRecipeCust.issettoSinglePlayer = true;
-                WMRecipeCust.ForceLogout = true;
-                
+                return WMRecipeCust.issettoSinglePlayer;
             }
 
-            if (WMRecipeCust.LobbyRegistered)
-            {
-                WMRecipeCust.ConfigSync.CurrentVersion = WMRecipeCust.ModVersion; // Just in case goes from singleplayer to hosting. 
-                WMRecipeCust.HasLobbied = true;
+            bool isDedicated = znet.IsDedicated() || WMRecipeCust.IsDedServer;
+            bool isOpenServer = ZNet.IsOpenServer() || WMRecipeCust.LobbyRegistered;
 
+            if (znet.IsServer() && !isDedicated)
+            {
+                if (isOpenServer)
+                {
+                    WMRecipeCust.issettoSinglePlayer = false;
+                    WMRecipeCust.ConfigSync.CurrentVersion = WMRecipeCust.ModVersion; // Just in case goes from singleplayer to hosting.
+                    WMRecipeCust.HasLobbied = true;
+                    WMRecipeCust.ForceLogout = true;
+                }
+                else
+                {
+                    WMRecipeCust.issettoSinglePlayer = true;
+                    WMRecipeCust.ForceLogout = true;
+                }
+            }
+            else
+            {
+                WMRecipeCust.issettoSinglePlayer = false;
+                if (!znet.IsServer() && WMRecipeCust.HasLobbied)
+                {
+                    WMRecipeCust.ForceLogout = true;
+                }
             }
 
             return WMRecipeCust.issettoSinglePlayer;
@@ -299,21 +369,32 @@ namespace wackydatabase.Startup
         [HarmonyPatch(typeof(Game), nameof(Game._RequestRespawn))]
         public static class MainReloadStart
         {
-            static void Prefix(Game __instance)
+            static bool Prefix(Game __instance, bool __runOriginal)
             {
+                if (!__runOriginal)
+                {
+                    return false;
+                }
+
+                if (ZNet.instance != null && !ZNet.instance.IsServer() && !CheckSecurity())
+                {
+                    WMRecipeCust.waitingforFirstLoad = false;
+                    return false;
+                }
+
                 if (WMRecipeCust.waitingforFirstLoad)
                 {
                     WMRecipeCust.waitingforFirstLoad = false;
 
-                    if (!ZNet.instance.IsServer())
+                    if (ZNet.instance != null && !ZNet.instance.IsServer())
                     {
-                        if (!CheckSecurity()) return;
-
                         WMRecipeCust.Dbgl($" Now loading SERVER Files");
                         WMRecipeCust.context.StartCoroutine(WMRecipeCust.CurrentReload.LoadAllRecipeData(true)); //  Sync Reload 
                         WMRecipeCust.FirstSS = false; // reset in a destory patch
                     }
                 }
+
+                return true;
             }
         }
 

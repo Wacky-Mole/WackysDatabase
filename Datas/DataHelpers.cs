@@ -238,5 +238,37 @@ namespace wackydatabase.Datas
             return whatis == null;
         }
 
+        internal static GameObject GetPrefabRoot(Transform transform)
+        {
+            if (transform == null)
+                return null;
+
+            Transform current = transform;
+            while (current != null)
+            {
+                if (ZNetScene.instance != null && ZNetScene.instance.GetPrefab(current.gameObject.name) == current.gameObject)
+                {
+                    return current.gameObject;
+                }
+
+                if (current.parent == null || (WMRecipeCust.Root != null && current.parent == WMRecipeCust.Root.transform))
+                {
+                    return current.gameObject;
+                }
+
+                current = current.parent;
+            }
+
+            return transform.gameObject;
+        }
+
+        internal static T FindComponentOnPrefab<T>(GameObject prefab) where T : Component
+        {
+            if (prefab == null)
+                return null;
+
+            return prefab.GetComponent<T>() ?? prefab.GetComponentInChildren<T>(true);
+        }
+
     }
 }

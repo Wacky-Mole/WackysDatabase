@@ -98,12 +98,20 @@ namespace wackydatabase.GetData
         internal bool GetAllProjectiles()
         {
             var serializer = new SerializerBuilder().WithNewLine("\n").Build();
+            var seenPrefabs = new HashSet<string>(StringComparer.Ordinal);
             foreach (Projectile projectile in Resources.FindObjectsOfTypeAll<Projectile>())
             {
-                if (projectile == null || projectile.name.Contains("Clone"))
+                if (projectile == null)
                     continue;
 
-                ProjectileData data = GetProjectileDataByName(projectile.gameObject.name);
+                GameObject prefab = DataHelpers.GetPrefabRoot(projectile.transform);
+                if (prefab == null || projectile.name.Contains("Clone") || prefab.name.Contains("Clone"))
+                    continue;
+
+                if (!seenPrefabs.Add(prefab.name))
+                    continue;
+
+                ProjectileData data = BuildProjectileData(prefab.name, projectile);
                 if (data != null)
                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLProjectiles, "Projectile_" + data.proj_name + ".yml"), serializer.Serialize(data));
             }
@@ -113,12 +121,20 @@ namespace wackydatabase.GetData
         internal bool GetAllAoes()
         {
             var serializer = new SerializerBuilder().WithNewLine("\n").Build();
+            var seenPrefabs = new HashSet<string>(StringComparer.Ordinal);
             foreach (Aoe aoe in Resources.FindObjectsOfTypeAll<Aoe>())
             {
-                if (aoe == null || aoe.name.Contains("Clone"))
+                if (aoe == null)
                     continue;
 
-                AoeData data = GetAoeDataByName(aoe.gameObject.name);
+                GameObject prefab = DataHelpers.GetPrefabRoot(aoe.transform);
+                if (prefab == null || aoe.name.Contains("Clone") || prefab.name.Contains("Clone"))
+                    continue;
+
+                if (!seenPrefabs.Add(prefab.name))
+                    continue;
+
+                AoeData data = BuildAoeData(prefab.name, aoe);
                 if (data != null)
                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLAoes, "Aoe_" + data.aoe_name + ".yml"), serializer.Serialize(data));
             }
@@ -132,18 +148,27 @@ namespace wackydatabase.GetData
 
             GameObject prefab = ZNetScene.instance?.GetPrefab(name);
             if (prefab == null)
-                prefab = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(obj => obj != null && obj.name == name);
+            {
+                var candidates = Resources.FindObjectsOfTypeAll<GameObject>().Where(obj => obj != null && obj.name == name);
+                prefab = candidates.FirstOrDefault(obj => DataHelpers.FindComponentOnPrefab<Projectile>(obj) != null)
+                    ?? candidates.FirstOrDefault();
+            }
 
-            Projectile projectile = prefab?.GetComponent<Projectile>();
+            Projectile projectile = DataHelpers.FindComponentOnPrefab<Projectile>(prefab);
             if (projectile == null)
             {
                 WMRecipeCust.WLog.LogWarning($"Projectile {name} was not found or has no Projectile component.");
                 return null;
             }
 
+            return BuildProjectileData(prefab.name, projectile);
+        }
+
+        private ProjectileData BuildProjectileData(string prefabName, Projectile projectile)
+        {
             return new ProjectileData
             {
-                proj_name = prefab.name,
+                proj_name = prefabName,
                 m_type = projectile.m_type,
                 Damage = GetDamages(projectile.m_damage),
                 m_aoe = projectile.m_aoe,
@@ -219,18 +244,27 @@ namespace wackydatabase.GetData
 
             GameObject prefab = ZNetScene.instance?.GetPrefab(name);
             if (prefab == null)
-                prefab = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(obj => obj != null && obj.name == name);
+            {
+                var candidates = Resources.FindObjectsOfTypeAll<GameObject>().Where(obj => obj != null && obj.name == name);
+                prefab = candidates.FirstOrDefault(obj => DataHelpers.FindComponentOnPrefab<Aoe>(obj) != null)
+                    ?? candidates.FirstOrDefault();
+            }
 
-            Aoe aoe = prefab?.GetComponent<Aoe>();
+            Aoe aoe = DataHelpers.FindComponentOnPrefab<Aoe>(prefab);
             if (aoe == null)
             {
                 WMRecipeCust.WLog.LogWarning($"AOE {name} was not found or has no Aoe component.");
                 return null;
             }
 
+            return BuildAoeData(prefab.name, aoe);
+        }
+
+        private AoeData BuildAoeData(string prefabName, Aoe aoe)
+        {
             return new AoeData
             {
-                aoe_name = prefab.name,
+                aoe_name = prefabName,
                 m_name = aoe.m_name,
                 m_useAttackSettings = aoe.m_useAttackSettings,
                 Damage = GetDamages(aoe.m_damage),
@@ -845,7 +879,7 @@ namespace wackydatabase.GetData
                 spaceRequirement = piece.m_spaceRequirement,
                 repairPiece = piece.m_repairPiece,
                 isUpgrade = piece.m_isUpgrade,
-                usage = piece.m_usage,
+                usage = PieceManager.PiecePrefabManager.GetUsageString(piece),
                 blockingPieces = piece.m_blockingPieces?.Where(blockingPiece => blockingPiece != null).Select(blockingPiece => Utils.GetPrefabName(blockingPiece.gameObject)).ToList(),
                 canRockJade = piece.m_canRockJade,
                 build = new List<string>(),
@@ -1607,6 +1641,7 @@ namespace wackydatabase.GetData
                     Bow_Draw = data.m_shared.m_attack.m_bowDraw,
                     Bow_Duration_Min = data.m_shared.m_attack.m_drawDurationMin,
                     Bow_Stamina_Drain = data.m_shared.m_attack.m_drawStaminaDrain,
+                    Bow_Eitr_Drain = data.m_shared.m_attack.m_drawEitrDrain,
                     Bow_Animation_State = data.m_shared.m_attack.m_drawAnimationState,
 
                     Attack_Angle = data.m_shared.m_attack.m_attackAngle,
@@ -1650,10 +1685,13 @@ namespace wackydatabase.GetData
                 ItemData.Primary_Attack = Primary_Attack;
             }
 
-            if (data.m_shared.m_secondaryAttack != null && hasdmg)
+            bool hasSecondaryDamage = API.SecondaryAttackDamage.TryGet(data, out var secondaryDamage);
+            if (data.m_shared.m_secondaryAttack != null && (hasdmg || hasSecondaryDamage))
             {
                 AttackArm Secondary_Attack = new AttackArm
                 {
+                    Damage = secondaryDamage?.Damage,
+                    Damage_Per_Level = secondaryDamage?.DamagePerLevel,
                     AttackType = data.m_shared.m_secondaryAttack.m_attackType,
                     Attack_Animation = data.m_shared.m_secondaryAttack.m_attackAnimation,
                     Attack_Random_Animation = data.m_shared.m_secondaryAttack.m_attackRandomAnimations,
@@ -1698,6 +1736,7 @@ namespace wackydatabase.GetData
                     Bow_Draw = data.m_shared.m_secondaryAttack.m_bowDraw,
                     Bow_Duration_Min = data.m_shared.m_secondaryAttack.m_drawDurationMin,
                     Bow_Stamina_Drain = data.m_shared.m_secondaryAttack.m_drawStaminaDrain,
+                    Bow_Eitr_Drain = data.m_shared.m_secondaryAttack.m_drawEitrDrain,
                     Bow_Animation_State = data.m_shared.m_secondaryAttack.m_drawAnimationState,
 
                     Attack_Angle = data.m_shared.m_secondaryAttack.m_attackAngle,
@@ -1900,10 +1939,15 @@ namespace wackydatabase.GetData
             {
                 foreach (var obj in array)
                 {
-                    if (obj.name == (name))
+                    if (obj == null)
+                        continue;
+
+                    GameObject prefab = DataHelpers.GetPrefabRoot(obj.transform);
+                    if (obj.name == name || (prefab != null && prefab.name == name))
                     {
-                        picData.name = obj.name;
-                        picData.itemPrefab = obj.m_itemPrefab.name;
+                        string resolvedName = obj.name == name ? obj.name : prefab.name;
+                        picData.name = resolvedName;
+                        picData.itemPrefab = obj.m_itemPrefab?.name;
                         picData.amount = obj.m_amount;
                         // picData.minAmountScaled = obj.m_minAmountScaled;
                         picData.overrideName = obj.m_overrideName;
@@ -1912,7 +1956,8 @@ namespace wackydatabase.GetData
                         if (obj.m_hideWhenPicked)
                             picData.hiddenChildWhenPicked = obj.m_hideWhenPicked.name;
                         //picData.enable = obj.enabled;
-                        if (obj.TryGetComponent<Destructible>(out var yolo))
+                        Destructible yolo = obj.GetComponent<Destructible>() ?? DataHelpers.FindComponentOnPrefab<Destructible>(prefab);
+                        if (yolo != null)
                             picData.ifHasHealth = yolo.m_health;
 
 
@@ -1946,9 +1991,13 @@ namespace wackydatabase.GetData
 
             foreach (var obj in array)
             {
-                if (obj.name == (name))
+                if (obj == null)
+                    continue;
+
+                GameObject prefab = DataHelpers.GetPrefabRoot(obj.transform);
+                if (obj.name == name || (prefab != null && prefab.name == name))
                 {
-                    picData.name = obj.name;
+                    picData.name = obj.name == name ? obj.name : prefab.name;
                     picData.treeHealth = obj.m_health;
                     picData.minToolTier = obj.m_minToolTier;
 
@@ -1965,15 +2014,25 @@ namespace wackydatabase.GetData
                                         .Build();
 
             Pickable[] array = Resources.FindObjectsOfTypeAll<Pickable>();
+            var seenPickables = new HashSet<string>(StringComparer.Ordinal);
+            var seenTrees = new HashSet<string>(StringComparer.Ordinal);
             try
             {
                 foreach (var obj in array)
                 {
-                    if (obj.name.Contains("Clone"))
+                    if (obj == null)
                         continue;
+
+                    GameObject prefab = DataHelpers.GetPrefabRoot(obj.transform);
+                    string resolvedName = prefab != null ? prefab.name : obj.name;
+                    if (string.IsNullOrEmpty(resolvedName) || obj.name.Contains("Clone") || resolvedName.Contains("Clone"))
+                        continue;
+                    if (!seenPickables.Add(resolvedName))
+                        continue;
+
                     PickableData picData = new PickableData();
-                    picData.name = obj?.name;
-                    WMRecipeCust.WLog.LogInfo("Saving " + obj?.name);
+                    picData.name = resolvedName;
+                    WMRecipeCust.WLog.LogInfo("Saving " + resolvedName);
                     picData.itemPrefab = obj?.m_itemPrefab?.name;
                     picData.amount = obj?.m_amount;
                     //picData.minAmountScaled = obj.m_minAmountScaled;
@@ -1983,7 +2042,8 @@ namespace wackydatabase.GetData
                     if (obj?.m_hideWhenPicked)
                         picData.hiddenChildWhenPicked = obj?.m_hideWhenPicked?.name;
                     // picData.enable = obj.enabled;
-                    if (obj.TryGetComponent<Destructible>(out var yolo))
+                    Destructible yolo = obj.GetComponent<Destructible>() ?? DataHelpers.FindComponentOnPrefab<Destructible>(prefab);
+                    if (yolo != null)
                         picData.ifHasHealth = yolo?.m_health;
 
                     if (obj?.m_extraDrops != null && obj?.m_extraDrops.m_drops.Count() > 0)
@@ -2010,16 +2070,23 @@ namespace wackydatabase.GetData
                 TreeBase[] array2 = Resources.FindObjectsOfTypeAll<TreeBase>();
                 foreach (var obj2 in array2)
                 {
-                    if (obj2.name.Contains("Clone"))
+                    if (obj2 == null)
+                        continue;
+
+                    GameObject prefab = DataHelpers.GetPrefabRoot(obj2.transform);
+                    string resolvedName = prefab != null ? prefab.name : obj2.name;
+                    if (string.IsNullOrEmpty(resolvedName) || obj2.name.Contains("Clone") || resolvedName.Contains("Clone"))
+                        continue;
+                    if (!seenTrees.Add(resolvedName))
                         continue;
 
                     TreeBaseData picData = new TreeBaseData();
-                    WMRecipeCust.WLog.LogInfo("Saving " + obj2.name);
-                    picData.name = obj2.name;
+                    WMRecipeCust.WLog.LogInfo("Saving " + resolvedName);
+                    picData.name = resolvedName;
                     picData.treeHealth = obj2.m_health;
                     picData.minToolTier = obj2.m_minToolTier;
 
-                    
+
                     File.WriteAllText(Path.Combine(WMRecipeCust.assetPathBulkYMLPickables, "Treebase_" + picData.name + ".yml"), serializer.Serialize(picData));
                 }
             }

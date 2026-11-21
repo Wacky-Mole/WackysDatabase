@@ -338,6 +338,10 @@ public class ConfigSync
         if (HandleConfigSyncRPC(0, package, false))
         {
             InitialSyncDone = true;
+            if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.GetConnectionStatus() == ZNet.ConnectionStatus.Connected)
+            {
+                wackydatabase.Startup.Startup.CheckSecurity();
+            }
         }
     }
 
