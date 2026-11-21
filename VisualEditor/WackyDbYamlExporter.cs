@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using wackydatabase.Datas;
 using wackydatabase.GetData;
+using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 
 namespace wackydatabase.VisualEditor
@@ -75,6 +76,22 @@ namespace wackydatabase.VisualEditor
             string damagedMaterialName,
             string customIcon)
         {
+            string fileName = "Piece_" + SanitizeFileName(prefabName) + ".yml";
+            string path = Path.Combine(WMRecipeCust.assetPathPieces, fileName);
+            if (File.Exists(path))
+            {
+                try
+                {
+                    string updated = UpdatePieceAppearanceYaml(File.ReadAllText(path), prefabName, materialName, damagedMaterialName, customIcon);
+                    File.WriteAllText(path, updated);
+                    return CompleteWrite(path);
+                }
+                catch (Exception exception)
+                {
+                    return Fail($"Could not update '{fileName}': {exception.Message}");
+                }
+            }
+
             PieceData data = new PieceData
             {
                 name = prefabName,
@@ -83,7 +100,32 @@ namespace wackydatabase.VisualEditor
                 damagedMaterial = string.IsNullOrWhiteSpace(damagedMaterialName) ? null : damagedMaterialName,
                 customIcon = string.IsNullOrWhiteSpace(customIcon) ? null : customIcon
             };
-            return WriteObject(WMRecipeCust.assetPathPieces, "Piece_" + SanitizeFileName(prefabName) + ".yml", data);
+            return WriteObject(WMRecipeCust.assetPathPieces, fileName, data);
+        }
+
+        internal static string UpdatePieceAppearanceYaml(string yaml, string prefabName, string materialName, string damagedMaterialName, string customIcon)
+        {
+            var stream = new YamlStream();
+            using var reader = new StringReader(yaml);
+            stream.Load(reader);
+            if (stream.Documents.Count != 1 || !(stream.Documents[0].RootNode is YamlMappingNode piece)
+                || !piece.Children.TryGetValue(new YamlScalarNode("name"), out YamlNode name)
+                || !(name is YamlScalarNode id) || !string.Equals(id.Value, prefabName, StringComparison.Ordinal))
+            {
+                throw new InvalidDataException("The existing YAML does not describe the selected piece.");
+            }
+
+            SetIfSpecified("material", materialName);
+            SetIfSpecified("damagedMaterial", damagedMaterialName);
+            SetIfSpecified("customIcon", customIcon);
+            using var writer = new StringWriter();
+            stream.Save(writer, assignAnchors: false);
+            return writer.ToString();
+
+            void SetIfSpecified(string key, string value)
+            {
+                if (!string.IsNullOrWhiteSpace(value)) piece.Children[new YamlScalarNode(key)] = new YamlScalarNode(value);
+            }
         }
 
         internal bool SaveItemClone(
@@ -172,15 +214,53 @@ namespace wackydatabase.VisualEditor
             return WriteObject(WMRecipeCust.assetPathPieces, GetCloneFileName(WackyDbObjectType.Piece, options.Name), data, createNew: true);
         }
 
-        internal bool CloneFileExists(WackyDbObjectType type, string cloneName)
+        internal bool SaveCreatureClone(GameObject prefab, string sourceName, WackyDbCloneOptions options, ItemMaterialSlot materialSlot)
         {
-            string directory = type == WackyDbObjectType.Item ? WMRecipeCust.assetPathItems : WMRecipeCust.assetPathPieces;
-            return File.Exists(Path.Combine(directory, GetCloneFileName(type, cloneName)));
+            if (!GetDataYML.TryGetCreatureData(prefab, out string displayName) || !prefab.GetComponent<ZNetView>())
+            {
+                return Fail("The selected prefab is not a registered creature.");
+            }
+
+            return WriteObject(GetCloneDirectory(WackyDbObjectType.Creature), GetCloneFileName(WackyDbObjectType.Creature, options.Name), new CreatureData
+            {
+                name = options.Name,
+                clone_creature = sourceName,
+                mob_display_name = options.DisplayName ?? displayName,
+                materialSlot = materialSlot
+            }, createNew: true);
         }
+
+        internal bool SaveTreeClone(GameObject prefab, string sourceName, WackyDbCloneOptions options, ItemMaterialSlot materialSlot)
+        {
+            TreeBase tree = DataHelpers.FindComponentOnPrefab<TreeBase>(prefab);
+            if (!tree) return Fail("The selected prefab has no TreeBase component.");
+
+            return WriteObject(GetCloneDirectory(WackyDbObjectType.Tree), GetCloneFileName(WackyDbObjectType.Tree, options.Name), new TreeBaseData
+            {
+                name = options.Name,
+                cloneOfWhatTree = sourceName,
+                treeHealth = tree.m_health,
+                minToolTier = tree.m_minToolTier,
+                materialSlot = materialSlot
+            }, createNew: true);
+        }
+
+        internal bool CloneFileExists(WackyDbObjectType type, string cloneName) =>
+            File.Exists(Path.Combine(GetCloneDirectory(type), GetCloneFileName(type, cloneName)));
+
+        private static string GetCloneDirectory(WackyDbObjectType type) => type switch
+        {
+            WackyDbObjectType.Item => WMRecipeCust.assetPathItems,
+            WackyDbObjectType.Piece => WMRecipeCust.assetPathPieces,
+            WackyDbObjectType.Creature => WMRecipeCust.assetPathCreatures,
+            WackyDbObjectType.Tree => WMRecipeCust.assetPathPickables,
+            _ => throw new ArgumentOutOfRangeException(nameof(type))
+        };
 
         private static string GetCloneFileName(WackyDbObjectType type, string cloneName)
         {
-            return $"{type}_{SanitizeFileName(cloneName)}.yml";
+            string prefix = type == WackyDbObjectType.Tree ? "Treebase" : type.ToString();
+            return $"{prefix}_{SanitizeFileName(cloneName)}.yml";
         }
 
         private bool WriteObject<T>(string directory, string fileName, T data, bool createNew = false)

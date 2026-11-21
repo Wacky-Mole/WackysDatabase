@@ -134,6 +134,7 @@ namespace wackydatabase
         public static List<string> ClonedE = new List<string>(); // effects
         public static List<string> ClonedPI = new List<string>(); // pickables
         public static List<string> ClonedPTB = new List<string>(); // picktreebase
+        internal static readonly Dictionary<string, GameObject> ClonedTreePrefabs = new Dictionary<string, GameObject>();
         public static List<string> ClonedC = new List<string>(); // creatures
         public static Dictionary<string, GameObject> ClonedCC = new Dictionary<string, GameObject>(); //Cloned creatureDick
         public static List<string> ClonedCR = new List<string>(); // creaturesReplacer

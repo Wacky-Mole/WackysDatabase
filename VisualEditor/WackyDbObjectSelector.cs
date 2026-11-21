@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using wackydatabase.Datas;
+using wackydatabase.GetData;
 
 namespace wackydatabase.VisualEditor
 {
@@ -21,9 +23,13 @@ namespace wackydatabase.VisualEditor
 
             if (ZNetScene.instance)
             {
-                foreach (GameObject prefab in ZNetScene.instance.m_prefabs)
+                foreach (GameObject prefab in ZNetScene.instance.m_prefabs.Concat(ZNetScene.instance.m_nonNetViewPrefabs))
                 {
-                    AddOrUpdate(candidates, prefab, WackyDbObjectType.Prefab, string.Empty);
+                    if (!prefab) continue;
+                    WackyDbObjectType type = GetDataYML.TryGetCreatureData(prefab, out _) && prefab.GetComponent<ZNetView>()
+                        ? WackyDbObjectType.Creature
+                        : DataHelpers.FindComponentOnPrefab<TreeBase>(prefab) ? WackyDbObjectType.Tree : WackyDbObjectType.Prefab;
+                    AddOrUpdate(candidates, prefab, type, string.Empty);
                 }
             }
 
@@ -115,7 +121,7 @@ namespace wackydatabase.VisualEditor
             }
 
             if (type == WackyDbObjectType.Piece ||
-                type == WackyDbObjectType.Item && candidate.Type == WackyDbObjectType.Prefab)
+                type == WackyDbObjectType.Item && candidate.Type != WackyDbObjectType.Piece)
             {
                 candidate.Type = type;
                 candidate.Prefab = prefab;
@@ -145,7 +151,7 @@ namespace wackydatabase.VisualEditor
                 return itemDrop.m_itemData.m_shared.m_name ?? string.Empty;
             }
 
-            return string.Empty;
+            return GetDataYML.TryGetCreatureData(prefab, out string displayName) ? displayName ?? string.Empty : string.Empty;
         }
 
         private static string FindHammerName(PieceTable pieceTable)

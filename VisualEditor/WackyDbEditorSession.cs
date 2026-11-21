@@ -9,6 +9,8 @@ namespace wackydatabase.VisualEditor
         Unknown,
         Item,
         Piece,
+        Creature,
+        Tree,
         Prefab
     }
 
@@ -16,6 +18,7 @@ namespace wackydatabase.VisualEditor
     {
         internal Renderer Renderer;
         internal int Slot;
+        internal WackyDbPieceMaterialRoute PieceRoute;
         internal string OriginalMaterialName = string.Empty;
         internal string SelectedSharedMaterialName = string.Empty;
         internal string NewMaterialName = string.Empty;
@@ -74,8 +77,10 @@ namespace wackydatabase.VisualEditor
         internal bool? IncludeCloneMaterial;
         internal bool CloneDraftDirty;
 
-        internal bool UsesPreviewMaterialForClone => WorkingBaseMaterial
-            && (IncludeCloneMaterial ?? (MaterialChangesDirty || !string.IsNullOrWhiteSpace(SelectedSharedMaterialName)));
+        internal bool HasPieceMaterialAssignments => !string.IsNullOrWhiteSpace(PieceMaterialName)
+            || !string.IsNullOrWhiteSpace(DamagedPieceMaterialName);
+        internal bool UsesPreviewMaterialForClone => (WorkingBaseMaterial || HasPieceMaterialAssignments)
+            && (IncludeCloneMaterial ?? (HasPieceMaterialAssignments || MaterialChangesDirty || !string.IsNullOrWhiteSpace(SelectedSharedMaterialName)));
         internal WackyDbMaterialRoute MaterialRoute = WackyDbMaterialRoute.Material;
         internal string BaseMaterialName = string.Empty;
         internal string ChestMaterialName = string.Empty;
@@ -84,6 +89,19 @@ namespace wackydatabase.VisualEditor
         internal WackyDbPieceMaterialRoute PieceMaterialRoute = WackyDbPieceMaterialRoute.FullHealth;
         internal string PieceMaterialName = string.Empty;
         internal string DamagedPieceMaterialName = string.Empty;
+        private string _exportedPieceMaterialName;
+        private string _exportedDamagedPieceMaterialName;
+        internal bool HasPendingPieceAppearance =>
+            (!string.IsNullOrEmpty(PieceMaterialName) && PieceMaterialName != _exportedPieceMaterialName)
+            || (!string.IsNullOrEmpty(DamagedPieceMaterialName) && DamagedPieceMaterialName != _exportedDamagedPieceMaterialName);
+
+        internal void MarkObjectExported(bool isClone, string fullHealthMaterial, string damagedMaterial)
+        {
+            if (isClone) CloneDraftDirty = false;
+            if (fullHealthMaterial != null) _exportedPieceMaterialName = fullHealthMaterial;
+            if (damagedMaterial != null) _exportedDamagedPieceMaterialName = damagedMaterial;
+        }
+
         internal string SnapshotIconName = string.Empty;
         internal string ArmorTintColor = string.Empty;
         internal string ArmorTintInput = "#CF77EC";
@@ -104,6 +122,8 @@ namespace wackydatabase.VisualEditor
             PieceMaterialRoute = WackyDbPieceMaterialRoute.FullHealth;
             PieceMaterialName = string.Empty;
             DamagedPieceMaterialName = string.Empty;
+            _exportedPieceMaterialName = null;
+            _exportedDamagedPieceMaterialName = null;
             SnapshotIconName = string.Empty;
             ArmorTintColor = string.Empty;
             ArmorTintInput = "#CF77EC";
@@ -133,9 +153,9 @@ namespace wackydatabase.VisualEditor
             MaterialChangesDirty = false;
         }
 
-        internal static string GetMaterialEditKey(Renderer renderer, int slot)
+        internal string GetMaterialEditKey(Renderer renderer, int slot)
         {
-            return renderer ? renderer.GetInstanceID() + ":" + slot : string.Empty;
+            return renderer ? renderer.GetInstanceID() + ":" + slot + ":" + PieceMaterialRoute : string.Empty;
         }
 
         internal WackyDbMaterialEditState CaptureMaterialEdit()
@@ -144,6 +164,7 @@ namespace wackydatabase.VisualEditor
             {
                 Renderer = SelectedRenderer,
                 Slot = SelectedMaterialSlot,
+                PieceRoute = PieceMaterialRoute,
                 OriginalMaterialName = OriginalMaterialName,
                 SelectedSharedMaterialName = SelectedSharedMaterialName,
                 NewMaterialName = NewMaterialName,

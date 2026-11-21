@@ -123,6 +123,20 @@ namespace wackydatabase.Startup
                 catch { WMRecipeCust.Dbgl($"Error Destorying Creature {citem}"); }
 
             }
+            foreach (var tree in WMRecipeCust.ClonedTreePrefabs)
+            {
+                int hash = tree.Key.GetStableHashCode();
+                if (znet && znet.GetPrefab(hash) == tree.Value)
+                {
+                    znet.m_prefabs.Remove(tree.Value);
+                    znet.m_nonNetViewPrefabs.Remove(tree.Value);
+                    znet.m_namedPrefabs.Remove(hash);
+                }
+                WMRecipeCust.ClonedPrefabsMap.Remove(tree.Key);
+                if (tree.Value) GameObject.Destroy(tree.Value);
+            }
+            WMRecipeCust.ClonedTreePrefabs.Clear();
+            WMRecipeCust.ClonedPTB.Clear();
             foreach (var citem in WMRecipeCust.ClonedP)
             {
                 piecehammer = null;

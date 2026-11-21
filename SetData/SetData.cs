@@ -1310,7 +1310,7 @@ namespace wackydatabase.SetData
                 go.GetComponent<Piece>().m_name = tempname; // set pieces name
             } // end clone 1st pass
 
-            if (!string.IsNullOrEmpty(data.material) || !string.IsNullOrEmpty(data.damagedMaterial)) // allows changing of any piece
+            if (!string.IsNullOrEmpty(data.material))
             {
                 if (WMRecipeCust.showLogs.Value)
                     WMRecipeCust.Dbgl($"Material name searching for {data.material} for piece {data.name}"); // need to take in account worn at %50
@@ -1384,6 +1384,29 @@ namespace wackydatabase.SetData
                 }
                 catch (Exception e) { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly: " + e.Message); }
             } // mats
+
+            if (!string.IsNullOrWhiteSpace(data.damagedMaterial))
+            {
+                var damagedModels = PrefabAssistant.GetDamagedPieceModels(go).ToArray();
+                if (damagedModels.Length == 0)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Piece '{data.name}' has no separate damaged model; damagedMaterial was not applied.");
+                }
+                else if (!WMRecipeCust.originalMaterials.TryGetValue(data.damagedMaterial, out Material damaged) || !damaged)
+                {
+                    WMRecipeCust.WLog.LogWarning($"Damaged material '{data.damagedMaterial}' for piece '{data.name}' was not found.");
+                }
+                else
+                {
+                    foreach (Renderer renderer in damagedModels.SelectMany(model => model.GetComponentsInChildren<Renderer>(true)).Distinct())
+                    {
+                        if (damagedModels.Any(model => PrefabAssistant.IsDamagedPieceRenderer(go, model, renderer)))
+                        {
+                            PrefabAssistant.UpdateMaterialReference(renderer, damaged);
+                        }
+                    }
+                }
+            }
 
             bool usecustom = false;
             if (!string.IsNullOrWhiteSpace(data.customIcon))
@@ -3801,16 +3824,26 @@ namespace wackydatabase.SetData
                     skipReplacer = true;
             }
 
-            foreach (GameObject obj in arrayCreature) // clone
+            GameObject cloneSource = !skip && !string.IsNullOrEmpty(data.clone_creature) && ZNetScene.instance
+                ? ZNetScene.instance.GetPrefab(data.clone_creature) : null;
+            GameObject registeredTarget = ZNetScene.instance ? ZNetScene.instance.GetPrefab(data.name) : null;
+            IEnumerable<GameObject> candidates = cloneSource && !arrayCreature.Contains(cloneSource)
+                ? arrayCreature.Append(cloneSource) : arrayCreature;
+            foreach (GameObject obj in candidates)
             {
+                if (!obj) continue;
                 var currentCreature = obj;
-                if (data.clone_creature != null && !skip && obj.name == data.clone_creature && (obj.TryGetComponent<Humanoid>(out Humanoid dontuse)
+                if (data.clone_creature != null && !skip && (cloneSource ? obj == cloneSource : obj.name == data.clone_creature) && (obj.TryGetComponent<Humanoid>(out Humanoid dontuse)
                     || obj.TryGetComponent<AnimalAI>(out AnimalAI dontuse1) || obj.TryGetComponent<MonsterAI>(out MonsterAI dontuse2)))
                 {
+                    if (registeredTarget)
+                    {
+                        WMRecipeCust.WLog.LogWarning($"Cannot clone creature '{data.name}': the prefab ID is already registered.");
+                        return;
+                    }
                     clonecreature = WMRecipeCust.Instantiate(obj, WMRecipeCust.Root.transform, false);
                     clonecreature.name = data.name;
-                    clonecreature.GetComponent<ZNetView>().name = data.name;
-                    var clonepiggy = clonecreature.GetComponent<Humanoid>();
+                    var cloneCharacter = clonecreature.GetComponent<Character>();
 
                     ZNetScene znet = ZNetScene.instance;
                     if (znet)
@@ -3832,8 +3865,9 @@ namespace wackydatabase.SetData
                         }
                     }// end znet
 
-                    clonepiggy.m_name = data.mob_display_name; // clone won't go through normal setting this round, so needs to all be set in here
+                    if (cloneCharacter && !string.IsNullOrWhiteSpace(data.mob_display_name)) cloneCharacter.m_name = data.mob_display_name;
                     ApplyCreatureMaterial(clonecreature, data.custom_material);
+                    if (data.materialSlot != null) VisualController.ApplyPrefabMaterialSlot(clonecreature, data.materialSlot);
 
                     WMRecipeCust.ClonedC.Add(data.name);
                     WMRecipeCust.ClonedCC.Add(data.name, clonecreature);
@@ -3890,7 +3924,10 @@ namespace wackydatabase.SetData
                 } // end name match
 
                 if (obj.name == data.name)
+                {
                     ApplyCreatureMaterial(obj, data.custom_material);
+                    if (data.materialSlot != null && obj == registeredTarget) VisualController.ApplyPrefabMaterialSlot(obj, data.materialSlot);
+                }
 
                 if (obj.name == data.name && (obj.TryGetComponent<Humanoid>(out Humanoid mob)))
                 {
@@ -4147,30 +4184,19 @@ namespace wackydatabase.SetData
                     skip = true;
             }
             string tempname = data.name;
-            if (!string.IsNullOrEmpty(data.cloneOfWhatTree) && !skip)
-            {
-                data.name = data.cloneOfWhatTree;
-            }
-            TreeBase go = null;
+            string sourceName = !string.IsNullOrEmpty(data.cloneOfWhatTree) && !skip ? data.cloneOfWhatTree : data.name;
+            GameObject registered = ZNetScene.instance ? ZNetScene.instance.GetPrefab(sourceName) : null;
+            TreeBase go = DataHelpers.FindComponentOnPrefab<TreeBase>(registered);
 
-            foreach(var tree in array)
+            if (!go)
             {
-                if (tree == null || tree.name.Contains("Clone"))
-                    continue;
-                if (tree.name == data.name)
-                {
-                    go = tree;
-                    break;
-                }
-            }
-            if (go == null)
-            {
+                registered = null;
                 foreach (var tree in array)
                 {
                     if (tree == null || tree.name.Contains("Clone"))
                         continue;
                     GameObject root = DataHelpers.GetPrefabRoot(tree.transform);
-                    if (root != null && !root.name.Contains("Clone") && root.name == data.name)
+                    if (root != null && (root.name == sourceName || tree.name == sourceName))
                     {
                         go = tree;
                         break;
@@ -4179,23 +4205,7 @@ namespace wackydatabase.SetData
             }
             if (go == null)
             {
-                go = DataHelpers.FindComponentOnPrefab<TreeBase>(FindPrefab(data.name));
-            }
-            /*
-            if (go == null && !string.IsNullOrEmpty(data.cloneOfWhatTree))
-            {
-                if (go != null)
-                {
-                    WMRecipeCust.WLog.LogWarning($"Last ditch effort to catch {data.name} worked, restoring clone");
-                    skip = false;
-                    WMRecipeCust.ClonedPTB.Remove(data.name);
-                    data.name = data.cloneOfWhatTree;
-                }
-
-            }*/
-            if (go == null)
-            {
-                WMRecipeCust.WLog.LogWarning("Tree is null " + data.name);
+                WMRecipeCust.WLog.LogWarning("Tree is null " + sourceName);
                 return;
             }
             if (!string.IsNullOrEmpty(data.cloneOfWhatTree) && !skip) // object is a clone do clonethings
@@ -4205,18 +4215,24 @@ namespace wackydatabase.SetData
                     WMRecipeCust.Dbgl($"Can not clone {data.cloneOfWhatTree} ");
                     return;
                 }
+                if (ZNetScene.instance && ZNetScene.instance.GetPrefab(tempname))
+                {
+                    WMRecipeCust.WLog.LogWarning($"Cannot clone tree '{tempname}': the prefab ID is already registered.");
+                    return;
+                }
                 if (WMRecipeCust.showLogs.Value)
                     WMRecipeCust.Dbgl($"Tree being set {tempname} is CLONE of {data.cloneOfWhatTree}");
                 Transform RootT = WMRecipeCust.Root.transform; // Root set to inactive to perserve components.
-                GameObject sourceRoot = DataHelpers.GetPrefabRoot(go.transform) ?? go.gameObject;
+                GameObject sourceRoot = registered ? registered : DataHelpers.GetPrefabRoot(go.transform) ?? go.gameObject;
                 GameObject newItem = WMRecipeCust.Instantiate(sourceRoot, RootT, false);
                 TreeBase NewItemComp = DataHelpers.FindComponentOnPrefab<TreeBase>(newItem);
 
                 WMRecipeCust.ClonedPTB.Add(tempname); // check against
+                WMRecipeCust.ClonedTreePrefabs[tempname] = newItem;
                 newItem.name = tempname; // resets the orginal name- needs to be unquie
                 if (NewItemComp.gameObject == newItem)
                     NewItemComp.name = tempname; // ingame name
-                data.name = tempname; // putting back name
+                registered = newItem;
 
                 if (!WMRecipeCust.ClonedPrefabsMap.ContainsKey(tempname))
                     WMRecipeCust.ClonedPrefabsMap.Add(tempname, data.cloneOfWhatTree);
@@ -4284,7 +4300,11 @@ namespace wackydatabase.SetData
                 }
                 catch { WMRecipeCust.WLog.LogWarning("Material was not found or was not set correctly"); }
             } // mats
-             go.m_health = data.treeHealth;
+            if (data.materialSlot != null)
+            {
+                VisualController.ApplyPrefabMaterialSlot(registered ? registered : DataHelpers.GetPrefabRoot(go.transform), data.materialSlot);
+            }
+            go.m_health = data.treeHealth;
             go.m_minToolTier = data.minToolTier ?? go.m_minToolTier;
 
             if (data.size != null)

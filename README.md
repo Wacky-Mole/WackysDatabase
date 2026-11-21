@@ -394,23 +394,37 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 ### Materials and CustomVisuals
 
 In a loaded world, open **Material Studio** with **F6** (the default hotkey) or `wackydb_create`. Use `wackydb_create [PrefabName]` to jump to a specific object.
+
+While the studio is open, movement, auto-run, and look controls are blocked for your character. Closing it restores normal input; the world is not paused.
 Closing and reopening the studio in the same world returns to the last object. If you discard a draft when closing, the object still reopens, but the discarded edits do not.
 
 When switching objects with unsaved edits, **Discard and switch** opens the next object without closing the studio. **Keep current edits** returns to the current object.
 
-1. **Browse:** Search by in-game name or prefab ID. Use **Items**, **Pieces**, or **All** to narrow or widen the results.
-2. **Edit:** Choose a material slot, or click a part in the live preview to find its slot. Drag to rotate, or use **Camera height** to raise or lower the camera without tilting it. **Center** resets only the height. On smaller windows, open the **Preview** tab. Color, texture, and shader controls depend on the selected material.
-3. **Export:** Choose **Clone object** to create a separate item or piece, **Change original** to apply a material to the selected prefab, or **Material only** to save a reusable material.
+**Export and reload** marks the changes included in the export as saved. The studio still warns before discarding edits you left out, such as another material slot or clone settings when exporting changes to the original.
 
-Select an item or building piece and click **Clone this object**. The suggested prefab ID is `<source prefab>_<current character>`, such as `SwordIron_Ada`. Spaces and other characters that aren't valid in prefab IDs become underscores. Change the suggestion if the ID is already taken. **In-game name (`m_name`)** is always available, but only the prefab ID is required. Leave any optional field blank to keep the source value.
+1. **Browse:** Search by in-game name or prefab ID. Use **Items**, **Pieces**, **Creatures**, **Trees**, or **Other** to filter the list, or **All** to clear the filter.
+2. **Edit:** Choose a material slot, or click a part in the live preview to find its slot. Building pieces start in **Full Health**; use **Damaged** to preview a piece's damaged model when it has one. Drag to rotate, or use **Camera height** to raise or lower the camera without tilting it. **Center** resets only the height. On smaller windows, open the **Preview** tab. Color, texture, and shader controls depend on the selected material.
+3. **Export:** Choose **Clone object** to create a separate item, piece, creature, or tree. **Change original** is available for items and pieces; **Material only** saves a reusable material.
+
+For items, **Current inventory icon** below the live preview shows the icon already assigned to the selected prefab, independently of any new snapshot.
+
+To preview a particle effect, look under **Browse > Other** and search by prefab ID (many start with `vfx_` or `fx_`). Particle effects on the selected prefab play in the live preview even if it has no mesh. Click **Replay effects** to restart a short burst. The preview does not run attacks, projectile motion, sound, or effects spawned by gameplay scripts. Use **Show item model** rather than **Show on player** to see an item's particles.
+
+To change only the damaged look of a building piece, select **Damaged**, pick a material slot on the damaged model, and export with **Preview material**. To export both looks together, use **Assign Current Material** for each state before exporting. The damaged material applies to separate worn and broken models; pieces that reuse the same model at every health level don't offer a separate damaged material.
+
+Select a supported prefab and click **Clone this object**. The suggested prefab ID is `<source prefab>_<current character>`, such as `SwordIron_Ada`. Spaces and other characters that aren't valid in prefab IDs become underscores. Change the suggestion if the ID is already taken. Only the prefab ID is required. Items, pieces, and creatures offer an optional in-game name; tree clones inherit the source tree's name, health, and tool requirement.
+
+For a creature or tree clone with material changes, pick and edit a slot, then select **Preview material** before exporting. Only that slot changes; the source prefab and the clone's other slots are untouched. A tree clone is registered as a new prefab; it doesn't replace wild trees or automatically change what existing saplings grow into.
 
 Under **Clone appearance**, **Original look** doesn't write material YAML. **Preview material** applies the selected slot's material and writes material YAML only if needed. It is selected by default when you've edited the selected material or picked one from the material library. Other slots' unsaved edits are not included. If exporting would change a shared material, use **Make a material copy** in Edit first.
 
 New material clone IDs include `_material`. Material Studio adds it if you leave it out. Existing material references keep their names.
 
-For armor, use **Show item model** to edit a specific dropped-model slot. On the equipped chest and leg routes, exporting changes to the `_Color` RGB sliders also saves an armor tint. If the selected material does not have Valheim's equipped armor texture slots, export applies it to the selected mesh slot instead of replacing the player-body material. The tint uses the existing armor textures where available; an explicit mesh slot override takes precedence on that slot.
+For armor, use **Show item model** to edit a specific dropped-model slot. **Show on player** starts with no equipped gear and displays only the selected item's worn appearance. On the equipped chest and leg routes, exporting changes to the `_Color` RGB sliders also saves an armor tint. If the selected material does not have Valheim's equipped armor texture slots, export applies it to the selected mesh slot instead of replacing the player-body material. The tint uses the existing armor textures where available; an explicit mesh slot override takes precedence on that slot.
 
 For an easy recolor, select chest or leg armor and choose a preset or enter a `#RRGGBB` color in **Quick recolor**. Preview the item model or switch to **Show on player**, then choose **Export recolored clone and reload** in a local world. This saves the color in the clone YAML, not as a separate material or PNG. It recolors the existing color textures without replacing the shader, normal maps, or metal maps. If a modded armor has no compatible player-body texture, only its textured meshes can be recolored this way.
+
+Quick recolor leaves the individual material controls available. In **Clone appearance**, choose **Recolor only** to save just the tint or **Preview material** to include the selected material too. An explicit material override takes precedence on its selected mesh slot.
 
 Older armor clones that reference a recolored mesh material in the equipped slot can use its saved `_Color` as a Quick recolor when a compatible inherited armor material is available and the YAML has no separate model override. WackyDB does not rewrite the older YAML.
 
@@ -1047,7 +1061,7 @@ Pickables are compatible with other mods, but mods like PlantEverything will ove
 - `customIcon` (string): The custom icon for the piece. PNG or JPEG, 64 x 64, Must be in Icon Folder (`.png` extension may be omitted)
 - `clonePrefabName` (string): The name of the prefab to clone.
 - `material` (string):  Visit Material Section and Custom Visual Section
-- `damagedMaterial` (string): The material of the piece when damaged.
+ - `damagedMaterial` (string): Overrides the material on the piece's separate worn and broken models. It does not change the full-health model and can be supplied without `material`.
 - `craftingStation` (string): The crafting station required to craft the piece.
 - `piecehammerCategory` (string): The category of the piece hammer. (This is not really used anymore, but you can still use it to create a custom category. See Custom Piece Categories below.))
 - `categoryOrderBeforePrefab` (string): The unique prefab name of the piece you want your modded or vanilla piece to appear BEFORE in the build menu. Example: wood_wall_half is placed before wood_wall

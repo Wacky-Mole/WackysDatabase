@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Sprites;
 using wackydatabase.Datas;
 using wackydatabase.PatchClasses;
 
@@ -10,6 +13,8 @@ namespace wackydatabase.VisualEditor
 {
     internal sealed class WackyDbCreateWindow : MonoBehaviour
     {
+        internal static bool BlocksPlayerInput => _instance && _instance.isActiveAndEnabled;
+
         private const int WindowId = 19850423;
         private const int MaximumVisibleResults = 250;
         private const string TutorialPreferenceKey = "WackyDB.Creator.ShowTutorial";
@@ -414,6 +419,10 @@ namespace wackydatabase.VisualEditor
             GUILayout.BeginHorizontal();
             DrawObjectFilter("Items", WackyDbObjectType.Item);
             DrawObjectFilter("Pieces", WackyDbObjectType.Piece);
+            DrawObjectFilter("Creatures", WackyDbObjectType.Creature);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            DrawObjectFilter("Trees", WackyDbObjectType.Tree);
             DrawObjectFilter("Other", WackyDbObjectType.Prefab);
             DrawObjectFilter("All", WackyDbObjectType.Unknown);
             GUILayout.EndHorizontal();
@@ -460,10 +469,19 @@ namespace wackydatabase.VisualEditor
             GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(width), GUILayout.ExpandHeight(true));
             GUILayout.Label("Live preview", _heading);
             GUILayout.Label(_session.SelectedObject?.Title ?? "No object selected", _body);
+            if (CanEditDamagedPiece())
+            {
+                GUILayout.BeginHorizontal();
+                DrawPieceMaterialRouteButton("Full Health", WackyDbPieceMaterialRoute.FullHealth);
+                DrawPieceMaterialRouteButton("Damaged", WackyDbPieceMaterialRoute.Damaged);
+                GUILayout.EndHorizontal();
+            }
             if (CanUsePlayerModelPreview() && GUILayout.Button(_usePlayerModelPreview ? "Show item model" : "Show on player"))
             {
                 SaveCurrentMaterialEdit();
                 _usePlayerModelPreview = !_usePlayerModelPreview;
+                _pickedRenderer = null;
+                RebuildPreview();
                 WackyDbRendererInfo selectedRendererInfo = _session.RendererInfos.Find(info => info.Renderer == _session.SelectedRenderer);
                 if (_session.SelectedRenderer && !IsRendererVisibleForPreview(selectedRendererInfo))
                 {
@@ -474,11 +492,13 @@ namespace wackydatabase.VisualEditor
                 {
                     _session.MaterialRoute = GetPreviewMaterialRoute();
                 }
-                _pickedRenderer = null;
-                RebuildPreview();
             }
 
-            float size = Mathf.Min(width - 24f, Mathf.Max(96f, _windowRect.height - 315f));
+            bool hasEffects = _preview != null && _preview.HasParticles;
+            bool hasEffectWarning = _preview != null && !string.IsNullOrEmpty(_preview.ParticleWarning);
+            bool showItemIcon = _session.SelectedObject?.Type == WackyDbObjectType.Item;
+            float reservedHeight = 315f + (hasEffects || hasEffectWarning ? 30f : 0f) + (showItemIcon ? 58f : 0f);
+            float size = Mathf.Min(width - 24f, Mathf.Max(96f, _windowRect.height - reservedHeight));
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             Rect previewRect = GUILayoutUtility.GetRect(size, size, GUILayout.Width(size), GUILayout.Height(size));
@@ -529,7 +549,7 @@ namespace wackydatabase.VisualEditor
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button(new GUIContent("Snapshot Icon", "Save the current preview as a PNG and reference it as the object's custom icon.")))
+                if (CanOverwrite(_session.SelectedObject) && GUILayout.Button(new GUIContent("Snapshot Icon", "Save the current preview as a PNG and reference it as the object's custom icon.")))
                 {
                     SavePreviewSnapshot();
                 }
@@ -552,6 +572,20 @@ namespace wackydatabase.VisualEditor
                 GUI.Box(previewRect, _session.SelectedObject == null ? "Choose an object in Browse" : "Preview unavailable");
             }
 
+            if (showItemIcon)
+            {
+                DrawCurrentItemIcon(_session.SelectedObject.Prefab);
+            }
+
+            if (hasEffects && GUILayout.Button(new GUIContent("Replay effects", "Restart the preview's particle systems without changing the view.")))
+            {
+                _preview.ReplayParticles();
+            }
+            if (hasEffectWarning)
+            {
+                GUILayout.Label(_preview.ParticleWarning, _body);
+            }
+
             GUILayout.FlexibleSpace();
             if (_preview != null && _preview.CanPickRenderer)
             {
@@ -562,6 +596,32 @@ namespace wackydatabase.VisualEditor
                 GUILayout.Label("Use the item model to select parts by clicking.", _body);
             }
             GUILayout.EndVertical();
+        }
+
+        private void DrawCurrentItemIcon(GameObject prefab)
+        {
+            ItemDrop.ItemData item = prefab ? prefab.GetComponent<ItemDrop>()?.m_itemData : null;
+            Sprite icon = item?.m_shared?.m_icons is { Length: > 0 } && item.m_variant >= 0 ? item.GetIcon() : null;
+
+            GUILayout.BeginHorizontal(GUI.skin.box);
+            Rect frame = GUILayoutUtility.GetRect(48f, 48f, GUILayout.Width(48f), GUILayout.Height(48f));
+            GUI.Box(frame, GUIContent.none);
+            if (Event.current.type == EventType.Repaint && icon && icon.texture)
+            {
+                Vector4 uv = DataUtility.GetOuterUV(icon);
+                Rect region = Rect.MinMaxRect(uv.x, uv.y, uv.z, uv.w);
+                Vector2 size = Vector2.Scale(region.size, new Vector2(icon.texture.width, icon.texture.height));
+                if (size.x > 0f && size.y > 0f)
+                {
+                    size *= (frame.width - 8f) / Mathf.Max(size.x, size.y);
+                    GUI.DrawTextureWithTexCoords(new Rect(frame.center - size * 0.5f, size), icon.texture, region);
+                }
+            }
+            GUILayout.BeginVertical();
+            GUILayout.Label("Current inventory icon", _body);
+            if (!icon || !icon.texture) GUILayout.Label("No icon assigned", _body);
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
         }
 
         private void HandlePreviewInput(Rect previewRect)
@@ -614,7 +674,7 @@ namespace wackydatabase.VisualEditor
             }
 
             WackyDbRendererInfo rendererInfo = _session.RendererInfos.Find(info => info.Renderer == renderer);
-            if (rendererInfo == null)
+            if (!IsRendererVisibleForPreview(rendererInfo))
             {
                 _status = "The clicked renderer is not available for material editing.";
                 return;
@@ -721,12 +781,7 @@ namespace wackydatabase.VisualEditor
                 _exportScroll = Vector2.zero;
             }
             _detailScroll = GUILayout.BeginScrollView(_detailScroll, GUILayout.ExpandHeight(true));
-            if (DrawQuickArmorRecolor())
-            {
-                GUILayout.EndScrollView();
-                GUILayout.EndVertical();
-                return;
-            }
+            DrawQuickArmorRecolor();
             int count = GetVisibleRendererCount();
             _showRendererSlots = GUILayout.Toggle(_showRendererSlots,
                 (_showRendererSlots ? "Hide" : "Choose") + $" material slot ({count} renderers)", GUI.skin.button);
@@ -754,10 +809,10 @@ namespace wackydatabase.VisualEditor
             GUILayout.EndVertical();
         }
 
-        private bool DrawQuickArmorRecolor()
+        private void DrawQuickArmorRecolor()
         {
             WackyDbMaterialRoute route = GetDefaultMaterialRoute(_session.SelectedObject);
-            if (_session.SelectedObject.Type != WackyDbObjectType.Item || route == WackyDbMaterialRoute.Material) return false;
+            if (_session.SelectedObject.Type != WackyDbObjectType.Item || route == WackyDbMaterialRoute.Material) return;
 
             GUILayout.BeginVertical(GUI.skin.box);
             GUILayout.Label("Quick recolor", _heading);
@@ -781,12 +836,15 @@ namespace wackydatabase.VisualEditor
                 if (ArmorTint.TryParse(_session.ArmorTintInput, out _)) SetQuickArmorColor(_session.ArmorTintInput);
                 else _status = "Enter a color as #RRGGBB, for example #CF77EC.";
             }
-            if (_session.ArmorTintColor.Length != 0 && GUILayout.Button("Clear recolor")) SetQuickArmorColor(string.Empty);
+            bool wasEnabled = GUI.enabled;
+            GUI.enabled = wasEnabled && _session.ArmorTintColor.Length != 0;
+            if (GUILayout.Button("Clear recolor")) SetQuickArmorColor(string.Empty);
+            GUI.enabled = wasEnabled;
             GUILayout.EndHorizontal();
-            if (_session.ArmorTintColor.Length != 0)
-                GUILayout.Label($"Color: {_session.ArmorTintColor}. Export a clone to save it. Clear recolor to return to individual material edits.", _body);
+            GUILayout.Label(_session.ArmorTintColor.Length != 0
+                ? $"Color: {_session.ArmorTintColor}. You can keep editing materials below."
+                : "No quick recolor applied.", _body);
             GUILayout.EndVertical();
-            return _session.ArmorTintColor.Length != 0;
         }
 
         private void SetQuickArmorColor(string color)
@@ -940,7 +998,7 @@ namespace wackydatabase.VisualEditor
             }
             if (GUILayout.Button("Reset preview to prefab defaults"))
             {
-                if (HasUnsavedMaterialEdits)
+                if (HasUnsavedMaterialEdits || _session.HasPendingPieceAppearance || _session.ArmorTintColor.Length != 0)
                 {
                     _confirmation = Confirmation.ResetPreview;
                 }
@@ -1006,14 +1064,16 @@ namespace wackydatabase.VisualEditor
 
             GUILayout.Space(4f);
             GUILayout.Label("Piece Material State");
+            bool canEditDamaged = CanEditDamagedPiece();
             GUILayout.BeginHorizontal();
             DrawPieceMaterialRouteButton("Full Health", WackyDbPieceMaterialRoute.FullHealth);
-            DrawPieceMaterialRouteButton("Damaged", WackyDbPieceMaterialRoute.Damaged);
+            if (canEditDamaged) DrawPieceMaterialRouteButton("Damaged", WackyDbPieceMaterialRoute.Damaged);
             GUILayout.EndHorizontal();
+            if (!canEditDamaged) GUILayout.Label("This piece has no separate damaged model.", _body);
 
             GUILayout.Label(_session.PieceMaterialRoute == WackyDbPieceMaterialRoute.FullHealth
-                ? "The current material will be saved to material."
-                : "The current material will be saved to damagedMaterial.");
+                ? "Sets the base look. A separate damaged material takes priority on worn and broken models."
+                : "Changes only the separate worn and broken models. The full-health look is unchanged.", _body);
 
             if (GUILayout.Button("Assign Current Material to " +
                 (_session.PieceMaterialRoute == WackyDbPieceMaterialRoute.FullHealth ? "Full Health" : "Damaged")))
@@ -1035,12 +1095,20 @@ namespace wackydatabase.VisualEditor
             }
         }
 
+        private bool CanEditDamagedPiece() => _session.SelectedObject?.Type == WackyDbObjectType.Piece
+            && PrefabAssistant.GetDamagedPieceModels(_session.SelectedObject.Prefab).Any();
+
         private void DrawPieceMaterialRouteButton(string label, WackyDbPieceMaterialRoute route)
         {
             string prefix = _session.PieceMaterialRoute == route ? "[Selected] " : string.Empty;
-            if (GUILayout.Button(prefix + label))
+            if (GUILayout.Button(prefix + label) && _session.PieceMaterialRoute != route)
             {
+                SaveCurrentMaterialEdit();
+                _session.ClearMaterialSelection();
                 _session.PieceMaterialRoute = route;
+                _pickedRenderer = null;
+                _showRendererSlots = true;
+                RebuildPreview();
             }
         }
 
@@ -1053,7 +1121,14 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
-            if ((_session.IsCreatingNewMaterial || _session.MaterialChangesDirty) && !SaveMaterialYaml(false))
+            string otherMaterial = _session.PieceMaterialRoute == WackyDbPieceMaterialRoute.FullHealth
+                ? _session.DamagedPieceMaterialName : _session.PieceMaterialName;
+            if (NeedsMaterialYaml && string.Equals(materialName, otherMaterial, StringComparison.OrdinalIgnoreCase))
+            {
+                _status = "Use a different material ID for this state to keep the other state unchanged.";
+                return;
+            }
+            if (NeedsMaterialYaml && !SaveMaterialYaml(false))
             {
                 return;
             }
@@ -1413,10 +1488,16 @@ namespace wackydatabase.VisualEditor
             {
                 return false;
             }
+            if (_preview != null && _preview.HasPreview && _preview.UsesMappedRenderers)
+            {
+                return _preview.ShowsRenderer(rendererInfo.Renderer);
+            }
+            if (_usePlayerModelPreview) return false;
+            if (_session.SelectedObject?.Type != WackyDbObjectType.Item) return true;
 
             bool hasItemRenderer = _session.RendererInfos.Exists(info => IsLogRenderer(info.Renderer));
             bool isItemRenderer = IsLogRenderer(rendererInfo.Renderer);
-            return _usePlayerModelPreview ? !isItemRenderer : !hasItemRenderer || isItemRenderer;
+            return !hasItemRenderer || isItemRenderer;
         }
 
         private static bool IsLogRenderer(Renderer renderer)
@@ -1501,12 +1582,13 @@ namespace wackydatabase.VisualEditor
         private void DrawExportOptions()
         {
             bool objectSupported = IsCloneableType(_session.SelectedObject);
-            SaveMode mode = objectSupported ? _saveMode : SaveMode.Material;
+            SaveMode mode = !objectSupported ? SaveMode.Material
+                : _saveMode == SaveMode.Overwrite && !CanOverwrite(_session.SelectedObject) ? SaveMode.Clone : _saveMode;
             GUILayout.BeginHorizontal();
             if (objectSupported)
             {
                 DrawSaveModeButton(SaveMode.Clone, mode, "Clone object");
-                DrawSaveModeButton(SaveMode.Overwrite, mode, "Change original");
+                if (CanOverwrite(_session.SelectedObject)) DrawSaveModeButton(SaveMode.Overwrite, mode, "Change original");
             }
             DrawSaveModeButton(SaveMode.Material, mode, "Material only");
             GUILayout.EndHorizontal();
@@ -1518,24 +1600,23 @@ namespace wackydatabase.VisualEditor
             }
             if (_session.ArmorTintColor.Length != 0)
             {
-                GUILayout.Label("Quick recolor is saved with a clone. Choose Clone object, or clear Quick recolor in Edit for other export modes.", _body);
-                return;
+                GUILayout.Label("This mode exports material edits only. Use Clone object to include Quick recolor.", _body);
             }
 
             if (!objectSupported)
             {
-                GUILayout.Label("Only items and building pieces can be exported as objects. You can still export this material.", _body);
+                GUILayout.Label("Items, building pieces, creatures, and trees can be cloned. You can still export this material.", _body);
             }
-            if (!_session.WorkingBaseMaterial)
+            if (!_session.WorkingBaseMaterial && !(mode == SaveMode.Overwrite && _session.HasPieceMaterialAssignments))
             {
                 GUILayout.Label("Choose a material slot in Edit first.", _body);
                 return;
             }
-            if (_session.IsCreatingNewMaterial)
+            if (_session.IsCreatingNewMaterial && (mode == SaveMode.Material || UseActiveObjectMaterial))
             {
                 DrawNewMaterialName();
             }
-            else
+            else if (_session.WorkingBaseMaterial && (mode == SaveMode.Material || UseActiveObjectMaterial))
             {
                 GUILayout.Label("Material: " + GetActiveMaterialName(), _body);
             }
@@ -1556,6 +1637,11 @@ namespace wackydatabase.VisualEditor
             else
             {
                 GUILayout.Label($"Applies the material to {_session.SelectedObject.Name} when its YAML is loaded.", _body);
+                if (_session.SelectedObject.Type == WackyDbObjectType.Piece)
+                {
+                    GetPieceMaterialNames(UseActiveObjectMaterial ? materialName : null, out string full, out string damaged);
+                    GUILayout.Label($"Full Health: {EmptyAsNone(full)}   Damaged: {EmptyAsNone(damaged)}", _body);
+                }
                 if (!string.IsNullOrEmpty(_session.SnapshotIconName))
                 {
                     GUILayout.Label("Custom icon: " + _session.SnapshotIconName, _body);
@@ -1601,10 +1687,17 @@ namespace wackydatabase.VisualEditor
             GUILayout.Space(6f);
             DrawCloneField("New prefab ID (required)", ref _session.CloneName);
 
-            GUILayout.Space(6f);
-            GUILayout.Label("Optional changes", _heading);
-            GUILayout.Label("Leave a field blank to keep the source value.", _body);
-            DrawCloneField($"In-game name (m_name; source: {source.Title})", ref _session.DisplayName);
+            if (source.Type != WackyDbObjectType.Tree)
+            {
+                GUILayout.Space(6f);
+                GUILayout.Label("Optional changes", _heading);
+                GUILayout.Label("Leave a field blank to keep the source value.", _body);
+                DrawCloneField($"In-game name (source: {source.Title})", ref _session.DisplayName);
+            }
+            else
+            {
+                GUILayout.Label("Inherits the source tree's name, health, and tool requirement.", _body);
+            }
             ItemDrop item = source.Type == WackyDbObjectType.Item && source.Prefab ? source.Prefab.GetComponent<ItemDrop>() : null;
             Piece piece = source.Type == WackyDbObjectType.Piece && source.Prefab ? source.Prefab.GetComponent<Piece>() : null;
             WearNTear wear = piece ? piece.GetComponent<WearNTear>() : null;
@@ -1636,7 +1729,8 @@ namespace wackydatabase.VisualEditor
                 GUILayout.Label("Custom icon: " + _session.SnapshotIconName, _body);
             }
 
-            string error = ValidateClone(isItem || piece, fields, includeMaterial, out WackyDbCloneOptions options);
+            string error = ValidateClone(source.Prefab && (isItem || piece
+                || source.Type is WackyDbObjectType.Creature or WackyDbObjectType.Tree), fields, includeMaterial, out WackyDbCloneOptions options);
             if (error != null)
             {
                 GUILayout.Label(error, _body);
@@ -1647,7 +1741,8 @@ namespace wackydatabase.VisualEditor
             }
             bool previousEnabled = GUI.enabled;
             GUI.enabled = previousEnabled && error == null;
-            string exportLabel = _session.ArmorTintColor.Length != 0 ? "Export recolored clone"
+            string exportLabel = _session.ArmorTintColor.Length != 0
+                ? (includeMaterial ? "Export recolored clone with material" : "Export recolored clone")
                 : includeMaterial ? "Export clone with material" : "Export clone with original look";
             if (AccentButton(exportLabel, true, GUILayout.Height(28f)))
             {
@@ -1665,30 +1760,29 @@ namespace wackydatabase.VisualEditor
         {
             GUILayout.BeginVertical(GUI.skin.box);
             GUILayout.Label("Clone appearance", _heading);
-            if (_session.ArmorTintColor.Length != 0)
+            bool hasQuickRecolor = _session.ArmorTintColor.Length != 0;
+            if (hasQuickRecolor)
             {
-                GUILayout.Label($"Quick recolor: {_session.ArmorTintColor}. Saved in the clone YAML for both views; individual material edits are not included.", _body);
-                GUILayout.EndVertical();
-                return false;
+                GUILayout.Label($"Quick recolor: {_session.ArmorTintColor}. This tint is included in the clone. A material override takes precedence on its selected mesh slot.", _body);
             }
             bool includeMaterial = _session.UsesPreviewMaterialForClone;
             bool hasUnsaved = HasUnsavedMaterialEdits;
-            if (_session.WorkingBaseMaterial)
+            if (_session.WorkingBaseMaterial || _session.HasPieceMaterialAssignments)
             {
                 GUILayout.BeginHorizontal();
-                if (AccentButton("Original look", !includeMaterial, GUILayout.ExpandWidth(true)))
+                if (AccentButton(hasQuickRecolor ? "Recolor only" : "Original look", !includeMaterial, GUILayout.ExpandWidth(true)))
                 {
-                    SetCloneAppearance(false, includeMaterial);
+                    _session.IncludeCloneMaterial = false;
                 }
                 if (AccentButton("Preview material", includeMaterial, GUILayout.ExpandWidth(true)))
                 {
-                    SetCloneAppearance(true, includeMaterial);
+                    _session.IncludeCloneMaterial = true;
                 }
                 GUILayout.EndHorizontal();
                 includeMaterial = _session.UsesPreviewMaterialForClone;
             }
 
-            if (includeMaterial)
+            if (includeMaterial && UseActiveObjectMaterial)
             {
                 DrawNewMaterialName();
                 string materialName = GetActiveMaterialName();
@@ -1700,7 +1794,7 @@ namespace wackydatabase.VisualEditor
                     GUILayout.Label(HasCompatibleEquippedMaterial()
                         ? "Target: equipped armor textures."
                         : "Target: selected mesh slot. The equipped armor keeps its original shader.", _body);
-                    if (GetEditedArmorTint() is string tint)
+                    if (!hasQuickRecolor && GetEditedArmorTint() is string tint)
                     {
                         GUILayout.Label($"Armor tint: {tint}. Included in this export.", _body);
                     }
@@ -1709,14 +1803,19 @@ namespace wackydatabase.VisualEditor
                 {
                     GUILayout.Label("Target: selected material slot on the item model.", _body);
                 }
+                else if (_session.SelectedObject.Type is WackyDbObjectType.Creature or WackyDbObjectType.Tree)
+                {
+                    GUILayout.Label("Target: selected material slot. Other materials keep their source look.", _body);
+                }
                 if (HasUnsavedMaterialEditsInOtherSlots)
                 {
                     GUILayout.Label("Unsaved edits in other material slots are not included.", _body);
                 }
             }
-            else
+            else if (!includeMaterial)
             {
-                GUILayout.Label("Saves the clone with the source object's look. No material YAML is written.", _body);
+                GUILayout.Label(hasQuickRecolor ? "Saves the tint without writing a separate material YAML."
+                    : "Saves the clone with the source object's look. No material YAML is written.", _body);
                 if (hasUnsaved)
                 {
                     GUILayout.Label(_session.WorkingBaseMaterial
@@ -1724,14 +1823,13 @@ namespace wackydatabase.VisualEditor
                         : "Unsaved material edits will not be exported. Select the edited slot in Edit to include it.", _body);
                 }
             }
+            if (includeMaterial && _session.HasPieceMaterialAssignments)
+            {
+                GetPieceMaterialNames(UseActiveObjectMaterial ? GetActiveMaterialName() : null, out string full, out string damaged);
+                GUILayout.Label($"Full Health: {EmptyAsNone(full)}   Damaged: {EmptyAsNone(damaged)}", _body);
+            }
             GUILayout.EndVertical();
             return includeMaterial;
-        }
-
-        private void SetCloneAppearance(bool includeMaterial, bool previous)
-        {
-            _session.IncludeCloneMaterial = includeMaterial;
-            _session.CloneDraftDirty |= includeMaterial != previous;
         }
 
         private void DrawCloneField(string label, ref string value)
@@ -1902,11 +2000,11 @@ namespace wackydatabase.VisualEditor
                     ? "This can replace existing YAML for this prefab and reloads WackyDB data now."
                     : "This can replace existing YAML for this prefab. Changes apply when WackyDB loads the file.", _body);
                 GUILayout.BeginHorizontal();
-                if (AccentButton("Cancel", true))
+                if (ConfirmationButton("Cancel", true))
                 {
                     CancelConfirmation();
                 }
-                if (GUILayout.Button("Confirm overwrite"))
+                if (ConfirmationButton("Confirm overwrite"))
                 {
                     bool reload = _confirmOverwriteReload;
                     CancelConfirmation();
@@ -1919,12 +2017,12 @@ namespace wackydatabase.VisualEditor
                 GUILayout.Label($"Switch to {_pendingSelection.Title}?", _heading);
                 GUILayout.Label($"{_session.SelectedObject.Title} has unsaved edits. Switching discards those edits and opens the next object without closing Material Studio.", _body);
                 GUILayout.BeginHorizontal();
-                if (AccentButton("Keep current edits", true))
+                if (ConfirmationButton("Keep current edits", true))
                 {
                     CancelConfirmation();
                     _page = Page.Edit;
                 }
-                if (GUILayout.Button("Discard and switch"))
+                if (ConfirmationButton("Discard and switch"))
                 {
                     ConfirmDiscard();
                 }
@@ -1935,14 +2033,14 @@ namespace wackydatabase.VisualEditor
                 bool reset = _confirmation == Confirmation.ResetPreview;
                 GUILayout.Label(reset ? "Reset the preview?" : "Close Material Studio?", _heading);
                 GUILayout.Label(reset
-                    ? "This resets preview materials, not your clone settings or exported files."
+                    ? "This resets preview materials and Quick recolor, not your other clone settings or exported files."
                     : "Only edits that have not been exported will be lost. Exported files are not changed.", _body);
                 GUILayout.BeginHorizontal();
-                if (AccentButton("Keep editing", true))
+                if (ConfirmationButton("Keep editing", true))
                 {
                     CancelConfirmation();
                 }
-                if (GUILayout.Button(reset ? "Discard and reset" : "Discard and close"))
+                if (ConfirmationButton(reset ? "Discard and reset" : "Discard and close"))
                 {
                     ConfirmDiscard();
                 }
@@ -1950,6 +2048,9 @@ namespace wackydatabase.VisualEditor
             }
             GUILayout.EndVertical();
         }
+
+        private static bool ConfirmationButton(string label, bool keepEditing = false) =>
+            AccentButton(label, keepEditing, GUILayout.Height(44f), GUILayout.ExpandWidth(true));
 
         private void ConfirmDiscard()
         {
@@ -2080,7 +2181,7 @@ namespace wackydatabase.VisualEditor
             _selectedTextureProperty = string.Empty;
             _selectedTextureName = string.Empty;
             _textureSearch = string.Empty;
-            string editKey = WackyDbEditorSession.GetMaterialEditKey(renderer, materialInfo.Slot);
+            string editKey = _session.GetMaterialEditKey(renderer, materialInfo.Slot);
             if (_session.MaterialEdits.TryGetValue(editKey, out WackyDbMaterialEditState existingEdit))
             {
                 _session.RestoreMaterialEdit(existingEdit);
@@ -2094,7 +2195,8 @@ namespace wackydatabase.VisualEditor
             }
 
             _session.OriginalMaterialName = materialInfo.Name;
-            _session.NewMaterialName = GetDefaultMaterialCloneName(materialInfo.Name);
+            _session.NewMaterialName = GetDefaultMaterialCloneName(materialInfo.Name)
+                + (_session.PieceMaterialRoute == WackyDbPieceMaterialRoute.Damaged ? "_Damaged" : string.Empty);
             _session.WorkingBaseMaterial = materialInfo.Material;
             _session.WorkingChanges = GetColorChanges(materialInfo.Material);
             _session.IsCreatingNewMaterial = true;
@@ -2114,7 +2216,7 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
-            string key = WackyDbEditorSession.GetMaterialEditKey(
+            string key = _session.GetMaterialEditKey(
                 _session.SelectedRenderer,
                 _session.SelectedMaterialSlot);
             _session.MaterialEdits[key] = _session.CaptureMaterialEdit();
@@ -2278,15 +2380,22 @@ namespace wackydatabase.VisualEditor
                 && !string.IsNullOrWhiteSpace(GetActiveMaterialName());
         }
 
+        private bool UseActiveObjectMaterial => _session.WorkingBaseMaterial && (!_session.HasPieceMaterialAssignments
+            || _session.MaterialChangesDirty || !string.IsNullOrWhiteSpace(_session.SelectedSharedMaterialName));
+
         private bool CanSaveObject(string materialName)
         {
-            return !string.IsNullOrWhiteSpace(materialName) && IsCloneableType(_session.SelectedObject);
+            return IsCloneableType(_session.SelectedObject) && (UseActiveObjectMaterial
+                ? !string.IsNullOrWhiteSpace(materialName) : _session.HasPieceMaterialAssignments);
         }
 
         private static bool IsCloneableType(WackyDbObjectCandidate candidate)
         {
-            return candidate?.Type is WackyDbObjectType.Item or WackyDbObjectType.Piece;
+            return CanOverwrite(candidate) || candidate?.Type is WackyDbObjectType.Creature or WackyDbObjectType.Tree;
         }
+
+        private static bool CanOverwrite(WackyDbObjectCandidate candidate) =>
+            candidate?.Type is WackyDbObjectType.Item or WackyDbObjectType.Piece;
 
         private MaterialInstance BuildMaterialInstance()
         {
@@ -2344,7 +2453,7 @@ namespace wackydatabase.VisualEditor
         {
             get
             {
-                string activeKey = WackyDbEditorSession.GetMaterialEditKey(_session.SelectedRenderer, _session.SelectedMaterialSlot);
+                string activeKey = _session.GetMaterialEditKey(_session.SelectedRenderer, _session.SelectedMaterialSlot);
                 foreach (KeyValuePair<string, WackyDbMaterialEditState> edit in _session.MaterialEdits)
                 {
                     if (edit.Key != activeKey && edit.Value.MaterialChangesDirty)
@@ -2356,17 +2465,18 @@ namespace wackydatabase.VisualEditor
             }
         }
 
-        private bool HasUnsavedEdits => _session.CloneDraftDirty || HasUnsavedMaterialEdits;
+        private bool HasUnsavedEdits => _session.CloneDraftDirty || _session.HasPendingPieceAppearance || HasUnsavedMaterialEdits;
 
         private void SaveObject(WackyDbCloneOptions clone, bool reload, bool includeMaterial = true)
         {
             WackyDbObjectCandidate selected = _session.SelectedObject;
-            string materialName = includeMaterial ? GetActiveMaterialName() : null;
-            if (!IsCloneableType(selected) || (includeMaterial && !CanSaveObject(materialName)))
+            bool useActive = includeMaterial && UseActiveObjectMaterial;
+            string materialName = useActive ? GetActiveMaterialName() : null;
+            if (!(clone != null ? IsCloneableType(selected) : CanOverwrite(selected)) || (includeMaterial && !CanSaveObject(materialName)))
             {
                 _status = includeMaterial
-                    ? "Choose an item or piece and a material before exporting."
-                    : "Choose an item or piece before exporting.";
+                    ? "Choose a supported prefab and a material before exporting."
+                    : "Choose a supported prefab before exporting.";
                 return;
             }
 
@@ -2380,34 +2490,44 @@ namespace wackydatabase.VisualEditor
                 _status = armorError;
                 return;
             }
-            if (clone != null && includeMaterial && _session.IsCreatingNewMaterial
+            if (clone != null && useActive && _session.IsCreatingNewMaterial
                 && (_materialLibrary.HasMaterialYaml(materialName) || _materialLibrary.GetMaterial(materialName)))
             {
                 _status = "That material ID is already in use. Choose a new material ID for the clone.";
                 return;
             }
 
-            bool writeMaterial = includeMaterial && NeedsMaterialYaml;
+            bool writeMaterial = useActive && NeedsMaterialYaml;
+            string otherPieceMaterial = _session.PieceMaterialRoute == WackyDbPieceMaterialRoute.FullHealth
+                ? _session.DamagedPieceMaterialName : _session.PieceMaterialName;
+            if (writeMaterial && string.Equals(materialName, otherPieceMaterial, StringComparison.OrdinalIgnoreCase))
+            {
+                _status = "Use a different material ID for this state to keep the other state unchanged.";
+                return;
+            }
             if (writeMaterial && !SaveMaterialYaml(false))
             {
                 return;
             }
 
             bool saved;
+            string fullHealthMaterial = null;
+            string damagedMaterial = null;
             if (selected.Type == WackyDbObjectType.Item)
             {
                 string itemMaterialName = includeMaterial ? NullIfEmpty(_session.StandardMaterialName) : null;
-                CustomVisual customVisual = clone != null && _session.ArmorTintColor.Length != 0
-                    ? new CustomVisual { armorTint = _session.ArmorTintColor }
-                    : includeMaterial ? BuildCustomVisual(materialName) : null;
+                CustomVisual customVisual = includeMaterial ? BuildCustomVisual(materialName) : null;
+                if (clone != null && _session.ArmorTintColor.Length != 0)
+                {
+                    customVisual ??= new CustomVisual();
+                    customVisual.armorTint = _session.ArmorTintColor;
+                }
                 saved = clone != null
                     ? _exporter.SaveItemClone(selected.Prefab, selected.Name, clone, itemMaterialName, null, customVisual, _session.SnapshotIconName)
                     : _exporter.SaveItemOverwrite(selected.Prefab, selected.Name, itemMaterialName, null, customVisual, _session.SnapshotIconName);
             }
-            else
+            else if (selected.Type == WackyDbObjectType.Piece)
             {
-                string fullHealthMaterial = null;
-                string damagedMaterial = null;
                 if (includeMaterial)
                 {
                     GetPieceMaterialNames(materialName, out fullHealthMaterial, out damagedMaterial);
@@ -2415,6 +2535,13 @@ namespace wackydatabase.VisualEditor
                 saved = clone != null
                     ? _exporter.SavePieceClone(selected.Name, clone, selected.PieceHammer, fullHealthMaterial, damagedMaterial, _session.SnapshotIconName)
                     : _exporter.SavePieceOverwrite(selected.Name, selected.PieceHammer, fullHealthMaterial, damagedMaterial, _session.SnapshotIconName);
+            }
+            else
+            {
+                ItemMaterialSlot slot = useActive ? BuildModelSlot(materialName) : null;
+                saved = selected.Type == WackyDbObjectType.Creature
+                    ? _exporter.SaveCreatureClone(selected.Prefab, selected.Name, clone, slot)
+                    : _exporter.SaveTreeClone(selected.Prefab, selected.Name, clone, slot);
             }
 
             if (!saved)
@@ -2424,15 +2551,23 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
+            _session.MarkObjectExported(clone != null, fullHealthMaterial, damagedMaterial);
             if (clone != null)
             {
-                _session.CloneDraftDirty = false;
                 _lastExportedCloneName = clone.Name;
                 _lastExportedCloneType = selected.Type;
             }
-            string appearance = clone != null && _session.ArmorTintColor.Length != 0
-                ? $"Saved Quick recolor ({_session.ArmorTintColor}) for worn armor and the item model."
-                : GetExportAppearanceSummary(includeMaterial, writeMaterial, materialName, HasUnsavedMaterialEdits);
+            bool savedRecolor = clone != null && _session.ArmorTintColor.Length != 0;
+            string appearance = savedRecolor ? $"Saved Quick recolor ({_session.ArmorTintColor}). " : string.Empty;
+            appearance += savedRecolor && !includeMaterial
+                ? "No material YAML was written." + (HasUnsavedMaterialEdits ? " Unsaved material edits remain in the preview." : string.Empty)
+                : includeMaterial && selected.Type == WackyDbObjectType.Piece
+                    ? GetPieceExportAppearanceSummary(materialName, writeMaterial)
+                    : GetExportAppearanceSummary(includeMaterial, writeMaterial, materialName, HasUnsavedMaterialEdits);
+            if (_session.HasPendingPieceAppearance)
+            {
+                appearance += " Piece material assignments not included in this export are still pending.";
+            }
             _status = (clone != null
                 ? $"Exported clone '{clone.Name}'."
                 : $"Exported changes for '{selected.Name}'.") + " " + appearance;
@@ -2443,6 +2578,14 @@ namespace wackydatabase.VisualEditor
             }
         }
 
+        private string GetPieceExportAppearanceSummary(string materialName, bool wroteMaterial)
+        {
+            GetPieceMaterialNames(materialName, out string full, out string damaged);
+            return $"Full Health: {EmptyAsNone(full)}. Damaged: {EmptyAsNone(damaged)}. "
+                + (wroteMaterial ? $"Saved material YAML for '{materialName}'." : "No new material YAML was written.")
+                + (HasUnsavedMaterialEdits ? " Unsaved material edits remain in the preview." : string.Empty);
+        }
+
         private static string GetExportAppearanceSummary(bool includeMaterial, bool wroteMaterial, string materialName, bool remainingMaterialEdits)
         {
             string summary = wroteMaterial ? $"Saved material YAML for '{materialName}' and attached it."
@@ -2451,7 +2594,7 @@ namespace wackydatabase.VisualEditor
             return remainingMaterialEdits ? summary + " Unsaved material edits remain in the preview." : summary;
         }
 
-        private ItemMaterialSlot BuildItemModelSlot(string materialName)
+        private ItemMaterialSlot BuildModelSlot(string materialName)
         {
             Renderer renderer = _session.SelectedRenderer;
             Transform root = _session.SelectedObject.Prefab.transform;
@@ -2471,6 +2614,7 @@ namespace wackydatabase.VisualEditor
         {
             fullHealthMaterial = NullIfEmpty(_session.PieceMaterialName);
             damagedMaterial = NullIfEmpty(_session.DamagedPieceMaterialName);
+            if (string.IsNullOrWhiteSpace(currentMaterialName)) return;
             if (_session.PieceMaterialRoute == WackyDbPieceMaterialRoute.FullHealth)
             {
                 fullHealthMaterial = currentMaterialName;
@@ -2493,7 +2637,7 @@ namespace wackydatabase.VisualEditor
             switch (_session.MaterialRoute)
             {
                 case WackyDbMaterialRoute.Material:
-                    visual.itemModel = BuildItemModelSlot(currentMaterialName);
+                    visual.itemModel = BuildModelSlot(currentMaterialName);
                     break;
                 case WackyDbMaterialRoute.Base:
                     visual.base_mat = currentMaterialName;
@@ -2502,7 +2646,7 @@ namespace wackydatabase.VisualEditor
                 case WackyDbMaterialRoute.Legs:
                     if (!HasCompatibleEquippedMaterial())
                     {
-                        visual.itemModel = BuildItemModelSlot(currentMaterialName);
+                        visual.itemModel = BuildModelSlot(currentMaterialName);
                     }
                     else if (_session.MaterialRoute == WackyDbMaterialRoute.Chest)
                     {
@@ -2607,6 +2751,8 @@ namespace wackydatabase.VisualEditor
 
             try
             {
+                if (_session.ArmorTintColor.Length != 0 && !_session.MaterialChangesDirty
+                    && string.IsNullOrEmpty(_session.SelectedSharedMaterialName)) return;
                 _preview.ApplyMaterial(
                     _session.SelectedRenderer,
                     _session.SelectedMaterialSlot,
@@ -2622,6 +2768,7 @@ namespace wackydatabase.VisualEditor
 
         private void ResetPreviewEdits()
         {
+            _session.ArmorTintColor = string.Empty;
             _session.ClearMaterialSelection();
             _session.MaterialEdits.Clear();
             _session.BaseMaterialName = string.Empty;
@@ -2652,15 +2799,18 @@ namespace wackydatabase.VisualEditor
                 {
                     _preview = new WackyDbPreviewRenderer();
                 }
-                _preview.SetPrefab(_session.SelectedObject.Prefab, _usePlayerModelPreview && CanUsePlayerModelPreview());
-                if (ArmorTint.TryParse(_session.ArmorTintColor, out Color32 tint))
+                _preview.SetPrefab(_session.SelectedObject.Prefab, _usePlayerModelPreview && CanUsePlayerModelPreview(),
+                    showDamagedPiece: _session.PieceMaterialRoute == WackyDbPieceMaterialRoute.Damaged,
+                    visualOnly: _session.SelectedObject.Type is WackyDbObjectType.Creature or WackyDbObjectType.Tree);
+                bool hasTint = ArmorTint.TryParse(_session.ArmorTintColor, out Color32 tint);
+                if (hasTint)
                 {
                     _preview.ApplyArmorTint(_session.SelectedObject.Prefab, tint);
-                    return true;
                 }
                 foreach (WackyDbMaterialEditState edit in _session.MaterialEdits.Values)
                 {
-                    if (edit.Renderer && edit.WorkingBaseMaterial)
+                    if (edit.PieceRoute == _session.PieceMaterialRoute && edit.Renderer && edit.WorkingBaseMaterial
+                        && (!hasTint || edit.MaterialChangesDirty || !string.IsNullOrEmpty(edit.SelectedSharedMaterialName)))
                     {
                         _preview.ApplyMaterial(edit.Renderer, edit.Slot, edit.WorkingBaseMaterial, edit.WorkingChanges);
                     }
@@ -2940,6 +3090,14 @@ namespace wackydatabase.VisualEditor
             _instance.CloseImmediately();
         }
 
+        private void Update()
+        {
+            if (!HasConfirmation && (_windowRect.width >= SidePreviewMinWidth || _page == Page.Preview))
+            {
+                _preview?.UpdateParticles();
+            }
+        }
+
         private void OnDestroy()
         {
             if (_preview != null)
@@ -2947,6 +3105,32 @@ namespace wackydatabase.VisualEditor
                 _preview.Dispose();
                 _preview = null;
             }
+        }
+    }
+
+    internal static class WackyDbCreateInputPatch
+    {
+        [HarmonyPatch(typeof(PlayerController), "TakeInput", typeof(bool))]
+        private static class ControllerInput
+        {
+            private static bool Prefix(PlayerController __instance, ref bool __result) =>
+                AllowInput(__instance.m_character, ref __result);
+        }
+
+        [HarmonyPatch(typeof(Player), "TakeInput")]
+        private static class PlayerInput
+        {
+            private static bool Prefix(Player __instance, ref bool __result) =>
+                AllowInput(__instance, ref __result);
+        }
+
+        private static bool AllowInput(Player player, ref bool result)
+        {
+            if (!WackyDbCreateWindow.BlocksPlayerInput || !player || player != Player.m_localPlayer) return true;
+
+            player.m_autoRun = false;
+            result = false;
+            return false;
         }
     }
 

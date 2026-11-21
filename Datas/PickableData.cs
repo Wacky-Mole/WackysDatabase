@@ -36,6 +36,7 @@ namespace wackydatabase.Datas
         public float treeHealth;
         public string? cloneOfWhatTree;
         public string? material;
+        public ItemMaterialSlot? materialSlot;
         public string? size;
         public int? minToolTier;
     }

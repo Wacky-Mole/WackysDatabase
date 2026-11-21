@@ -1,5 +1,4 @@
 using System;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -28,7 +27,20 @@ namespace wackydatabase.VisualEditor
         private readonly Dictionary<string, PreviewMaterial> _previewMaterials = new Dictionary<string, PreviewMaterial>();
         private Transform _sourceRoot;
         private bool _usingPlayerModel;
+        private bool _usingPieceModel;
+        private GameObject _damagedPieceModel;
+        private bool _usingVisualCopy;
+        private GameObject _particleStage;
+        private int _particleStageFrame;
+        private bool _particleComponentsQueued;
+        private bool _particlesReady;
+        private bool _frameParticles;
+        private float _particleFitUntil;
+        private readonly List<ParticleSystem> _particles = new();
+        private readonly List<ParticleSystem> _particleStarters = new();
+        private readonly List<ParticleSystemRenderer> _particleRenderers = new();
         private Renderer _playerBody;
+        private readonly List<Material> _playerBodyMaterials = new();
         private readonly ArmorTint _armorTint = new ArmorTint();
         private readonly Dictionary<int, Renderer> _rendererMap = new Dictionary<int, Renderer>();
         private readonly Dictionary<int, Renderer> _sourceRendererMap = new Dictionary<int, Renderer>();
@@ -36,6 +48,11 @@ namespace wackydatabase.VisualEditor
         internal RenderTexture Texture => _texture;
         internal bool HasPreview => _clone && _camera && _texture;
         internal bool CanPickRenderer => !_usingPlayerModel && _sourceRendererMap.Count > 0;
+        internal bool UsesMappedRenderers => _usingPlayerModel || _usingVisualCopy;
+        internal bool HasParticles => _particlesReady && _particleStarters.Count > 0;
+        internal string ParticleWarning { get; private set; } = string.Empty;
+        internal bool ShowsRenderer(Renderer renderer) => renderer && _rendererMap.ContainsKey(renderer.GetInstanceID())
+            && (!_damagedPieceModel || PrefabAssistant.IsDamagedPieceRenderer(_sourceRoot.gameObject, _damagedPieceModel, renderer));
         internal float CameraHeight
         {
             get => _cameraHeight;
@@ -90,7 +107,7 @@ namespace wackydatabase.VisualEditor
 
         private readonly List<Action> _armorTintRestores = new();
 
-        internal void SetPrefab(GameObject prefab, bool usePlayerModel = false)
+        internal void SetPrefab(GameObject prefab, bool usePlayerModel = false, bool showDamagedPiece = false, bool visualOnly = false)
         {
             Dispose();
             if (!prefab)
@@ -101,9 +118,12 @@ namespace wackydatabase.VisualEditor
             try
             {
                 _usingPlayerModel = usePlayerModel;
+                Piece piece = usePlayerModel ? null : prefab.GetComponent<Piece>();
+                _usingPieceModel = piece;
+                _usingVisualCopy = !usePlayerModel && (visualOnly || piece || prefab.GetComponentInChildren<ParticleSystem>(true));
                 ResetView();
                 CreateRenderEnvironment();
-                InstantiatePreview(prefab);
+                InstantiatePreview(prefab, showDamagedPiece);
                 FramePreview();
                 ApplyView();
                 Render();
@@ -148,13 +168,10 @@ namespace wackydatabase.VisualEditor
             }
 
             _rendererMap.TryGetValue(sourceRenderer.GetInstanceID(), out Renderer cloneRenderer);
-            if (!cloneRenderer && _usingPlayerModel)
+            if (!cloneRenderer && (_usingPlayerModel || _usingVisualCopy))
             {
-                cloneRenderer = FindRendererUsingMaterial(sourceMaterial);
-                if (cloneRenderer)
-                {
-                    slot = FindMaterialSlot(cloneRenderer, sourceMaterial);
-                }
+                // Other visual states have no corresponding renderer in this preview.
+                return;
             }
             if (!cloneRenderer)
             {
@@ -215,10 +232,12 @@ namespace wackydatabase.VisualEditor
 
         public void Dispose()
         {
+            RestorePreviewMaterials();
             VisualController.UndoTint(_armorTintRestores);
             _armorTint.Dispose();
+            foreach (Material material in _playerBodyMaterials) UnityEngine.Object.Destroy(material);
+            _playerBodyMaterials.Clear();
             _playerBody = null;
-            RestorePreviewMaterials();
             if (_camera)
             {
                 _camera.targetTexture = null;
@@ -232,6 +251,7 @@ namespace wackydatabase.VisualEditor
 
             if (_pivot)
             {
+                _pivot.SetActive(false);
                 UnityEngine.Object.Destroy(_pivot);
             }
 
@@ -251,6 +271,15 @@ namespace wackydatabase.VisualEditor
             _camera = null;
             _light = null;
             _sourceRoot = null;
+            _damagedPieceModel = null;
+            _particleStage = null;
+            _particleComponentsQueued = false;
+            _particlesReady = false;
+            _frameParticles = false;
+            ParticleWarning = string.Empty;
+            _particles.Clear();
+            _particleStarters.Clear();
+            _particleRenderers.Clear();
             _rendererMap.Clear();
             _sourceRendererMap.Clear();
         }
@@ -335,9 +364,11 @@ namespace wackydatabase.VisualEditor
             _pivot.layer = PreviewLayer;
         }
 
-        private void InstantiatePreview(GameObject prefab)
+        private void InstantiatePreview(GameObject prefab, bool showDamagedPiece)
         {
             _sourceRoot = prefab.transform;
+            GameObject preferred = null;
+            var hidden = new HashSet<GameObject>();
             bool forceDisableInit = ZNetView.m_forceDisableInit;
             ZNetView.m_forceDisableInit = true;
             try
@@ -350,6 +381,7 @@ namespace wackydatabase.VisualEditor
 
                 _clone = _usingPlayerModel
                     ? CreateCleanPlayerPreview(source, prefab)
+                    : _usingVisualCopy ? CreateVisualPreview(prefab, showDamagedPiece, hidden, out preferred)
                     : UnityEngine.Object.Instantiate(source, PreviewOrigin, Quaternion.identity);
             }
             finally
@@ -361,10 +393,10 @@ namespace wackydatabase.VisualEditor
             _clone.hideFlags = HideFlags.HideAndDontSave;
             _clone.transform.SetParent(_pivot.transform, true);
 
-            if (!_usingPlayerModel)
+            if (!_usingPlayerModel && !_usingVisualCopy)
             {
                 Renderer[] sourceRenderers = prefab.GetComponentsInChildren<Renderer>(true);
-                bool hasItemRenderer = sourceRenderers.Any(renderer =>
+                bool hasItemRenderer = prefab.GetComponent<ItemDrop>() && sourceRenderers.Any(renderer =>
                     renderer && IsLogRenderer(renderer.transform));
                 if (hasItemRenderer)
                 {
@@ -375,7 +407,7 @@ namespace wackydatabase.VisualEditor
                 }
                 foreach (Renderer sourceRenderer in sourceRenderers)
                 {
-                    if (!sourceRenderer)
+                    if (!sourceRenderer || sourceRenderer is ParticleSystemRenderer)
                     {
                         continue;
                     }
@@ -427,9 +459,246 @@ namespace wackydatabase.VisualEditor
             if (!_usingPlayerModel)
             {
                 AddPickingColliders();
+                StageParticles(prefab, preferred, hidden);
             }
 
             _clone.SetActive(true);
+        }
+
+        private GameObject CreateVisualPreview(GameObject prefab, bool showDamaged, HashSet<GameObject> hidden, out GameObject preferred)
+        {
+            var transformMap = new Dictionary<Transform, Transform>();
+            Transform root = CopyTransformHierarchy(prefab.transform, _pivot.transform, transformMap);
+            root.localPosition = Vector3.zero;
+            root.localRotation = Quaternion.identity;
+
+            WearNTear wear = _usingPieceModel ? prefab.GetComponent<WearNTear>() : null;
+            preferred = null;
+            if (wear)
+            {
+                GameObject damaged = showDamaged ? PrefabAssistant.GetDamagedPieceModels(prefab).FirstOrDefault() : null;
+                _damagedPieceModel = damaged;
+                preferred = showDamaged && damaged ? damaged : wear.m_new;
+                foreach (GameObject alternative in new[] { wear.m_new, wear.m_worn, wear.m_broken })
+                {
+                    if (preferred && alternative && alternative != preferred && !preferred.transform.IsChildOf(alternative.transform))
+                    {
+                        hidden.Add(alternative);
+                    }
+                }
+            }
+
+            Renderer[] meshes = prefab.GetComponentsInChildren<Renderer>(true).Where(renderer =>
+                (renderer is MeshRenderer && renderer.TryGetComponent(out MeshFilter filter) && filter.sharedMesh)
+                || (renderer is SkinnedMeshRenderer skinned && skinned.sharedMesh)).ToArray();
+            bool isItem = !_usingPieceModel && prefab.GetComponent<ItemDrop>();
+            bool preferItemModel = isItem
+                && meshes.Any(renderer => IsLogRenderer(renderer.transform)
+                    && IsVisualNodeVisible(renderer.transform, prefab.transform, null, hidden));
+            GameObject selectedState = preferred;
+            var visible = new HashSet<Renderer>(meshes.Where(renderer =>
+                (_usingPieceModel || isItem || renderer.enabled)
+                && (!preferItemModel || IsLogRenderer(renderer.transform))
+                && IsVisualNodeVisible(renderer.transform, prefab.transform, selectedState, hidden)));
+
+            // Older and custom prefabs can omit a health model. Keep their authored visible state.
+            if (visible.Count == 0 && preferred && !prefab.GetComponentsInChildren<ParticleSystem>(true).Any(system =>
+                IsVisualNodeVisible(system.transform, prefab.transform, selectedState, hidden)))
+            {
+                hidden.Clear();
+                preferred = null;
+                visible.UnionWith(meshes.Where(renderer => IsVisualNodeVisible(renderer.transform, prefab.transform, null, hidden)));
+            }
+
+            foreach (LODGroup group in prefab.GetComponentsInChildren<LODGroup>(true))
+            {
+                LOD[] levels = group.GetLODs();
+                Renderer[] detailed = levels.Select(level => level.renderers).FirstOrDefault(level => level.Any(visible.Contains));
+                if (detailed == null)
+                {
+                    continue;
+                }
+                foreach (Renderer renderer in levels.SelectMany(level => level.renderers))
+                {
+                    if (!detailed.Contains(renderer))
+                    {
+                        visible.Remove(renderer);
+                    }
+                }
+            }
+
+            foreach (Renderer source in visible)
+            {
+                Renderer copy = CopyRenderer(source, transformMap[source.transform].gameObject, transformMap);
+                if (!copy)
+                {
+                    continue;
+                }
+                _rendererMap[source.GetInstanceID()] = copy;
+                _sourceRendererMap[copy.GetInstanceID()] = source;
+            }
+            return root.gameObject;
+        }
+
+        private static bool IsVisualNodeVisible(Transform current, Transform root, GameObject preferred, HashSet<GameObject> hidden)
+        {
+            for (; current != root; current = current.parent)
+            {
+                GameObject node = current.gameObject;
+                if (hidden.Contains(node) || node.GetComponent<Piece>()
+                    || (current.parent == root && node.name == "_GhostOnly")
+                    || (!node.activeSelf && (!preferred || !preferred.transform.IsChildOf(current))))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private void StageParticles(GameObject prefab, GameObject preferred, HashSet<GameObject> hidden)
+        {
+            if (!prefab.GetComponentsInChildren<ParticleSystem>(true).Any(system =>
+                IsVisualNodeVisible(system.transform, prefab.transform, preferred, hidden)))
+            {
+                return;
+            }
+
+            // Preserve Unity's serialized modules and internal references without running prefab Awake methods.
+            _particleStage = new GameObject("Preview particles");
+            _particleStage.SetActive(false);
+            _particleStage.transform.SetParent(_clone.transform, false);
+            GameObject copy = UnityEngine.Object.Instantiate(prefab, _particleStage.transform, false);
+            copy.transform.localPosition = Vector3.zero;
+            copy.transform.localRotation = Quaternion.identity;
+            copy.transform.localScale = Vector3.one;
+            SetParticleHierarchy(prefab.transform, copy.transform, prefab.transform, preferred, hidden);
+
+            foreach (MonoBehaviour behaviour in copy.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (behaviour) UnityEngine.Object.Destroy(behaviour);
+            }
+            var subEmitters = new HashSet<ParticleSystem>();
+            var included = new HashSet<ParticleSystem>(_particles);
+            foreach (ParticleSystem system in _particles)
+            {
+                var main = system.main;
+                main.playOnAwake = false;
+                main.useUnscaledTime = true;
+                main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
+                main.stopAction = ParticleSystemStopAction.None;
+                if (main.simulationSpace == ParticleSystemSimulationSpace.Custom
+                    && (!main.customSimulationSpace || !main.customSimulationSpace.IsChildOf(copy.transform)))
+                {
+                    main.simulationSpace = ParticleSystemSimulationSpace.Local;
+                }
+
+                var collision = system.collision;
+                collision.enabled = false;
+                var trigger = system.trigger;
+                trigger.enabled = false;
+                var lights = system.lights;
+                lights.enabled = false;
+                var forces = system.externalForces;
+                forces.enabled = false;
+
+                var sub = system.subEmitters;
+                if (!sub.enabled) continue;
+                for (int i = sub.subEmittersCount - 1; i >= 0; i--)
+                {
+                    ParticleSystem child = sub.GetSubEmitterSystem(i);
+                    if (included.Contains(child)) subEmitters.Add(child);
+                    else sub.RemoveSubEmitter(i);
+                }
+            }
+            _particleStarters.AddRange(_particles.Where(system => !subEmitters.Contains(system)));
+            _particleStageFrame = Time.frameCount;
+        }
+
+        private void SetParticleHierarchy(Transform source, Transform copy, Transform root, GameObject preferred, HashSet<GameObject> hidden)
+        {
+            copy.gameObject.layer = PreviewLayer;
+            bool visible = IsVisualNodeVisible(source, root, preferred, hidden);
+            copy.gameObject.SetActive(visible);
+            if (visible && copy.TryGetComponent(out ParticleSystem system))
+            {
+                _particles.Add(system);
+                if (copy.TryGetComponent(out ParticleSystemRenderer renderer) && renderer.enabled)
+                {
+                    _particleRenderers.Add(renderer);
+                }
+            }
+            for (int i = 0; i < source.childCount; i++)
+            {
+                SetParticleHierarchy(source.GetChild(i), copy.GetChild(i), root, preferred, hidden);
+            }
+        }
+
+        private static bool IsParticlePreviewComponent(Component component)
+        {
+            return component is Transform || component is ParticleSystem || component is ParticleSystemRenderer
+                || component is MeshFilter || component is MeshRenderer || component is SkinnedMeshRenderer;
+        }
+
+        internal void UpdateParticles()
+        {
+            if (!_particleStage) return;
+            if (!_particlesReady)
+            {
+                // Destroy is deferred. Never activate the copy until only visual components remain.
+                if (Time.frameCount == _particleStageFrame) return;
+                Component[] components = _particleStage.GetComponentsInChildren<Component>(true);
+                if (!_particleComponentsQueued)
+                {
+                    // Remove scripts first so RequireComponent dependencies no longer prevent native component removal.
+                    foreach (Component component in components)
+                    {
+                        if (!component) continue;
+                        if (!IsParticlePreviewComponent(component)) UnityEngine.Object.Destroy(component);
+                        else if (component is Renderer renderer && !(renderer is ParticleSystemRenderer)) renderer.enabled = false;
+                    }
+                    _particleComponentsQueued = true;
+                    _particleStageFrame = Time.frameCount;
+                    return;
+                }
+
+                if (_particleStarters.Count == 0 || _particleRenderers.Count == 0
+                    || components.Any(component => component && !IsParticlePreviewComponent(component)))
+                {
+                    ParticleWarning = "Preview effects unavailable for this prefab.";
+                    WMRecipeCust.WLog.LogWarning($"{ParticleWarning} '{_sourceRoot.name}' has no playable visual emitters or uses components that could not be isolated.");
+                    UnityEngine.Object.Destroy(_particleStage);
+                    _particleStage = null;
+                    return;
+                }
+                _particleStage.SetActive(true);
+                _particlesReady = true;
+                _camera.depthTextureMode |= DepthTextureMode.Depth;
+                ReplayParticles();
+            }
+
+            if (!_frameParticles || Time.unscaledTime > _particleFitUntil) return;
+            float radius = 0f;
+            foreach (ParticleSystemRenderer renderer in _particleRenderers)
+            {
+                if (!renderer.GetComponent<ParticleSystem>().IsAlive(false)) continue;
+                Bounds bounds = renderer.bounds;
+                if (bounds.size == Vector3.zero) continue;
+                radius = Mathf.Max(radius, (bounds.center - _center).magnitude + bounds.extents.magnitude);
+            }
+            float distance = DistanceForRadius(radius);
+            if (!float.IsInfinity(distance) && distance > _baseDistance * 1.1f)
+            {
+                _baseDistance = distance;
+                ApplyView();
+            }
+        }
+
+        internal void ReplayParticles()
+        {
+            if (!HasParticles) return;
+            foreach (ParticleSystem system in _particles) system.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+            foreach (ParticleSystem system in _particleStarters) system.Play(false);
+            _particleFitUntil = Time.unscaledTime + 1.5f;
         }
 
         private GameObject CreateCleanPlayerPreview(GameObject playerSource, GameObject itemPrefab)
@@ -437,8 +706,13 @@ namespace wackydatabase.VisualEditor
             Dictionary<Transform, Transform> transformMap = new Dictionary<Transform, Transform>();
             GameObject cleanRoot = CopyTransformHierarchy(playerSource.transform, null, transformMap).gameObject;
             cleanRoot.transform.position = PreviewOrigin;
+            cleanRoot.transform.SetParent(_pivot.transform, true);
             HashSet<int> equippedRendererIds = GetEquippedRendererIds(playerSource);
             VisEquipment equipment = playerSource.GetComponent<VisEquipment>();
+            if (!equipment || !equipment.m_bodyModel)
+            {
+                throw new InvalidOperationException("The player preview has no equipment rig.");
+            }
 
             foreach (Renderer renderer in playerSource.GetComponentsInChildren<Renderer>(true))
             {
@@ -449,39 +723,110 @@ namespace wackydatabase.VisualEditor
                     continue;
                 }
 
-                Renderer copy = CopyRenderer(renderer, targetTransform.gameObject, transformMap, null);
-                if (equipment && renderer == equipment.m_bodyModel) _playerBody = copy;
+                Renderer copy = CopyRenderer(renderer, targetTransform.gameObject, transformMap);
+                if (renderer == equipment.m_bodyModel) _playerBody = copy;
             }
+            if (!_playerBody) throw new InvalidOperationException("The player preview could not copy the body mesh.");
 
-            Dictionary<string, Transform> bonesByName = new Dictionary<string, Transform>(StringComparer.Ordinal);
-            foreach (Transform transform in cleanRoot.GetComponentsInChildren<Transform>(true))
+            ItemDrop.ItemData.SharedData item = itemPrefab.GetComponent<ItemDrop>()?.m_itemData?.m_shared;
+            ResetPlayerBodyMaterials(equipment, item);
+            foreach (Transform attachment in GetWearableRoots(itemPrefab, item?.m_itemType))
             {
-                if (!bonesByName.ContainsKey(transform.name))
+                bool skinned = attachment.name == "attach_skin";
+                Transform body = _playerBody.transform;
+                Transform sourceJoint = skinned ? equipment.m_bodyModel.transform.parent
+                    : attachment.name == "attach" ? equipment.m_helmet
+                    : Utils.FindChild(equipment.m_visual ? equipment.m_visual.transform : playerSource.transform, attachment.name.Substring(7));
+                if (!sourceJoint || !transformMap.TryGetValue(sourceJoint, out Transform targetJoint))
                 {
-                    bonesByName[transform.name] = transform;
-                }
-            }
-
-            GameObject equipmentRoot = new GameObject("WackyDB Equipped Item");
-            equipmentRoot.transform.SetParent(cleanRoot.transform, false);
-            foreach (Renderer sourceRenderer in itemPrefab.GetComponentsInChildren<Renderer>(true))
-            {
-                if (sourceRenderer is ParticleSystemRenderer || IsLogRenderer(sourceRenderer.transform))
-                {
+                    WMRecipeCust.WLog.LogWarning($"Player preview: could not attach '{attachment.name}' for '{itemPrefab.name}' to the player rig.");
                     continue;
                 }
 
-                GameObject rendererObject = new GameObject(sourceRenderer.name);
-                rendererObject.transform.SetParent(equipmentRoot.transform, false);
-                Renderer copiedRenderer = CopyRenderer(sourceRenderer, rendererObject, null, bonesByName);
-                if (copiedRenderer)
+                var attachmentMap = new Dictionary<Transform, Transform>();
+                Transform root = CopyTransformHierarchy(attachment, targetJoint, attachmentMap);
+                root.localPosition = skinned ? body.localPosition : Vector3.zero;
+                root.localRotation = Quaternion.identity;
+                foreach (Renderer sourceRenderer in attachment.GetComponentsInChildren<Renderer>(true))
                 {
-                    _rendererMap[sourceRenderer.GetInstanceID()] = copiedRenderer;
-                    _sourceRendererMap[copiedRenderer.GetInstanceID()] = sourceRenderer;
+                    if (!IsWearableMesh(sourceRenderer, attachment)) continue;
+                    Renderer copied = CopyRenderer(sourceRenderer, attachmentMap[sourceRenderer.transform].gameObject, attachmentMap);
+                    if (skinned && copied is SkinnedMeshRenderer skin && _playerBody is SkinnedMeshRenderer bodySkin)
+                    {
+                        skin.rootBone = bodySkin.rootBone;
+                        skin.bones = bodySkin.bones;
+                    }
+                    if (copied)
+                    {
+                        _rendererMap[sourceRenderer.GetInstanceID()] = copied;
+                        _sourceRendererMap[copied.GetInstanceID()] = sourceRenderer;
+                    }
                 }
             }
 
             return cleanRoot;
+        }
+
+        private void ResetPlayerBodyMaterials(VisEquipment equipment, ItemDrop.ItemData.SharedData selected)
+        {
+            Material[] materials = _playerBody.sharedMaterials;
+            int modelIndex = equipment.m_currentModelIndex;
+            Material baseline = equipment.m_models != null && modelIndex >= 0 && modelIndex < equipment.m_models.Length
+                ? equipment.m_models[modelIndex].m_baseMaterial : null;
+            foreach (var type in new[] { ItemDrop.ItemData.ItemType.Chest, ItemDrop.ItemData.ItemType.Legs })
+            {
+                string[] slots = ArmorTint.Slots(type);
+                Material worn = selected?.m_itemType == type && VisualController.SupportsEquippedArmor(selected.m_armorMaterial, type)
+                    ? selected.m_armorMaterial : null;
+                Texture emptyColor = type == ItemDrop.ItemData.ItemType.Chest ? equipment.m_emptyBodyTexture : equipment.m_emptyLegsTexture;
+                Texture emptyNormal = type == ItemDrop.ItemData.ItemType.Chest ? equipment.m_emptyBodyBumpTexture : equipment.m_emptyLegsBumpTexture;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    Material source = materials[i];
+                    if (!source || !source.HasTexture(slots[0])) continue;
+                    if (!_playerBodyMaterials.Contains(source))
+                    {
+                        source = new Material(source) { hideFlags = HideFlags.HideAndDontSave };
+                        _playerBodyMaterials.Add(source);
+                        materials[i] = source;
+                    }
+                    for (int slot = 0; slot < slots.Length; slot++)
+                    {
+                        string property = slots[slot];
+                        if (!source.HasTexture(property)) continue;
+                        Texture empty = slot == 0 ? emptyColor : slot == 1 ? emptyNormal : null;
+                        source.SetTexture(property, worn ? worn.GetTexture(property)
+                            : baseline && baseline.HasTexture(property) ? baseline.GetTexture(property) : empty);
+                    }
+                }
+            }
+            _playerBody.sharedMaterials = materials;
+        }
+
+        private static IEnumerable<Transform> GetWearableRoots(GameObject prefab, ItemDrop.ItemData.ItemType? type)
+        {
+            bool helmet = type == ItemDrop.ItemData.ItemType.Helmet;
+            for (int i = 0; i < prefab.transform.childCount; i++)
+            {
+                Transform child = prefab.transform.GetChild(i);
+                if (helmet)
+                {
+                    if (child.name != "attach" && child.name != "attach_skin") continue;
+                    yield return child;
+                    yield break;
+                }
+                if (child.name.Length > 7 && child.name.StartsWith("attach_", StringComparison.Ordinal)) yield return child;
+            }
+        }
+
+        private static bool IsWearableMesh(Renderer renderer, Transform root)
+        {
+            if (!(renderer is MeshRenderer) && !(renderer is SkinnedMeshRenderer)) return false;
+            for (Transform current = renderer.transform; current != root; current = current.parent)
+            {
+                if (!current.gameObject.activeSelf) return false;
+            }
+            return true;
         }
 
         private static HashSet<int> GetEquippedRendererIds(GameObject playerSource)
@@ -553,8 +898,7 @@ namespace wackydatabase.VisualEditor
         private static Renderer CopyRenderer(
             Renderer source,
             GameObject target,
-            Dictionary<Transform, Transform> transformMap,
-            Dictionary<string, Transform> bonesByName)
+            Dictionary<Transform, Transform> transformMap)
         {
             Renderer result;
             if (source is SkinnedMeshRenderer sourceSkinned)
@@ -564,9 +908,9 @@ namespace wackydatabase.VisualEditor
                 targetSkinned.localBounds = sourceSkinned.localBounds;
                 targetSkinned.updateWhenOffscreen = true;
                 targetSkinned.bones = sourceSkinned.bones
-                    .Select(bone => ResolveBone(bone, transformMap, bonesByName))
+                    .Select(bone => ResolveBone(bone, transformMap))
                     .ToArray();
-                targetSkinned.rootBone = ResolveBone(sourceSkinned.rootBone, transformMap, bonesByName);
+                targetSkinned.rootBone = ResolveBone(sourceSkinned.rootBone, transformMap);
                 result = targetSkinned;
             }
             else if (source is MeshRenderer)
@@ -592,24 +936,9 @@ namespace wackydatabase.VisualEditor
             return result;
         }
 
-        private static Transform ResolveBone(
-            Transform sourceBone,
-            Dictionary<Transform, Transform> transformMap,
-            Dictionary<string, Transform> bonesByName)
+        private static Transform ResolveBone(Transform sourceBone, Dictionary<Transform, Transform> transformMap)
         {
-            if (!sourceBone)
-            {
-                return null;
-            }
-            if (transformMap != null && transformMap.TryGetValue(sourceBone, out Transform mappedBone))
-            {
-                return mappedBone;
-            }
-            if (bonesByName != null && bonesByName.TryGetValue(sourceBone.name, out mappedBone))
-            {
-                return mappedBone;
-            }
-            return null;
+            return sourceBone && transformMap.TryGetValue(sourceBone, out Transform mappedBone) ? mappedBone : null;
         }
 
         private static bool IsLogRenderer(Transform transform)
@@ -835,37 +1164,9 @@ namespace wackydatabase.VisualEditor
             }
         }
 
-        private Renderer FindRendererUsingMaterial(Material material)
-        {
-            foreach (Renderer renderer in _clone.GetComponentsInChildren<Renderer>(true))
-            {
-                foreach (Material candidate in renderer.sharedMaterials)
-                {
-                    if (candidate && (candidate == material || candidate.name == material.name))
-                    {
-                        return renderer;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private static int FindMaterialSlot(Renderer renderer, Material material)
-        {
-            Material[] materials = renderer.sharedMaterials;
-            for (int index = 0; index < materials.Length; index++)
-            {
-                if (materials[index] && (materials[index] == material || materials[index].name == material.name))
-                {
-                    return index;
-                }
-            }
-            return -1;
-        }
-
         private void FramePreview()
         {
-            Renderer[] renderers = _clone.GetComponentsInChildren<Renderer>(true)
+            Renderer[] renderers = _clone.GetComponentsInChildren<Renderer>()
                 .Where(renderer => renderer.enabled && !(renderer is ParticleSystemRenderer))
                 .ToArray();
             if (_usingPlayerModel)
@@ -876,25 +1177,37 @@ namespace wackydatabase.VisualEditor
                     renderers = skinnedRenderers;
                 }
             }
-            if (renderers.Length == 0)
+            if (renderers.Length == 0 && _particleRenderers.Count == 0)
             {
                 throw new InvalidOperationException("The selected prefab has no previewable renderers.");
             }
 
-            Bounds bounds = renderers[0].bounds;
-            for (int index = 1; index < renderers.Length; index++)
+            _frameParticles = renderers.Length == 0;
+            Bounds bounds;
+            if (_frameParticles)
             {
-                bounds.Encapsulate(renderers[index].bounds);
+                bounds = new Bounds(_particleRenderers[0].transform.position, Vector3.one * 2f);
+                foreach (ParticleSystemRenderer renderer in _particleRenderers)
+                {
+                    bounds.Encapsulate(renderer.transform.position);
+                }
+            }
+            else
+            {
+                bounds = renderers[0].bounds;
+                for (int index = 1; index < renderers.Length; index++)
+                {
+                    bounds.Encapsulate(renderers[index].bounds);
+                }
             }
 
             _clone.transform.position += PreviewOrigin - bounds.center;
             _center = PreviewOrigin;
 
-            float radius = Mathf.Max(bounds.extents.magnitude, 0.1f);
-            _baseDistance = radius / Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad) * 1.15f;
-            _camera.nearClipPlane = Mathf.Max(0.01f, _baseDistance - radius * 2.5f);
-            _camera.farClipPlane = _baseDistance + radius * 4f;
+            _baseDistance = DistanceForRadius(Mathf.Max(bounds.extents.magnitude, 0.1f));
         }
+
+        private float DistanceForRadius(float radius) => radius / Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad) * 1.15f;
 
         private void ApplyView()
         {
@@ -905,6 +1218,8 @@ namespace wackydatabase.VisualEditor
 
             _pivot.transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
             float distance = _baseDistance * _zoom;
+            _camera.nearClipPlane = Mathf.Max(0.01f, distance - _baseDistance * 0.75f);
+            _camera.farClipPlane = distance + _baseDistance * 2f;
             // Measure the pan in fractions of the view height so it feels the same at any zoom.
             float viewHeight = 2f * distance * Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
             _camera.transform.position = _center + new Vector3(0f, _cameraHeight * viewHeight, -distance);

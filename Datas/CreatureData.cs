@@ -15,6 +15,7 @@ namespace wackydatabase.Datas
         public string name; // must have
         public string mob_display_name; // must have
         public string? custom_material;
+        public ItemMaterialSlot? materialSlot;
         public string? clone_creature;
         public string? creature_replacer;
     }

@@ -121,12 +121,14 @@ namespace wackydatabase.VisualEditor
 
             string valuePattern = Regex.Escape(materialName.Trim());
             Regex reference = new Regex(
-                "^\\s*(?:material|damagedMaterial):\\s*[\\\"']?" + valuePattern + "[\\\"']?\\s*(?:#.*)?$",
+                "^\\s*(?:material|damagedMaterial|custom_material):\\s*[\\\"']?" + valuePattern + "[\\\"']?\\s*(?:#.*)?$",
                 RegexOptions.IgnoreCase | RegexOptions.Multiline);
             int count = 0;
 
             count += CountReferencesInFolder(WMRecipeCust.assetPathItems, reference);
             count += CountReferencesInFolder(WMRecipeCust.assetPathPieces, reference);
+            count += CountReferencesInFolder(WMRecipeCust.assetPathCreatures, reference);
+            count += CountReferencesInFolder(WMRecipeCust.assetPathPickables, reference);
             return count;
         }
 

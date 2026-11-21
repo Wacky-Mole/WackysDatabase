@@ -194,7 +194,7 @@ namespace wackydatabase
                 if (tint.HasValue) ApplyTint(item, tint.Value);
                 if (visual.itemModel != null)
                 {
-                    ApplyItemModelSlot(item, visual.itemModel);
+                    ApplyPrefabMaterialSlot(item, visual.itemModel);
                 }
             }
             catch (System.Exception e)
@@ -323,13 +323,13 @@ namespace wackydatabase
             return null;
         }
 
-        private static void ApplyItemModelSlot(GameObject item, ItemMaterialSlot target)
+        internal static void ApplyPrefabMaterialSlot(GameObject prefab, ItemMaterialSlot target)
         {
-            Transform node = string.IsNullOrEmpty(target.path) ? item.transform : item.transform.Find(target.path);
+            Transform node = string.IsNullOrEmpty(target.path) ? prefab.transform : prefab.transform.Find(target.path);
             Renderer[] renderers = node ? node.GetComponents<Renderer>() : System.Array.Empty<Renderer>();
             if (target.renderer < 0 || target.renderer >= renderers.Length)
             {
-                WMRecipeCust.WLog.LogWarning($"{item.name}: item-model renderer {target.renderer} at '{target.path}' was not found.");
+                WMRecipeCust.WLog.LogWarning($"{prefab.name}: renderer {target.renderer} at '{target.path}' was not found.");
                 return;
             }
 
@@ -337,12 +337,12 @@ namespace wackydatabase
             Material[] slots = renderer.sharedMaterials;
             if (target.slot < 0 || target.slot >= slots.Length)
             {
-                WMRecipeCust.WLog.LogWarning($"{item.name}: item-model material slot {target.slot} at '{target.path}' was not found.");
+                WMRecipeCust.WLog.LogWarning($"{prefab.name}: material slot {target.slot} at '{target.path}' was not found.");
                 return;
             }
             if (string.IsNullOrWhiteSpace(target.material) || !WMRecipeCust.originalMaterials.TryGetValue(target.material, out Material material) || !material)
             {
-                WMRecipeCust.WLog.LogWarning($"{item.name}: item-model material '{target.material}' was not found.");
+                WMRecipeCust.WLog.LogWarning($"{prefab.name}: material '{target.material}' was not found.");
                 return;
             }
 

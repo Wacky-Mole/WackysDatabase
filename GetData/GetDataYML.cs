@@ -49,7 +49,7 @@ namespace wackydatabase.GetData
             return piece.m_category.ToString();
         }
 
-        private static bool TryGetCreatureData(GameObject obj, out string displayName)
+        internal static bool TryGetCreatureData(GameObject obj, out string displayName)
         {
             displayName = null;
 

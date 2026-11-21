@@ -307,6 +307,36 @@ namespace wackydatabase
             }
         }
 
+        internal static IEnumerable<GameObject> GetDamagedPieceModels(GameObject prefab)
+        {
+            if (!prefab || !prefab.TryGetComponent(out WearNTear wear)) yield break;
+
+            GameObject healthy = wear.m_new;
+            GameObject previous = null;
+            foreach (GameObject model in new[] { wear.m_worn, wear.m_broken })
+            {
+                if (!model || model == previous || model == prefab || !model.transform.IsChildOf(prefab.transform)) continue;
+                // A shared or overlapping hierarchy cannot safely receive an independent material.
+                if (healthy && (healthy.transform.IsChildOf(model.transform) || model.transform.IsChildOf(healthy.transform))) continue;
+                previous = model;
+                if (model.GetComponentsInChildren<Renderer>(true).Any(renderer => IsDamagedPieceRenderer(prefab, model, renderer)))
+                {
+                    yield return model;
+                }
+            }
+        }
+
+        internal static bool IsDamagedPieceRenderer(GameObject prefab, GameObject model, Renderer renderer)
+        {
+            if (!(renderer is MeshRenderer || renderer is SkinnedMeshRenderer)
+                || !renderer.transform.IsChildOf(model.transform)) return false;
+            for (Transform node = renderer.transform; node != prefab.transform; node = node.parent)
+            {
+                if (node.GetComponent<Piece>() || (node.parent == prefab.transform && node.name == "_GhostOnly")) return false;
+            }
+            return true;
+        }
+
         public static void UpdateMaterialReference(Renderer r, Material m)
         {
             if (m == null)
