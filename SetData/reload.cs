@@ -351,6 +351,11 @@ namespace wackydatabase.SetData
                                 WMRecipeCust.MasterCloneList[data.name] = thing;
                             else
                                 WMRecipeCust.MasterCloneList.Add(data.name, thing);
+
+                            if (data.customVisual != null)
+                            {
+                                VisualController.UpdateItemPrefab(data, thing);
+                            }
                         }else
                         {
                             WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} was null, so removing from List");
@@ -360,14 +365,6 @@ namespace wackydatabase.SetData
                     }
                     catch { WMRecipeCust.WLog.LogInfo($"Wackydb cache item {data.name} failed"); }
 
-                    if (data.customVisual != null )
-                    {
-                        try
-                        {
-                            VisualController.UpdatePrefab(data.name, data.customVisual);
-                        }
-                        catch { WMRecipeCust.WLog.LogWarning($"[{WMRecipeCust.ModName}]: Failed to update visuals for {data.name}"); } // spams just catch any empty
-                    }
                 }
             }
 
@@ -842,6 +839,8 @@ namespace wackydatabase.SetData
             }
             // END CLONE PASS for crafting Stations
 
+            var changedArmor = new HashSet<int>();
+            VisualController.RestoreArmorTints(changedArmor: changedArmor);
             foreach (var data in WMRecipeCust.itemDatasYml) // call items first
             {
                 try
@@ -859,7 +858,14 @@ namespace wackydatabase.SetData
                 {
                     try
                     {
-                        VisualController.UpdatePrefab(data.name, data.customVisual);
+                        VisualController.UpdateItemPrefab(data);
+
+                        GameObject prefab = Instant.GetItemPrefab(data.name);
+                        var itemType = prefab ? prefab.GetComponent<ItemDrop>()?.m_itemData?.m_shared?.m_itemType : null;
+                        if (itemType is ItemDrop.ItemData.ItemType.Chest or ItemDrop.ItemData.ItemType.Legs)
+                        {
+                            changedArmor.Add(data.name.GetStableHashCode());
+                        }
 
                         if (DataHelpers.ECheck(data.customIcon))
                         {
@@ -1071,6 +1077,7 @@ namespace wackydatabase.SetData
             RefreshLivePieceIcons();
 
             UPdateItemHashesWacky(ObjectDB.instance);
+            VisualController.RefreshEquippedArmor(changedArmor);
 
 
             WMRecipeCust.WLog.LogInfo($" You finished wackydb reload");

@@ -333,10 +333,7 @@ namespace wackydatabase.PatchClasses
                      // GetRecipeDataFromFiles(); called in loadallrecipes
                      if (ObjectDB.instance && WMRecipeCust.issettoSinglePlayer)
                      {
-                          WMRecipeCust.context.StartCoroutine(TimedReload(
-                              false,
-                              false,
-                              "wackydb_reload_fast",
+                          WMRecipeCust.context.StartCoroutine(ReloadFast(
                               message => args.Context?.AddString(message)));
                      }
 
@@ -1427,6 +1424,11 @@ namespace wackydatabase.PatchClasses
             }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false, allowInDevBuild: false);
         }
 
+        internal static System.Collections.IEnumerator ReloadFast(Action<string> report = null)
+        {
+            return TimedReload(slowMode: false, forcePush: false, commandName: "wackydb_reload_fast", report: report);
+        }
+
         private static System.Collections.IEnumerator TimedReload(
             bool slowMode,
             bool forcePush,
@@ -1438,6 +1440,9 @@ namespace wackydatabase.PatchClasses
             ReadFiles readNow = new ReadFiles();
             yield return WMRecipeCust.context.StartCoroutine(readNow.GetDataFromFiles(slowMode));
             WMRecipeCust.readFiles = readNow;
+
+            // Don't depend on the file watcher to load materials before item and piece references are applied.
+            MaterialDataManager.Instance.LoadFiles();
 
             SetData.Reload reload = new SetData.Reload();
             WMRecipeCust.CurrentReload = reload;

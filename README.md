@@ -394,10 +394,40 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 ### Materials and CustomVisuals
 
 In a loaded world, open **Material Studio** with **F6** (the default hotkey) or `wackydb_create`. Use `wackydb_create [PrefabName]` to jump to a specific object.
+Closing and reopening the studio in the same world returns to the last object. If you discard a draft when closing, the object still reopens, but the discarded edits do not.
+
+When switching objects with unsaved edits, **Discard and switch** opens the next object without closing the studio. **Keep current edits** returns to the current object.
 
 1. **Browse:** Search by in-game name or prefab ID. Use **Items**, **Pieces**, or **All** to narrow or widen the results.
-2. **Edit:** Choose a material slot, or click a part in the live preview to find its slot. Drag the model to rotate it. On smaller windows, open the **Preview** tab. Color, texture, and shader controls depend on the selected material.
-3. **Export:** Choose **New copy** to leave the original item or piece unchanged, **Change original** to apply changes to that prefab, or **Material only** to save a reusable material. To avoid changing other objects that use an existing shared material, choose **Make a material copy** in Edit before exporting.
+2. **Edit:** Choose a material slot, or click a part in the live preview to find its slot. Drag to rotate, or use **Camera height** to raise or lower the camera without tilting it. **Center** resets only the height. On smaller windows, open the **Preview** tab. Color, texture, and shader controls depend on the selected material.
+3. **Export:** Choose **Clone object** to create a separate item or piece, **Change original** to apply a material to the selected prefab, or **Material only** to save a reusable material.
+
+Select an item or building piece and click **Clone this object**. The suggested prefab ID is `<source prefab>_<current character>`, such as `SwordIron_Ada`. Spaces and other characters that aren't valid in prefab IDs become underscores. Change the suggestion if the ID is already taken. **In-game name (`m_name`)** is always available, but only the prefab ID is required. Leave any optional field blank to keep the source value.
+
+Under **Clone appearance**, **Original look** doesn't write material YAML. **Preview material** applies the selected slot's material and writes material YAML only if needed. It is selected by default when you've edited the selected material or picked one from the material library. Other slots' unsaved edits are not included. If exporting would change a shared material, use **Make a material copy** in Edit first.
+
+New material clone IDs include `_material`. Material Studio adds it if you leave it out. Existing material references keep their names.
+
+For armor, use **Show item model** to edit a specific dropped-model slot. On the equipped chest and leg routes, exporting changes to the `_Color` RGB sliders also saves an armor tint. If the selected material does not have Valheim's equipped armor texture slots, export applies it to the selected mesh slot instead of replacing the player-body material. The tint uses the existing armor textures where available; an explicit mesh slot override takes precedence on that slot.
+
+For an easy recolor, select chest or leg armor and choose a preset or enter a `#RRGGBB` color in **Quick recolor**. Preview the item model or switch to **Show on player**, then choose **Export recolored clone and reload** in a local world. This saves the color in the clone YAML, not as a separate material or PNG. It recolors the existing color textures without replacing the shader, normal maps, or metal maps. If a modded armor has no compatible player-body texture, only its textured meshes can be recolored this way.
+
+Older armor clones that reference a recolored mesh material in the equipped slot can use its saved `_Color` as a Quick recolor when a compatible inherited armor material is available and the YAML has no separate model override. WackyDB does not rewrite the older YAML.
+
+The **and reload** export button uses `wackydb_reload_fast` in single-player. Reload loads material YAML before applying the items and pieces that reference it, then refreshes affected chest and leg armor that is already equipped. To check the dropped model, spawn or drop the item again after reload. If the YAML is already saved, use **Reload WackyDB from disk** to reload without exporting again.
+
+#### Choose which clone fields to show
+
+Admins can edit `[Creator Clone Fields]` in the WackyDB BepInEx config. These settings sync with the server. `true` shows a field for objects that support it; `false` hides it and prevents it from overriding the source. The switches don't fill in any values or change existing exports. For example, this setup exposes only `m_name` and item weight:
+
+```ini
+[Creator Clone Fields]
+Show Description = false
+Show Item Weight = true
+Show Item Max Stack Size = false
+Show Piece Durability = false
+Show Piece Comfort = false
+```
 
 - `material` (string, optional): The name of the material
 - `customVisual` (CustomVisual, optional): A more specific targetting for materials, generally only useful for player armors.

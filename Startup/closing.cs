@@ -31,6 +31,8 @@ namespace wackydatabase.Startup
                 WMRecipeCust.issettoSinglePlayer = false;
                 WMRecipeCust.waitingforFirstLoad = false;
                 HandleData.ResetAutoSyncRequestState();
+                VisualEditor.WackyDbCreateWindow.EndWorldSession();
+                VisualController.RestoreArmorTints(release: true);
                 if (WMRecipeCust.issettoSinglePlayer)
                 {
                     Closing.DestroyClones();

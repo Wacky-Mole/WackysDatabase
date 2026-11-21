@@ -202,6 +202,7 @@
     <Compile Include="VisualEditor\WackyDbPreviewRenderer.cs" />
     <Compile Include="VisualEditor\WackyDbTextureBrowser.cs" />
     <Compile Include="VisualEditor\WackyDbYamlExporter.cs" />
+    <Compile Include="Visuals\ArmorTint.cs" />
     <Compile Include="Visuals\DataManagers\DataManager.cs" />
     <Compile Include="Visuals\DataManagers\MaterialDataManager.cs" />
     <Compile Include="Visuals\DataManagers\TextureDataManager.cs" />

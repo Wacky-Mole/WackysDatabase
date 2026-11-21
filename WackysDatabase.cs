@@ -83,6 +83,11 @@ namespace wackydatabase
         public static ConfigEntry<bool> showLogs;
         public static ConfigEntry<string> extraEffectList;
         public static ConfigEntry<KeyCode> creatorHotkey;
+        internal static ConfigEntry<bool> creatorShowCloneDescription;
+        internal static ConfigEntry<bool> creatorShowCloneItemWeight;
+        internal static ConfigEntry<bool> creatorShowCloneItemStackSize;
+        internal static ConfigEntry<bool> creatorShowClonePieceDurability;
+        internal static ConfigEntry<bool> creatorShowClonePieceComfort;
         internal static ConfigEntry<bool>? _serverConfigLocked;
         internal static readonly CustomSyncedValue<string> skillConfigData = new(ConfigSync, "skillConfig", ""); // doesn't show up in config
         internal static readonly CustomSyncedValue<string> largeTransfer = new(ConfigSync, "largeTransfer", ""); // Asset Sync
@@ -341,6 +346,17 @@ namespace wackydatabase
             // clonedcache = config<bool>("General", "Enabled Cloned Cache", true, "Turn on CloneCache so that Character items appear in the Start Menu");
             extraEffectList = config<string>("Effects", "List of Extra Effects", "lightningAOE", "Extra Effects to look for from base game or Mods - (Use_a_comma,No_spaces)");
             creatorHotkey = config<KeyCode>("General", "Material Creator Hotkey", KeyCode.F6, "Hotkey used to open or close the WackyDB material creator", false);
+            const string cloneFields = "Creator Clone Fields";
+            creatorShowCloneDescription = config(cloneFields, "Show Description", true,
+                "Show the description field (m_description) for items and building pieces when cloning.");
+            creatorShowCloneItemWeight = config(cloneFields, "Show Item Weight", true,
+                "Show the weight field (m_weight) when cloning an item.");
+            creatorShowCloneItemStackSize = config(cloneFields, "Show Item Max Stack Size", true,
+                "Show the max stack size field (m_maxStackSize) when cloning an item.");
+            creatorShowClonePieceDurability = config(cloneFields, "Show Piece Durability", true,
+                "Show the durability field (wearNTearData.health) when cloning a building piece that supports it.");
+            creatorShowClonePieceComfort = config(cloneFields, "Show Piece Comfort", true,
+                "Show the comfort field (comfort.comfort) when cloning a building piece.");
             ConfigSync.CurrentVersion = ModVersion;
 
             WLog.LogDebug("Mod Version " + ConfigSync.CurrentVersion);

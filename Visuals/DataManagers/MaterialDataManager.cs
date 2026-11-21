@@ -10,6 +10,7 @@ namespace wackydatabase
         public static MaterialDataManager Instance = new MaterialDataManager();
 
         public Dictionary<string, Material> materials;
+        private readonly Dictionary<string, string> _originalNames = new Dictionary<string, string>();
 
         public event EventHandler<MaterialEventArgs> OnMaterialAdd;
         public event EventHandler<MaterialEventArgs> OnMaterialChange;
@@ -63,6 +64,7 @@ namespace wackydatabase
                     }
 
                     materials.Add(mi.name, m);
+                    _originalNames[mi.name] = mi.original;
 
                     // Due to the threading that occurs, this will not actually fire the event on the correct thread
                     //OnMaterialAdd?.Invoke(this, new MaterialEventArgs(m, mi));
@@ -136,6 +138,11 @@ namespace wackydatabase
             }
 
             return materials[material];
+        }
+
+        internal bool TryGetOriginalName(string material, out string originalName)
+        {
+            return _originalNames.TryGetValue(material, out originalName);
         }
     }
 

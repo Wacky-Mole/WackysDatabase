@@ -66,6 +66,16 @@ namespace wackydatabase.VisualEditor
         internal bool MaterialChangesDirty;
         internal string CloneName = string.Empty;
         internal string DisplayName = string.Empty;
+        internal string CloneDescription = string.Empty;
+        internal string CloneWeight = string.Empty;
+        internal string CloneStackSize = string.Empty;
+        internal string ClonePieceHealth = string.Empty;
+        internal string CloneComfort = string.Empty;
+        internal bool? IncludeCloneMaterial;
+        internal bool CloneDraftDirty;
+
+        internal bool UsesPreviewMaterialForClone => WorkingBaseMaterial
+            && (IncludeCloneMaterial ?? (MaterialChangesDirty || !string.IsNullOrWhiteSpace(SelectedSharedMaterialName)));
         internal WackyDbMaterialRoute MaterialRoute = WackyDbMaterialRoute.Material;
         internal string BaseMaterialName = string.Empty;
         internal string ChestMaterialName = string.Empty;
@@ -75,6 +85,8 @@ namespace wackydatabase.VisualEditor
         internal string PieceMaterialName = string.Empty;
         internal string DamagedPieceMaterialName = string.Empty;
         internal string SnapshotIconName = string.Empty;
+        internal string ArmorTintColor = string.Empty;
+        internal string ArmorTintInput = "#CF77EC";
         internal Dictionary<string, WackyDbMaterialEditState> MaterialEdits = new Dictionary<string, WackyDbMaterialEditState>();
 
         internal void ClearSelection()
@@ -93,7 +105,18 @@ namespace wackydatabase.VisualEditor
             PieceMaterialName = string.Empty;
             DamagedPieceMaterialName = string.Empty;
             SnapshotIconName = string.Empty;
+            ArmorTintColor = string.Empty;
+            ArmorTintInput = "#CF77EC";
             MaterialEdits.Clear();
+            CloneName = string.Empty;
+            DisplayName = string.Empty;
+            CloneDescription = string.Empty;
+            CloneWeight = string.Empty;
+            CloneStackSize = string.Empty;
+            ClonePieceHealth = string.Empty;
+            CloneComfort = string.Empty;
+            IncludeCloneMaterial = null;
+            CloneDraftDirty = false;
         }
 
         internal void ClearMaterialSelection()

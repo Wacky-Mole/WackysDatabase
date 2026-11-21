@@ -113,11 +113,12 @@ namespace wackydatabase.VisualEditor
 
         private static string GetTransformPath(Transform root, Transform current)
         {
-            if (current == root)
-            {
-                return root.name;
-            }
+            string relative = GetRelativeTransformPath(root, current);
+            return relative.Length == 0 ? root.name : root.name + "/" + relative;
+        }
 
+        internal static string GetRelativeTransformPath(Transform root, Transform current)
+        {
             List<string> parts = new List<string>();
             while (current && current != root)
             {
@@ -125,7 +126,6 @@ namespace wackydatabase.VisualEditor
                 current = current.parent;
             }
 
-            parts.Add(root.name);
             parts.Reverse();
             return string.Join("/", parts);
         }

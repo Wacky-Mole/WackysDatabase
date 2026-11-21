@@ -256,6 +256,18 @@ namespace wackydatabase.Datas
         public string? chest;
         public string? legs;
         public string? realtime;
+        public ItemMaterialSlot? itemModel;
+        public bool? useArmorMaterialForDrop;
+        public string? armorTint;
+    }
+
+    [Serializable]
+    public class ItemMaterialSlot
+    {
+        public string? path;
+        public int renderer;
+        public int slot;
+        public string? material;
     }
 
     [Serializable]

@@ -24,15 +24,71 @@ namespace wackydatabase.VisualEditor
         private float _yaw = 25f;
         private float _pitch = 15f;
         private float _zoom = 1f;
+        private float _cameraHeight;
         private readonly Dictionary<string, PreviewMaterial> _previewMaterials = new Dictionary<string, PreviewMaterial>();
         private Transform _sourceRoot;
         private bool _usingPlayerModel;
+        private Renderer _playerBody;
+        private readonly ArmorTint _armorTint = new ArmorTint();
         private readonly Dictionary<int, Renderer> _rendererMap = new Dictionary<int, Renderer>();
         private readonly Dictionary<int, Renderer> _sourceRendererMap = new Dictionary<int, Renderer>();
 
         internal RenderTexture Texture => _texture;
         internal bool HasPreview => _clone && _camera && _texture;
         internal bool CanPickRenderer => !_usingPlayerModel && _sourceRendererMap.Count > 0;
+        internal float CameraHeight
+        {
+            get => _cameraHeight;
+            set
+            {
+                _cameraHeight = value;
+                ApplyView();
+            }
+        }
+
+        internal void ApplyArmorTint(GameObject prefab, Color32 color)
+        {
+            var shared = prefab.GetComponent<ItemDrop>()?.m_itemData?.m_shared;
+            if (shared == null) return;
+
+            var restore = new List<Action>();
+            try
+            {
+                IEnumerable<Renderer> meshes = _rendererMap.Values.Where(renderer => renderer && renderer.enabled).Distinct();
+                _armorTint.TintMeshes(meshes, color, restore);
+                if (_playerBody && VisualController.SupportsEquippedArmor(shared.m_armorMaterial, shared.m_itemType))
+                {
+                    string[] properties = ArmorTint.Slots(shared.m_itemType);
+                    Material equipped = _armorTint.Tint(shared.m_armorMaterial, color, properties[0]);
+                    if (equipped)
+                    {
+                        Material[] originals = _playerBody.sharedMaterials;
+                        Material[] materials = (Material[])originals.Clone();
+                        for (int i = 0; i < materials.Length; i++)
+                        {
+                            Material original = originals[i];
+                            if (!original || !original.HasTexture(properties[0])) continue;
+                            Material copy = new Material(original) { hideFlags = HideFlags.HideAndDontSave };
+                            restore.Add(() => UnityEngine.Object.Destroy(copy));
+                            foreach (string property in properties)
+                                if (copy.HasTexture(property)) copy.SetTexture(property, equipped.GetTexture(property));
+                            materials[i] = copy;
+                        }
+                        restore.Add(() => { if (_playerBody) _playerBody.sharedMaterials = originals; });
+                        _playerBody.sharedMaterials = materials;
+                    }
+                }
+                _armorTintRestores.AddRange(restore);
+                Render();
+            }
+            catch
+            {
+                VisualController.UndoTint(restore);
+                throw;
+            }
+        }
+
+        private readonly List<Action> _armorTintRestores = new();
 
         internal void SetPrefab(GameObject prefab, bool usePlayerModel = false)
         {
@@ -145,6 +201,7 @@ namespace wackydatabase.VisualEditor
             _yaw = _usingPlayerModel ? 0f : 25f;
             _pitch = _usingPlayerModel ? 0f : 15f;
             _zoom = 1f;
+            _cameraHeight = 0f;
             ApplyView();
         }
 
@@ -158,6 +215,9 @@ namespace wackydatabase.VisualEditor
 
         public void Dispose()
         {
+            VisualController.UndoTint(_armorTintRestores);
+            _armorTint.Dispose();
+            _playerBody = null;
             RestorePreviewMaterials();
             if (_camera)
             {
@@ -378,6 +438,7 @@ namespace wackydatabase.VisualEditor
             GameObject cleanRoot = CopyTransformHierarchy(playerSource.transform, null, transformMap).gameObject;
             cleanRoot.transform.position = PreviewOrigin;
             HashSet<int> equippedRendererIds = GetEquippedRendererIds(playerSource);
+            VisEquipment equipment = playerSource.GetComponent<VisEquipment>();
 
             foreach (Renderer renderer in playerSource.GetComponentsInChildren<Renderer>(true))
             {
@@ -388,7 +449,8 @@ namespace wackydatabase.VisualEditor
                     continue;
                 }
 
-                CopyRenderer(renderer, targetTransform.gameObject, transformMap, null);
+                Renderer copy = CopyRenderer(renderer, targetTransform.gameObject, transformMap, null);
+                if (equipment && renderer == equipment.m_bodyModel) _playerBody = copy;
             }
 
             Dictionary<string, Transform> bonesByName = new Dictionary<string, Transform>(StringComparer.Ordinal);
@@ -843,8 +905,10 @@ namespace wackydatabase.VisualEditor
 
             _pivot.transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
             float distance = _baseDistance * _zoom;
-            _camera.transform.position = _center + new Vector3(0f, 0f, -distance);
-            _camera.transform.rotation = Quaternion.LookRotation(_center - _camera.transform.position, Vector3.up);
+            // Measure the pan in fractions of the view height so it feels the same at any zoom.
+            float viewHeight = 2f * distance * Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            _camera.transform.position = _center + new Vector3(0f, _cameraHeight * viewHeight, -distance);
+            _camera.transform.rotation = Quaternion.identity;
             Render();
         }
 
