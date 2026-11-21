@@ -1,5 +1,4 @@
 using System;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -12,6 +11,11 @@ namespace wackydatabase.VisualEditor
         private const int WindowId = 19850423;
         private const int MaximumVisibleResults = 250;
         private const string TutorialPreferenceKey = "WackyDB.Creator.ShowTutorial";
+        private const float SidePreviewMinWidth = 920f;
+        private static readonly Color Accent = new Color(0.52f, 0.91f, 0.83f);
+
+        private enum Page { Browse, Preview, Edit, Export }
+        private enum SaveMode { Clone, Overwrite, Material }
 
         private static WackyDbCreateWindow _instance;
         private static int _lastHotkeyToggleFrame = -1;
@@ -28,7 +32,18 @@ namespace wackydatabase.VisualEditor
         private Rect _normalWindowRect;
         private Vector2 _resultScroll;
         private Vector2 _detailScroll;
+        private Vector2 _exportScroll;
         private Vector2 _materialScroll;
+        private Page _page;
+        private SaveMode _saveMode;
+        private WackyDbObjectType _objectFilter = WackyDbObjectType.Item;
+        private List<WackyDbObjectCandidate> _results;
+        private WackyDbObjectType _lastObjectFilter;
+        private string _lastSearchText;
+        private GUIStyle _heading;
+        private GUIStyle _body;
+        private GUIStyle _resultButton;
+        private GUIStyle _skinLabel;
         private string _searchText = string.Empty;
         private string _status = string.Empty;
         private string _materialSearch = string.Empty;
@@ -38,7 +53,8 @@ namespace wackydatabase.VisualEditor
         private bool _previewDragging;
         private Vector2 _previewPointerDown;
         private bool _fullScreen = true;
-        private bool _showTutorial = true;
+        private bool _toggleFullScreen;
+        private bool _showTutorial;
         private string _textureSearch = string.Empty;
         private string _selectedTextureName = string.Empty;
         private string _selectedTextureProperty = string.Empty;
@@ -47,11 +63,19 @@ namespace wackydatabase.VisualEditor
         private bool _showFloatEditor;
         private bool _showTextureEditor;
         private bool _showRendererSlots = true;
+        private bool _showMaterialSettings;
+        private Renderer _pickedRenderer;
         private WackyDbObjectCandidate _pendingSelection;
         private bool _pendingClose;
+        private bool _pendingReset;
         private bool _confirmOverwrite;
         private bool _confirmOverwriteReload;
         private bool _usePlayerModelPreview;
+
+        private void Awake()
+        {
+            _showTutorial = PlayerPrefs.GetInt(TutorialPreferenceKey, 1) != 0;
+        }
 
         internal static void Open(string prefabName = null)
         {
@@ -61,9 +85,26 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
-            window.CenterWindow();
-            window.enabled = true;
-            window.RefreshCandidates();
+            if (!window.enabled)
+            {
+                window.CenterWindow();
+                window.enabled = true;
+                window.RefreshCandidates();
+                if (window._session.SelectedObject != null)
+                {
+                    WackyDbObjectCandidate previous = window._selector.Resolve(window._session.SelectedObject.Name);
+                    if (previous != null)
+                    {
+                        window.SelectImmediately(previous);
+                    }
+                    else
+                    {
+                        window._session.ClearSelection();
+                        window._page = Page.Browse;
+                        window._status = "The previous object isn't loaded. Choose another in Browse.";
+                    }
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(prefabName))
             {
@@ -71,20 +112,19 @@ namespace wackydatabase.VisualEditor
                 WackyDbObjectCandidate candidate = window._selector.Resolve(window._searchText);
                 if (candidate != null)
                 {
+                    window._objectFilter = candidate.Type;
                     window.Select(candidate);
                 }
                 else
                 {
-                    window._status = "Prefab not found: " + window._searchText;
+                    window._objectFilter = WackyDbObjectType.Unknown;
+                    window._page = Page.Browse;
+                    window._status = "No exact prefab named " + window._searchText + ". Try the matches in Browse.";
                 }
-            }
-            else if (window._session.SelectedObject != null)
-            {
-                window.Select(window._session.SelectedObject);
             }
         }
 
-        internal static void Toggle()
+        private static void Toggle()
         {
             WackyDbCreateWindow window = EnsureInstance();
             if (!window)
@@ -102,25 +142,13 @@ namespace wackydatabase.VisualEditor
             }
         }
 
-        internal static void ToggleWithGameUi(string prefabName = null)
+        internal static void OpenWithGameUi(string prefabName = null)
         {
-            WackyDbCreateWindow window = EnsureInstance();
-            if (!window)
+            Open(prefabName);
+            if (_instance && _instance.enabled)
             {
-                return;
+                WMRecipeCust.context.StartCoroutine(PrepareGameUi());
             }
-
-            bool opening = !window.enabled || !string.IsNullOrWhiteSpace(prefabName);
-            if (!string.IsNullOrWhiteSpace(prefabName))
-            {
-                Open(prefabName);
-            }
-            else
-            {
-                Toggle();
-            }
-
-            WMRecipeCust.context.StartCoroutine(PrepareGameUi(opening));
         }
 
         internal static void ToggleFromHotkey()
@@ -131,10 +159,14 @@ namespace wackydatabase.VisualEditor
             }
 
             _lastHotkeyToggleFrame = Time.frameCount;
-            ToggleWithGameUi();
+            Toggle();
+            if (_instance && _instance.enabled && !_instance._pendingClose)
+            {
+                WMRecipeCust.context.StartCoroutine(PrepareGameUi());
+            }
         }
 
-        private static System.Collections.IEnumerator PrepareGameUi(bool opening)
+        private static System.Collections.IEnumerator PrepareGameUi()
         {
             yield return null;
 
@@ -145,7 +177,7 @@ namespace wackydatabase.VisualEditor
 
             yield return null;
 
-            if (opening && InventoryGui.instance)
+            if (_instance && _instance.enabled && InventoryGui.instance && !InventoryGui.IsVisible())
             {
                 InventoryGui.instance.Show(null);
             }
@@ -185,6 +217,20 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
+            if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
+            {
+                if (HasConfirmation)
+                {
+                    CancelConfirmation();
+                }
+                else
+                {
+                    Close();
+                }
+                Event.current.Use();
+                return;
+            }
+
             if (_fullScreen)
             {
                 _windowRect = new Rect(10f, 10f, Mathf.Max(300f, Screen.width - 20f), Mathf.Max(300f, Screen.height - 20f));
@@ -194,191 +240,250 @@ namespace wackydatabase.VisualEditor
                 _windowRect.width = Mathf.Min(_windowRect.width, Screen.width - 20f);
                 _windowRect.height = Mathf.Min(_windowRect.height, Screen.height - 20f);
             }
-            _windowRect = GUILayout.Window(WindowId, _windowRect, DrawWindow, "WackyDB Creator");
+            _windowRect = GUILayout.Window(WindowId, _windowRect, DrawWorkspace, "WackyDB Creator");
+            if (_toggleFullScreen)
+            {
+                _toggleFullScreen = false;
+                ToggleFullScreen();
+            }
             _windowRect.x = Mathf.Clamp(_windowRect.x, 0f, Mathf.Max(0f, Screen.width - _windowRect.width));
             _windowRect.y = Mathf.Clamp(_windowRect.y, 0f, Mathf.Max(0f, Screen.height - _windowRect.height));
         }
 
-        private void DrawWindow(int id)
+        private void DrawWorkspace(int id)
         {
+            EnsureStyles();
             if (GUI.Button(
                     new Rect(_windowRect.width - 38f, 2f, 32f, 20f),
-                    new GUIContent("X", "Close the creator. You will be warned about unsaved material changes.")))
+                    new GUIContent("X", "Close the creator (Esc).")))
             {
                 Close();
             }
 
+            bool hasSidePreview = _windowRect.width >= SidePreviewMinWidth;
+            Page page = hasSidePreview && _page == Page.Preview ? Page.Edit : _page;
             GUILayout.BeginVertical();
-            DrawToolbar();
-            GUILayout.Label("1. Choose an object  >  2. Choose a material slot  >  3. Customize the material  >  4. Save the result");
-            DrawTutorial();
+            DrawWorkspaceHeader();
+            if (HasConfirmation)
+            {
+                DrawConfirmationPanel();
+                GUILayout.FlexibleSpace();
+            }
+            else
+            {
+                DrawNavigation(page, hasSidePreview);
+                if (_showTutorial)
+                {
+                    DrawGuide(page);
+                }
 
-            GUILayout.Space(4f);
-            GUILayout.BeginHorizontal();
-            DrawObjectResults();
-            GUILayout.Space(8f);
-            DrawPreview();
-            GUILayout.Space(8f);
-            DrawSelectionDetails();
-            GUILayout.EndHorizontal();
+                GUILayout.Space(6f);
+                GUILayout.BeginHorizontal(GUILayout.ExpandHeight(true));
+                if (hasSidePreview)
+                {
+                    DrawPreview(Mathf.Min(380f, _windowRect.width * 0.36f));
+                    GUILayout.Space(8f);
+                }
 
-            DrawSavePanel();
-            DrawConfirmationPanel();
+                switch (page)
+                {
+                    case Page.Browse: DrawBrowser(); break;
+                    case Page.Preview: DrawPreview(Mathf.Min(440f, _windowRect.width - 24f)); break;
+                    case Page.Edit: DrawSelectionDetails(); break;
+                    case Page.Export: DrawSavePanel(); break;
+                }
+                GUILayout.EndHorizontal();
+            }
 
             if (!string.IsNullOrEmpty(_status))
             {
                 GUILayout.Space(4f);
-                GUILayout.Label("Status: " + _status);
+                GUILayout.Label(_status, _body);
             }
 
             GUILayout.Space(2f);
-            GUILayout.Label(
-                string.IsNullOrEmpty(GUI.tooltip)
-                    ? "Tip: Hover over a control to learn what it does."
-                    : "Tip: " + GUI.tooltip,
-                GUI.skin.box);
+            string tip = string.IsNullOrEmpty(GUI.tooltip) ? "Hover over a control for details." : GUI.tooltip;
+            GUILayout.Label(tip, _body, GUILayout.Height(32f));
 
             GUILayout.EndVertical();
-            GUI.DragWindow(new Rect(0f, 0f, _windowRect.width - 45f, 24f));
+            if (!_fullScreen)
+            {
+                GUI.DragWindow(new Rect(0f, 0f, _windowRect.width - 45f, 24f));
+            }
         }
 
-        private void DrawToolbar()
+        private void EnsureStyles()
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(new GUIContent("Find object", "Search by the internal prefab name or the in-game display name."), GUILayout.Width(70f));
-            _searchText = GUILayout.TextField(_searchText, GUILayout.ExpandWidth(true));
-
-            if (GUILayout.Button(new GUIContent("Clear", "Clear the search and show every available object."), GUILayout.Width(50f)))
+            if (_skinLabel == GUI.skin.label)
             {
-                _searchText = string.Empty;
-                _resultScroll = Vector2.zero;
+                return;
             }
-
-            if (GUILayout.Button(new GUIContent("Refresh", "Scan the currently loaded game and mods for objects, materials, and textures."), GUILayout.Width(75f)))
+            _skinLabel = GUI.skin.label;
+            _body = new GUIStyle(_skinLabel) { wordWrap = true, richText = false };
+            _heading = new GUIStyle(_body) { fontSize = 17, fontStyle = FontStyle.Bold };
+            _heading.normal.textColor = Accent;
+            _resultButton = new GUIStyle(GUI.skin.button)
             {
-                RefreshCandidates();
-            }
+                alignment = TextAnchor.MiddleLeft,
+                clipping = TextClipping.Clip,
+                wordWrap = false,
+                padding = new RectOffset(12, 12, 4, 4)
+            };
+        }
 
-            if (GUILayout.Button(new GUIContent(_fullScreen ? "Windowed" : "Full Screen", "Switch between the full-screen workspace and a movable window."), GUILayout.Width(85f)))
+        private static bool AccentButton(string label, bool highlighted, params GUILayoutOption[] options)
+        {
+            Color previous = GUI.backgroundColor;
+            if (highlighted)
             {
-                ToggleFullScreen();
+                GUI.backgroundColor = previous * Accent;
             }
+            bool pressed = GUILayout.Button(label, options);
+            GUI.backgroundColor = previous;
+            return pressed;
+        }
 
-            if (GUILayout.Button(new GUIContent(_showTutorial ? "Hide Guide" : "Show Guide", "Toggle the step-by-step tutorial. This preference is remembered."), GUILayout.Width(82f)))
+        private void DrawWorkspaceHeader()
+        {
+            GUILayout.BeginHorizontal(GUI.skin.box);
+            GUILayout.Label(HasUnsavedMaterialEdits ? "Material Studio | Unsaved edits" : "Material Studio", _heading);
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button(_fullScreen ? "Windowed" : "Full Screen"))
+            {
+                _toggleFullScreen = true;
+            }
+            if (GUILayout.Button(_showTutorial ? "Hide Guide" : "Show Guide"))
             {
                 _showTutorial = !_showTutorial;
                 PlayerPrefs.SetInt(TutorialPreferenceKey, _showTutorial ? 1 : 0);
                 PlayerPrefs.Save();
             }
-
-            if (GUILayout.Button(new GUIContent("Reset Edits", "Discard unsaved material edits and restore the original preview."), GUILayout.Width(78f)))
-            {
-                ResetUnsavedMaterialEdits();
-            }
-
             GUILayout.EndHorizontal();
         }
 
-        private void DrawTutorial()
+        private void DrawNavigation(Page activePage, bool hasSidePreview)
         {
-            if (!_showTutorial)
+            GUILayout.BeginHorizontal();
+            DrawPageButton(Page.Browse, activePage, "1. Browse");
+            if (!hasSidePreview)
             {
-                return;
+                DrawPageButton(Page.Preview, activePage, "Preview");
             }
-
-            int step;
-            string title;
-            string instruction;
-            if (_session.SelectedObject == null)
-            {
-                step = 1;
-                title = "Choose what to customize";
-                instruction = "Search on the left, then click an item or piece. The center preview helps confirm that you chose the right object.";
-            }
-            else if (!_session.SelectedRenderer || !_session.WorkingBaseMaterial)
-            {
-                step = 2;
-                title = "Choose the visible part to edit";
-                instruction = "On the right, open Renderer / Material Slots and click a slot. Objects can have separate materials for different visible parts.";
-            }
-            else if (string.IsNullOrWhiteSpace(_session.SelectedSharedMaterialName)
-                && !_session.MaterialChangesDirty)
-            {
-                step = 3;
-                title = "Name or choose a reusable material";
-                instruction = "Enter a unique shared material name, or open Existing Shared Material to reuse one. Then adjust colors, textures, or shader values.";
-            }
-            else
-            {
-                step = 4;
-                title = "Preview and save";
-                instruction = "Check the center preview. Save Overwrite changes this object; Clone New Object creates a separate object. Saving the object also saves required material changes.";
-            }
-
-            GUILayout.BeginVertical(GUI.skin.box);
-            GUILayout.Label("GUIDED MODE — Step " + step + " of 4: " + title);
-            GUILayout.Label(instruction);
-            GUILayout.EndVertical();
+            DrawPageButton(Page.Edit, activePage, "2. Edit");
+            DrawPageButton(Page.Export, activePage, "3. Export");
+            GUILayout.EndHorizontal();
         }
 
-        private void DrawObjectResults()
+        private void DrawPageButton(Page page, Page activePage, string label)
         {
-            List<WackyDbObjectCandidate> results = _selector.Search(_searchText);
+            if (AccentButton(label, page == activePage, GUILayout.Height(28f), GUILayout.ExpandWidth(true)))
+            {
+                GUI.FocusControl(null);
+                _previewDragging = false;
+                _page = page;
+            }
+        }
 
-            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(315f), GUILayout.ExpandHeight(true));
-            GUILayout.Label("Step 1 — Choose Object (" + results.Count + ")");
+        private void DrawGuide(Page page)
+        {
+            string instruction = page switch
+            {
+                Page.Browse => "Search by in-game name or prefab ID. Select a result to start editing.",
+                Page.Preview => "Drag to rotate. Click a visible part to find the material it uses.",
+                Page.Edit when !_session.WorkingBaseMaterial => "Choose a material slot, or click a part of the model to find it.",
+                Page.Edit => "Try a color or texture change. Check the preview, then open Export when you're ready.",
+                _ => "Start with a new copy to keep the original prefab unchanged. Export writes WackyDB YAML files."
+            };
+            GUILayout.Label(instruction, _body);
+        }
+
+        private void DrawBrowser()
+        {
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Find an object", _heading);
+            GUILayout.BeginHorizontal();
+            _searchText = GUILayout.TextField(_searchText);
+            if (GUILayout.Button("Clear", GUILayout.ExpandWidth(false)))
+            {
+                _searchText = string.Empty;
+            }
+            if (GUILayout.Button("Refresh", GUILayout.ExpandWidth(false)))
+            {
+                RefreshCandidates();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            DrawObjectFilter("Items", WackyDbObjectType.Item);
+            DrawObjectFilter("Pieces", WackyDbObjectType.Piece);
+            DrawObjectFilter("Other", WackyDbObjectType.Prefab);
+            DrawObjectFilter("All", WackyDbObjectType.Unknown);
+            GUILayout.EndHorizontal();
+
+            if (_results == null || _lastSearchText != _searchText || _lastObjectFilter != _objectFilter)
+            {
+                _lastSearchText = _searchText;
+                _lastObjectFilter = _objectFilter;
+                _results = _selector.Search(_searchText, _objectFilter);
+                _resultScroll = Vector2.zero;
+            }
+            GUILayout.Label(_results.Count == 0
+                ? "No matches. Try another search or switch to All."
+                : _results.Count > MaximumVisibleResults
+                    ? $"Showing {MaximumVisibleResults} of {_results.Count}. Search to narrow the list."
+                    : $"{_results.Count} matches", _body);
             _resultScroll = GUILayout.BeginScrollView(_resultScroll, GUILayout.ExpandHeight(true));
-
-            int visibleCount = Mathf.Min(results.Count, MaximumVisibleResults);
+            int visibleCount = Mathf.Min(_results.Count, MaximumVisibleResults);
             for (int index = 0; index < visibleCount; index++)
             {
-                WackyDbObjectCandidate candidate = results[index];
-                bool selected = _session.SelectedObject == candidate;
-                string label = (selected ? "[Selected] " : string.Empty) + candidate.Name + "  [" + candidate.Type + "]";
-                if (GUILayout.Button(new GUIContent(label, "Select this " + candidate.Type.ToString().ToLowerInvariant() + " for preview and editing."), GUILayout.Height(24f)))
+                WackyDbObjectCandidate candidate = _results[index];
+                bool selected = IsCurrentObject(candidate);
+                string label = candidate.Title == candidate.Name ? candidate.Name : $"{candidate.Title}  /  {candidate.Name}";
+                if (GUILayout.Button(new GUIContent((selected ? "> " : string.Empty) + label, $"{candidate.Type}: {candidate.Name}"),
+                    _resultButton, GUILayout.Height(28f), GUILayout.MinWidth(0f)))
                 {
                     Select(candidate);
                 }
-
-                if (!string.IsNullOrEmpty(candidate.DisplayName) && candidate.DisplayName != candidate.Name)
-                {
-                    GUILayout.Label("  " + candidate.DisplayName);
-                }
             }
-
-            if (results.Count > MaximumVisibleResults)
-            {
-                GUILayout.Label("Refine the search to view the remaining results.");
-            }
-
             GUILayout.EndScrollView();
             GUILayout.EndVertical();
         }
 
-        private void DrawPreview()
+        private void DrawObjectFilter(string label, WackyDbObjectType filter)
         {
-            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(310f), GUILayout.ExpandHeight(true));
-            GUILayout.Label(new GUIContent("Preview — click a part or drag to rotate", "Click a visible part to open its renderer's material slots. Drag, use the arrow buttons, or zoom to inspect material changes before saving."));
-
-            if (CanUsePlayerModelPreview())
+            if (AccentButton(label, _objectFilter == filter, GUILayout.ExpandWidth(true)))
             {
-                string previewModeLabel = _usePlayerModelPreview ? "Item model preview" : "Player model preview";
-                bool usePlayerModel = GUILayout.Toggle(_usePlayerModelPreview, previewModeLabel, GUI.skin.button);
-                if (usePlayerModel != _usePlayerModelPreview)
+                _objectFilter = filter;
+            }
+        }
+
+        private void DrawPreview(float width)
+        {
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(width), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Live preview", _heading);
+            GUILayout.Label(_session.SelectedObject?.Title ?? "No object selected", _body);
+            if (CanUsePlayerModelPreview() && GUILayout.Button(_usePlayerModelPreview ? "Show item model" : "Show on player"))
+            {
+                SaveCurrentMaterialEdit();
+                _usePlayerModelPreview = !_usePlayerModelPreview;
+                WackyDbRendererInfo selectedRendererInfo = _session.RendererInfos.Find(info => info.Renderer == _session.SelectedRenderer);
+                if (_session.SelectedRenderer && !IsRendererVisibleForPreview(selectedRendererInfo))
                 {
-                    SaveCurrentMaterialEdit();
-                    _usePlayerModelPreview = usePlayerModel;
-                    WackyDbRendererInfo selectedRendererInfo = _session.RendererInfos.Find(
-                        info => info.Renderer == _session.SelectedRenderer);
-                    if (_session.SelectedRenderer && !IsRendererVisibleForPreview(selectedRendererInfo))
-                    {
-                        _session.ClearMaterialSelection();
-                    }
-                    ResetPrefabPreview();
+                    _session.ClearMaterialSelection();
+                    _showRendererSlots = true;
                 }
+                _pickedRenderer = null;
+                RebuildPreview();
             }
 
-            Rect previewRect = GUILayoutUtility.GetRect(290f, 290f, GUILayout.ExpandWidth(true));
+            float size = Mathf.Min(width - 24f, Mathf.Max(96f, _windowRect.height - 315f));
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            Rect previewRect = GUILayoutUtility.GetRect(size, size, GUILayout.Width(size), GUILayout.Height(size));
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUI.Box(previewRect, GUIContent.none);
+
             if (_preview != null && _preview.HasPreview)
             {
                 if (Event.current.type == EventType.Repaint)
@@ -429,19 +534,18 @@ namespace wackydatabase.VisualEditor
             }
             else
             {
-                GUI.Box(previewRect, "Complete Step 1 to show a preview");
+                GUI.Box(previewRect, _session.SelectedObject == null ? "Choose an object in Browse" : "Preview unavailable");
             }
 
             GUILayout.FlexibleSpace();
             if (_preview != null && _preview.CanPickRenderer)
             {
-                GUILayout.Label("Click a visible part to locate its renderer.");
+                GUILayout.Label("Drag to rotate. Click a part to edit it.", _body);
             }
             else if (_usePlayerModelPreview)
             {
-                GUILayout.Label("Switch to item model preview to select a renderer by clicking.");
+                GUILayout.Label("Use the item model to select parts by clicking.", _body);
             }
-            GUILayout.Label("Preview clones are isolated from gameplay and source materials.");
             GUILayout.EndVertical();
         }
 
@@ -462,10 +566,15 @@ namespace wackydatabase.VisualEditor
             else if (current.type == EventType.MouseUp && _previewDragging)
             {
                 _previewDragging = false;
-                if ((current.mousePosition - _previewPointerDown).sqrMagnitude <= 16f)
+                if (previewRect.Contains(current.mousePosition) && (current.mousePosition - _previewPointerDown).sqrMagnitude <= 16f)
                 {
                     SelectPreviewRenderer(previewRect, current.mousePosition);
                 }
+                current.Use();
+            }
+            else if (current.type == EventType.ScrollWheel && previewRect.Contains(current.mousePosition))
+            {
+                _preview.Zoom(current.delta.y * 0.06f);
                 current.Use();
             }
         }
@@ -497,6 +606,8 @@ namespace wackydatabase.VisualEditor
             }
 
             _showRendererSlots = true;
+            _pickedRenderer = renderer;
+            _page = Page.Edit;
             _detailScroll = Vector2.zero;
             if (rendererInfo.Materials.Count == 1)
             {
@@ -577,70 +688,58 @@ namespace wackydatabase.VisualEditor
         private void DrawSelectionDetails()
         {
             GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Edit materials", _heading);
             if (_session.SelectedObject == null)
             {
-                GUILayout.Label("Nothing selected yet.");
-                GUILayout.Label("Start with Step 1 on the left: search for an item or piece, then click it to inspect its materials.");
+                GUILayout.Label("Choose an object in Browse to see its materials here.", _body);
                 GUILayout.EndVertical();
                 return;
             }
 
             WackyDbObjectCandidate selected = _session.SelectedObject;
-            GUILayout.Label("Prefab: " + selected.Name);
-            GUILayout.Label("Type: " + selected.Type);
-            if (!string.IsNullOrEmpty(selected.DisplayName))
-            {
-                GUILayout.Label("Display name: " + selected.DisplayName);
-            }
-
-            if (selected.Type == WackyDbObjectType.Piece)
-            {
-                GUILayout.Label("Piece hammer: " + selected.PieceHammer);
-            }
-
+            GUILayout.Label($"{selected.Title} / {selected.Type}: {selected.Name}", _body);
             _detailScroll = GUILayout.BeginScrollView(_detailScroll, GUILayout.ExpandHeight(true));
-            _showRendererSlots = GUILayout.Toggle(
-                _showRendererSlots,
-                (_showRendererSlots ? "Hide " : "Show ") + "Step 2 — Renderer / Material Slots (" + GetVisibleRendererCount() + ")",
-                GUI.skin.button);
+            int count = GetVisibleRendererCount();
+            _showRendererSlots = GUILayout.Toggle(_showRendererSlots,
+                (_showRendererSlots ? "Hide" : "Choose") + $" material slot ({count} renderers)", GUI.skin.button);
             if (_showRendererSlots)
             {
+                if (_pickedRenderer && GUILayout.Button("Show all renderers"))
+                {
+                    _pickedRenderer = null;
+                }
                 foreach (WackyDbRendererInfo rendererInfo in _session.RendererInfos)
                 {
-                    if (IsRendererVisibleForPreview(rendererInfo))
+                    if ((!_pickedRenderer || rendererInfo.Renderer == _pickedRenderer) && IsRendererVisibleForPreview(rendererInfo))
                     {
                         DrawRendererInfo(rendererInfo);
                     }
                 }
+                if (count == 0)
+                {
+                    GUILayout.Label("No editable renderers in this preview mode.", _body);
+                }
             }
-
             GUILayout.Space(4f);
             DrawMaterialEditor();
             GUILayout.EndScrollView();
-
             GUILayout.EndVertical();
         }
 
         private void DrawMaterialEditor()
         {
             GUILayout.BeginVertical(GUI.skin.box);
-            GUILayout.Label("Step 3 — Material Editor");
-            if (GUILayout.Button(new GUIContent("Reset preview materials to prefab defaults", "Restore this object's preview and discard its current in-memory material selection.")))
-            {
-                ResetPrefabPreview();
-                GUILayout.EndVertical();
-                return;
-            }
-
             if (!_session.SelectedRenderer || !_session.WorkingBaseMaterial)
             {
-                GUILayout.Label("Select a material slot below to begin editing.");
+                GUILayout.Label("Choose a slot above to reveal its color, texture, and shader controls.", _body);
                 GUILayout.EndVertical();
                 return;
             }
 
-            GUILayout.Label("Source material: " + _session.WorkingBaseMaterial.name);
-            GUILayout.Label("The source material is copied as the base for preview and editing.");
+            GUILayout.Label($"Slot {_session.SelectedMaterialSlot}: {_session.WorkingBaseMaterial.name}", _heading);
+            GUILayout.Label(_session.IsEditingExistingSharedMaterial
+                ? "Editing a shared material. Saving may affect other objects that use it."
+                : "Changes are previewed here before you export.", _body);
 
             _showSharedMaterialLibrary = GUILayout.Toggle(
                 _showSharedMaterialLibrary,
@@ -659,9 +758,8 @@ namespace wackydatabase.VisualEditor
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                float materialListWidth = Mathf.Max(180f, (_windowRect.width - 660f) * 0.75f);
-                GUILayout.BeginVertical(GUILayout.Width(materialListWidth));
-                List<string> matches = _materialLibrary.Search(_materialSearch, int.MaxValue);
+                GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+                List<string> matches = _materialLibrary.Search(_materialSearch, MaximumVisibleResults);
                 if (Event.current.type == EventType.Repaint)
                 {
                     _hoveredMaterialName = string.Empty;
@@ -671,10 +769,9 @@ namespace wackydatabase.VisualEditor
                 foreach (string materialName in matches)
                 {
                     string prefix = materialName == _materialLibrarySelection ? "[Selected] " : string.Empty;
-                    if (GUILayout.Button(new GUIContent(prefix + materialName, "Hover to preview this material.")))
+                    if (GUILayout.Button(new GUIContent(prefix + materialName, materialName), _resultButton, GUILayout.MinWidth(0f)))
                     {
                         _materialLibrarySelection = materialName;
-                        _materialSearch = materialName;
                     }
 
                     if (Event.current.type == EventType.Repaint
@@ -690,7 +787,7 @@ namespace wackydatabase.VisualEditor
                 GUILayout.EndHorizontal();
 
                 bool pickerEnabled = GUI.enabled;
-                GUI.enabled = !string.IsNullOrEmpty(_materialLibrarySelection);
+                GUI.enabled = pickerEnabled && !string.IsNullOrEmpty(_materialLibrarySelection);
                 if (GUILayout.Button("Apply Selected Shared Material"))
                 {
                     UseSharedMaterial(_materialLibrarySelection);
@@ -698,38 +795,23 @@ namespace wackydatabase.VisualEditor
                 GUI.enabled = pickerEnabled;
             }
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("New shared material name", GUILayout.Width(155f));
-            _session.NewMaterialName = GUILayout.TextField(_session.NewMaterialName);
-            GUILayout.EndHorizontal();
-            GUILayout.Label("Enter a name to create a reusable Material YAML.");
-
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("New Shared Material"))
+            if (_session.IsEditingExistingSharedMaterial && _sharedReferenceCount > 1)
             {
-                BeginNewSharedMaterial(false);
+                GUILayout.Label($"Used by {_sharedReferenceCount} object YAML files. Make a material copy to keep those objects unchanged.", _body);
             }
-            if (GUILayout.Button("Duplicate Current"))
+            if (!_session.IsCreatingNewMaterial && GUILayout.Button("Make a material copy"))
             {
-                BeginNewSharedMaterial(true);
-            }
-            GUILayout.EndHorizontal();
-
-            if (_session.IsEditingExistingSharedMaterial)
-            {
-                GUILayout.Label("Editing shared material: " + _session.SelectedSharedMaterialName);
-                if (_sharedReferenceCount > 1)
-                {
-                    GUILayout.Label("Warning: referenced by " + _sharedReferenceCount + " object YAML files. Duplicate is recommended.");
-                }
-            }
-            else if (_session.IsCreatingNewMaterial)
-            {
-                GUILayout.Label("Creating: " + _session.NewMaterialName);
+                DuplicateWorkingMaterial();
             }
 
-            DrawMaterialRouteEditor();
-            DrawPieceMaterialRouteEditor();
+            if (_session.MaterialRoute == WackyDbMaterialRoute.Chest)
+            {
+                SelectPreferredArmorTexture("_ChestTex");
+            }
+            else if (_session.MaterialRoute == WackyDbMaterialRoute.Legs)
+            {
+                SelectPreferredArmorTexture("_LegsTex", "_LegTex");
+            }
 
             bool supportsColorChanges = _session.WorkingChanges?.colors != null
                 && _session.WorkingChanges.colors.Count > 0;
@@ -769,6 +851,24 @@ namespace wackydatabase.VisualEditor
             if (_showFloatEditor)
             {
                 DrawWorkingFloats();
+            }
+            _showMaterialSettings = GUILayout.Toggle(_showMaterialSettings, "Advanced: material assignments", GUI.skin.button);
+            if (_showMaterialSettings)
+            {
+                DrawNewMaterialName();
+                DrawMaterialRouteEditor();
+                DrawPieceMaterialRouteEditor();
+            }
+            if (GUILayout.Button("Reset preview to prefab defaults"))
+            {
+                if (HasUnsavedMaterialEdits)
+                {
+                    _pendingReset = true;
+                }
+                else
+                {
+                    ResetPreviewEdits();
+                }
             }
             GUILayout.EndVertical();
         }
@@ -1010,11 +1110,9 @@ namespace wackydatabase.VisualEditor
                     break;
                 case WackyDbMaterialRoute.Chest:
                     GUILayout.Label("Saves as customVisual.chest and uses the material's _ChestTex texture.");
-                    SelectPreferredArmorTexture("_ChestTex");
                     break;
                 case WackyDbMaterialRoute.Legs:
                     GUILayout.Label("Saves as customVisual.legs and uses the material's leg texture property.");
-                    SelectPreferredArmorTexture("_LegsTex", "_LegTex");
                     break;
                 default:
                     GUILayout.Label("Saves to the standard material field. Recommended for most items.");
@@ -1280,94 +1378,215 @@ namespace wackydatabase.VisualEditor
 
         private void DrawSavePanel()
         {
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Export YAML", _heading);
             if (_session.SelectedObject == null)
+            {
+                GUILayout.Label("Choose an object in Browse before exporting.", _body);
+                GUILayout.EndVertical();
+                return;
+            }
+
+            _exportScroll = GUILayout.BeginScrollView(_exportScroll, GUILayout.ExpandHeight(true));
+            GUILayout.Label(_session.SelectedObject.Title, _body);
+            if (!_session.WorkingBaseMaterial)
+            {
+                GUILayout.Label("Choose a material slot in Edit before exporting.", _body);
+            }
+            else
+            {
+                DrawExportOptions();
+            }
+            if (!string.IsNullOrEmpty(_exporter.LastSavedPath) && GUILayout.Button("Open saved YAML folder"))
+            {
+                OpenSavedFolder();
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
+        }
+
+        private void DrawExportOptions()
+        {
+            bool objectSupported = _session.SelectedObject.Type is WackyDbObjectType.Item or WackyDbObjectType.Piece;
+            SaveMode mode = objectSupported ? _saveMode : SaveMode.Material;
+            GUILayout.BeginHorizontal();
+            if (objectSupported)
+            {
+                DrawSaveModeButton(SaveMode.Clone, mode, "New copy");
+                DrawSaveModeButton(SaveMode.Overwrite, mode, "Change original");
+            }
+            DrawSaveModeButton(SaveMode.Material, mode, "Material only");
+            GUILayout.EndHorizontal();
+
+            if (!objectSupported)
+            {
+                GUILayout.Label("Only items and building pieces can be exported as objects. You can still export this material.", _body);
+            }
+            if (_session.IsCreatingNewMaterial)
+            {
+                DrawNewMaterialName();
+            }
+            else
+            {
+                GUILayout.Label("Material: " + GetActiveMaterialName(), _body);
+            }
+
+            bool previousEnabled = GUI.enabled;
+            string materialName = GetActiveMaterialName();
+            if (mode == SaveMode.Material)
+            {
+                GUILayout.Label(CanSaveMaterial()
+                    ? "Writes a reusable material YAML without exporting the object."
+                    : "Enter a material ID, or make a copy in Edit if you're using a built-in material.", _body);
+                GUI.enabled = previousEnabled && CanSaveMaterial();
+                if (AccentButton("Export material YAML", true, GUILayout.Height(28f)))
+                {
+                    SaveMaterialYaml(true);
+                }
+            }
+            else
+            {
+                bool clone = mode == SaveMode.Clone;
+                if (clone)
+                {
+                    GUILayout.Label("Creates a separate item or building piece. Use a unique prefab ID.", _body);
+                    GUILayout.Label("New prefab ID", _body);
+                    _session.CloneName = GUILayout.TextField(_session.CloneName);
+                    GUILayout.Label("In-game name", _body);
+                    _session.DisplayName = GUILayout.TextField(_session.DisplayName);
+                }
+                else
+                {
+                    GUILayout.Label($"Applies the material to {_session.SelectedObject.Name} when its YAML is loaded.", _body);
+                }
+                if (!string.IsNullOrEmpty(_session.SnapshotIconName))
+                {
+                    GUILayout.Label("Custom icon: " + _session.SnapshotIconName, _body);
+                }
+                if (CanUseItemMaterialArray())
+                {
+                    GUILayout.Label($"Only slot {_session.SelectedMaterialSlot} in the material array changes.", _body);
+                }
+
+                string cloneId = _session.CloneName.Trim();
+                bool cloneNameTaken = clone && (string.Equals(cloneId, _session.SelectedObject.Name, StringComparison.OrdinalIgnoreCase)
+                    || _selector.Resolve(cloneId) != null);
+                bool cloneReady = !string.IsNullOrEmpty(cloneId) && !string.IsNullOrWhiteSpace(_session.DisplayName) && !cloneNameTaken;
+                if (!CanSaveObject(materialName) || (clone && !cloneReady))
+                {
+                    GUILayout.Label(string.IsNullOrEmpty(materialName)
+                        ? "Enter a material ID to continue."
+                        : cloneNameTaken ? "That prefab ID is already in use. Choose a new one."
+                        : "Enter a new prefab ID and an in-game name.", _body);
+                }
+                GUI.enabled = previousEnabled && CanSaveObject(materialName) && (!clone || cloneReady);
+                if (AccentButton(clone ? "Export new copy" : "Export changes to original", true, GUILayout.Height(28f)))
+                {
+                    if (clone)
+                    {
+                        SaveObject(true, false);
+                    }
+                    else
+                    {
+                        RequestOverwrite(false);
+                    }
+                }
+                if (!clone)
+                {
+                    bool canReload = ObjectDB.instance && WMRecipeCust.issettoSinglePlayer;
+                    GUI.enabled = GUI.enabled && canReload;
+                    if (GUILayout.Button("Export and reload now"))
+                    {
+                        RequestOverwrite(true);
+                    }
+                    GUI.enabled = previousEnabled;
+                    if (!canReload)
+                    {
+                        GUILayout.Label("Reload is only available in a loaded single-player world.", _body);
+                    }
+                }
+            }
+            GUI.enabled = previousEnabled;
+        }
+
+        private void DrawNewMaterialName()
+        {
+            if (!_session.IsCreatingNewMaterial)
             {
                 return;
             }
 
-            GUILayout.BeginVertical(GUI.skin.box);
-            GUILayout.Label("Step 4 — Save YAML");
-            string materialName = GetActiveMaterialName();
-            GUILayout.Label(string.IsNullOrEmpty(materialName)
-                ? "Material reference: choose an existing shared material or create a new one."
-                : "Material reference: " + materialName);
-            if (CanUseItemMaterialArray())
+            GUILayout.Label("Material ID (used to reference the reusable material)", _body);
+            string name = GUILayout.TextField(_session.NewMaterialName);
+            if (_session.NewMaterialName != name)
             {
-                GUILayout.Label("Multi-slot item: only selected slot " + _session.SelectedMaterialSlot + " will change in the materials array.");
+                _session.NewMaterialName = name;
+                _session.MaterialChangesDirty = true;
             }
+        }
 
-            GUILayout.BeginHorizontal();
-            bool previousEnabled = GUI.enabled;
-            GUI.enabled = CanSaveMaterial();
-            if (GUILayout.Button(new GUIContent("Save Material Only", "Save the reusable material YAML without saving or cloning the selected object.")))
+        private void DrawSaveModeButton(SaveMode mode, SaveMode activeMode, string label)
+        {
+            if (AccentButton(label, mode == activeMode, GUILayout.ExpandWidth(true)))
             {
-                SaveMaterialYaml(true);
+                _saveMode = mode;
             }
+        }
 
-            GUI.enabled = previousEnabled && CanSaveObject(materialName);
-            if (GUILayout.Button(new GUIContent("Save Object Overwrite", "Create YAML that applies this material to the selected object. Confirmation is required.")))
-            {
-                RequestOverwrite(false);
-            }
-            if (GUILayout.Button(new GUIContent("Save Overwrite + Reload", "Save the object overwrite and immediately reload WackyDB data in a single-player world.")))
-            {
-                RequestOverwrite(true);
-            }
-            GUI.enabled = previousEnabled;
-            GUILayout.EndHorizontal();
-            GUILayout.Label("Overwrite changes the selected prefab. Material YAML is saved automatically when required.");
-            if (!string.IsNullOrEmpty(_session.SnapshotIconName))
-            {
-                GUILayout.Label("Custom icon snapshot: " + _session.SnapshotIconName);
-            }
+        private bool HasConfirmation => _pendingSelection != null || _pendingClose || _pendingReset || _confirmOverwrite;
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Clone prefab name", GUILayout.Width(120f));
-            _session.CloneName = GUILayout.TextField(_session.CloneName);
-            GUILayout.Label("Display name", GUILayout.Width(80f));
-            _session.DisplayName = GUILayout.TextField(_session.DisplayName);
-            GUILayout.EndHorizontal();
-            GUILayout.Label("Clone prefab name creates a new item/piece. It is separate from the shared material name above.");
-
-            GUI.enabled = previousEnabled
-                && CanSaveObject(materialName)
-                && !string.IsNullOrWhiteSpace(_session.CloneName)
-                && !string.IsNullOrWhiteSpace(_session.DisplayName);
-            if (GUILayout.Button(new GUIContent("Clone as New Object", "Create a separate item or piece using the clone prefab name and display name above.")))
-            {
-                SaveObject(true, false);
-            }
-            GUI.enabled = previousEnabled;
-
-            if (!string.IsNullOrEmpty(_exporter.LastSavedPath) && GUILayout.Button("Open Saved YAML Folder"))
-            {
-                OpenSavedFolder();
-            }
-            GUILayout.EndVertical();
+        private void CancelConfirmation()
+        {
+            _pendingSelection = null;
+            _pendingClose = false;
+            _pendingReset = false;
+            _confirmOverwrite = false;
         }
 
         private void DrawConfirmationPanel()
         {
-            if (_pendingSelection != null || _pendingClose)
+            GUILayout.BeginVertical(GUI.skin.box);
+            if (_confirmOverwrite)
             {
-                GUILayout.BeginVertical(GUI.skin.box);
-                GUILayout.Label("Unsaved material changes will be discarded.");
+                GUILayout.Label("Change " + _session.SelectedObject.Name + "?", _heading);
+                GUILayout.Label(_confirmOverwriteReload
+                    ? "This can replace existing YAML for this prefab and reloads WackyDB data now."
+                    : "This can replace existing YAML for this prefab. Changes apply when WackyDB loads the file.", _body);
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Keep Editing"))
+                if (AccentButton("Cancel", true))
                 {
-                    _pendingSelection = null;
-                    _pendingClose = false;
+                    CancelConfirmation();
                 }
-                if (GUILayout.Button("Discard Changes"))
+                if (GUILayout.Button("Confirm overwrite"))
+                {
+                    bool reload = _confirmOverwriteReload;
+                    CancelConfirmation();
+                    SaveObject(false, reload);
+                }
+                GUILayout.EndHorizontal();
+            }
+            else
+            {
+                GUILayout.Label("Discard unsaved material edits?", _heading);
+                GUILayout.Label("This only affects the preview. YAML files you've already exported are not changed.", _body);
+                GUILayout.BeginHorizontal();
+                if (AccentButton("Keep editing", true))
+                {
+                    CancelConfirmation();
+                }
+                if (GUILayout.Button("Discard edits"))
                 {
                     WackyDbObjectCandidate selection = _pendingSelection;
                     bool close = _pendingClose;
-                    _pendingSelection = null;
-                    _pendingClose = false;
-                    _session.MaterialChangesDirty = false;
+                    bool reset = _pendingReset;
+                    CancelConfirmation();
                     if (close)
                     {
                         CloseImmediately();
+                    }
+                    else if (reset)
+                    {
+                        ResetPreviewEdits();
                     }
                     else if (selection != null)
                     {
@@ -1375,28 +1594,8 @@ namespace wackydatabase.VisualEditor
                     }
                 }
                 GUILayout.EndHorizontal();
-                GUILayout.EndVertical();
             }
-
-            if (_confirmOverwrite)
-            {
-                GUILayout.BeginVertical(GUI.skin.box);
-                GUILayout.Label("Overwrite the YAML for " + _session.SelectedObject.Name + "?");
-                GUILayout.Label("This replaces an existing file with the same name.");
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Cancel"))
-                {
-                    _confirmOverwrite = false;
-                }
-                if (GUILayout.Button("Confirm Overwrite"))
-                {
-                    bool reload = _confirmOverwriteReload;
-                    _confirmOverwrite = false;
-                    SaveObject(false, reload);
-                }
-                GUILayout.EndHorizontal();
-                GUILayout.EndVertical();
-            }
+            GUILayout.EndVertical();
         }
 
         private void RequestOverwrite(bool reload)
@@ -1438,7 +1637,7 @@ namespace wackydatabase.VisualEditor
         private void DrawRendererInfo(WackyDbRendererInfo rendererInfo)
         {
             GUILayout.BeginVertical(GUI.skin.box);
-            GUILayout.Label("Renderer: " + rendererInfo.Path);
+            GUILayout.Label(rendererInfo.Path, _body);
 
             if (rendererInfo.Materials.Count == 0)
             {
@@ -1449,33 +1648,14 @@ namespace wackydatabase.VisualEditor
             {
                 bool selected = _session.SelectedRenderer == rendererInfo.Renderer
                     && _session.SelectedMaterialSlot == materialInfo.Slot;
-                string prefix = selected ? "> " : string.Empty;
-
-                if (GUILayout.Button(new GUIContent(prefix + "Slot " + materialInfo.Slot + ": " + materialInfo.Name, "Edit this material slot. The source material is copied, so the original game material is not modified.")))
+                string label = (selected ? "> " : string.Empty) + $"Slot {materialInfo.Slot}: {materialInfo.Name}";
+                bool previousEnabled = GUI.enabled;
+                GUI.enabled = previousEnabled && materialInfo.Material;
+                if (GUILayout.Button(new GUIContent(label, $"{label}\nShader: {materialInfo.ShaderName}"), _resultButton, GUILayout.MinWidth(0f)))
                 {
                     SelectMaterialSlot(rendererInfo.Renderer, materialInfo);
                 }
-
-                GUILayout.Label("  Shader: " + materialInfo.ShaderName);
-                if (materialInfo.ColorProperties.Count == 0)
-                {
-                    GUILayout.Label("  Color properties: none");
-                }
-                else
-                {
-                    GUILayout.Label("  Color properties:");
-                    foreach (WackyDbShaderPropertyInfo property in materialInfo.ColorProperties)
-                    {
-                        Color value = property.ColorValue;
-                        GUILayout.Label(string.Format(
-                            "    {0}  R:{1:0.###} G:{2:0.###} B:{3:0.###} A:{4:0.###}",
-                            property.Name,
-                            value.r,
-                            value.g,
-                            value.b,
-                            value.a));
-                    }
-                }
+                GUI.enabled = previousEnabled;
             }
 
             GUILayout.EndVertical();
@@ -1483,6 +1663,7 @@ namespace wackydatabase.VisualEditor
 
         private void RefreshCandidates()
         {
+            _results = null;
             try
             {
                 _selector.Refresh();
@@ -1505,6 +1686,13 @@ namespace wackydatabase.VisualEditor
                 return;
             }
 
+            if (_session.SelectedRenderer == renderer && _session.SelectedMaterialSlot == materialInfo.Slot)
+            {
+                _showRendererSlots = false;
+                _detailScroll = Vector2.zero;
+                return;
+            }
+
             SaveCurrentMaterialEdit();
             _session.SelectedRenderer = renderer;
             _session.SelectedMaterialSlot = materialInfo.Slot;
@@ -1514,10 +1702,16 @@ namespace wackydatabase.VisualEditor
                     ? WackyDbMaterialRoute.Material
                     : GetDefaultMaterialRoute(_session.SelectedObject);
             }
+            _materialLibrarySelection = string.Empty;
+            _selectedTextureProperty = string.Empty;
+            _selectedTextureName = string.Empty;
+            _textureSearch = string.Empty;
             string editKey = WackyDbEditorSession.GetMaterialEditKey(renderer, materialInfo.Slot);
             if (_session.MaterialEdits.TryGetValue(editKey, out WackyDbMaterialEditState existingEdit))
             {
                 _session.RestoreMaterialEdit(existingEdit);
+                _sharedReferenceCount = _session.IsEditingExistingSharedMaterial
+                    ? _materialLibrary.CountYamlReferences(_session.SelectedSharedMaterialName) : 0;
                 _showRendererSlots = false;
                 _showColorEditor = true;
                 _detailScroll = Vector2.zero;
@@ -1535,15 +1729,11 @@ namespace wackydatabase.VisualEditor
             _showRendererSlots = false;
             _showColorEditor = true;
             _detailScroll = Vector2.zero;
-            _materialLibrarySelection = string.Empty;
-            _selectedTextureProperty = string.Empty;
-            _selectedTextureName = string.Empty;
-            _textureSearch = string.Empty;
             _sharedReferenceCount = 0;
             ApplyWorkingMaterial();
         }
 
-        private void SaveCurrentMaterialEdit(bool savedToYaml = false)
+        private void SaveCurrentMaterialEdit()
         {
             if (!_session.SelectedRenderer || !_session.WorkingBaseMaterial)
             {
@@ -1553,8 +1743,7 @@ namespace wackydatabase.VisualEditor
             string key = WackyDbEditorSession.GetMaterialEditKey(
                 _session.SelectedRenderer,
                 _session.SelectedMaterialSlot);
-            bool wasSaved = savedToYaml || (_session.MaterialEdits.TryGetValue(key, out WackyDbMaterialEditState existing) && existing.SavedToYaml);
-            _session.MaterialEdits[key] = _session.CaptureMaterialEdit(wasSaved);
+            _session.MaterialEdits[key] = _session.CaptureMaterialEdit();
         }
 
         private void UseSharedMaterial(string materialName)
@@ -1603,24 +1792,16 @@ namespace wackydatabase.VisualEditor
             ApplyWorkingMaterial();
         }
 
-        private void BeginNewSharedMaterial(bool duplicate)
+        private void DuplicateWorkingMaterial()
         {
             if (!_session.WorkingBaseMaterial)
             {
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(_session.NewMaterialName))
-            {
-                string baseName = string.IsNullOrEmpty(_session.SelectedSharedMaterialName)
-                    ? _session.WorkingBaseMaterial.name
-                    : _session.SelectedSharedMaterialName;
-                _session.NewMaterialName = baseName + (duplicate ? "_Copy" : "_Wacky");
-            }
-            else if (duplicate && _session.NewMaterialName == _session.SelectedSharedMaterialName)
-            {
-                _session.NewMaterialName += "_Copy";
-            }
+            string baseName = string.IsNullOrEmpty(_session.SelectedSharedMaterialName)
+                ? _session.WorkingBaseMaterial.name : _session.SelectedSharedMaterialName;
+            _session.NewMaterialName = baseName + "_Copy";
 
             _session.IsCreatingNewMaterial = true;
             _session.IsEditingExistingSharedMaterial = false;
@@ -1756,38 +1937,28 @@ namespace wackydatabase.VisualEditor
             _session.IsEditingExistingSharedMaterial = true;
             _materialLibrary.Refresh();
             _status = "Saved material YAML: " + _exporter.LastSavedPath;
-            SaveCurrentMaterialEdit(true);
+            SaveCurrentMaterialEdit();
             return true;
         }
 
-        private void ResetUnsavedMaterialEdits()
+        private bool HasUnsavedMaterialEdits
         {
-            SaveCurrentMaterialEdit();
-            List<string> unsavedEdits = new List<string>();
-            foreach (KeyValuePair<string, WackyDbMaterialEditState> edit in _session.MaterialEdits)
+            get
             {
-                if (!edit.Value.SavedToYaml)
+                if (_session.MaterialChangesDirty)
                 {
-                    unsavedEdits.Add(edit.Key);
+                    return true;
                 }
-            }
-
-            foreach (string key in unsavedEdits)
-            {
-                _session.MaterialEdits.Remove(key);
-            }
-
-            ResetPrefabPreview();
-            foreach (WackyDbMaterialEditState edit in _session.MaterialEdits.Values)
-            {
-                if (edit.Renderer && edit.WorkingBaseMaterial)
+                string activeKey = WackyDbEditorSession.GetMaterialEditKey(_session.SelectedRenderer, _session.SelectedMaterialSlot);
+                foreach (KeyValuePair<string, WackyDbMaterialEditState> edit in _session.MaterialEdits)
                 {
-                    _preview.ApplyMaterial(edit.Renderer, edit.Slot, edit.WorkingBaseMaterial, edit.WorkingChanges);
+                    if (edit.Key != activeKey && edit.Value.MaterialChangesDirty)
+                    {
+                        return true;
+                    }
                 }
+                return false;
             }
-            _status = unsavedEdits.Count == 0
-                ? "There were no unsaved material edits to reset."
-                : "Reset " + unsavedEdits.Count + " unsaved material edit(s). Saved YAML edits remain in the preview.";
         }
 
         private void SaveObject(bool clone, bool reload)
@@ -1971,11 +2142,30 @@ namespace wackydatabase.VisualEditor
             }
         }
 
-        private void ResetPrefabPreview()
+        private void ResetPreviewEdits()
+        {
+            _session.ClearMaterialSelection();
+            _session.MaterialEdits.Clear();
+            _session.BaseMaterialName = string.Empty;
+            _session.ChestMaterialName = string.Empty;
+            _session.LegsMaterialName = string.Empty;
+            _session.StandardMaterialName = string.Empty;
+            _session.PieceMaterialName = string.Empty;
+            _session.DamagedPieceMaterialName = string.Empty;
+            _showRendererSlots = true;
+            _pickedRenderer = null;
+            _detailScroll = Vector2.zero;
+            if (RebuildPreview())
+            {
+                _status = "Preview restored to prefab defaults. Exported files were not changed.";
+            }
+        }
+
+        private bool RebuildPreview()
         {
             if (_session.SelectedObject == null || !_session.SelectedObject.Prefab)
             {
-                return;
+                return false;
             }
 
             try
@@ -1984,17 +2174,21 @@ namespace wackydatabase.VisualEditor
                 {
                     _preview = new WackyDbPreviewRenderer();
                 }
-                _preview.SetPrefab(_session.SelectedObject.Prefab, _usePlayerModelPreview);
-                _session.ClearMaterialSelection();
-                _materialLibrarySelection = string.Empty;
-                _materialSearch = string.Empty;
-                _sharedReferenceCount = 0;
-                _status = "Preview materials restored from the original prefab.";
+                _preview.SetPrefab(_session.SelectedObject.Prefab, _usePlayerModelPreview && CanUsePlayerModelPreview());
+                foreach (WackyDbMaterialEditState edit in _session.MaterialEdits.Values)
+                {
+                    if (edit.Renderer && edit.WorkingBaseMaterial)
+                    {
+                        _preview.ApplyMaterial(edit.Renderer, edit.Slot, edit.WorkingBaseMaterial, edit.WorkingChanges);
+                    }
+                }
+                return true;
             }
             catch (Exception exception)
             {
-                _status = "Unable to reset preview: " + exception.Message;
+                _status = "Preview unavailable: " + exception.Message;
                 WMRecipeCust.WLog.LogWarning(_status);
+                return false;
             }
         }
 
@@ -2020,8 +2214,14 @@ namespace wackydatabase.VisualEditor
             if (_fullScreen)
             {
                 _fullScreen = false;
-                _windowRect = _normalWindowRect.width > 0f ? _normalWindowRect : _windowRect;
-                CenterWindow();
+                if (_normalWindowRect.width > 0f)
+                {
+                    _windowRect = _normalWindowRect;
+                }
+                else
+                {
+                    CenterWindow();
+                }
             }
             else
             {
@@ -2032,28 +2232,43 @@ namespace wackydatabase.VisualEditor
 
         private void Select(WackyDbObjectCandidate candidate)
         {
-            if (_session.SelectedObject != null
-                && _session.SelectedObject != candidate
-                && _session.MaterialChangesDirty)
+            if (IsCurrentObject(candidate))
             {
-                _pendingSelection = candidate;
-                _pendingClose = false;
+                _page = Page.Edit;
                 return;
             }
 
+            CancelConfirmation();
+            if (HasUnsavedMaterialEdits)
+            {
+                _pendingSelection = candidate;
+                return;
+            }
             SelectImmediately(candidate);
+        }
+
+        private bool IsCurrentObject(WackyDbObjectCandidate candidate)
+        {
+            WackyDbObjectCandidate current = _session.SelectedObject;
+            return current != null && current.Prefab == candidate.Prefab && current.Type == candidate.Type
+                && current.Name.Equals(candidate.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         private void SelectImmediately(WackyDbObjectCandidate candidate)
         {
             _session.ClearSelection();
             _session.SelectedObject = candidate;
+            _page = Page.Edit;
+            _saveMode = SaveMode.Clone;
             _detailScroll = Vector2.zero;
+            _exportScroll = Vector2.zero;
             _showRendererSlots = true;
+            _pickedRenderer = null;
+            _usePlayerModelPreview = false;
+            _showSharedMaterialLibrary = false;
+            _showMaterialSettings = false;
             _session.CloneName = candidate.Name + "_Wacky";
-            _session.DisplayName = string.IsNullOrEmpty(candidate.DisplayName)
-                ? candidate.Name + " Wacky"
-                : candidate.DisplayName + " Wacky";
+            _session.DisplayName = candidate.Title + " Wacky";
             _session.MaterialRoute = GetDefaultMaterialRoute(candidate);
 
             try
@@ -2069,19 +2284,7 @@ namespace wackydatabase.VisualEditor
                 WMRecipeCust.WLog.LogError(_status);
             }
 
-            try
-            {
-                if (_preview == null)
-                {
-                    _preview = new WackyDbPreviewRenderer();
-                }
-                _preview.SetPrefab(candidate.Prefab, _usePlayerModelPreview && CanUsePlayerModelPreview());
-            }
-            catch (Exception exception)
-            {
-                _status += " Preview unavailable: " + exception.Message;
-                WMRecipeCust.WLog.LogWarning("Preview unavailable for " + candidate.Name + ": " + exception.Message);
-            }
+            RebuildPreview();
         }
 
         private static WackyDbMaterialRoute GetDefaultMaterialRoute(WackyDbObjectCandidate candidate)
@@ -2101,10 +2304,11 @@ namespace wackydatabase.VisualEditor
 
         private void Close()
         {
-            if (_session.MaterialChangesDirty)
+            if (HasUnsavedMaterialEdits)
             {
-                ResetUnsavedMaterialEdits();
-                _session.MaterialChangesDirty = false;
+                CancelConfirmation();
+                _pendingClose = true;
+                return;
             }
 
             CloseImmediately();
@@ -2112,6 +2316,8 @@ namespace wackydatabase.VisualEditor
 
         private void CloseImmediately()
         {
+            CancelConfirmation();
+            _previewDragging = false;
             if (_preview != null)
             {
                 _preview.Dispose();

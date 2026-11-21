@@ -59,19 +59,23 @@ namespace wackydatabase.VisualEditor
             _candidates.AddRange(candidates.Values.OrderBy(candidate => candidate.Name, StringComparer.OrdinalIgnoreCase));
         }
 
-        internal List<WackyDbObjectCandidate> Search(string text)
+        internal List<WackyDbObjectCandidate> Search(string text, WackyDbObjectType filter)
         {
+            IEnumerable<WackyDbObjectCandidate> candidates = filter == WackyDbObjectType.Unknown
+                ? _candidates : _candidates.Where(candidate => candidate.Type == filter);
             if (string.IsNullOrWhiteSpace(text))
             {
-                return new List<WackyDbObjectCandidate>(_candidates);
+                return candidates.ToList();
             }
 
             string query = text.Trim();
-            return _candidates
+            return candidates
                 .Where(candidate => candidate.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0
                     || candidate.DisplayName.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
                 .OrderByDescending(candidate => candidate.Name.Equals(query, StringComparison.OrdinalIgnoreCase))
-                .ThenByDescending(candidate => candidate.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(candidate => candidate.Title.Equals(query, StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(candidate => candidate.Title.StartsWith(query, StringComparison.OrdinalIgnoreCase)
+                    || candidate.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase))
                 .ThenBy(candidate => candidate.Name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
@@ -122,7 +126,9 @@ namespace wackydatabase.VisualEditor
                 candidate.PieceHammer = pieceHammer;
             }
 
-            candidate.DisplayName = GetDisplayName(candidate.Prefab);
+            string displayName = GetDisplayName(candidate.Prefab);
+            candidate.DisplayName = displayName.StartsWith("$", StringComparison.Ordinal) && Localization.instance != null
+                ? Localization.instance.Localize(displayName) : displayName;
         }
 
         private static string GetDisplayName(GameObject prefab)

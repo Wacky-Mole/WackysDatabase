@@ -393,6 +393,12 @@ Now go forth, and let your creativity run wild with Rex's Material Management!
 
 ### Materials and CustomVisuals
 
+In a loaded world, open **Material Studio** with **F6** (the default hotkey) or `wackydb_create`. Use `wackydb_create [PrefabName]` to jump to a specific object.
+
+1. **Browse:** Search by in-game name or prefab ID. Use **Items**, **Pieces**, or **All** to narrow or widen the results.
+2. **Edit:** Choose a material slot, or click a part in the live preview to find its slot. Drag the model to rotate it. On smaller windows, open the **Preview** tab. Color, texture, and shader controls depend on the selected material.
+3. **Export:** Choose **New copy** to leave the original item or piece unchanged, **Change original** to apply changes to that prefab, or **Material only** to save a reusable material. To avoid changing other objects that use an existing shared material, choose **Make a material copy** in Edit before exporting.
+
 - `material` (string, optional): The name of the material
 - `customVisual` (CustomVisual, optional): A more specific targetting for materials, generally only useful for player armors.
 

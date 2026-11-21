@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.Generic;
 using UnityEngine;
 using wackydatabase.Datas;
 
@@ -25,7 +24,6 @@ namespace wackydatabase.VisualEditor
         internal bool IsEditingExistingSharedMaterial;
         internal bool IsCreatingNewMaterial;
         internal bool MaterialChangesDirty;
-        internal bool SavedToYaml;
     }
 
     internal enum WackyDbMaterialRoute
@@ -46,6 +44,7 @@ namespace wackydatabase.VisualEditor
     {
         internal string Name = string.Empty;
         internal string DisplayName = string.Empty;
+        internal string Title => string.IsNullOrWhiteSpace(DisplayName) ? Name : DisplayName;
         internal GameObject Prefab;
         internal WackyDbObjectType Type;
         internal string PieceHammer = string.Empty;
@@ -116,7 +115,7 @@ namespace wackydatabase.VisualEditor
             return renderer ? renderer.GetInstanceID() + ":" + slot : string.Empty;
         }
 
-        internal WackyDbMaterialEditState CaptureMaterialEdit(bool savedToYaml = false)
+        internal WackyDbMaterialEditState CaptureMaterialEdit()
         {
             return new WackyDbMaterialEditState
             {
@@ -129,8 +128,7 @@ namespace wackydatabase.VisualEditor
                 WorkingChanges = WorkingChanges,
                 IsEditingExistingSharedMaterial = IsEditingExistingSharedMaterial,
                 IsCreatingNewMaterial = IsCreatingNewMaterial,
-                MaterialChangesDirty = MaterialChangesDirty,
-                SavedToYaml = savedToYaml
+                MaterialChangesDirty = MaterialChangesDirty
             };
         }
 

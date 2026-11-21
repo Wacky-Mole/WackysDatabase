@@ -205,18 +205,9 @@ namespace wackydatabase.PatchClasses
             if (SceneManager.GetActiveScene().name != "main") return; // can't do anything from main 
 
             Terminal.ConsoleCommand WackyCreate =
-                new("wackydb_create", "Open the WackyDB material creator",
-                    args =>
-                    {
-                        if (args.Length > 1)
-                        {
-                            WackyDbCreateWindow.ToggleWithGameUi(args[1]);
-                        }
-                        else
-                        {
-                            WackyDbCreateWindow.ToggleWithGameUi();
-                        }
-                    }, isCheat: false, isNetwork: false, onlyServer: false, isSecret: false);
+                new("wackydb_create", "Open Material Studio. Usage: wackydb_create [PrefabName]",
+                    args => WackyDbCreateWindow.OpenWithGameUi(args.Length > 1 ? args[1] : null),
+                    isCheat: false, isNetwork: false, onlyServer: false, isSecret: false);
 
 
             Terminal.ConsoleCommand WackyShowcommands =
@@ -225,7 +216,7 @@ namespace wackydatabase.PatchClasses
                     {
                         string output = $"wackydb_reload -reloads on client or server\r\n" 
                         // + $"wackydb_reset \r\n"
-                        + $"wackydb_create [PrefabName] -Open the material creator\r\n"
+                        + $"wackydb_create [PrefabName] - Browse and edit materials in Material Studio\r\n"
                         + $"wackydb_save_recipe  [RecipeName](recipe output)\r\n"
                         + $"wackydb_save_piece [PieceName](piece output) \r\n"
                         + $"wackydb_save_item [ItemName](item Output)\r\n"
@@ -265,7 +256,7 @@ namespace wackydatabase.PatchClasses
                      {
                          string output = $"wackydb_reload\r\n"
                         // + $"wackydb_reset \r\n"
-                        + $"wackydb_create [PrefabName] -Open the material creator\r\n"
+                        + $"wackydb_create [PrefabName] - Browse and edit materials in Material Studio\r\n"
                         + $"wackydb_save_recipe  [RecipeName](recipe output)\r\n"
                         + $"wackydb_save_piece [PieceName](piece output) \r\n"
                         + $"wackydb_save_item [ItemName](item Output)\r\n"
